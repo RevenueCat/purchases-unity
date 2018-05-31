@@ -1,2 +1,2 @@
-# purchases-unity
-Support files for RevenueCat unity integration.
+# Purchases.framework for Unity
+See the [integration guide](https://docs.revenuecat.com/v1/docs/setting-up-unity-sdk) for details.
