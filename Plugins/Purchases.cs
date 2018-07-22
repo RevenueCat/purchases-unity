@@ -105,17 +105,26 @@ public class Purchases : MonoBehaviour
     [Tooltip("A subclass of Purchases.Listener component. Use your custom subclass to define how to handle events.")]
     public Listener listener;
 
+	private PurchasesWrapper wrapper;
+
 	void Start()
 	{
         string appUserID = (this.appUserID.Length == 0) ? null : this.appUserID;
-        PurchasesWrapper.Setup(gameObject.name, revenueCatAPIKey, appUserID);
-        PurchasesWrapper.GetProducts(productIdentifiers);
+
+        #if UNITY_ANDROID && !UNITY_EDITOR
+        this.wrapper = new GoogleAnalyticsAndroidV4();
+        #elif UNITY_IPHONE && !UNITY_EDITOR
+        this.wrapper = new GoogleAnalyticsiOSV3();
+        #endif
+
+        this.wrapper.Setup(gameObject.name, revenueCatAPIKey, appUserID);
+        this.wrapper.GetProducts(productIdentifiers);
 	}
 
     // Call this to initialte a purchase
     public void MakePurchase(string productIdentifier, string type = "subs")
     {
-        PurchasesWrapper.MakePurchase(productIdentifier, type);
+        this.wrapper.MakePurchase(productIdentifier, type);
     }
 
     [Serializable]
