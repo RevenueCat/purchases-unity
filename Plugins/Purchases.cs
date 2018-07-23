@@ -48,11 +48,11 @@ public class Purchases : MonoBehaviour
             }
         }
 
-        public DateTime LatestExpirationDate 
+        public DateTime LatestExpirationDate
         {
             get
             {
-                return DateTime.Parse(response.latestExpirationDate, null, DateTimeStyles.RoundtripKind );
+                return DateTime.Parse(response.latestExpirationDate, null, DateTimeStyles.RoundtripKind);
             }
         }
 
@@ -105,10 +105,10 @@ public class Purchases : MonoBehaviour
     [Tooltip("A subclass of Purchases.Listener component. Use your custom subclass to define how to handle events.")]
     public Listener listener;
 
-	private PurchasesWrapper wrapper;
+    private PurchasesWrapper wrapper;
 
-	void Start()
-	{
+    void Start()
+    {
         string appUserID = (this.appUserID.Length == 0) ? null : this.appUserID;
 
 #if UNITY_ANDROID && !UNITYEDITOR
@@ -119,7 +119,7 @@ public class Purchases : MonoBehaviour
 
         this.wrapper.Setup(gameObject.name, revenueCatAPIKey, appUserID);
         this.wrapper.GetProducts(productIdentifiers);
-	}
+    }
 
     // Call this to initialte a purchase
     public void MakePurchase(string productIdentifier, string type = "subs")
@@ -128,7 +128,8 @@ public class Purchases : MonoBehaviour
     }
 
     [Serializable]
-    private class ProductResponse {
+    private class ProductResponse
+    {
         public List<Product> products;
     }
 
@@ -139,7 +140,7 @@ public class Purchases : MonoBehaviour
     }
 
     [Serializable]
-    private class ReceivePurchaserInfoResponse 
+    private class ReceivePurchaserInfoResponse
     {
         public string productIdentifier;
         public PurchaserInfoResponse purchaserInfo;
@@ -164,11 +165,12 @@ public class Purchases : MonoBehaviour
         var info = (response.purchaserInfo.activeSubscriptions != null) ? new PurchaserInfo(response.purchaserInfo) : null;
 
 
-        if (response.productIdentifier != null) 
+        if (response.productIdentifier != null)
         {
             bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
             listener.PurchaseCompleted(response.productIdentifier, error, info, userCanceled);
-        } else if (info != null) 
+        }
+        else if (info != null)
         {
             listener.PurchaserInfoReceived(info);
         }

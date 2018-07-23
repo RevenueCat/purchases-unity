@@ -11,7 +11,7 @@ public class PurchasesWrapperiOS : PurchasesWrapper
         _RCSetupPurchases(gameObject, apiKey, appUserID);
     }
 
-    public class ProductsRequest
+	public class ProductsRequest
     {
         public string[] productIdentifiers;
     }
