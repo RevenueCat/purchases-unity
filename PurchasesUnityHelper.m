@@ -80,7 +80,6 @@ char* makeStringCopy(NSString* nstring) {
 
 - (NSDictionary *)purchaserInfoJSON:(RCPurchaserInfo *)info
 {
-    NSISO8601DateFormatter *formatter = [NSISO8601DateFormatter new];
     NSArray *productIdentifiers = info.allPurchasedProductIdentifiers.allObjects;
     NSArray *sorted = [productIdentifiers sortedArrayUsingSelector:@selector(compare:)];
 
@@ -91,14 +90,14 @@ char* makeStringCopy(NSString* nstring) {
         NSDate *date = [info expirationDateForProductIdentifier:productIdentifier];
         if (date) {
             [expirationDateKeys addObject:productIdentifier];
-            [expirationDateValues addObject:[formatter stringFromDate:date]];
+            [expirationDateValues addObject:@(date.timeIntervalSince1970)];
         }
     }
     
     return @{
              @"activeSubscriptions": info.activeSubscriptions.allObjects,
              @"allPurchasedProductIdentifiers": info.allPurchasedProductIdentifiers.allObjects,
-             @"latestExpirationDate": info.latestExpirationDate ? [formatter stringFromDate: info.latestExpirationDate] : [NSNull null],
+             @"latestExpirationDate": info.latestExpirationDate ? @(info.latestExpirationDate.timeIntervalSince1970) : [NSNull null],
              @"allExpirationDateKeys": expirationDateKeys,
              @"allExpirationDateValues": expirationDateValues
              };

@@ -52,9 +52,15 @@ public class Purchases : MonoBehaviour
         {
             get
             {
-                return DateTime.Parse(response.latestExpirationDate, null, DateTimeStyles.RoundtripKind);
+				return FromUnixTime(response.latestExpirationDate);
             }
         }
+
+		private static DateTime FromUnixTime(long unixTime)
+        {
+            return epoch.AddSeconds(unixTime);
+        }
+		private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public Dictionary<string, DateTime> AllExpirationDates
         {
@@ -63,7 +69,7 @@ public class Purchases : MonoBehaviour
                 Dictionary<string, DateTime> allExpirations = new Dictionary<string, DateTime>();
                 for (int i = 0; i < response.allExpirationDateKeys.Count; i++)
                 {
-                    var date = DateTime.Parse(response.allExpirationDateValues[i], null, DateTimeStyles.RoundtripKind | DateTimeStyles.AdjustToUniversal);
+					var date = FromUnixTime(response.allExpirationDateValues[i]);
                     if (date != null)
                     {
                         allExpirations[response.allExpirationDateKeys[i]] = date;
@@ -152,9 +158,9 @@ public class Purchases : MonoBehaviour
     {
         public List<string> activeSubscriptions;
         public List<string> allPurchasedProductIdentifiers;
-        public string latestExpirationDate;
+        public long latestExpirationDate;
         public List<string> allExpirationDateKeys;
-        public List<string> allExpirationDateValues;
+        public List<long> allExpirationDateValues;
     }
 
     private void _receivePurchaserInfo(string arguments)
