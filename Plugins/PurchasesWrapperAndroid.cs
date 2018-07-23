@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class PurchasesWrapperAndroid : PurchasesWrapper
 {
+    private class ProductsRequest
+    {
+        public string[] productIdentifiers;
+    }
+
     public void GetProducts(string[] productIdentifiers, string type = "subs")
     {
 		ProductsRequest request = new ProductsRequest
@@ -11,18 +16,16 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
             productIdentifiers = productIdentifiers
         };
         using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper")) {
-            purchases.CallStatic("getProductInfo", JsonUtility.ToJson(request), type);
+            purchases.CallStatic("getProducts", JsonUtility.ToJson(request), type);
         }
-    }
-
-    private class ProductsRequest
-    {
-        public string[] productIdentifiers;
     }
 
     public void MakePurchase(string productIdentifier, string type = "subs")
     {
-
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("makePurchase", productIdentifier, type);
+        }
     }
 
     public void Setup(string gameObject, string apiKey, string appUserID)

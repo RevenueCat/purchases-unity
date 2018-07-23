@@ -50,7 +50,7 @@ public class PurchasesWrapper {
         gameObject = gameObject_;
     }
 
-    public static void getProductInfo(String jsonProducts, String type) {
+    public static void getProducts(String jsonProducts, String type) {
         try {
             JSONObject request = new JSONObject(jsonProducts);
             JSONArray products = request.getJSONArray("productIdentifiers");
@@ -76,6 +76,10 @@ public class PurchasesWrapper {
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
         }
+    }
+
+    public static void makePurchase(String productIdentifier, String type) {
+        purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
 
     private static void sendSkuDetails(List<SkuDetails> skus) {
