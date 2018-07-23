@@ -10,6 +10,7 @@
 #import <StoreKit/StoreKit.h>
 
 #pragma mark Utility Methods
+
 NSString *convertCString(const char* string) {
     if (string)
         return [NSString stringWithUTF8String:string];

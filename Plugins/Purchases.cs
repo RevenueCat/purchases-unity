@@ -111,11 +111,11 @@ public class Purchases : MonoBehaviour
 	{
         string appUserID = (this.appUserID.Length == 0) ? null : this.appUserID;
 
-        #if UNITY_ANDROID && !UNITY_EDITOR
-        this.wrapper = new GoogleAnalyticsAndroidV4();
-        #elif UNITY_IPHONE && !UNITY_EDITOR
-        this.wrapper = new GoogleAnalyticsiOSV3();
-        #endif
+#if UNITY_ANDROID && !UNITYEDITOR
+        this.wrapper = new PurchasesWrapperAndroid();
+#elif UNITY_IPHONE && !UNITYEDITOR
+        this.wrapper = new PurchasesWrapperiOS();
+#endif
 
         this.wrapper.Setup(gameObject.name, revenueCatAPIKey, appUserID);
         this.wrapper.GetProducts(productIdentifiers);
