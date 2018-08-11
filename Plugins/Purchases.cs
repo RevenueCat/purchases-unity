@@ -128,13 +128,9 @@ public class Purchases : MonoBehaviour
     }
 
     // Call this to initialte a purchase
-    public void MakePurchase(string productIdentifier, string[] oldSku, string type = "subs")
+	public void MakePurchase(string productIdentifier, string type = "subs", string oldSku)
     {
-#if UNITY_ANDROID
-        ((this.wrapper) as PurchasesWrapperAndroid).MakePurchase(productIdentifier, oldSku, type);
-#else
-        this.MakePurchase(productIdentifier, type);
-#endif
+		this.MakePurchase(productIdentifier, type, oldSku);
     }
     
     // Call this to initialte a purchase
@@ -180,10 +176,15 @@ public class Purchases : MonoBehaviour
         var error = (response.error.message != null) ? response.error : null;
         var info = (response.purchaserInfo.activeSubscriptions != null) ? new PurchaserInfo(response.purchaserInfo) : null;
 
-#if UNITY_ANDROID
+	#if UNITY_ANDROID
+        bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
+    #else
+        bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
+    #endif
+        
         if (error != null)
         {
-            if (error != null && error.domain.Equals("1") && error.code == 1)
+			if (userCanceled)
             {
                 // send user cancelled message to the application
                 listener.PurchaseCompleted(null, null, null, true);
@@ -193,20 +194,12 @@ public class Purchases : MonoBehaviour
                 // send error message to the application
                 listener.PurchaseCompleted(response.productIdentifier, error, info, false);
             }
-        }
-        else
-#endif
-        if (response.productIdentifier != null)
-        {
-#if UNITY_ANDROID
-                bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
-#else
-                bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
-#endif
-
+        } 
+		else if (response.productIdentifier != null)
+        {         
             listener.PurchaseCompleted(response.productIdentifier, error, info, userCanceled);
-        }
-        else if (info != null)
+        } 
+		else if (info != null)
         {
             listener.PurchaserInfoReceived(info);
         }
