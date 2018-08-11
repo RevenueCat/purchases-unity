@@ -128,15 +128,9 @@ public class Purchases : MonoBehaviour
     }
 
     // Call this to initialte a purchase
-	public void MakePurchase(string productIdentifier, string type = "subs", string oldSku)
+	public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
     {
 		this.MakePurchase(productIdentifier, type, oldSku);
-    }
-    
-    // Call this to initialte a purchase
-    public void MakePurchase(string productIdentifier, string type = "subs")
-    {
-        this.wrapper.MakePurchase(productIdentifier, type);
     }
 
     [Serializable]
