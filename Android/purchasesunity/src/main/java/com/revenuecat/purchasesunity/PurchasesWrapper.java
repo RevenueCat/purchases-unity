@@ -82,6 +82,13 @@ public class PurchasesWrapper {
         }
     }
 
+    // makePurchase to upgrade/downgrade current subscriptions
+    public static void makePurchase(String productIdentifier, String type, String oldSku) {
+        ArrayList<String> oldSkuList = new ArrayList<>();
+        oldSkuList.add(oldSku);
+        purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type, oldSkuList);
+    }
+
     public static void makePurchase(String productIdentifier, String type) {
         purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
@@ -119,7 +126,7 @@ public class PurchasesWrapper {
         try {
             error.put("domain", domain);
             error.put("code", code);
-            error.put("reason", reason);
+            error.put("message", reason);
         } catch (JSONException e) {
             logJSONException(e);
         }
