@@ -34,4 +34,11 @@ public class PurchasesWrapperiOS : PurchasesWrapper
     {
         _RCMakePurchase(productIdentifier, type);
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCRestoreTransactions();
+	public void RestoreTransactions()
+	{
+        _RCRestoreTransactions();
+	}
 }

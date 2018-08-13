@@ -38,4 +38,9 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
             purchases.CallStatic("setup", apiKey, appUserID, gameObject);
         }
     }
+
+	public void RestoreTransactions()
+    {
+        
+    }
 }

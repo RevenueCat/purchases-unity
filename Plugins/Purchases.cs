@@ -133,6 +133,11 @@ public class Purchases : MonoBehaviour
 		this.MakePurchase(productIdentifier, type, oldSku);
     }
 
+	public void RestoreTransactions()
+	{
+		this.wrapper.RestoreTransactions();
+	}
+
     [Serializable]
     private class ProductResponse
     {

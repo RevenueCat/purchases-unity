@@ -7,4 +7,5 @@ public interface PurchasesWrapper
 	void Setup(string gameObject, string apiKey, string appUserID);
 	void GetProducts(string[] productIdentifiers, string type = "subs");
 	void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null);
+	void RestoreTransactions();
 }
