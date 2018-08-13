@@ -41,6 +41,9 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
 
 	public void RestoreTransactions()
     {
-        
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("restoreTransactions");
+        }
     }
 }
