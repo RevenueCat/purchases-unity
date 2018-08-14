@@ -104,7 +104,7 @@ public class PurchasesWrapper {
                 JSONObject skuObject = new JSONObject();
                 skuObject.put("identifier", sku.getSku());
                 skuObject.put("description", sku.getDescription());
-                skuObject.put("price", sku.getPriceAmountMicros() / 1000.0);
+                skuObject.put("price", sku.getPriceAmountMicros() / 1000000.0);
                 skuObject.put("priceString", sku.getPrice());
                 products.put(skuObject);
             } catch (JSONException e) {
