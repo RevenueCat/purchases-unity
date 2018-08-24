@@ -41,4 +41,11 @@ public class PurchasesWrapperiOS : PurchasesWrapper
 	{
         _RCRestoreTransactions();
 	}
+
+	[DllImport("__Internal")]
+	private static extern void _RCAddAttributionData(string network, string data);
+	public void AddAttributionData(string network, string data)
+	{
+		_RCAddAttributionData(network, data);
+	}
 }

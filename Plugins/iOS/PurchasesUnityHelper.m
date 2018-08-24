@@ -138,6 +138,25 @@ char* makeStringCopy(NSString* nstring) {
     [self.purchases restoreTransactionsForAppStoreAccount];
 }
 
+- (void)addAttributionData:(NSString *)dataJSON network:(NSString *)network
+{
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding] 
+                                                             options:0 
+                                                               error:&error];
+
+    if (error) {
+        NSLog(@"Error reading attribution data: %@", error.localizedDescription);
+        return;
+    }
+
+    if ([network isEqualToString:@"adjust"]) {
+        [self.purchases addAttributionData:data fromNetwork:RCAttributionNetworkAdjust];
+    } else {
+        NSLog(@"Unsupported network: %@", network);
+    }
+}
+
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName
 {
     NSError *error = nil;
@@ -256,6 +275,11 @@ void _RCMakePurchase(const char *productIdentifier, const char *type)
 void _RCRestoreTransactions()
 {
     [_RCUnityHelperShared() restoreTransactions];
+}
+
+void _RCAddAttributionData(const char *network, const char *data) 
+{
+    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:convertCString(network)];
 }
 
 

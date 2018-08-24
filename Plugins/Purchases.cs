@@ -115,7 +115,7 @@ public class Purchases : MonoBehaviour
 
     void Start()
     {
-        string appUserID = (this.appUserID.Length == 0) ? null : this.appUserID;
+        string appUserID = (string.IsNullOrEmpty(this.appUserID)) ? null : this.appUserID;
 
 #if UNITY_ANDROID && !UNITYEDITOR
         this.wrapper = new PurchasesWrapperAndroid();
@@ -130,13 +130,29 @@ public class Purchases : MonoBehaviour
     // Call this to initialte a purchase
 	public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
     {
-		this.MakePurchase(productIdentifier, type, oldSku);
+		this.wrapper.MakePurchase(productIdentifier, type, oldSku);
     }
 
 	public void RestoreTransactions()
 	{
 		this.wrapper.RestoreTransactions();
 	}
+
+    [Serializable]
+    public class AdjustData {
+        public string adid;
+        public string network;
+        public string adgroup;
+        public string campaign;
+        public string creative;
+        public string clickLabel;
+        public string trackerName;
+        public string trackerToken;
+    }
+
+    public void AddAdjustAttributionData(AdjustData data) {
+		this.wrapper.AddAttributionData("adjust", JsonUtility.ToJson(data));
+    }
 
     [Serializable]
     private class ProductResponse

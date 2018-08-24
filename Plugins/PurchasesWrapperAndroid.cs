@@ -46,4 +46,9 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
             purchases.CallStatic("restoreTransactions");
         }
     }
+
+    public void AddAttributionData(string network, string data)
+    {
+        
+    }
 }
