@@ -106,6 +106,7 @@ public class PurchasesWrapper {
                 skuObject.put("description", sku.getDescription());
                 skuObject.put("price", sku.getPriceAmountMicros() / 1000000.0);
                 skuObject.put("priceString", sku.getPrice());
+                skuObject.put("title", sku.getTitle());
                 products.put(skuObject);
             } catch (JSONException e) {
                 logJSONException(e);
