@@ -51,6 +51,11 @@ public class PurchasesWrapper {
 
     public static void setup(String apiKey, String appUserId, String gameObject_) {
         gameObject = gameObject_;
+
+        if (purchases != null) {
+            purchases.close();
+        }
+        
         purchases = new Purchases.Builder(UnityPlayer.currentActivity, apiKey, listener).appUserID(appUserId).build();
     }
 
