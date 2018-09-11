@@ -11,8 +11,39 @@ public class Purchases : MonoBehaviour
     public abstract class Listener : MonoBehaviour
     {
         public abstract void ProductsReceived(List<Product> products);
-        public abstract void PurchaseCompleted(string productIdentifier, Error error, PurchaserInfo purchaserInfo, bool userCanceled);
+
+        public abstract void PurchaseCompleted(string productIdentifier, Error error, PurchaserInfo purchaserInfo,
+            bool userCanceled);
+
         public abstract void PurchaserInfoReceived(PurchaserInfo purchaserInfo);
+    }
+
+    private class PurchasesWrapperNoop : PurchasesWrapper
+    {
+        public void Setup(string gameObject, string apiKey, string appUserID)
+        {
+            
+        }
+
+        public void AddAttributionData(string network, string data)
+        {
+			
+        }
+
+        public void GetProducts(string[] productIdentifiers, string type = "subs")
+        {
+            
+        }
+
+        public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
+        {
+            
+        }
+
+        public void RestoreTransactions()
+        {
+            
+        }
     }
 
     /*
@@ -26,6 +57,7 @@ public class Purchases : MonoBehaviour
     public class PurchaserInfo
     {
         private PurchaserInfoResponse response;
+
         public PurchaserInfo(PurchaserInfoResponse response)
         {
             this.response = response;
@@ -34,33 +66,25 @@ public class Purchases : MonoBehaviour
 
         public List<string> ActiveSubscriptions
         {
-            get
-            {
-                return response.activeSubscriptions;
-            }
+            get { return response.activeSubscriptions; }
         }
 
         public List<string> AllPurchasedProductIdentifiers
         {
-            get
-            {
-                return response.allPurchasedProductIdentifiers;
-            }
+            get { return response.allPurchasedProductIdentifiers; }
         }
 
         public DateTime LatestExpirationDate
         {
-            get
-            {
-				return FromUnixTime(response.latestExpirationDate);
-            }
+            get { return FromUnixTime(response.latestExpirationDate); }
         }
 
-		private static DateTime FromUnixTime(long unixTime)
+        private static DateTime FromUnixTime(long unixTime)
         {
             return epoch.AddSeconds(unixTime);
         }
-		private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public Dictionary<string, DateTime> AllExpirationDates
         {
@@ -69,16 +93,16 @@ public class Purchases : MonoBehaviour
                 Dictionary<string, DateTime> allExpirations = new Dictionary<string, DateTime>();
                 for (int i = 0; i < response.allExpirationDateKeys.Count; i++)
                 {
-					var date = FromUnixTime(response.allExpirationDateValues[i]);
+                    var date = FromUnixTime(response.allExpirationDateValues[i]);
                     if (date != null)
                     {
                         allExpirations[response.allExpirationDateKeys[i]] = date;
                     }
                 }
+
                 return allExpirations;
             }
         }
-
     }
 
     [Serializable]
@@ -102,7 +126,8 @@ public class Purchases : MonoBehaviour
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     public string revenueCatAPIKey;
 
-    [Tooltip("App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
+    [Tooltip(
+        "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
     public string appUserID;
 
     [Tooltip("List of product identifiers.")]
@@ -115,32 +140,60 @@ public class Purchases : MonoBehaviour
 
     void Start()
     {
-        string appUserID = (this.appUserID.Length == 0) ? null : this.appUserID;
+        string appUserID = (string.IsNullOrEmpty(this.appUserID)) ? null : this.appUserID;
 
-#if UNITY_ANDROID && !UNITYEDITOR
-        this.wrapper = new PurchasesWrapperAndroid();
-#elif UNITY_IPHONE && !UNITYEDITOR
-        this.wrapper = new PurchasesWrapperiOS();
-#endif
-
-        this.wrapper.Setup(gameObject.name, revenueCatAPIKey, appUserID);
-        this.wrapper.GetProducts(productIdentifiers);
-    }
-
-    // Call this to initialte a purchase
-    public void MakePurchase(string productIdentifier, string[] oldSku, string type = "subs")
-    {
-#if UNITY_ANDROID
-        ((this.wrapper) as PurchasesWrapperAndroid).MakePurchase(productIdentifier, oldSku, type);
+#if UNITY_ANDROID && !UNITY_EDITOR
+        wrapper = new PurchasesWrapperAndroid();
+#elif UNITY_IPHONE && !UNITY_EDITOR
+        wrapper = new PurchasesWrapperiOS();
 #else
-        this.MakePurchase(productIdentifier, type);
+        wrapper = new PurchasesWrapperNoop();
 #endif
+
+        Setup(appUserID);
+        GetProducts(productIdentifiers);
     }
-    
-    // Call this to initialte a purchase
-    public void MakePurchase(string productIdentifier, string type = "subs")
+
+    // Call this if you want to reset with a new user id
+    public void Setup(string newUserID)
     {
-        this.wrapper.MakePurchase(productIdentifier, type);
+        wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserID);
+    }
+
+    // Optionally call this if you want to fetch more products, 
+    // called automatically with pre-configured products
+    public void GetProducts(string[] products)
+    {
+        wrapper.GetProducts(products);
+    }
+
+    // Call this to initiate a purchase
+    public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
+    {
+        wrapper.MakePurchase(productIdentifier, type, oldSku);
+    }
+
+    public void RestoreTransactions()
+    {
+        wrapper.RestoreTransactions();
+    }
+
+    [Serializable]
+    public class AdjustData
+    {
+        public string adid;
+        public string network;
+        public string adgroup;
+        public string campaign;
+        public string creative;
+        public string clickLabel;
+        public string trackerName;
+        public string trackerToken;
+    }
+
+    public void AddAdjustAttributionData(AdjustData data)
+    {
+        wrapper.AddAttributionData("adjust", JsonUtility.ToJson(data));
     }
 
     [Serializable]
@@ -178,12 +231,19 @@ public class Purchases : MonoBehaviour
         var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(arguments);
 
         var error = (response.error.message != null) ? response.error : null;
-        var info = (response.purchaserInfo.activeSubscriptions != null) ? new PurchaserInfo(response.purchaserInfo) : null;
+        var info = (response.purchaserInfo.activeSubscriptions != null)
+            ? new PurchaserInfo(response.purchaserInfo)
+            : null;
 
 #if UNITY_ANDROID
+        bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
+#else
+        bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
+    #endif
+
         if (error != null)
         {
-            if (error != null && error.domain.Equals("1") && error.code == 1)
+            if (userCanceled)
             {
                 // send user cancelled message to the application
                 listener.PurchaseCompleted(null, null, null, true);
@@ -194,16 +254,8 @@ public class Purchases : MonoBehaviour
                 listener.PurchaseCompleted(response.productIdentifier, error, info, false);
             }
         }
-        else
-#endif
-        if (response.productIdentifier != null)
+        else if (response.productIdentifier != null)
         {
-#if UNITY_ANDROID
-                bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
-#else
-                bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
-#endif
-
             listener.PurchaseCompleted(response.productIdentifier, error, info, userCanceled);
         }
         else if (info != null)

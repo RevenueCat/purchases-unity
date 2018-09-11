@@ -98,6 +98,10 @@ public class PurchasesWrapper {
         purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
 
+    public static void restoreTransactions() {
+        purchases.restorePurchasesForPlayStoreAccount();
+    }
+
     private static void logJSONException(JSONException e) {
         Log.e("Purchases", "JSON Error: " + e.getLocalizedMessage());
     }

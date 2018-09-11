@@ -30,8 +30,22 @@ public class PurchasesWrapperiOS : PurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCMakePurchase(string productIdentifier, string type);
-    public void MakePurchase(string productIdentifier, string type = "subs")
+    public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
     {
         _RCMakePurchase(productIdentifier, type);
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCRestoreTransactions();
+	public void RestoreTransactions()
+	{
+        _RCRestoreTransactions();
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _RCAddAttributionData(string network, string data);
+	public void AddAttributionData(string network, string data)
+	{
+		_RCAddAttributionData(network, data);
+	}
 }

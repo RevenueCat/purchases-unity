@@ -20,26 +20,15 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
         }
     }
 
-    public void MakePurchase(string productIdentifier, string[] oldSkus = null, string type = "subs")
+	public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
     {
         using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
         {
-            if (oldSkus == null)
-            {
-                purchases.CallStatic("makePurchase", productIdentifier, type);
-            }
-            else
-            {
-                purchases.CallStatic("makePurchase", productIdentifier, type, oldSkus[0]);
-            }
-        }
-    }
-
-    public void MakePurchase(string productIdentifier, string type = "subs")
-    {
-        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("makePurchase", productIdentifier, type);
+			if (oldSku == null) {
+				purchases.CallStatic("makePurchase", productIdentifier, type);
+			} else {
+				purchases.CallStatic("makePurchase", productIdentifier, type, oldSku);
+			}
         }
     }
 
@@ -48,5 +37,18 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
         using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper")) {
             purchases.CallStatic("setup", apiKey, appUserID, gameObject);
         }
+    }
+
+	public void RestoreTransactions()
+    {
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("restoreTransactions");
+        }
+    }
+
+    public void AddAttributionData(string network, string data)
+    {
+        
     }
 }

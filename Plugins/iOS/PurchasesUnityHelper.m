@@ -5,9 +5,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Purchases/RCPurchases.h>
-#import <Purchases/RCPurchaserInfo.h>
 #import <StoreKit/StoreKit.h>
+#import "RCPurchases.h"
+#import "RCPurchaserInfo.h"
 
 #pragma mark Utility Methods
 
@@ -133,6 +133,30 @@ char* makeStringCopy(NSString* nstring) {
     [self.purchases makePurchase:product];
 }
 
+- (void)restoreTransactions
+{
+    [self.purchases restoreTransactionsForAppStoreAccount];
+}
+
+- (void)addAttributionData:(NSString *)dataJSON network:(NSString *)network
+{
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding] 
+                                                             options:0 
+                                                               error:&error];
+
+    if (error) {
+        NSLog(@"Error reading attribution data: %@", error.localizedDescription);
+        return;
+    }
+
+    if ([network isEqualToString:@"adjust"]) {
+        [self.purchases addAttributionData:data fromNetwork:RCAttributionNetworkAdjust];
+    } else {
+        NSLog(@"Unsupported network: %@", network);
+    }
+}
+
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName
 {
     NSError *error = nil;
@@ -202,6 +226,14 @@ completedTransaction:(nonnull SKPaymentTransaction *)transaction
     [self sendPurchaserInfo:purchaserInfo completedTransaction:nil error:nil];
 }
 
+- (void)purchases:(RCPurchases *)purchases restoredTransactionsWithPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
+    [self sendPurchaserInfo:purchaserInfo completedTransaction:nil error:nil];
+}
+
+- (void)purchases:(RCPurchases *)purchases failedToRestoreTransactionsWithError:(NSError *)error {
+    [self sendPurchaserInfo:nil completedTransaction:nil error:error];
+}
+
 @end
 
 #pragma mark Bridging Methods
@@ -238,6 +270,16 @@ void _RCGetProducts(const char *productIdentifiersJSON, const char *type)
 void _RCMakePurchase(const char *productIdentifier, const char *type)
 {
     [_RCUnityHelperShared() makePurchase:convertCString(productIdentifier)];
+}
+
+void _RCRestoreTransactions()
+{
+    [_RCUnityHelperShared() restoreTransactions];
+}
+
+void _RCAddAttributionData(const char *network, const char *data) 
+{
+    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:convertCString(network)];
 }
 
 
