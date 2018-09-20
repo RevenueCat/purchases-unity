@@ -1,0 +1,3 @@
+target 'Unity-iPhone' do
+  pod 'Purchases'
+end
