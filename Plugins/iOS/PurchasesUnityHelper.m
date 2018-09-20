@@ -6,6 +6,7 @@
 
 #import <Foundation/Foundation.h>
 #import <StoreKit/StoreKit.h>
+#import <AdSupport/AdSupport.h>
 #import "RCPurchases.h"
 #import "RCPurchaserInfo.h"
 
@@ -151,6 +152,15 @@ char* makeStringCopy(NSString* nstring) {
     }
 
     if ([network isEqualToString:@"adjust"]) {
+        
+        // If idfa is available, add it
+        NSString *idfa = ASIdentifierManager.sharedManager.advertisingIdentifier.UUIDString;
+        if (idfa) {
+            NSMutableDictionary *newData = [NSMutableDictionary dictionaryWithDictionary:data];
+            newData[@"rc_idfa"] = idfa;
+            data = [NSDictionary dictionaryWithDictionary:newData];
+        }
+        
         [self.purchases addAttributionData:data fromNetwork:RCAttributionNetworkAdjust];
     } else {
         NSLog(@"Unsupported network: %@", network);
