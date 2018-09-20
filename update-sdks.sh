@@ -1,5 +1,4 @@
 #!/bin/bash
-
 IOS_SDK_VERSION=1.1.4
 ANDROID_SDK_VERSION=1.3.5
 
@@ -20,13 +19,17 @@ pushd purchases-ios-$IOS_SDK_VERSION
 
 find Purchases/Classes -iname '*.h' -exec cp \{\} /$IOS_UNITY_DIR/ \;
 find Purchases/Classes -iname '*.m' -exec cp \{\} /$IOS_UNITY_DIR/ \;
-rm $IOS_UNITY_DIR/Purchase_macOS.h
+rm $IOS_UNITY_DIR/Purchases_macOS.h
 
-ls
-#popd
+popd
 
+mkdir -p android
+pushd android
 
-# https://github.com/RevenueCat/purchases-ios/archive/1.1.4.zip
-# https://repo1.maven.org/maven2/com/revenuecat/purchases/purchases/1.3.5/purchases-1.3.5.aar
+ANDROID_FILENAME=purchases-$ANDROID_SDK_VERSION.aar
+ANDROID_SOURCE_URL=https://repo1.maven.org/maven2/com/revenuecat/purchases/purchases/$ANDROID_SDK_VERSION/$ANDROID_FILENAME
+wget $ANDROID_SOURCE_URL
+cp $ANDROID_FILENAME $UNITY_DIR/Plugins/Android
+
 
 #popd
