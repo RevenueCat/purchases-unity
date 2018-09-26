@@ -1,6 +1,6 @@
 # 0.4.2
 
-- Add support for Adjust
+- Add Android support for Adjust
 
 # 0.4.1
 
