@@ -14,9 +14,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.revenuecat.purchases.Purchases.AttributionNetwork.ADJUST;
 
 public class PurchasesWrapper {
     private static Purchases purchases;
@@ -96,6 +100,23 @@ public class PurchasesWrapper {
 
     public static void makePurchase(String productIdentifier, String type) {
         purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
+    }
+
+    public static void addAttributionData(String dataJson, String network) {
+        JSONObject data;
+        try {
+            data = new JSONObject(dataJson);
+        } catch (JSONException e) {
+            logJSONException(e);
+            return;
+        }
+
+        if (network.equals("adjust")) {
+            purchases.addAttributionData(data, ADJUST);
+        } else {
+            Log.e("Purchases", "Network " + network + " not supported");
+        }
+
     }
 
     public static void restoreTransactions() {

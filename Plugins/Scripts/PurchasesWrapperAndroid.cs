@@ -49,6 +49,9 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
 
     public void AddAttributionData(string network, string data)
     {
-        
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("addAttributionData", data, network);
+        }
     }
 }
