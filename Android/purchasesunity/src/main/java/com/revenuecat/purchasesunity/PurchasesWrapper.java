@@ -1,5 +1,6 @@
 package com.revenuecat.purchasesunity;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.android.billingclient.api.SkuDetails;
@@ -111,8 +112,30 @@ public class PurchasesWrapper {
             return;
         }
 
+        final JSONObject finalData = data;
+
         if (network.equals("adjust")) {
-            purchases.addAttributionData(data, ADJUST);
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Context context = UnityPlayer.currentActivity;
+                        AdvertisingIdClient.AdInfo adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+
+                        String advertisingId = adInfo.getId();
+                        Boolean trackingLimited = adInfo.isLimitAdTrackingEnabled();
+
+                        if (!trackingLimited) {
+                            finalData.put("rc_gps_adid", advertisingId);
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("Purchases", e.getLocalizedMessage());
+                        e.printStackTrace();
+                    }
+                    
+                    purchases.addAttributionData(finalData, ADJUST);
+                }
+            }).start();
         } else {
             Log.e("Purchases", "Network " + network + " not supported");
         }
