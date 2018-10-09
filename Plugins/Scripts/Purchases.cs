@@ -219,6 +219,7 @@ public class Purchases : MonoBehaviour
         public PurchaserInfoResponse purchaserInfo;
         public Error error;
         public bool isRestore;
+        public bool isPurchase;
     }
 
     [Serializable]
@@ -240,7 +241,7 @@ public class Purchases : MonoBehaviour
             ? new PurchaserInfo(response.purchaserInfo)
             : null;
 
-        var isPurchase = response.productIdentifier != null;
+        var isPurchase = response.isPurchase;
         var isRestore = response.isRestore;
 
     #if UNITY_ANDROID

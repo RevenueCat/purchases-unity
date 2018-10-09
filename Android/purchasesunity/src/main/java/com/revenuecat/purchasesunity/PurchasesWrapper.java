@@ -30,27 +30,27 @@ public class PurchasesWrapper {
     private static Purchases.PurchasesListener listener = new Purchases.PurchasesListener() {
         @Override
         public void onCompletedPurchase(String sku, PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, sku, null, false);
+            sendPurchaserInfo(purchaserInfo, sku, true, null, false);
         }
 
         @Override
         public void onFailedPurchase(int domain, int code, String reason) {
-            sendPurchaserInfo(null, null, errorJSON(domain, code, reason), false);
+            sendPurchaserInfo(null, null, true, errorJSON(domain, code, reason), false);
         }
 
         @Override
         public void onReceiveUpdatedPurchaserInfo(PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, null, null, false);
+            sendPurchaserInfo(purchaserInfo, null, false,null, false);
         }
 
         @Override
         public void onRestoreTransactions(PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, null, null, false);
+            sendPurchaserInfo(purchaserInfo, null, false, null, false);
         }
 
         @Override
         public void onRestoreTransactionsFailed(int domain, int code, String reason) {
-            sendPurchaserInfo(null, null, errorJSON(domain, code, reason), false);
+            sendPurchaserInfo(null, null, false, errorJSON(domain, code, reason), false);
         }
     };
 
@@ -223,7 +223,7 @@ public class PurchasesWrapper {
         return jsonInfo;
     }
 
-    private static void sendPurchaserInfo(PurchaserInfo info, String completedTransaction, JSONObject error, Boolean isRestore) {
+    private static void sendPurchaserInfo(PurchaserInfo info, String completedTransaction, Boolean isPurchase, JSONObject error, Boolean isRestore) {
         JSONObject message = new JSONObject();
 
         try {
@@ -239,6 +239,7 @@ public class PurchasesWrapper {
                 message.put("error", error);
             }
 
+            message.put("isPurchase", isPurchase);
             message.put("isRestore", isRestore);
 
             sendJSONObject(message, "_receivePurchaserInfo");
