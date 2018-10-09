@@ -196,6 +196,7 @@ char* makeStringCopy(NSString* nstring) {
 
 - (void)sendPurchaserInfo:(RCPurchaserInfo *)info
      completedTransaction:(SKPaymentTransaction *)transaction
+                isRestore:(BOOL)isRestore
                     error:(NSError *)error
 {
     NSMutableDictionary *response = [NSMutableDictionary new];
@@ -215,33 +216,36 @@ char* makeStringCopy(NSString* nstring) {
         response[@"error"] = [self errorJSON:error];
     }
     
+    response[@"isPurchase"] = @((BOOL)(transaction != nil));
+    response[@"isRestore"] = @(isRestore);
+    
     [self sendJSONObject:response toMethod:@"_receivePurchaserInfo"];
 }
 
 - (void)purchases:(nonnull RCPurchases *)purchases
 completedTransaction:(nonnull SKPaymentTransaction *)transaction
   withUpdatedInfo:(nonnull RCPurchaserInfo *)purchaserInfo {
-    [self sendPurchaserInfo:purchaserInfo completedTransaction:transaction error:nil];
+    [self sendPurchaserInfo:purchaserInfo completedTransaction:transaction isRestore:NO error:nil];
 }
 
 - (void)purchases:(nonnull RCPurchases *)purchases failedToUpdatePurchaserInfoWithError:(nonnull NSError *)error {
-    [self sendPurchaserInfo:nil completedTransaction:nil error:error];
+    [self sendPurchaserInfo:nil completedTransaction:nil isRestore:NO error:error];
 }
 
 - (void)purchases:(nonnull RCPurchases *)purchases failedTransaction:(nonnull SKPaymentTransaction *)transaction withReason:(nonnull NSError *)failureReason {
-    [self sendPurchaserInfo:nil completedTransaction:transaction error:failureReason];
+    [self sendPurchaserInfo:nil completedTransaction:transaction isRestore:NO error:failureReason];
 }
 
 - (void)purchases:(nonnull RCPurchases *)purchases receivedUpdatedPurchaserInfo:(nonnull RCPurchaserInfo *)purchaserInfo {
-    [self sendPurchaserInfo:purchaserInfo completedTransaction:nil error:nil];
+    [self sendPurchaserInfo:purchaserInfo completedTransaction:nil isRestore:NO error:nil];
 }
 
 - (void)purchases:(RCPurchases *)purchases restoredTransactionsWithPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
-    [self sendPurchaserInfo:purchaserInfo completedTransaction:nil error:nil];
+    [self sendPurchaserInfo:purchaserInfo completedTransaction:nil isRestore:YES error:nil];
 }
 
 - (void)purchases:(RCPurchases *)purchases failedToRestoreTransactionsWithError:(NSError *)error {
-    [self sendPurchaserInfo:nil completedTransaction:nil error:error];
+    [self sendPurchaserInfo:nil completedTransaction:nil isRestore:YES error:error];
 }
 
 @end
