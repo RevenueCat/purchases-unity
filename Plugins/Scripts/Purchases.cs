@@ -12,10 +12,14 @@ public class Purchases : MonoBehaviour
     {
         public abstract void ProductsReceived(List<Product> products);
 
-        public abstract void PurchaseCompleted(string productIdentifier, Error error, PurchaserInfo purchaserInfo,
-            bool userCanceled);
+        public abstract void PurchaseSucceeded(string productIdentifier, PurchaserInfo purchaserInfo);
+        public abstract void PurchaseFailed(string productIdentifier, Error error, bool userCanceled);
 
         public abstract void PurchaserInfoReceived(PurchaserInfo purchaserInfo);
+        public abstract void PurchaserInfoReceiveFailed(Error error);
+
+        public abstract void RestoredPurchases(PurchaserInfo purchaserInfo);
+        public abstract void RestorePurchasesFailed(Error error);
     }
 
     private class PurchasesWrapperNoop : PurchasesWrapper
@@ -214,6 +218,7 @@ public class Purchases : MonoBehaviour
         public string productIdentifier;
         public PurchaserInfoResponse purchaserInfo;
         public Error error;
+        public bool isRestore;
     }
 
     [Serializable]
@@ -235,32 +240,32 @@ public class Purchases : MonoBehaviour
             ? new PurchaserInfo(response.purchaserInfo)
             : null;
 
-#if UNITY_ANDROID
+        var isPurchase = response.productIdentifier != null;
+        var isRestore = response.isRestore;
+
+    #if UNITY_ANDROID
         bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
-#else
+    #else
         bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
     #endif
 
         if (error != null)
         {
-            if (userCanceled)
-            {
-                // send user cancelled message to the application
-                listener.PurchaseCompleted(null, null, null, true);
+            if (isPurchase) {
+                listener.PurchaseFailed(response.productIdentifier, error, userCanceled);
+            } else if (isRestore) {
+                listener.RestorePurchasesFailed(error);
+            } else {
+                listener.PurchaserInfoReceiveFailed(error);
             }
-            else
-            {
-                // send error message to the application
-                listener.PurchaseCompleted(response.productIdentifier, error, info, false);
+        } else {
+            if (isPurchase) {
+                listener.PurchaseSucceeded(response.productIdentifier, info);
+            } else if (isRestore) {
+                listener.RestoredPurchases(info);
+            } else {
+                listener.PurchaserInfoReceived(info);
             }
-        }
-        else if (response.productIdentifier != null)
-        {
-            listener.PurchaseCompleted(response.productIdentifier, error, info, userCanceled);
-        }
-        else if (info != null)
-        {
-            listener.PurchaserInfoReceived(info);
         }
     }
 }

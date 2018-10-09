@@ -1,3 +1,4 @@
 .DS_Store
 Plugins/Android/purchases-*
 *.meta
+.idea/

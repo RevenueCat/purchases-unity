@@ -89,16 +89,20 @@ public class PurchasesListener : Purchases.Listener
         }
     }
 
-    public override void PurchaseCompleted(string productIdentifier, Purchases.Error error, Purchases.PurchaserInfo purchaserInfo, bool userCanceled)
+    public override void PurchaseSucceeded(string productIdentifier, Purchases.PurchaserInfo purchaserInfo)
+    {
+        DisplayPurchaserInfo(purchaserInfo);
+    }
+
+    public override void PurchaseFailed(string productIdentifier, Purchases.Error error, bool userCanceled)
     {
         if (userCanceled)
         {
-            Debug.Log("User canceled, don't show an error");
+            Debug.Log("Subtester: User canceled, don't show an error");
         }
-
-        if (purchaserInfo != null)
+        else
         {
-            DisplayPurchaserInfo(purchaserInfo);
+            logError(error);
         }
     }
 
@@ -106,6 +110,29 @@ public class PurchasesListener : Purchases.Listener
     {
         DisplayPurchaserInfo(purchaserInfo);
     }
+
+    public override void PurchaserInfoReceiveFailed(Purchases.Error error)
+    {
+        logError(error);
+    }
+
+    public override void RestoredPurchases(Purchases.PurchaserInfo purchaserInfo)
+    {
+        Debug.Log("Subtester: Restore Succeeded");
+        DisplayPurchaserInfo(purchaserInfo);
+    }
+
+    public override void RestorePurchasesFailed(Purchases.Error error)
+    {
+        Debug.Log("Subtester: Restore Failed");
+        logError(error);
+    }
+
+    private void logError(Purchases.Error error)
+    {
+        Debug.Log("Subtester: " + JsonUtility.ToJson(error));
+    }
+
 
     private void DisplayPurchaserInfo(Purchases.PurchaserInfo purchaserInfo)
     {
