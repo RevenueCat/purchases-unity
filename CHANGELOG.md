@@ -1,6 +1,6 @@
 ## 0.5.1
 
-- Updates SDKs to the latest versions
+- Adds requestDate to the purchaser info to avoid edge cases.
 
 ## 0.5.0
 
