@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Fixes crash due to not able to find Kotlin dependency.
+
 ## 0.5.1
 
 - Adds requestDate to the purchaser info to avoid edge cases.
