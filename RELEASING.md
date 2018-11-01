@@ -1,4 +1,4 @@
-1. Update to the latest SDK versions.
+1. Update to the latest SDK versions (update the update-sdks.sh and run Android/build_and_install.sh).
 2. Update the VERSION file.
 3. Add an entry to CHANGELOG.md
 4. `git commit -am "Preparing for version x.y.z"`

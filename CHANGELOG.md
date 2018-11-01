@@ -1,3 +1,6 @@
+## 0.5.3
+- Fixes onRestoreTransactions not being called if there are no tokens.
+
 ## 0.5.2
 
 - Fixes crash due to not able to find Kotlin dependency.
