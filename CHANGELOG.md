@@ -1,3 +1,6 @@
+## 0.5.4
+- Fixes onRestoreTransactions never being called.
+
 ## 0.5.3
 - Fixes onRestoreTransactions not being called if there are no tokens.
 
