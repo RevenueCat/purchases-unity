@@ -45,12 +45,12 @@ public class PurchasesWrapper {
 
         @Override
         public void onRestoreTransactions(PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, null, false, null, false);
+            sendPurchaserInfo(purchaserInfo, null, false, null, true);
         }
 
         @Override
         public void onRestoreTransactionsFailed(int domain, int code, String reason) {
-            sendPurchaserInfo(null, null, false, errorJSON(domain, code, reason), false);
+            sendPurchaserInfo(null, null, false, errorJSON(domain, code, reason), true);
         }
     };
 
