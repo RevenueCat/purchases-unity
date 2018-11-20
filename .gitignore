@@ -2,3 +2,7 @@
 Plugins/Android/purchases-*
 *.meta
 .idea/
+org.eclipse.buildship.core.prefs
+.project
+.classpath
+Android/.idea/*
