@@ -59,7 +59,7 @@ public class Purchases : MonoBehaviour
 
         }
 
-        public void reset()
+        public void Reset()
         {
 
         }

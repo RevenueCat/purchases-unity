@@ -40,7 +40,7 @@ public class PurchasesListener : Purchases.Listener
     private void SwitchUser()
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.Setup("jerry7");
+        purchases.Identify("jerry8");
     }
 
     void SendAttribution()
