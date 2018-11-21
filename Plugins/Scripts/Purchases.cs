@@ -48,6 +48,21 @@ public class Purchases : MonoBehaviour
         {
             
         }
+
+        public void CreateAlias(string newAppUserID)
+        {
+
+        }
+
+        public void Identify(string appUserID)
+        {
+
+        }
+
+        public void reset()
+        {
+
+        }
     }
 
     /*
@@ -198,6 +213,21 @@ public class Purchases : MonoBehaviour
     public void AddAdjustAttributionData(AdjustData data)
     {
         wrapper.AddAttributionData("adjust", JsonUtility.ToJson(data));
+    }
+
+    public void CreateAlias(string newAppUserID)
+    {
+        wrapper.CreateAlias(newAppUserID);
+    }
+
+    public void Identify(string appUserID)
+    {
+        wrapper.Identify(appUserID);
+    }
+
+    public void Reset()
+    {
+        wrapper.Reset();
     }
 
     [Serializable]

@@ -167,6 +167,21 @@ char* makeStringCopy(NSString* nstring) {
     }
 }
 
+- (void)createAlias:(NSString *)newAppUserID
+{
+    [self.purchases createAlias:newAppUserID];
+}
+
+- (void)identify:(NSString *)appUserID
+{
+    [self.purchases identify:appUserID];
+}
+
+- (void)reset
+{
+    [self.purchases reset];
+}
+
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName
 {
     NSError *error = nil;
@@ -294,6 +309,21 @@ void _RCRestoreTransactions()
 void _RCAddAttributionData(const char *network, const char *data) 
 {
     [_RCUnityHelperShared() addAttributionData:convertCString(data) network:convertCString(network)];
+}
+
+void _RCCreateAlias(const char *newAppUserID)
+{
+    [_RCUnityHelperShared() createAlias:convertCString(newAppUserID)];
+}
+
+void _RCIdentify(const char *appUserID)
+{
+    [_RCUnityHelperShared() identify:convertCString(appUserID)];
+}
+
+void _RCReset()
+{
+    [_RCUnityHelperShared() reset];
 }
 
 

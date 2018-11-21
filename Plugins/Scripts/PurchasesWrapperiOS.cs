@@ -48,4 +48,26 @@ public class PurchasesWrapperiOS : PurchasesWrapper
 	{
 		_RCAddAttributionData(network, data);
 	}
+
+	[DllImport("__Internal")]
+    private static extern void _RCCreateAlias(string newAppUserID);
+    public void CreateAlias(string newAppUserID)
+    {
+        _RCCreateAlias(newAppUserID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCIdentify(string appUserID);
+    public void Identify(string appUserID)
+    {
+        _RCIdentify(appUserID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCReset();
+    public void Reset()
+    {
+        _RCReset();
+    }
+
 }
