@@ -1,5 +1,5 @@
 #!/bin/bash
-IOS_SDK_VERSION=1.1.5
+IOS_SDK_VERSION=1.2.0-rc2
 ANDROID_SDK_VERSION=1.3.8
 
 UNITY_DIR=`pwd`
@@ -17,8 +17,8 @@ IOS_SOURCE_URL=https://github.com/RevenueCat/purchases-ios/archive/$IOS_SDK_VERS
 wget -qO- $IOS_SOURCE_URL | bsdtar -xvf-
 pushd purchases-ios-$IOS_SDK_VERSION
 
-find Purchases/Classes -iname '*.h' -exec cp \{\} /$IOS_UNITY_DIR/ \;
-find Purchases/Classes -iname '*.m' -exec cp \{\} /$IOS_UNITY_DIR/ \;
+find Purchases -iname '*.h' -exec cp \{\} /$IOS_UNITY_DIR/ \;
+find Purchases -iname '*.m' -exec cp \{\} /$IOS_UNITY_DIR/ \;
 rm $IOS_UNITY_DIR/Purchases_macOS.h
 
 popd
