@@ -25,13 +25,13 @@ public class PurchasesWrapper {
     private static Purchases.PurchasesListener listener = new Purchases.PurchasesListener() {
 
         @Override
-        public void onFailedPurchase(Purchases.ErrorDomains domain, int code, String reason) {
-            sendPurchaserInfo(null, null, true, errorJSON(domain, code, reason), false);
+        public void onCompletedPurchase(String sku, PurchaserInfo purchaserInfo) {
+            sendPurchaserInfo(purchaserInfo, sku, true, null, false);
         }
 
         @Override
-        public void onCompletedPurchase(String sku, PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, sku, true, null, false);
+        public void onFailedPurchase(Purchases.ErrorDomains domain, int code, String reason) {
+            sendPurchaserInfo(null, null, true, errorJSON(domain, code, reason), false);
         }
 
         @Override
@@ -53,9 +53,6 @@ public class PurchasesWrapper {
 
     public static void setup(String apiKey, String appUserId, String gameObject_) {
         gameObject = gameObject_;
-        if (Purchases.getDefaultInstance() != null) {
-            Purchases.getDefaultInstance().close();
-        }
         Purchases purchases = new Purchases.Builder(UnityPlayer.currentActivity, apiKey).appUserID(appUserId).build();
         purchases.setListener(listener);
         Purchases.setDefaultInstance(purchases);
