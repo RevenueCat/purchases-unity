@@ -141,7 +141,17 @@ public class PurchasesWrapper {
     }
 
     public static void createAlias(String newAppUserID) {
-        Purchases.getSharedInstance().createAlias(newAppUserID, null);
+        Purchases.getSharedInstance().createAlias(newAppUserID, new Purchases.AliasHandler() {
+            @Override
+            public void onSuccess() {
+                sendJSONObject(new JSONObject(), "_aliasCreated");
+            }
+
+            @Override
+            public void onError(Purchases.ErrorDomains errorDomains, int i, String s) {
+                sendJSONObject(errorJSON(errorDomains, i, s), "_aliasCreated");
+            }
+        });
     }
 
     public static void identify(String newAppUserID) {

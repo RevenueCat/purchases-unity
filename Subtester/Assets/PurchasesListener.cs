@@ -40,7 +40,7 @@ public class PurchasesListener : Purchases.Listener
     private void SwitchUser()
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.Identify("jerry8");
+        purchases.Reset();
     }
 
     void SendAttribution()
@@ -126,6 +126,16 @@ public class PurchasesListener : Purchases.Listener
     {
         Debug.Log("Subtester: Restore Failed");
         logError(error);
+    }
+
+    public override void AliasCreated(Purchases.Error error)
+    {
+        if (error == null) {
+            Debug.Log("Alias created.");
+        } else {
+            Debug.Log("Alias failed.");
+            logError(error);
+        }
     }
 
     private void logError(Purchases.Error error)

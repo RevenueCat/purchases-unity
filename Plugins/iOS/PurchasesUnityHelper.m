@@ -169,7 +169,20 @@ char* makeStringCopy(NSString* nstring) {
 
 - (void)createAlias:(NSString *)newAppUserID
 {
-    [self.purchases createAlias:newAppUserID];
+    [self.purchases createAlias:newAppUserID 
+                    completion:^(NSError * _Nullable error) {
+                            NSMutableDictionary *response = [NSMutableDictionary new];
+                            
+                            if (error)
+                            {
+                                response[@"error"] = [self errorJSON:error];
+                            } else 
+                            {
+                                response[@"error"] = nil;
+                            }
+
+                            [self sendJSONObject:response toMethod:@"_aliasCreated"];    
+                    }];
 }
 
 - (void)identify:(NSString *)appUserID

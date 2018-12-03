@@ -20,6 +20,7 @@ public class Purchases : MonoBehaviour
 
         public abstract void RestoredPurchases(PurchaserInfo purchaserInfo);
         public abstract void RestorePurchasesFailed(Error error);
+        public abstract void AliasCreated(Error error);
     }
 
     private class PurchasesWrapperNoop : PurchasesWrapper
@@ -298,5 +299,11 @@ public class Purchases : MonoBehaviour
                 listener.PurchaserInfoReceived(info);
             }
         }
+    }
+
+    private void _aliasCreated(string arguments)
+    {
+        var error = JsonUtility.FromJson<Error>(arguments);
+        listener.AliasCreated((error.message != null) ? error : null);
     }
 }
