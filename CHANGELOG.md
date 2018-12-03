@@ -1,3 +1,7 @@
+## 0.6.0
+- Updates SDKs to 1.2.0 and 1.4.0.
+- Adds identify, create alias and reset call
+
 ## 0.5.4
 - Fixes onRestoreTransactions never being called.
 
