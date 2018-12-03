@@ -1,3 +1,7 @@
+## 0.6.0
+- Updates iOS SDK to 1.20 and Android SDK to 1.4.0.
+- Adds identify, create alias and reset call
+
 ## 0.5.4
 - Fixes onRestoreTransactions never being called.
 

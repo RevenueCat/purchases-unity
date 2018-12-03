@@ -6,7 +6,6 @@ import android.util.Log;
 import com.android.billingclient.api.SkuDetails;
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
-import com.revenuecat.purchases.util.Iso8601Utils;
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONArray;
@@ -15,26 +14,23 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.revenuecat.purchases.Purchases.AttributionNetwork.ADJUST;
 
 public class PurchasesWrapper {
-    private static Purchases purchases;
     private static String gameObject;
 
     private static Purchases.PurchasesListener listener = new Purchases.PurchasesListener() {
+
         @Override
         public void onCompletedPurchase(String sku, PurchaserInfo purchaserInfo) {
             sendPurchaserInfo(purchaserInfo, sku, true, null, false);
         }
 
         @Override
-        public void onFailedPurchase(int domain, int code, String reason) {
+        public void onFailedPurchase(Purchases.ErrorDomains domain, int code, String reason) {
             sendPurchaserInfo(null, null, true, errorJSON(domain, code, reason), false);
         }
 
@@ -49,19 +45,17 @@ public class PurchasesWrapper {
         }
 
         @Override
-        public void onRestoreTransactionsFailed(int domain, int code, String reason) {
+        public void onRestoreTransactionsFailed(Purchases.ErrorDomains domain, int code, String reason) {
             sendPurchaserInfo(null, null, false, errorJSON(domain, code, reason), true);
         }
+
     };
 
     public static void setup(String apiKey, String appUserId, String gameObject_) {
         gameObject = gameObject_;
-
-        if (purchases != null) {
-            purchases.close();
-        }
-        
-        purchases = new Purchases.Builder(UnityPlayer.currentActivity, apiKey, listener).appUserID(appUserId).build();
+        Purchases purchases = new Purchases.Builder(UnityPlayer.currentActivity, apiKey).appUserID(appUserId).build();
+        purchases.setListener(listener);
+        Purchases.setSharedInstance(purchases);
     }
 
     public static void getProducts(String jsonProducts, String type) {
@@ -80,7 +74,7 @@ public class PurchasesWrapper {
                     sendSkuDetails(skus);
                 }
             };
-
+            Purchases purchases = Purchases.getSharedInstance();
             if (type.equals("subs")) {
                 purchases.getSubscriptionSkus(productIds, handler);
             } else {
@@ -96,11 +90,11 @@ public class PurchasesWrapper {
     public static void makePurchase(String productIdentifier, String type, String oldSku) {
         ArrayList<String> oldSkuList = new ArrayList<>();
         oldSkuList.add(oldSku);
-        purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type, oldSkuList);
+        Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type, oldSkuList);
     }
 
     public static void makePurchase(String productIdentifier, String type) {
-        purchases.makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
+        Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
 
     public static void addAttributionData(String dataJson, String network) {
@@ -132,8 +126,8 @@ public class PurchasesWrapper {
                         Log.e("Purchases", e.getLocalizedMessage());
                         e.printStackTrace();
                     }
-                    
-                    purchases.addAttributionData(finalData, ADJUST);
+
+                    Purchases.getSharedInstance().addAttributionData(finalData, ADJUST);
                 }
             }).start();
         } else {
@@ -143,7 +137,29 @@ public class PurchasesWrapper {
     }
 
     public static void restoreTransactions() {
-        purchases.restorePurchasesForPlayStoreAccount();
+        Purchases.getSharedInstance().restorePurchasesForPlayStoreAccount();
+    }
+
+    public static void createAlias(String newAppUserID) {
+        Purchases.getSharedInstance().createAlias(newAppUserID, new Purchases.AliasHandler() {
+            @Override
+            public void onSuccess() {
+                sendJSONObject(new JSONObject(), "_aliasCreated");
+            }
+
+            @Override
+            public void onError(Purchases.ErrorDomains errorDomains, int i, String s) {
+                sendJSONObject(errorJSON(errorDomains, i, s), "_aliasCreated");
+            }
+        });
+    }
+
+    public static void identify(String newAppUserID) {
+        Purchases.getSharedInstance().identify(newAppUserID);
+    }
+
+    public static void reset() {
+        Purchases.getSharedInstance().reset();
     }
 
     private static void logJSONException(JSONException e) {
@@ -175,10 +191,10 @@ public class PurchasesWrapper {
         }
     }
 
-    private static JSONObject errorJSON(int domain, int code, String reason) {
+    private static JSONObject errorJSON(Purchases.ErrorDomains domain, int code, String reason) {
         JSONObject error = new JSONObject();
         try {
-            error.put("domain", domain);
+            error.put("domain", domain.ordinal());
             error.put("code", code);
             error.put("message", reason);
         } catch (JSONException e) {

@@ -54,4 +54,29 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
             purchases.CallStatic("addAttributionData", data, network);
         }
     }
+
+    public void CreateAlias(string newAppUserID)
+    {
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("createAlias", newAppUserID);
+        }
+    }
+
+    public void Identify(string appUserID)
+    {
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("identify", appUserID);
+        }
+    }
+    
+    public void Reset()
+    {
+        using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("reset");
+        }
+    }
+
 }

@@ -20,6 +20,7 @@ public class Purchases : MonoBehaviour
 
         public abstract void RestoredPurchases(PurchaserInfo purchaserInfo);
         public abstract void RestorePurchasesFailed(Error error);
+        public abstract void AliasCreated(Error error);
     }
 
     private class PurchasesWrapperNoop : PurchasesWrapper
@@ -47,6 +48,21 @@ public class Purchases : MonoBehaviour
         public void RestoreTransactions()
         {
             
+        }
+
+        public void CreateAlias(string newAppUserID)
+        {
+
+        }
+
+        public void Identify(string appUserID)
+        {
+
+        }
+
+        public void Reset()
+        {
+
         }
     }
 
@@ -200,6 +216,21 @@ public class Purchases : MonoBehaviour
         wrapper.AddAttributionData("adjust", JsonUtility.ToJson(data));
     }
 
+    public void CreateAlias(string newAppUserID)
+    {
+        wrapper.CreateAlias(newAppUserID);
+    }
+
+    public void Identify(string appUserID)
+    {
+        wrapper.Identify(appUserID);
+    }
+
+    public void Reset()
+    {
+        wrapper.Reset();
+    }
+
     [Serializable]
     private class ProductResponse
     {
@@ -268,5 +299,11 @@ public class Purchases : MonoBehaviour
                 listener.PurchaserInfoReceived(info);
             }
         }
+    }
+
+    private void _aliasCreated(string arguments)
+    {
+        var error = JsonUtility.FromJson<Error>(arguments);
+        listener.AliasCreated((error.message != null) ? error : null);
     }
 }
