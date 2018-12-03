@@ -55,7 +55,7 @@ public class PurchasesWrapper {
         gameObject = gameObject_;
         Purchases purchases = new Purchases.Builder(UnityPlayer.currentActivity, apiKey).appUserID(appUserId).build();
         purchases.setListener(listener);
-        Purchases.setDefaultInstance(purchases);
+        Purchases.setSharedInstance(purchases);
     }
 
     public static void getProducts(String jsonProducts, String type) {
@@ -74,7 +74,7 @@ public class PurchasesWrapper {
                     sendSkuDetails(skus);
                 }
             };
-            Purchases purchases = Purchases.getDefaultInstance();
+            Purchases purchases = Purchases.getSharedInstance();
             if (type.equals("subs")) {
                 purchases.getSubscriptionSkus(productIds, handler);
             } else {
@@ -90,11 +90,11 @@ public class PurchasesWrapper {
     public static void makePurchase(String productIdentifier, String type, String oldSku) {
         ArrayList<String> oldSkuList = new ArrayList<>();
         oldSkuList.add(oldSku);
-        Purchases.getDefaultInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type, oldSkuList);
+        Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type, oldSkuList);
     }
 
     public static void makePurchase(String productIdentifier, String type) {
-        Purchases.getDefaultInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
+        Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
 
     public static void addAttributionData(String dataJson, String network) {
@@ -127,7 +127,7 @@ public class PurchasesWrapper {
                         e.printStackTrace();
                     }
 
-                    Purchases.getDefaultInstance().addAttributionData(finalData, ADJUST);
+                    Purchases.getSharedInstance().addAttributionData(finalData, ADJUST);
                 }
             }).start();
         } else {
@@ -137,19 +137,19 @@ public class PurchasesWrapper {
     }
 
     public static void restoreTransactions() {
-        Purchases.getDefaultInstance().restorePurchasesForPlayStoreAccount();
+        Purchases.getSharedInstance().restorePurchasesForPlayStoreAccount();
     }
 
     public static void createAlias(String newAppUserID) {
-        Purchases.getDefaultInstance().createAlias(newAppUserID, null);
+        Purchases.getSharedInstance().createAlias(newAppUserID, null);
     }
 
     public static void identify(String newAppUserID) {
-        Purchases.getDefaultInstance().identify(newAppUserID);
+        Purchases.getSharedInstance().identify(newAppUserID);
     }
 
     public static void reset() {
-        Purchases.getDefaultInstance().reset();
+        Purchases.getSharedInstance().reset();
     }
 
     private static void logJSONException(JSONException e) {
