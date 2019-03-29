@@ -27,27 +27,27 @@ public class Purchases : MonoBehaviour
     {
         public void Setup(string gameObject, string apiKey, string appUserID)
         {
-            
+
         }
 
-        public void AddAttributionData(string network, string data)
+        public void AddAttributionData(int network, string data)
         {
-			
+
         }
 
         public void GetProducts(string[] productIdentifiers, string type = "subs")
         {
-            
+
         }
 
         public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
         {
-            
+
         }
 
         public void RestoreTransactions()
         {
-            
+
         }
 
         public void CreateAlias(string newAppUserID)
@@ -61,6 +61,11 @@ public class Purchases : MonoBehaviour
         }
 
         public void Reset()
+        {
+
+        }
+
+        public void SetFinishTransactions(bool finishTransactions)
         {
 
         }
@@ -211,9 +216,23 @@ public class Purchases : MonoBehaviour
         public string trackerToken;
     }
 
+    public enum AttributionNetwork
+    {
+        APPLE_SEARCH_ADS = 0,
+        ADJUST = 1,
+        APPSFLYER = 2,
+        BRANCH = 3,
+        TENJIN = 4
+    };
+
     public void AddAdjustAttributionData(AdjustData data)
     {
-        wrapper.AddAttributionData("adjust", JsonUtility.ToJson(data));
+        wrapper.AddAttributionData((int)AttributionNetwork.ADJUST, JsonUtility.ToJson(data));
+    }
+
+    public void AddAttributionData(string dataJSON, AttributionNetwork network)
+    {
+        wrapper.AddAttributionData((int)network, dataJSON);
     }
 
     public void CreateAlias(string newAppUserID)
@@ -229,6 +248,11 @@ public class Purchases : MonoBehaviour
     public void Reset()
     {
         wrapper.Reset();
+    }
+
+    public void SetFinishTransactions(bool finishTransactions)
+    {
+        wrapper.SetFinishTransactions(finishTransactions);
     }
 
     [Serializable]
@@ -275,27 +299,39 @@ public class Purchases : MonoBehaviour
         var isPurchase = response.isPurchase;
         var isRestore = response.isRestore;
 
-    #if UNITY_ANDROID
+#if UNITY_ANDROID
         bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
-    #else
+#else
         bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
-    #endif
+#endif
 
         if (error != null)
         {
-            if (isPurchase) {
+            if (isPurchase)
+            {
                 listener.PurchaseFailed(response.productIdentifier, error, userCanceled);
-            } else if (isRestore) {
+            }
+            else if (isRestore)
+            {
                 listener.RestorePurchasesFailed(error);
-            } else {
+            }
+            else
+            {
                 listener.PurchaserInfoReceiveFailed(error);
             }
-        } else {
-            if (isPurchase) {
+        }
+        else
+        {
+            if (isPurchase)
+            {
                 listener.PurchaseSucceeded(response.productIdentifier, info);
-            } else if (isRestore) {
+            }
+            else if (isRestore)
+            {
                 listener.RestoredPurchases(info);
-            } else {
+            }
+            else
+            {
                 listener.PurchaserInfoReceived(info);
             }
         }

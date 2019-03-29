@@ -36,7 +36,7 @@ public class PurchasesWrapper {
 
         @Override
         public void onReceiveUpdatedPurchaserInfo(PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, null, false,null, false);
+            sendPurchaserInfo(purchaserInfo, null, false, null, false);
         }
 
         @Override
@@ -97,7 +97,7 @@ public class PurchasesWrapper {
         Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
 
-    public static void addAttributionData(String dataJson, String network) {
+    public static void addAttributionData(String dataJson, final int network) {
         JSONObject data;
         try {
             data = new JSONObject(dataJson);
@@ -108,32 +108,33 @@ public class PurchasesWrapper {
 
         final JSONObject finalData = data;
 
-        if (network.equals("adjust")) {
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Context context = UnityPlayer.currentActivity;
-                        AdvertisingIdClient.AdInfo adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+        new Thread(new Runnable() {
+            public void run() {
+                Purchases.AttributionNetwork chosenNetwork = null;
+                for (Purchases.AttributionNetwork attributionNetwork : Purchases.AttributionNetwork.values()) {
+                    if (attributionNetwork.getServerValue() == network) {
+                        chosenNetwork = attributionNetwork;
+                        break;
+                    }
+                }
+                try {
+                    Context context = UnityPlayer.currentActivity;
+                    AdvertisingIdClient.AdInfo adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
 
-                        String advertisingId = adInfo.getId();
-                        Boolean trackingLimited = adInfo.isLimitAdTrackingEnabled();
+                    String advertisingId = adInfo.getId();
+                    Boolean trackingLimited = adInfo.isLimitAdTrackingEnabled();
 
-                        if (!trackingLimited) {
-                            finalData.put("rc_gps_adid", advertisingId);
-                        }
-
-                    } catch (Exception e) {
-                        Log.e("Purchases", e.getLocalizedMessage());
-                        e.printStackTrace();
+                    if (!trackingLimited) {
+                        finalData.put("rc_gps_adid", advertisingId);
                     }
 
-                    Purchases.getSharedInstance().addAttributionData(finalData, ADJUST);
+                } catch (Exception e) {
+                    Log.e("Purchases", e.getLocalizedMessage());
+                    e.printStackTrace();
                 }
-            }).start();
-        } else {
-            Log.e("Purchases", "Network " + network + " not supported");
-        }
-
+                Purchases.getSharedInstance().addAttributionData(finalData, chosenNetwork);
+            }
+        }).start();
     }
 
     public static void restoreTransactions() {
@@ -239,7 +240,8 @@ public class PurchasesWrapper {
         return jsonInfo;
     }
 
-    private static void sendPurchaserInfo(PurchaserInfo info, String completedTransaction, Boolean isPurchase, JSONObject error, Boolean isRestore) {
+    private static void sendPurchaserInfo(PurchaserInfo info, String completedTransaction, Boolean isPurchase,
+            JSONObject error, Boolean isRestore) {
         JSONObject message = new JSONObject();
 
         try {

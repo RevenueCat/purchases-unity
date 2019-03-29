@@ -11,7 +11,7 @@ public class PurchasesWrapperiOS : PurchasesWrapper
         _RCSetupPurchases(gameObject, apiKey, appUserID);
     }
 
-	public class ProductsRequest
+    public class ProductsRequest
     {
         public string[] productIdentifiers;
     }
@@ -37,19 +37,19 @@ public class PurchasesWrapperiOS : PurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCRestoreTransactions();
-	public void RestoreTransactions()
-	{
+    public void RestoreTransactions()
+    {
         _RCRestoreTransactions();
-	}
+    }
 
-	[DllImport("__Internal")]
-	private static extern void _RCAddAttributionData(string network, string data);
-	public void AddAttributionData(string network, string data)
-	{
-		_RCAddAttributionData(network, data);
-	}
+    [DllImport("__Internal")]
+    private static extern void _RCAddAttributionData(int network, string data);
+    public void AddAttributionData(int network, string data)
+    {
+        _RCAddAttributionData(network, data);
+    }
 
-	[DllImport("__Internal")]
+    [DllImport("__Internal")]
     private static extern void _RCCreateAlias(string newAppUserID);
     public void CreateAlias(string newAppUserID)
     {
@@ -68,6 +68,13 @@ public class PurchasesWrapperiOS : PurchasesWrapper
     public void Reset()
     {
         _RCReset();
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetFinishTransactions(bool finishTransactions);
+    public void SetFinishTransactions(bool finishTransactions)
+    {
+        _RCSetFinishTransactions(finishTransactions);
     }
 
 }

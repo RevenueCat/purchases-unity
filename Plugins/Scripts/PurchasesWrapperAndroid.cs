@@ -47,7 +47,7 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
         }
     }
 
-    public void AddAttributionData(string network, string data)
+    public void AddAttributionData(int network, string data)
     {
         using (AndroidJavaClass purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
         {
@@ -77,6 +77,11 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
         {
             purchases.CallStatic("reset");
         }
+    }
+
+    public void SetFinishTransactions(bool finishTransactions)
+    {
+        // NOOP for now
     }
 
 }
