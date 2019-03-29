@@ -12,5 +12,5 @@ public interface PurchasesWrapper
 	void CreateAlias(string newAppUserID);
 	void Identify(string appUserID);
 	void Reset();
-	void FinishTransactions(bool finishTransactions);
+	void SetFinishTransactions(bool finishTransactions);
 }

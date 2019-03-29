@@ -79,7 +79,7 @@ public class PurchasesWrapperAndroid : PurchasesWrapper
         }
     }
 
-    public void FinishTransactions(bool finishTransactions)
+    public void SetFinishTransactions(bool finishTransactions)
     {
         // NOOP for now
     }

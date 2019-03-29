@@ -108,41 +108,33 @@ public class PurchasesWrapper {
 
         final JSONObject finalData = data;
 
-        Purchases.AttributionNetwork chosenNetwork = null;
-        for (Purchases.AttributionNetwork attributionNetwork : Purchases.AttributionNetwork.values()) {
-            if (attributionNetwork.getServerValue() == network) {
-                chosenNetwork = attributionNetwork;
-                break;
-            }
-        }
+        new Thread(new Runnable() {
+            public void run() {
+                Purchases.AttributionNetwork chosenNetwork = null;
+                for (Purchases.AttributionNetwork attributionNetwork : Purchases.AttributionNetwork.values()) {
+                    if (attributionNetwork.getServerValue() == network) {
+                        chosenNetwork = attributionNetwork;
+                        break;
+                    }
+                }
+                try {
+                    Context context = UnityPlayer.currentActivity;
+                    AdvertisingIdClient.AdInfo adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
 
-        if (chosenNetwork == null) {
-            Log.e("Purchases", "Network " + network + " not supported");
-        } else if (chosenNetwork == ADJUST) {
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Context context = UnityPlayer.currentActivity;
-                        AdvertisingIdClient.AdInfo adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+                    String advertisingId = adInfo.getId();
+                    Boolean trackingLimited = adInfo.isLimitAdTrackingEnabled();
 
-                        String advertisingId = adInfo.getId();
-                        Boolean trackingLimited = adInfo.isLimitAdTrackingEnabled();
-
-                        if (!trackingLimited) {
-                            finalData.put("rc_gps_adid", advertisingId);
-                        }
-
-                    } catch (Exception e) {
-                        Log.e("Purchases", e.getLocalizedMessage());
-                        e.printStackTrace();
+                    if (!trackingLimited) {
+                        finalData.put("rc_gps_adid", advertisingId);
                     }
 
-                    Purchases.getSharedInstance().addAttributionData(finalData, ADJUST);
+                } catch (Exception e) {
+                    Log.e("Purchases", e.getLocalizedMessage());
+                    e.printStackTrace();
                 }
-            }).start();
-        } else {
-            Purchases.getSharedInstance().addAttributionData(finalData, chosenNetwork);
-        }
+                Purchases.getSharedInstance().addAttributionData(finalData, chosenNetwork);
+            }
+        }).start();
     }
 
     public static void restoreTransactions() {

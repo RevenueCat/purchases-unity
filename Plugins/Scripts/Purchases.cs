@@ -65,7 +65,7 @@ public class Purchases : MonoBehaviour
 
         }
 
-        public void FinishTransactions(bool finishTransactions)
+        public void SetFinishTransactions(bool finishTransactions)
         {
 
         }
@@ -250,9 +250,9 @@ public class Purchases : MonoBehaviour
         wrapper.Reset();
     }
 
-    public void FinishTransactions(bool finishTransactions)
+    public void SetFinishTransactions(bool finishTransactions)
     {
-        wrapper.FinishTransactions(finishTransactions);
+        wrapper.SetFinishTransactions(finishTransactions);
     }
 
     [Serializable]
@@ -299,27 +299,39 @@ public class Purchases : MonoBehaviour
         var isPurchase = response.isPurchase;
         var isRestore = response.isRestore;
 
-    #if UNITY_ANDROID
+#if UNITY_ANDROID
         bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
-    #else
+#else
         bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
-    #endif
+#endif
 
         if (error != null)
         {
-            if (isPurchase) {
+            if (isPurchase)
+            {
                 listener.PurchaseFailed(response.productIdentifier, error, userCanceled);
-            } else if (isRestore) {
+            }
+            else if (isRestore)
+            {
                 listener.RestorePurchasesFailed(error);
-            } else {
+            }
+            else
+            {
                 listener.PurchaserInfoReceiveFailed(error);
             }
-        } else {
-            if (isPurchase) {
+        }
+        else
+        {
+            if (isPurchase)
+            {
                 listener.PurchaseSucceeded(response.productIdentifier, info);
-            } else if (isRestore) {
+            }
+            else if (isRestore)
+            {
                 listener.RestoredPurchases(info);
-            } else {
+            }
+            else
+            {
                 listener.PurchaserInfoReceived(info);
             }
         }

@@ -151,19 +151,15 @@ char* makeStringCopy(NSString* nstring) {
         return;
     }
 
-    if (network == RCAttributionNetworkAdjust) {
-        // If idfa is available, add it
-        NSString *idfa = ASIdentifierManager.sharedManager.advertisingIdentifier.UUIDString;
-        if (idfa) {
-            NSMutableDictionary *newData = [NSMutableDictionary dictionaryWithDictionary:data];
-            newData[@"rc_idfa"] = idfa;
-            data = [NSDictionary dictionaryWithDictionary:newData];
-        }
-        
-        [self.purchases addAttributionData:data fromNetwork:RCAttributionNetworkAdjust];
-    } else {
-        [self.purchases addAttributionData:data fromNetwork:network];
+    // If idfa is available, add it
+    NSString *idfa = ASIdentifierManager.sharedManager.advertisingIdentifier.UUIDString;
+    if (idfa) {
+        NSMutableDictionary *newData = [NSMutableDictionary dictionaryWithDictionary:data];
+        newData[@"rc_idfa"] = idfa;
+        data = [NSDictionary dictionaryWithDictionary:newData];
     }
+    
+    [self.purchases addAttributionData:data fromNetwork:network];
 }
 
 - (void)createAlias:(NSString *)newAppUserID
@@ -343,7 +339,7 @@ void _RCReset()
     [_RCUnityHelperShared() reset];
 }
 
-void _RCFinishTransactions(const BOOL finishTransactions) {
+void _RCSetFinishTransactions(const BOOL finishTransactions) {
     [_RCUnityHelperShared() setFinishTransactions:finishTransactions];
 }
 

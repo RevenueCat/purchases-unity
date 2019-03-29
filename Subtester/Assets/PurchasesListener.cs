@@ -60,9 +60,7 @@ public class PurchasesListener : Purchases.Listener
         data.trackerName = "trackerName";
         data.trackerToken = "trackerToken";
 
-        purchases.AddAdjustAttributionData(data);
-
-        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.APPSFLYER);
+        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST);
     }
 
     void ButtonClicked(string product)

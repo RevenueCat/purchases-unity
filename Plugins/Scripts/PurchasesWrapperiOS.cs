@@ -11,7 +11,7 @@ public class PurchasesWrapperiOS : PurchasesWrapper
         _RCSetupPurchases(gameObject, apiKey, appUserID);
     }
 
-	public class ProductsRequest
+    public class ProductsRequest
     {
         public string[] productIdentifiers;
     }
@@ -71,10 +71,10 @@ public class PurchasesWrapperiOS : PurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCFinishTransactions(bool finishTransactions);
-    public void FinishTransactions(bool finishTransactions)
+    private static extern void _RCSetFinishTransactions(bool finishTransactions);
+    public void SetFinishTransactions(bool finishTransactions)
     {
-        _RCFinishTransactions(finishTransactions);
+        _RCSetFinishTransactions(finishTransactions);
     }
 
 }
