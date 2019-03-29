@@ -139,7 +139,7 @@ char* makeStringCopy(NSString* nstring) {
     [self.purchases restoreTransactionsForAppStoreAccount];
 }
 
-- (void)addAttributionData:(NSString *)dataJSON network:(NSString *)network
+- (void)addAttributionData:(NSString *)dataJSON network:(int)network
 {
     NSError *error = nil;
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding] 
@@ -151,8 +151,7 @@ char* makeStringCopy(NSString* nstring) {
         return;
     }
 
-    if ([network isEqualToString:@"adjust"]) {
-        
+    if (network == RCAttributionNetworkAdjust) {
         // If idfa is available, add it
         NSString *idfa = ASIdentifierManager.sharedManager.advertisingIdentifier.UUIDString;
         if (idfa) {
@@ -163,7 +162,7 @@ char* makeStringCopy(NSString* nstring) {
         
         [self.purchases addAttributionData:data fromNetwork:RCAttributionNetworkAdjust];
     } else {
-        NSLog(@"Unsupported network: %@", network);
+        [self.purchases addAttributionData:data fromNetwork:network];
     }
 }
 
@@ -193,6 +192,11 @@ char* makeStringCopy(NSString* nstring) {
 - (void)reset
 {
     [self.purchases reset];
+}
+
+-  (void)setFinishTransactions:(BOOL)finishTransactions
+{
+    self.purchases.finishTransactions = finishTransactions;
 }
 
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName
@@ -319,9 +323,9 @@ void _RCRestoreTransactions()
     [_RCUnityHelperShared() restoreTransactions];
 }
 
-void _RCAddAttributionData(const char *network, const char *data) 
+void _RCAddAttributionData(const int network, const char *data) 
 {
-    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:convertCString(network)];
+    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network];
 }
 
 void _RCCreateAlias(const char *newAppUserID)
@@ -339,4 +343,7 @@ void _RCReset()
     [_RCUnityHelperShared() reset];
 }
 
+void _RCFinishTransactions(const BOOL finishTransactions) {
+    [_RCUnityHelperShared() setFinishTransactions:finishTransactions];
+}
 

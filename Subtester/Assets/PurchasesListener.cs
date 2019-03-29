@@ -20,6 +20,9 @@ public class PurchasesListener : Purchases.Listener
         CreateButton("Switch Username", () => SwitchUser(), 200);
         
         CreateButton("Send Attribution", () => SendAttribution(), 300);
+
+        Purchases purchases = GetComponent<Purchases>();
+        purchases.FinishTransactions(false);
     }
 
     private void CreateButton(string label, UnityAction action, float yPos)
@@ -58,6 +61,8 @@ public class PurchasesListener : Purchases.Listener
         data.trackerToken = "trackerToken";
 
         purchases.AddAdjustAttributionData(data);
+
+        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.APPSFLYER);
     }
 
     void ButtonClicked(string product)

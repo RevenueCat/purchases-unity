@@ -36,7 +36,7 @@ public class PurchasesWrapper {
 
         @Override
         public void onReceiveUpdatedPurchaserInfo(PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(purchaserInfo, null, false,null, false);
+            sendPurchaserInfo(purchaserInfo, null, false, null, false);
         }
 
         @Override
@@ -97,7 +97,7 @@ public class PurchasesWrapper {
         Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type);
     }
 
-    public static void addAttributionData(String dataJson, String network) {
+    public static void addAttributionData(String dataJson, final int network) {
         JSONObject data;
         try {
             data = new JSONObject(dataJson);
@@ -108,7 +108,17 @@ public class PurchasesWrapper {
 
         final JSONObject finalData = data;
 
-        if (network.equals("adjust")) {
+        Purchases.AttributionNetwork chosenNetwork = null;
+        for (Purchases.AttributionNetwork attributionNetwork : Purchases.AttributionNetwork.values()) {
+            if (attributionNetwork.getServerValue() == network) {
+                chosenNetwork = attributionNetwork;
+                break;
+            }
+        }
+
+        if (chosenNetwork == null) {
+            Log.e("Purchases", "Network " + network + " not supported");
+        } else if (chosenNetwork == ADJUST) {
             new Thread(new Runnable() {
                 public void run() {
                     try {
@@ -131,9 +141,8 @@ public class PurchasesWrapper {
                 }
             }).start();
         } else {
-            Log.e("Purchases", "Network " + network + " not supported");
+            Purchases.getSharedInstance().addAttributionData(finalData, chosenNetwork);
         }
-
     }
 
     public static void restoreTransactions() {
@@ -239,7 +248,8 @@ public class PurchasesWrapper {
         return jsonInfo;
     }
 
-    private static void sendPurchaserInfo(PurchaserInfo info, String completedTransaction, Boolean isPurchase, JSONObject error, Boolean isRestore) {
+    private static void sendPurchaserInfo(PurchaserInfo info, String completedTransaction, Boolean isPurchase,
+            JSONObject error, Boolean isRestore) {
         JSONObject message = new JSONObject();
 
         try {
