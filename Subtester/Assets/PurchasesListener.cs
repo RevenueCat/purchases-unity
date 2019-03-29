@@ -16,13 +16,12 @@ public class PurchasesListener : Purchases.Listener
     void Start()
     {
         CreateButton("Restore Purchases", () => RestoreClicked(), 100);
-        
+
         CreateButton("Switch Username", () => SwitchUser(), 200);
-        
+
         CreateButton("Send Attribution", () => SendAttribution(), 300);
 
         Purchases purchases = GetComponent<Purchases>();
-        purchases.FinishTransactions(false);
     }
 
     private void CreateButton(string label, UnityAction action, float yPos)
@@ -133,9 +132,12 @@ public class PurchasesListener : Purchases.Listener
 
     public override void AliasCreated(Purchases.Error error)
     {
-        if (error == null) {
+        if (error == null)
+        {
             Debug.Log("Alias created.");
-        } else {
+        }
+        else
+        {
             Debug.Log("Alias failed.");
             logError(error);
         }
