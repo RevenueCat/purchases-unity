@@ -1,3 +1,10 @@
+## 2.0.0
+
+- Updates SDKs to 2.1.0. This means there is new functions added:
+- Changes the SDK to use callback functions instead of delegates. There is a UpdatedPurchaserInfoListener that sends a purchaser info object. This listener is used to listen to changes in the purchaser info.
+- Added setDebugLogsEnabled to display debug logs.
+- Added getPurchaserInfo function to get the latest purchaser info known by the SDK.
+
 ## 0.6.1
 
 - Adds setFinishTransactions for iOS

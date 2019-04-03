@@ -1,6 +1,6 @@
 #!/bin/bash
-IOS_SDK_VERSION=1.2.0
-ANDROID_SDK_VERSION=1.4.0
+IOS_SDK_VERSION=2.1.0-rc1
+ANDROID_SDK_VERSION=2.1.0-RC1
 
 UNITY_DIR=`pwd`
 IOS_UNITY_DIR=$UNITY_DIR/Plugins/iOS/
@@ -19,7 +19,7 @@ pushd purchases-ios-$IOS_SDK_VERSION
 
 find Purchases -iname '*.h' -exec cp \{\} /$IOS_UNITY_DIR/ \;
 find Purchases -iname '*.m' -exec cp \{\} /$IOS_UNITY_DIR/ \;
-rm $IOS_UNITY_DIR/Purchases_macOS.h
+rm ${IOS_UNITY_DIR}Purchases_macOS.h
 
 popd
 
