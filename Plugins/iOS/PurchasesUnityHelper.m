@@ -81,7 +81,7 @@ char *makeStringCopy(NSString *nstring) {
     return @{
             @"message": error.localizedDescription,
             @"code": @(error.code),
-            @"domain": error.domain
+            @"underlyingErrorMessage": ((NSError*) error.userInfo[NSUnderlyingErrorKey]).localizedDescription,
     };
 }
 
@@ -109,26 +109,38 @@ char *makeStringCopy(NSString *nstring) {
     };
 }
 
-- (NSDictionary *)entitlementMapJSON:(RCEntitlements *)entitlements {
-
-    NSMutableDictionary *result = [NSMutableDictionary new];
+- (NSMutableArray *)entitlementMapJSON:(RCEntitlements *)entitlements {
+    NSMutableArray *entitlementsArray = [NSMutableArray new];
+    NSMutableDictionary *productByID = [NSMutableDictionary new];
 
     for (NSString *entId in entitlements) {
         RCEntitlement *entitlement = entitlements[entId];
-        result[entId] = entitlement.offerings;
-    }
+        NSMutableArray *offeringsArray = [NSMutableArray new];
 
-    NSMutableDictionary *productByID = [NSMutableDictionary new];
-    for (RCEntitlement *entitlement in entitlements.allValues) {
-        for (RCOffering *offering in entitlement.offerings.allValues) {
-            SKProduct *product = offering.activeProduct;
-            if (product != nil) {
-                productByID[product.productIdentifier] = product;
+        if (entitlement) {
+            NSDictionary<NSString *, RCOffering *> *offerings = entitlement.offerings;
+            if (offerings) {
+                [offerings enumerateKeysAndObjectsUsingBlock:^(NSString *offeringId, RCOffering *offering, BOOL *stop) {
+                    NSMutableDictionary *offeringJSON = [NSMutableDictionary new];
+                    offeringJSON[@"offeringId"] = offeringId;
+
+                    SKProduct *product = offering.activeProduct;
+                    if (product != nil) {
+                        productByID[product.productIdentifier] = product;
+                        offeringJSON[@"product"] = [self productJSON:product];
+                    }
+                    [offeringsArray addObject:offeringJSON];
+                }];
             }
         }
+        [entitlementsArray addObject:@{
+                @"entitlementId": entId,
+                @"offerings": offeringsArray
+        }];
     }
+
     self.products = [NSDictionary dictionaryWithDictionary:productByID];
-    return result;
+    return entitlementsArray;
 }
 
 - (void)getProducts:(NSArray *)productIdentifiers
@@ -158,7 +170,7 @@ char *makeStringCopy(NSString *nstring) {
     }
 
     [[RCPurchases sharedPurchases] makePurchase:product
-                            withCompletionBlock:^(SKPaymentTransaction *transaction, RCPurchaserInfo *info, NSError *error) {
+                            withCompletionBlock:^(SKPaymentTransaction * _Nullable transaction, RCPurchaserInfo * _Nullable info, NSError * _Nullable error, BOOL userCancelled) {
                                 NSMutableDictionary *response = [NSMutableDictionary new];
                                 if (transaction) {
                                     response[@"productIdentifier"] = transaction.payment.productIdentifier;
@@ -169,6 +181,7 @@ char *makeStringCopy(NSString *nstring) {
                                 if (error) {
                                     response[@"error"] = [self errorJSON:error];
                                 }
+                                response[@"userCancelled"] = @(userCancelled);
                                 [self sendJSONObject:response toMethod:MAKE_PURCHASE];
                             }];
 }
@@ -217,8 +230,15 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (void)getEntitlements {
-    [[RCPurchases sharedPurchases] entitlementsWithCompletionBlock:^(RCEntitlements *entitlementMap, NSError *error) {
-        [self sendJSONObject:[self entitlementMapJSON:entitlementMap] toMethod:GET_ENTITLEMENTS];
+    [[RCPurchases sharedPurchases] entitlementsWithCompletionBlock:^(RCEntitlements * _Nullable entitlementMap, NSError * _Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        if (entitlementMap) {
+            response[@"entitlements"] = [self entitlementMapJSON:entitlementMap];
+        }
+        if (error) {
+            response[@"error"] = [self errorJSON:error];
+        }
+        [self sendJSONObject:response toMethod:GET_ENTITLEMENTS];
     }];
 }
 
@@ -232,7 +252,7 @@ char *makeStringCopy(NSString *nstring) {
 
 -  (void)setFinishTransactions:(BOOL)finishTransactions
 {
-    self.purchases.finishTransactions = finishTransactions;
+    [RCPurchases sharedPurchases].finishTransactions = finishTransactions;
 }
 
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
@@ -268,6 +288,11 @@ char *makeStringCopy(NSString *nstring) {
 
         [self sendJSONObject:response toMethod:method];
     };
+}
+
+- (char *)getAppUserID
+{
+    return makeStringCopy([RCPurchases sharedPurchases].appUserID);
 }
 
 @end
@@ -341,4 +366,8 @@ void _RCSetDebugLogsEnabled(const BOOL enabled) {
 
 void _RCGetPurchaserInfo() {
     [_RCUnityHelperShared() getPurchaserInfo];
+}
+
+char * _RCGetAppUserID() {
+    return [_RCUnityHelperShared() getAppUserID];
 }

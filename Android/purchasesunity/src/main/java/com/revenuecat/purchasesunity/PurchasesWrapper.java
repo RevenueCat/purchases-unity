@@ -258,8 +258,8 @@ public class PurchasesWrapper {
 
     private static JSONArray entitlementsJSON(@NonNull Map<String, Entitlement> entitlementMap) throws JSONException {
         JSONArray entitlementsArray = new JSONArray();
-        JSONObject entitlementObject = new JSONObject();
         for (String entId : entitlementMap.keySet()) {
+            JSONObject entitlementObject = new JSONObject();
             Entitlement ent = entitlementMap.get(entId);
             JSONArray offeringsArray = new JSONArray();
             if (ent != null) {

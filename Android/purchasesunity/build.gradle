@@ -28,7 +28,7 @@ dependencies {
     compileOnly files('./libs/Unity.jar')
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    compileOnly files('../../Plugins/Android/purchases-2.1.0-RC1.aar')
+    compileOnly files('../../Plugins/Android/purchases-2.1.0.aar')
     compileOnly files('../../Plugins/Android/billing-1.1.aar')
     compileOnly files('../../Plugins/Android/kotlin-stdlib-1.3.20.jar')
 

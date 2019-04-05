@@ -36,8 +36,8 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
                     foreach (var offering in entitlement.offerings)
                     {
                         var product = offering.Value;
-                        Debug.Log(product);
-                        Debug.Log(product.identifier);
+                        Debug.Log("Product " + product);
+                        Debug.Log("Product identifier " + product.identifier);
                         if (product == null) continue;
                         var label = product.identifier + " " + product.priceString;
                         CreateButton(label, () => ButtonClicked(product.identifier), 500 + yOffset);
