@@ -15,82 +15,91 @@ The Purchases behavior takes one additional parameter, a GameObject with a Purch
 
 ```C#
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class PurchasesListener : Purchases.Listener
+public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
 {
-    void SendAttribution()
-    {
-        Purchases purchases = GetComponent<Purchases>();
-        Purchases.AdjustData data = new Purchases.AdjustData();
-
-        data.adid = "test";
-        data.network = "network";
-        data.adgroup = "adgroup";
-        data.campaign = "campaign";
-        data.creative = "creative";
-        data.clickLabel = "clickLabel";
-        data.trackerName = "trackerName";
-        data.trackerToken = "trackerToken";
-
-        purchases.AddAdjustAttributionData(data);
-    }
-
     void ButtonClicked(string product)
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.MakePurchase(product);
+        purchases.MakePurchase(product, (productIdentifier, purchaserInfo, userCancelled, error) =>
+        {
+            if (!userCancelled)
+            {
+                if (error != null)
+                {
+                    LogError(error);
+                }
+                else
+                {
+                    DisplayPurchaserInfo(purchaserInfo);
+                }
+            } else
+            {
+                Debug.Log("Subtester: User cancelled, don't show an error");
+            }
+        });
+    }
+    
+    void DoOtherStuff()
+    {
+        var purchases = GetComponent<Purchases>();
+        var data = new AdjustData
+        {
+            adid = "test",
+            network = "network",
+            adgroup = "adgroup",
+            campaign = "campaign",
+            creative = "creative",
+            clickLabel = "clickLabel",
+            trackerName = "trackerName",
+            trackerToken = "trackerToken"
+        };
+
+        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST);
+        
+        purchases.GetPurchaserInfo((info, error) =>
+        {
+            Debug.Log("purchaser info " + info.ActiveSubscriptions);
+            if (error != null) {
+                LogError(error);
+            }
+        });
+        purchases.GetProducts(new []{ "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
+        {
+            Debug.Log("getProducts " + products);
+            if (error != null) {
+                LogError(error);
+            }
+        });
+        
+        Debug.Log("user ID " + purchases.GetAppUserId());
     }
 
     void RestoreClicked()
     {
-        Purchases purchases = GetComponent<Purchases>();
-        purchases.RestoreTransactions();
-    }
-
-    public override void PurchaseSucceeded(string productIdentifier, Purchases.PurchaserInfo purchaserInfo)
-    {
-        DisplayPurchaserInfo(purchaserInfo);
-    }
-
-    public override void PurchaseFailed(string productIdentifier, Purchases.Error error, bool userCanceled)
-    {
-        if (userCanceled)
+        var purchases = GetComponent<Purchases>();
+        purchases.RestoreTransactions((purchaserInfo, error) =>
         {
-            Debug.Log("Subtester: User canceled, don't show an error");
-        }
-        else
-        {
-            logError(error);
-        }
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                DisplayPurchaserInfo(purchaserInfo);
+            }
+        });
     }
 
+    
     public override void PurchaserInfoReceived(Purchases.PurchaserInfo purchaserInfo)
     {
         DisplayPurchaserInfo(purchaserInfo);
     }
-
-    public override void PurchaserInfoReceiveFailed(Purchases.Error error)
-    {
-        logError(error);
-    }
-
-    public override void RestoredPurchases(Purchases.PurchaserInfo purchaserInfo)
-    {
-        Debug.Log("Subtester: Restore Succeeded");
-        DisplayPurchaserInfo(purchaserInfo);
-    }
-
-    public override void RestorePurchasesFailed(Purchases.Error error)
-    {
-        Debug.Log("Subtester: Restore Failed");
-        logError(error);
-    }
-
+    
     private void logError(Purchases.Error error)
     {
         Debug.Log("Subtester: " + JsonUtility.ToJson(error));
