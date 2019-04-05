@@ -17,7 +17,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
 
         CreateButton("Switch Username", SwitchUser, 200);
 
-        CreateButton("Send Attribution", SendAttribution, 300);
+        CreateButton("Do Other Stuff", DoOtherStuff, 300);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
@@ -94,7 +94,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
         public string trackerToken;
     }
 
-    private void SendAttribution()
+    private void DoOtherStuff()
     {
         var purchases = GetComponent<Purchases>();
         var data = new AdjustData
