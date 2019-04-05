@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class PurchasesListener : Purchases.Listener
+public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
 {
 
     public RectTransform parentPanel;
@@ -13,27 +11,54 @@ public class PurchasesListener : Purchases.Listener
     public Text purchaserInfoLabel;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
-        CreateButton("Restore Purchases", () => RestoreClicked(), 100);
+        CreateButton("Restore Purchases", RestoreClicked, 100);
 
-        CreateButton("Switch Username", () => SwitchUser(), 200);
+        CreateButton("Switch Username", SwitchUser, 200);
 
-        CreateButton("Send Attribution", () => SendAttribution(), 300);
+        CreateButton("Send Attribution", SendAttribution, 300);
 
-        Purchases purchases = GetComponent<Purchases>();
+        var purchases = GetComponent<Purchases>();
+        purchases.SetDebugLogsEnabled(true);
+        purchases.GetEntitlements((entitlements, error) =>
+        {
+            if (error != null) {
+                LogError(error);
+            }
+            else
+            {
+                Debug.Log("entitlements received " + entitlements);
+                var yOffset = 0;
+
+                foreach (var entitlement in entitlements.Values)
+                {
+                    foreach (var offering in entitlement.offerings)
+                    {
+                        var product = offering.Value;
+                        Debug.Log("Product " + product);
+                        Debug.Log("Product identifier " + product.identifier);
+                        if (product == null) continue;
+                        var label = product.identifier + " " + product.priceString;
+                        CreateButton(label, () => ButtonClicked(product.identifier), 500 + yOffset);
+                        yOffset += 70;
+
+                    }
+                }
+
+            }
+        });
     }
 
     private void CreateButton(string label, UnityAction action, float yPos)
     {
-        GameObject button = (GameObject)Instantiate(buttonPrefab);
+        var button = Instantiate(buttonPrefab, parentPanel, false);
 
-        button.transform.SetParent(parentPanel, false);
         button.transform.position = new Vector2(parentPanel.transform.position.x, yPos);
 
-        Button tempButton = button.GetComponent<Button>();
+        var tempButton = button.GetComponent<Button>();
 
-        Text textComponent = tempButton.GetComponentsInChildren<Text>()[0];
+        var textComponent = tempButton.GetComponentsInChildren<Text>()[0];
         textComponent.text = label;
 
         tempButton.onClick.AddListener(action);
@@ -41,124 +66,130 @@ public class PurchasesListener : Purchases.Listener
 
     private void SwitchUser()
     {
-        Purchases purchases = GetComponent<Purchases>();
-        purchases.Reset();
+        var purchases = GetComponent<Purchases>();
+        purchases.Identify("newUser", (purchaserInfo, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                DisplayPurchaserInfo(purchaserInfo);
+            }
+        });
     }
 
-    void SendAttribution()
+    [Serializable]
+    private class AdjustData
     {
-        Purchases purchases = GetComponent<Purchases>();
-        Purchases.AdjustData data = new Purchases.AdjustData();
+        // ReSharper disable NotAccessedField.Local
+        public string adid;
+        public string network;
+        public string adgroup;
+        public string campaign;
+        public string creative;
+        public string clickLabel;
+        public string trackerName;
+        public string trackerToken;
+    }
 
-        data.adid = "test";
-        data.network = "network";
-        data.adgroup = "adgroup";
-        data.campaign = "campaign";
-        data.creative = "creative";
-        data.clickLabel = "clickLabel";
-        data.trackerName = "trackerName";
-        data.trackerToken = "trackerToken";
+    private void SendAttribution()
+    {
+        var purchases = GetComponent<Purchases>();
+        var data = new AdjustData
+        {
+            adid = "test",
+            network = "network",
+            adgroup = "adgroup",
+            campaign = "campaign",
+            creative = "creative",
+            clickLabel = "clickLabel",
+            trackerName = "trackerName",
+            trackerToken = "trackerToken"
+        };
 
         purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST);
+        
+        purchases.GetPurchaserInfo((info, error) =>
+        {
+            Debug.Log("purchaser info " + info.ActiveSubscriptions);
+            if (error != null) {
+                LogError(error);
+            }
+        });
+        purchases.GetProducts(new []{ "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
+        {
+            Debug.Log("getProducts " + products);
+            if (error != null) {
+                LogError(error);
+            }
+        });
+        
+        Debug.Log("user ID " + purchases.GetAppUserId());
     }
 
-    void ButtonClicked(string product)
+    private void ButtonClicked(string product)
     {
-        Purchases purchases = GetComponent<Purchases>();
-        purchases.MakePurchase(product);
+        var purchases = GetComponent<Purchases>();
+        purchases.MakePurchase(product, (productIdentifier, purchaserInfo, userCancelled, error) =>
+        {
+            if (!userCancelled)
+            {
+                if (error != null)
+                {
+                    LogError(error);
+                }
+                else
+                {
+                    DisplayPurchaserInfo(purchaserInfo);
+                }
+            } else
+            {
+                Debug.Log("Subtester: User cancelled, don't show an error");
+            }
+        });
     }
 
     void RestoreClicked()
     {
-        Purchases purchases = GetComponent<Purchases>();
-        purchases.RestoreTransactions();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public override void ProductsReceived(List<Purchases.Product> products)
-    {
-        int yOffset = 0;
-        foreach (Purchases.Product p in products)
+        var purchases = GetComponent<Purchases>();
+        purchases.RestoreTransactions((purchaserInfo, error) =>
         {
-            String label = p.identifier + " " + p.priceString;
-            CreateButton(label, () => ButtonClicked(p.identifier), 500 + yOffset);
-            yOffset += 70;
-        }
-    }
-
-    public override void PurchaseSucceeded(string productIdentifier, Purchases.PurchaserInfo purchaserInfo)
-    {
-        DisplayPurchaserInfo(purchaserInfo);
-    }
-
-    public override void PurchaseFailed(string productIdentifier, Purchases.Error error, bool userCanceled)
-    {
-        if (userCanceled)
-        {
-            Debug.Log("Subtester: User canceled, don't show an error");
-        }
-        else
-        {
-            logError(error);
-        }
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                DisplayPurchaserInfo(purchaserInfo);
+            }
+        });
     }
 
     public override void PurchaserInfoReceived(Purchases.PurchaserInfo purchaserInfo)
     {
+        Debug.Log(string.Format("purchaser info received {0}", purchaserInfo.ActiveSubscriptions));
+
         DisplayPurchaserInfo(purchaserInfo);
     }
 
-    public override void PurchaserInfoReceiveFailed(Purchases.Error error)
-    {
-        logError(error);
-    }
-
-    public override void RestoredPurchases(Purchases.PurchaserInfo purchaserInfo)
-    {
-        Debug.Log("Subtester: Restore Succeeded");
-        DisplayPurchaserInfo(purchaserInfo);
-    }
-
-    public override void RestorePurchasesFailed(Purchases.Error error)
-    {
-        Debug.Log("Subtester: Restore Failed");
-        logError(error);
-    }
-
-    public override void AliasCreated(Purchases.Error error)
-    {
-        if (error == null)
-        {
-            Debug.Log("Alias created.");
-        }
-        else
-        {
-            Debug.Log("Alias failed.");
-            logError(error);
-        }
-    }
-
-    private void logError(Purchases.Error error)
+    private void LogError(Purchases.Error error)
     {
         Debug.Log("Subtester: " + JsonUtility.ToJson(error));
     }
 
-
     private void DisplayPurchaserInfo(Purchases.PurchaserInfo purchaserInfo)
     {
-        string text = "";
-        foreach (KeyValuePair<string, DateTime> entry in purchaserInfo.AllExpirationDates)
+        var text = "";
+        foreach (var entry in purchaserInfo.AllExpirationDates)
         {
-            string active = (DateTime.UtcNow < entry.Value) ? "subscribed" : "expired";
+            var active = (DateTime.UtcNow < entry.Value) ? "subscribed" : "expired";
             text += entry.Key + " " + entry.Value + " " + active + "\n";
         }
         text += purchaserInfo.LatestExpirationDate;
 
         purchaserInfoLabel.text = text;
     }
+
 }

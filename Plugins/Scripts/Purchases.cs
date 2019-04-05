@@ -1,31 +1,29 @@
 using UnityEngine;
-using System.Collections;
 using System;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable CS0649
 
 public class Purchases : MonoBehaviour
 {
-    public abstract class Listener : MonoBehaviour
+
+    public delegate void GetProductsFunc(List<Product> products, Error error);
+
+    public delegate void MakePurchaseFunc(string productIdentifier, PurchaserInfo purchaserInfo, bool userCancelled, Error error);
+
+    public delegate void PurchaserInfoFunc(PurchaserInfo purchaserInfo, Error error);
+
+    public delegate void GetEntitlementsFunc(Dictionary<string, Entitlement> entitlements, Error error);
+
+    public abstract class UpdatedPurchaserInfoListener : MonoBehaviour
     {
-        public abstract void ProductsReceived(List<Product> products);
-
-        public abstract void PurchaseSucceeded(string productIdentifier, PurchaserInfo purchaserInfo);
-        public abstract void PurchaseFailed(string productIdentifier, Error error, bool userCanceled);
-
         public abstract void PurchaserInfoReceived(PurchaserInfo purchaserInfo);
-        public abstract void PurchaserInfoReceiveFailed(Error error);
-
-        public abstract void RestoredPurchases(PurchaserInfo purchaserInfo);
-        public abstract void RestorePurchasesFailed(Error error);
-        public abstract void AliasCreated(Error error);
     }
 
-    private class PurchasesWrapperNoop : PurchasesWrapper
+    private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserID)
+        public void Setup(string gameObject, string apiKey, string appUserId)
         {
 
         }
@@ -50,12 +48,12 @@ public class Purchases : MonoBehaviour
 
         }
 
-        public void CreateAlias(string newAppUserID)
+        public void CreateAlias(string newAppUserId)
         {
 
         }
 
-        public void Identify(string appUserID)
+        public void Identify(string appUserId)
         {
 
         }
@@ -69,6 +67,32 @@ public class Purchases : MonoBehaviour
         {
 
         }
+
+        public void SetAllowSharingStoreAccount(bool allow)
+        {
+
+        }
+
+        public string GetAppUserId()
+        {
+            return null;
+        }
+
+        public void SetDebugLogsEnabled(bool enabled)
+        {
+
+        }
+
+        public void GetPurchaserInfo()
+        {
+
+        }
+
+        public void GetEntitlements()
+        {
+
+        }
+
     }
 
     /*
@@ -79,50 +103,47 @@ public class Purchases : MonoBehaviour
      * Note: All DateTimes are in UTC, be sure to compare them with 
      * DateTime.UtcNow
      */
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class PurchaserInfo
     {
-        private PurchaserInfoResponse response;
+        private readonly PurchaserInfoResponse _response;
 
         public PurchaserInfo(PurchaserInfoResponse response)
         {
-            this.response = response;
+            _response = response;
         }
-
 
         public List<string> ActiveSubscriptions
         {
-            get { return response.activeSubscriptions; }
+            get { return _response.activeSubscriptions; }
         }
-
+        
         public List<string> AllPurchasedProductIdentifiers
         {
-            get { return response.allPurchasedProductIdentifiers; }
+            get { return _response.allPurchasedProductIdentifiers; }
         }
 
         public DateTime LatestExpirationDate
         {
-            get { return FromUnixTime(response.latestExpirationDate); }
+            get { return FromUnixTime(_response.latestExpirationDate); }
         }
 
         private static DateTime FromUnixTime(long unixTime)
         {
-            return epoch.AddSeconds(unixTime);
+            return Epoch.AddSeconds(unixTime);
         }
 
-        private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public Dictionary<string, DateTime> AllExpirationDates
         {
             get
             {
-                Dictionary<string, DateTime> allExpirations = new Dictionary<string, DateTime>();
-                for (int i = 0; i < response.allExpirationDateKeys.Count; i++)
+                var allExpirations = new Dictionary<string, DateTime>();
+                for (var i = 0; i < _response.allExpirationDateKeys.Count; i++)
                 {
-                    var date = FromUnixTime(response.allExpirationDateValues[i]);
-                    if (date != null)
-                    {
-                        allExpirations[response.allExpirationDateKeys[i]] = date;
-                    }
+                    var date = FromUnixTime(_response.allExpirationDateValues[i]);
+                    allExpirations[_response.allExpirationDateKeys[i]] = date;
                 }
 
                 return allExpirations;
@@ -130,15 +151,328 @@ public class Purchases : MonoBehaviour
         }
     }
 
+    public class Entitlement
+    {
+
+        public readonly Dictionary<string, Product> offerings;
+
+        public Entitlement(EntitlementResponse response)
+        {
+            offerings = new Dictionary<string, Product>();
+            foreach (var offering in response.offerings)
+            {
+                Debug.Log("offering " + offering.product);
+                if (offering.product.identifier != null)
+                {
+                    offerings.Add(offering.offeringId, offering.product);
+                }
+            }
+        }
+
+    }
+
+
+    [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
+    // ReSharper disable once InconsistentNaming
+    public string revenueCatAPIKey;
+
+    [Tooltip(
+        "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
+    // ReSharper disable once InconsistentNaming
+    public string appUserID;
+
+    [Tooltip("List of product identifiers.")]
+    public string[] productIdentifiers;
+
+    [Tooltip("A subclass of Purchases.UpdatedPurchaserInfoListener component. Use your custom subclass to define how to handle updated purchaser information.")]
+    public UpdatedPurchaserInfoListener listener;
+
+    private IPurchasesWrapper _wrapper;
+
+    private void Start()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperAndroid();
+#elif UNITY_IPHONE && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperiOS();
+#else
+        _wrapper = new PurchasesWrapperNoop();
+#endif
+
+        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
+        GetProducts(productIdentifiers, null);
+    }
+
+    // Call this if you want to reset with a new user id
+    private void Setup(string newUserId)
+    {
+        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId);
+    }
+
+    private GetProductsFunc ProductsCallback { get; set; }
+
+    // Optionally call this if you want to fetch more products,
+    // called automatically with pre-configured products
+    // ReSharper disable once MemberCanBePrivate.Global
+    public void GetProducts(string[] products, GetProductsFunc callback)
+    {
+        ProductsCallback = callback;
+        _wrapper.GetProducts(products);
+    }
+
+    private MakePurchaseFunc MakePurchaseCallback { get; set; }
+
+    // Call this to initiate a purchase
+    public void MakePurchase(string productIdentifier, MakePurchaseFunc callback,
+        string type = "subs", string oldSku = null)
+    {
+        MakePurchaseCallback = callback;
+        _wrapper.MakePurchase(productIdentifier, type, oldSku);
+    }
+
+    private PurchaserInfoFunc RestoreTransactionsCallback { get; set; }
+
+    public void RestoreTransactions(PurchaserInfoFunc callback)
+    {
+        RestoreTransactionsCallback = callback;
+        _wrapper.RestoreTransactions();
+    }
+
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum AttributionNetwork
+    {
+        APPLE_SEARCH_ADS = 0,
+        ADJUST = 1,
+        APPSFLYER = 2,
+        BRANCH = 3,
+        TENJIN = 4
+    }
+
+    public void AddAttributionData(string dataJson, AttributionNetwork network)
+    {
+        _wrapper.AddAttributionData((int)network, dataJson);
+    }
+
+    private PurchaserInfoFunc CreateAliasCallback { get; set; }
+
+    // ReSharper disable once UnusedMember.Global
+    public void CreateAlias(string newAppUserId, PurchaserInfoFunc callback)
+    {
+        CreateAliasCallback = callback;
+        _wrapper.CreateAlias(newAppUserId);
+    }
+
+    private PurchaserInfoFunc IdentifyCallback { get; set; }
+
+    public void Identify(string appUserId, PurchaserInfoFunc callback)
+    {
+        IdentifyCallback = callback;
+        _wrapper.Identify(appUserId);
+    }
+
+    private PurchaserInfoFunc ResetCallback { get; set; }
+
+    // ReSharper disable once Unity.IncorrectMethodSignature
+    // ReSharper disable once UnusedMember.Global
+    public void Reset(PurchaserInfoFunc callback)
+    {
+        ResetCallback = callback;
+        _wrapper.Reset();
+    }
+    
+    // ReSharper disable once UnusedMember.Global
+    public void SetFinishTransactions(bool finishTransactions)
+    {
+        _wrapper.SetFinishTransactions(finishTransactions);
+    }
+    
+    // ReSharper disable once UnusedMember.Global
+    public void SetAllowSharingStoreAccount(bool allow)
+    {
+        _wrapper.SetAllowSharingStoreAccount(allow);
+    }
+    
+    // ReSharper disable once UnusedMember.Global
+    public string GetAppUserId()
+    {
+        return _wrapper.GetAppUserId();
+    }
+    
+    // ReSharper disable once UnusedMember.Global
+    public void SetDebugLogsEnabled(bool logsEnabled)
+    {
+        _wrapper.SetDebugLogsEnabled(logsEnabled);
+    }
+
+    private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }
+
+    // ReSharper disable once UnusedMember.Global
+    public void GetPurchaserInfo(PurchaserInfoFunc callback)
+    {
+        GetPurchaserInfoCallback = callback;
+        _wrapper.GetPurchaserInfo();
+    }
+
+    private GetEntitlementsFunc GetEntitlementsCallback { get; set; }
+
+    public void GetEntitlements(GetEntitlementsFunc callback)
+    {
+        GetEntitlementsCallback = callback;
+        _wrapper.GetEntitlements();
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _receiveProducts(string productsJson)
+    {
+        Debug.Log("_receiveProducts " + productsJson);
+        var response = JsonUtility.FromJson<ProductResponse>(productsJson);
+        var error = response.error.message != null ? response.error : null;
+
+        if (ProductsCallback == null) return;
+        if (error != null)
+        {
+            ProductsCallback(null, error);
+        }
+        else
+        {
+            ProductsCallback(response.products, null);
+        }
+        ProductsCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _getPurchaserInfo(string purchaserInfoJson)
+    {
+        Debug.Log("_getPurchaserInfo " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, GetPurchaserInfoCallback);
+        GetPurchaserInfoCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _makePurchase(string makePurchaseResponseJson)
+    {
+        Debug.Log("_makePurchase " + makePurchaseResponseJson);
+        var response = JsonUtility.FromJson<MakePurchaseResponse>(makePurchaseResponseJson);
+
+        var error = response.error.message != null ? response.error : null;
+        var info = response.purchaserInfo.activeSubscriptions != null
+            ? new PurchaserInfo(response.purchaserInfo)
+            : null;
+
+        if (MakePurchaseCallback == null) return;
+        if (error != null)
+        {
+            MakePurchaseCallback(null, null, response.userCancelled, error);
+        }
+        else
+        {
+            MakePurchaseCallback(response.productIdentifier, info, false, null);
+        }
+        MakePurchaseCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _createAlias(string purchaserInfoJson)
+    {
+        Debug.Log("_createAlias " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, CreateAliasCallback);
+        CreateAliasCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _receivePurchaserInfo(string purchaserInfoJson)
+    {
+        Debug.Log("_receivePurchaserInfo " + purchaserInfoJson);
+
+        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(purchaserInfoJson);
+        var info = response.purchaserInfo.activeSubscriptions != null
+                    ? new PurchaserInfo(response.purchaserInfo)
+                    : null;
+        if (info != null)
+        {
+            listener.PurchaserInfoReceived(info);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _restoreTransactions(string purchaserInfoJson)
+    {
+        Debug.Log("_restoreTransactions " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, RestoreTransactionsCallback);
+        RestoreTransactionsCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _identify(string purchaserInfoJson)
+    {
+        Debug.Log("_identify " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, IdentifyCallback);
+        IdentifyCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _reset(string purchaserInfoJson)
+    {
+        Debug.Log("_reset " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, ResetCallback);
+        ResetCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _getEntitlements(string entitlementsJson)
+    {
+        Debug.Log("_getEntitlements " + entitlementsJson);
+        if (GetEntitlementsCallback == null) return;
+        var response = JsonUtility.FromJson<EntitlementsResponse>(entitlementsJson);
+        var error = response.error.message != null ? response.error : null;
+        if (error != null)
+        {
+            GetEntitlementsCallback(null, error);
+        }
+        else
+        {
+            var entitlements = new Dictionary<string, Entitlement>();
+            foreach (var entitlementResponse in response.entitlements)
+            {
+                Debug.Log(entitlementResponse.entitlementId);
+                entitlements.Add(entitlementResponse.entitlementId, new Entitlement(entitlementResponse));
+            }
+            GetEntitlementsCallback(entitlements, null);
+        }
+        GetEntitlementsCallback = null;
+    }
+
+    private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)
+    {
+        if (callback == null) return;
+        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(arguments);
+
+        var error = response.error.message != null ? response.error : null;
+        var info = response.purchaserInfo.activeSubscriptions != null
+            ? new PurchaserInfo(response.purchaserInfo)
+            : null;
+        if (error != null)
+        {
+            callback(null, error);
+        }
+        else
+        {
+            callback(info, null);
+        }
+    }
+
     [Serializable]
+    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Error
     {
         public string message;
         public int code;
-        public string domain;
+        public string underlyingErrorMessage;
     }
 
     [Serializable]
+    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Product
     {
         public string title;
@@ -148,133 +482,27 @@ public class Purchases : MonoBehaviour
         public string priceString;
     }
 
-    [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
-    public string revenueCatAPIKey;
-
-    [Tooltip(
-        "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
-    public string appUserID;
-
-    [Tooltip("List of product identifiers.")]
-    public string[] productIdentifiers;
-
-    [Tooltip("A subclass of Purchases.Listener component. Use your custom subclass to define how to handle events.")]
-    public Listener listener;
-
-    private PurchasesWrapper wrapper;
-
-    void Start()
-    {
-        string appUserID = (string.IsNullOrEmpty(this.appUserID)) ? null : this.appUserID;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-        wrapper = new PurchasesWrapperAndroid();
-#elif UNITY_IPHONE && !UNITY_EDITOR
-        wrapper = new PurchasesWrapperiOS();
-#else
-        wrapper = new PurchasesWrapperNoop();
-#endif
-
-        Setup(appUserID);
-        GetProducts(productIdentifiers);
-    }
-
-    // Call this if you want to reset with a new user id
-    public void Setup(string newUserID)
-    {
-        wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserID);
-    }
-
-    // Optionally call this if you want to fetch more products, 
-    // called automatically with pre-configured products
-    public void GetProducts(string[] products)
-    {
-        wrapper.GetProducts(products);
-    }
-
-    // Call this to initiate a purchase
-    public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
-    {
-        wrapper.MakePurchase(productIdentifier, type, oldSku);
-    }
-
-    public void RestoreTransactions()
-    {
-        wrapper.RestoreTransactions();
-    }
-
-    [Serializable]
-    public class AdjustData
-    {
-        public string adid;
-        public string network;
-        public string adgroup;
-        public string campaign;
-        public string creative;
-        public string clickLabel;
-        public string trackerName;
-        public string trackerToken;
-    }
-
-    public enum AttributionNetwork
-    {
-        APPLE_SEARCH_ADS = 0,
-        ADJUST = 1,
-        APPSFLYER = 2,
-        BRANCH = 3,
-        TENJIN = 4
-    };
-
-    public void AddAdjustAttributionData(AdjustData data)
-    {
-        wrapper.AddAttributionData((int)AttributionNetwork.ADJUST, JsonUtility.ToJson(data));
-    }
-
-    public void AddAttributionData(string dataJSON, AttributionNetwork network)
-    {
-        wrapper.AddAttributionData((int)network, dataJSON);
-    }
-
-    public void CreateAlias(string newAppUserID)
-    {
-        wrapper.CreateAlias(newAppUserID);
-    }
-
-    public void Identify(string appUserID)
-    {
-        wrapper.Identify(appUserID);
-    }
-
-    public void Reset()
-    {
-        wrapper.Reset();
-    }
-
-    public void SetFinishTransactions(bool finishTransactions)
-    {
-        wrapper.SetFinishTransactions(finishTransactions);
-    }
-
     [Serializable]
     private class ProductResponse
     {
         public List<Product> products;
-    }
-
-    private void _receiveProducts(string productsJSON)
-    {
-        ProductResponse response = JsonUtility.FromJson<ProductResponse>(productsJSON);
-        listener.ProductsReceived(response.products);
+        public Error error;
     }
 
     [Serializable]
     private class ReceivePurchaserInfoResponse
     {
-        public string productIdentifier;
         public PurchaserInfoResponse purchaserInfo;
         public Error error;
-        public bool isRestore;
-        public bool isPurchase;
+}
+
+    [Serializable]
+    private class MakePurchaseResponse
+    {
+        public string productIdentifier;
+        public PurchaserInfoResponse purchaserInfo;
+        public bool userCancelled;
+        public Error error;
     }
 
     [Serializable]
@@ -287,59 +515,25 @@ public class Purchases : MonoBehaviour
         public List<long> allExpirationDateValues;
     }
 
-    private void _receivePurchaserInfo(string arguments)
+    [Serializable]
+    public class EntitlementsResponse
     {
-        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(arguments);
-
-        var error = (response.error.message != null) ? response.error : null;
-        var info = (response.purchaserInfo.activeSubscriptions != null)
-            ? new PurchaserInfo(response.purchaserInfo)
-            : null;
-
-        var isPurchase = response.isPurchase;
-        var isRestore = response.isRestore;
-
-#if UNITY_ANDROID
-        bool userCanceled = (error != null && error.domain.Equals("1") && error.code == 1);
-#else
-        bool userCanceled = (error != null && error.domain == "SKErrorDomain" && error.code == 2);
-#endif
-
-        if (error != null)
-        {
-            if (isPurchase)
-            {
-                listener.PurchaseFailed(response.productIdentifier, error, userCanceled);
-            }
-            else if (isRestore)
-            {
-                listener.RestorePurchasesFailed(error);
-            }
-            else
-            {
-                listener.PurchaserInfoReceiveFailed(error);
-            }
-        }
-        else
-        {
-            if (isPurchase)
-            {
-                listener.PurchaseSucceeded(response.productIdentifier, info);
-            }
-            else if (isRestore)
-            {
-                listener.RestoredPurchases(info);
-            }
-            else
-            {
-                listener.PurchaserInfoReceived(info);
-            }
-        }
+        public List<EntitlementResponse> entitlements;
+        public Error error;
     }
 
-    private void _aliasCreated(string arguments)
+    [Serializable]
+    public class Offering
     {
-        var error = JsonUtility.FromJson<Error>(arguments);
-        listener.AliasCreated((error.message != null) ? error : null);
+        public string offeringId;
+        public Product product;
     }
+
+    [Serializable]
+    public class EntitlementResponse
+    {
+        public string entitlementId;
+        public List<Offering> offerings;
+    }
+
 }
