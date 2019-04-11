@@ -1,3 +1,7 @@
+## 1.0.1
+
+- Fixing crash on iOS when missing an underlying error
+
 ## 1.0.0
 
 - Updates SDKs to 2.1.0. This means there is new functions added:

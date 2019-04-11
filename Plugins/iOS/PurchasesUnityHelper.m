@@ -78,11 +78,14 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (NSDictionary *)errorJSON:(NSError *)error {
-    return @{
-            @"message": error.localizedDescription,
-            @"code": @(error.code),
-            @"underlyingErrorMessage": ((NSError*) error.userInfo[NSUnderlyingErrorKey]).localizedDescription,
-    };
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                @"message": error.localizedDescription,
+                                                                                @"code": @(error.code)
+                                                                                }];
+    if (error.userInfo[NSUnderlyingErrorKey]) {
+        dict[@"underlyingErrorMessage"] = ((NSError *)error.userInfo[NSUnderlyingErrorKey]).localizedDescription;
+    }
+    return dict;
 }
 
 - (NSDictionary *)purchaserInfoJSON:(RCPurchaserInfo *)info {
