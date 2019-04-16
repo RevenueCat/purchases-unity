@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Updates iOS SDK to 2.1.1
+
 ## 1.0.1
 
 - Fixing crash on iOS when missing an underlying error
