@@ -326,10 +326,12 @@ public class Purchases : MonoBehaviour
     private void _receiveProducts(string productsJson)
     {
         Debug.Log("_receiveProducts " + productsJson);
-        var response = JsonUtility.FromJson<ProductResponse>(productsJson);
-        var error = response.error.message != null ? response.error : null;
 
         if (ProductsCallback == null) return;
+
+        var response = JsonUtility.FromJson<ProductResponse>(productsJson);
+        var error = response.error.message != null ? response.error : null;
+        
         if (error != null)
         {
             ProductsCallback(null, error);
@@ -353,14 +355,16 @@ public class Purchases : MonoBehaviour
     private void _makePurchase(string makePurchaseResponseJson)
     {
         Debug.Log("_makePurchase " + makePurchaseResponseJson);
+
+        if (MakePurchaseCallback == null) return;
+
         var response = JsonUtility.FromJson<MakePurchaseResponse>(makePurchaseResponseJson);
 
         var error = response.error.message != null ? response.error : null;
         var info = response.purchaserInfo.activeSubscriptions != null
             ? new PurchaserInfo(response.purchaserInfo)
             : null;
-
-        if (MakePurchaseCallback == null) return;
+        
         if (error != null)
         {
             MakePurchaseCallback(null, null, response.userCancelled, error);
@@ -384,6 +388,8 @@ public class Purchases : MonoBehaviour
     private void _receivePurchaserInfo(string purchaserInfoJson)
     {
         Debug.Log("_receivePurchaserInfo " + purchaserInfoJson);
+
+        if (listener == null) return;
 
         var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(purchaserInfoJson);
         var info = response.purchaserInfo.activeSubscriptions != null

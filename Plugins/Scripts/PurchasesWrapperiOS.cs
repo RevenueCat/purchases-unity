@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
+#if UNITY_IOS
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
@@ -112,5 +113,5 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCGetEntitlements();
     }
-
 }
+#endif

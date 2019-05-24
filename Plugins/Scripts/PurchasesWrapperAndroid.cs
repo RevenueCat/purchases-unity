@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
+#if UNITY_ANDROID
 public class PurchasesWrapperAndroid : IPurchasesWrapper
 {
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -123,5 +124,5 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             purchases.CallStatic("getEntitlements");
         }
     }
-
 }
+#endif
