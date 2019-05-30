@@ -3,7 +3,7 @@ IOS_SDK_VERSION=2.1.1
 ANDROID_SDK_VERSION=2.1.0
 
 UNITY_DIR=`pwd`
-IOS_UNITY_DIR=$UNITY_DIR/Plugins/iOS/
+IOS_UNITY_DIR=$UNITY_DIR/Plugins/RevenueCat/Plugins/iOS/
 
 TEMP_DIR=`mktemp -d -t "purchases-unity"`
 pushd $TEMP_DIR
@@ -29,7 +29,7 @@ pushd android
 ANDROID_FILENAME=purchases-$ANDROID_SDK_VERSION.aar
 ANDROID_SOURCE_URL=https://repo1.maven.org/maven2/com/revenuecat/purchases/purchases/$ANDROID_SDK_VERSION/$ANDROID_FILENAME
 wget $ANDROID_SOURCE_URL
-cp $ANDROID_FILENAME $UNITY_DIR/Plugins/Android
+cp $ANDROID_FILENAME $UNITY_DIR/Plugins/RevenueCat/Plugins/Android
 
 
 #popd
