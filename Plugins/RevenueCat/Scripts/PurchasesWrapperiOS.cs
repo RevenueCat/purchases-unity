@@ -6,10 +6,10 @@ using UnityEngine;
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
-    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId);
-    public void Setup(string gameObject, string apiKey, string appUserId)
+    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode);
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
     {
-        _RCSetupPurchases(gameObject, apiKey, appUserId);
+        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -45,10 +45,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCAddAttributionData(int network, string data);
-    public void AddAttributionData(int network, string data)
+    private static extern void _RCAddAttributionData(int network, string data, string networkUserId);
+    public void AddAttributionData(int network, string data, string networkUserId)
     {
-        _RCAddAttributionData(network, data);
+        _RCAddAttributionData(network, data, networkUserId);
     }
 
     [DllImport("__Internal")]
@@ -113,5 +113,20 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCGetEntitlements();
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSyncPurchases();
+    public void SyncPurchases()
+    {
+        // NOOP
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetAutomaticAttributionCollection(bool enabled);
+    public void SetAutomaticAttributionCollection(bool enabled)
+    {
+        _RCSetAutomaticAttributionCollection(enabled);
+    }
+
 }
 #endif

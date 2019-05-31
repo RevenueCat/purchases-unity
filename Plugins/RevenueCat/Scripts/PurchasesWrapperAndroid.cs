@@ -33,10 +33,10 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId)
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
     {
         using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper")) {
-            purchases.CallStatic("setup", apiKey, appUserId, gameObject);
+            purchases.CallStatic("setup", apiKey, appUserId, gameObject, observerMode);
         }
     }
 
@@ -48,11 +48,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void AddAttributionData(int network, string data)
+    public void AddAttributionData(int network, string data, string networkUserId)
     {
         using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
         {
-            purchases.CallStatic("addAttributionData", data, network);
+            purchases.CallStatic("addAttributionData", data, network, networkUserId);
         }
     }
 
@@ -82,7 +82,10 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void SetFinishTransactions(bool finishTransactions)
     {
-        // NOOP for now
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("setFinishTransactions", finishTransactions);
+        }
     }
 
     public void SetAllowSharingStoreAccount(bool allow)
@@ -123,6 +126,19 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         {
             purchases.CallStatic("getEntitlements");
         }
+    }
+
+    public void SyncPurchases()
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("syncPurchases");
+        }
+    }
+
+    public void SetAutomaticAttributionCollection(bool enabled)
+    {
+        // NOOP
     }
 }
 #endif

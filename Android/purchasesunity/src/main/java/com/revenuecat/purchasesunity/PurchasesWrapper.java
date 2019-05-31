@@ -2,6 +2,7 @@ package com.revenuecat.purchasesunity;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.android.billingclient.api.Purchase;
@@ -40,9 +41,9 @@ public class PurchasesWrapper {
         }
     };
 
-    public static void setup(String apiKey, String appUserId, String gameObject_) {
+    public static void setup(String apiKey, String appUserId, String gameObject_, boolean observerMode) {
         gameObject = gameObject_;
-        Purchases.configure(UnityPlayer.currentActivity, apiKey, appUserId);
+        Purchases.configure(UnityPlayer.currentActivity, apiKey, appUserId, observerMode);
         Purchases.getSharedInstance().setUpdatedPurchaserInfoListener(listener);
     }
 
@@ -104,7 +105,7 @@ public class PurchasesWrapper {
         makePurchase(productIdentifier, type, null);
     }
 
-    public static void addAttributionData(String dataJson, final int network) {
+    public static void addAttributionData(String dataJson, final int network, @Nullable String networkUserId) {
         JSONObject data;
         try {
             data = new JSONObject(dataJson);
@@ -113,35 +114,12 @@ public class PurchasesWrapper {
             return;
         }
 
-        final JSONObject finalData = data;
-
-        new Thread(new Runnable() {
-            public void run() {
-                Purchases.AttributionNetwork chosenNetwork = null;
-                for (Purchases.AttributionNetwork attributionNetwork : Purchases.AttributionNetwork.values()) {
-                    if (attributionNetwork.getServerValue() == network) {
-                        chosenNetwork = attributionNetwork;
-                        break;
-                    }
-                }
-                try {
-                    Context context = UnityPlayer.currentActivity;
-                    AdvertisingIdClient.AdInfo adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
-
-                    String advertisingId = adInfo.getId();
-                    Boolean trackingLimited = adInfo.isLimitAdTrackingEnabled();
-
-                    if (!trackingLimited) {
-                        finalData.put("rc_gps_adid", advertisingId);
-                    }
-
-                } catch (Exception e) {
-                    Log.e("Purchases", e.getLocalizedMessage());
-                    e.printStackTrace();
-                }
-                Purchases.getSharedInstance().addAttributionData(finalData, chosenNetwork);
+        for (Purchases.AttributionNetwork attributionNetwork : Purchases.AttributionNetwork.values()) {
+            if (attributionNetwork.getServerValue() == network) {
+                Purchases.addAttributionData(data, attributionNetwork, networkUserId);
+                break;
             }
-        }).start();
+        }
     }
 
     public static void restoreTransactions() {
@@ -188,6 +166,14 @@ public class PurchasesWrapper {
 
     public static void getPurchaserInfo() {
         Purchases.getSharedInstance().getPurchaserInfo(getPurchaserInfoListener(GET_PURCHASER_INFO));
+    }
+
+    public static void setFinishTransactions(boolean enabled) {
+        Purchases.getSharedInstance().setFinishTransactions(enabled);
+    }
+
+    public static void syncPurchases() {
+        Purchases.getSharedInstance().syncPurchases();
     }
 
     private static void logJSONException(JSONException e) {

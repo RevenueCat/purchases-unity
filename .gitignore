@@ -6,3 +6,4 @@ org.eclipse.buildship.core.prefs
 .project
 .classpath
 Android/.idea/*
+.vscode

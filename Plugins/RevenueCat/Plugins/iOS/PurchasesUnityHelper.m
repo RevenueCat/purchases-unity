@@ -53,12 +53,12 @@ char *makeStringCopy(NSString *nstring) {
 
 @implementation RCUnityHelperDelegate
 
-- (void)setupPurchases:(NSString *)apiKey appUserID:(NSString *)appUserID gameObject:(NSString *)gameObject {
+- (void)setupPurchases:(NSString *)apiKey appUserID:(NSString *)appUserID gameObject:(NSString *)gameObject observerMode:(BOOL)observerMode {
     [[RCPurchases sharedPurchases] setDelegate:nil];
     self.products = nil;
     self.gameObject = nil;
 
-    [RCPurchases configureWithAPIKey:apiKey appUserID:appUserID];
+    [RCPurchases configureWithAPIKey:apiKey appUserID:appUserID observerMode:observerMode];
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
 }
@@ -193,7 +193,7 @@ char *makeStringCopy(NSString *nstring) {
     [[RCPurchases sharedPurchases] restoreTransactionsWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
 }
 
-- (void)addAttributionData:(NSString *)dataJSON network:(int)network
+- (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId
 {
     NSError *error = nil;
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding]
@@ -205,15 +205,7 @@ char *makeStringCopy(NSString *nstring) {
         return;
     }
 
-    // If idfa is available, add it
-    NSString *idfa = ASIdentifierManager.sharedManager.advertisingIdentifier.UUIDString;
-    if (idfa) {
-        NSMutableDictionary *newData = [NSMutableDictionary dictionaryWithDictionary:data];
-        newData[@"rc_idfa"] = idfa;
-        data = [NSDictionary dictionaryWithDictionary:newData];
-    }
-
-    [[RCPurchases sharedPurchases] addAttributionData:data fromNetwork:network];
+    [RCPurchases addAttributionData:data fromNetwork:network forNetworkUserId:networkUserId];
 }
 
 - (void)createAlias:(NSString *)newAppUserID {
@@ -256,6 +248,11 @@ char *makeStringCopy(NSString *nstring) {
 -  (void)setFinishTransactions:(BOOL)finishTransactions
 {
     [RCPurchases sharedPurchases].finishTransactions = finishTransactions;
+}
+
+- (void)setAutomaticAttributionCollection:(BOOL)enabled
+{
+    [RCPurchases setAutomaticAttributionCollection:enabled];
 }
 
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
@@ -311,8 +308,8 @@ static RCUnityHelperDelegate *_RCUnityHelperShared() {
     return _RCUnityHelper;
 }
 
-void _RCSetupPurchases(const char *gameObject, const char *apiKey, const char *appUserID) {
-    [_RCUnityHelperShared() setupPurchases:convertCString(apiKey) appUserID:convertCString(appUserID) gameObject:convertCString(gameObject)];
+void _RCSetupPurchases(const char *gameObject, const char *apiKey, const char *appUserID, const BOOL observerMode) {
+    [_RCUnityHelperShared() setupPurchases:convertCString(apiKey) appUserID:convertCString(appUserID) gameObject:convertCString(gameObject) observerMode:observerMode];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
@@ -335,9 +332,9 @@ void _RCRestoreTransactions() {
     [_RCUnityHelperShared() restoreTransactions];
 }
 
-void _RCAddAttributionData(const int network, const char *data)
+void _RCAddAttributionData(const int network, const char *data, const char *networkUserId)
 {
-    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network];
+    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network networkUserId:convertCString(networkUserId)];
 }
 
 void _RCCreateAlias(const char *newAppUserID) {
@@ -373,4 +370,12 @@ void _RCGetPurchaserInfo() {
 
 char * _RCGetAppUserID() {
     return [_RCUnityHelperShared() getAppUserID];
+}
+
+void _RCSyncPurchases() {
+    // NOOP
+}
+
+void _RCSetAutomaticAttributionCollection(const BOOL enabled) {
+    [_RCUnityHelperShared() setAutomaticAttributionCollection:enabled];
 }
