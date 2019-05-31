@@ -23,7 +23,8 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
         purchases.SetDebugLogsEnabled(true);
         purchases.GetEntitlements((entitlements, error) =>
         {
-            if (error != null) {
+            if (error != null)
+            {
                 LogError(error);
             }
             else
@@ -108,24 +109,28 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
             trackerName = "trackerName",
             trackerToken = "trackerToken"
         };
+        purchases.SetAutomaticAttributionCollection(true);
+        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST, null);
 
-        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST);
-        
         purchases.GetPurchaserInfo((info, error) =>
         {
             Debug.Log("purchaser info " + info.ActiveSubscriptions);
-            if (error != null) {
+            if (error != null)
+            {
                 LogError(error);
             }
         });
-        purchases.GetProducts(new []{ "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
+        purchases.GetProducts(new[] { "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
         {
             Debug.Log("getProducts " + products);
-            if (error != null) {
+            if (error != null)
+            {
                 LogError(error);
             }
         });
-        
+
+        purchases.SyncPurchases();
+        purchases.SetFinishTransactions(false);
         Debug.Log("user ID " + purchases.GetAppUserId());
     }
 
@@ -144,7 +149,8 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
                 {
                     DisplayPurchaserInfo(purchaserInfo);
                 }
-            } else
+            }
+            else
             {
                 Debug.Log("Subtester: User cancelled, don't show an error");
             }

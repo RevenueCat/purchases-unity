@@ -23,12 +23,12 @@ public class Purchases : MonoBehaviour
 
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId)
+        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
         {
 
         }
 
-        public void AddAttributionData(int network, string data)
+        public void AddAttributionData(int network, string data, string networkUserId)
         {
 
         }
@@ -93,6 +93,15 @@ public class Purchases : MonoBehaviour
 
         }
 
+        public void SyncPurchases()
+        {
+
+        }
+        
+        public void SetAutomaticAttributionCollection(bool enabled)
+        {
+
+        }
     }
 
     /*
@@ -117,7 +126,7 @@ public class Purchases : MonoBehaviour
         {
             get { return _response.activeSubscriptions; }
         }
-        
+
         public List<string> AllPurchasedProductIdentifiers
         {
             get { return _response.allPurchasedProductIdentifiers; }
@@ -187,6 +196,9 @@ public class Purchases : MonoBehaviour
     [Tooltip("A subclass of Purchases.UpdatedPurchaserInfoListener component. Use your custom subclass to define how to handle updated purchaser information.")]
     public UpdatedPurchaserInfoListener listener;
 
+    [Tooltip("An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
+    public bool observerMode;
+
     private IPurchasesWrapper _wrapper;
 
     private void Start()
@@ -206,7 +218,7 @@ public class Purchases : MonoBehaviour
     // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
-        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId);
+        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
@@ -249,9 +261,9 @@ public class Purchases : MonoBehaviour
         TENJIN = 4
     }
 
-    public void AddAttributionData(string dataJson, AttributionNetwork network)
+    public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null)
     {
-        _wrapper.AddAttributionData((int)network, dataJson);
+        _wrapper.AddAttributionData((int)network, dataJson, networkUserId);
     }
 
     private PurchaserInfoFunc CreateAliasCallback { get; set; }
@@ -280,25 +292,25 @@ public class Purchases : MonoBehaviour
         ResetCallback = callback;
         _wrapper.Reset();
     }
-    
+
     // ReSharper disable once UnusedMember.Global
     public void SetFinishTransactions(bool finishTransactions)
     {
         _wrapper.SetFinishTransactions(finishTransactions);
     }
-    
+
     // ReSharper disable once UnusedMember.Global
     public void SetAllowSharingStoreAccount(bool allow)
     {
         _wrapper.SetAllowSharingStoreAccount(allow);
     }
-    
+
     // ReSharper disable once UnusedMember.Global
     public string GetAppUserId()
     {
         return _wrapper.GetAppUserId();
     }
-    
+
     // ReSharper disable once UnusedMember.Global
     public void SetDebugLogsEnabled(bool logsEnabled)
     {
@@ -322,6 +334,17 @@ public class Purchases : MonoBehaviour
         _wrapper.GetEntitlements();
     }
 
+    public void SyncPurchases()
+    {
+        _wrapper.SyncPurchases();
+    }
+
+    // ReSharper disable once UnusedMember.Global
+    public void SetAutomaticAttributionCollection(bool enabled)
+    {
+        _wrapper.SetAutomaticAttributionCollection(enabled);
+    }
+
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
     {
@@ -331,7 +354,7 @@ public class Purchases : MonoBehaviour
 
         var response = JsonUtility.FromJson<ProductResponse>(productsJson);
         var error = response.error.message != null ? response.error : null;
-        
+
         if (error != null)
         {
             ProductsCallback(null, error);
@@ -364,7 +387,7 @@ public class Purchases : MonoBehaviour
         var info = response.purchaserInfo.activeSubscriptions != null
             ? new PurchaserInfo(response.purchaserInfo)
             : null;
-        
+
         if (error != null)
         {
             MakePurchaseCallback(null, null, response.userCancelled, error);
@@ -500,7 +523,7 @@ public class Purchases : MonoBehaviour
     {
         public PurchaserInfoResponse purchaserInfo;
         public Error error;
-}
+    }
 
     [Serializable]
     private class MakePurchaseResponse
