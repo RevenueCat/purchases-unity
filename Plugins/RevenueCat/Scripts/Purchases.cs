@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 #pragma warning disable CS0649
 
@@ -98,7 +99,7 @@ public class Purchases : MonoBehaviour
 
         }
         
-        public void SetAutomaticAttributionCollection(bool enabled)
+        public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
         {
 
         }
@@ -258,7 +259,8 @@ public class Purchases : MonoBehaviour
         ADJUST = 1,
         APPSFLYER = 2,
         BRANCH = 3,
-        TENJIN = 4
+        TENJIN = 4,
+        FACEBOOK = 5
     }
 
     public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null)
@@ -340,9 +342,9 @@ public class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
-    public void SetAutomaticAttributionCollection(bool enabled)
+    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
-        _wrapper.SetAutomaticAttributionCollection(enabled);
+        _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -509,6 +511,13 @@ public class Purchases : MonoBehaviour
         public string description;
         public float price;
         public string priceString;
+        [CanBeNull] public string currencyCode;
+        public float introPrice;
+        [CanBeNull] public string introPriceString;
+        [CanBeNull] public string introPricePeriod;
+        [CanBeNull] public string introPricePeriodUnit;
+        public int introPricePeriodNumberOfUnits;
+        public int introPriceCycles;
     }
 
     [Serializable]
