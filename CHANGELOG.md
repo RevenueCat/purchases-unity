@@ -1,3 +1,11 @@
+## 1.2.0
+
+- Upgrades iOS SDK to https://github.com/RevenueCat/purchases-ios/releases/tag/2.5.0
+- Upgrades Android SDK to https://github.com/RevenueCat/purchases-android/releases/tag/2.3.0.
+- Adds Facebook as supported attribution network.
+- Deprecates setAutomaticAttributionCollection in favor of setAutomaticAppleSearchAdsAttributionCollection. This is just a change in the function name. Disabled by default.
+- Adds introductory pricing to the iOS product.
+
 ## 1.1.0
 
 - Updates iOS SDK to 2.3.0. Check out the changelog for a full list of changes https://github.com/RevenueCat/purchases-ios/releases/tag/2.3.0
@@ -7,10 +15,12 @@
 - Adds an optional configuration boolean observerMode. This will set the value of finishTransactions at configuration time.
 
 ### Android only:
+
 - addAttribution will automatically add the rc_gps_adid parameter.
 - ** ANDROID BREAKING CHANGE ** Call syncPurchases to send purchases information to RevenueCat after any restore or purchase if you are using the SDK in observerMode. See our guide on Migrating Subscriptions for more information on syncPurchases: https://docs.revenuecat.com/docs/migrating-existing-subscriptions
 
 ### iOS only
+
 - addAttribution will automatically add the rc_idfa and rc_idfv parameters if the AdSupport and UIKit frameworks are included, respectively.
 - Apple Search Ad attribution can be automatically collected by setting the automaticAttributionCollection boolean to true before the SDK is configured.
 
