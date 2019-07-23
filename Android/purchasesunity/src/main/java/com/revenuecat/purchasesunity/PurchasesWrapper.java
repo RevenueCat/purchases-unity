@@ -1,6 +1,5 @@
 package com.revenuecat.purchasesunity;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -20,8 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.revenuecat.purchases.Purchases.AttributionNetwork.ADJUST;
-
 public class PurchasesWrapper {
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
     private static final String GET_PURCHASER_INFO = "_getPurchaserInfo";
@@ -40,6 +37,8 @@ public class PurchasesWrapper {
             sendPurchaserInfo(purchaserInfo, RECEIVE_PURCHASER_INFO);
         }
     };
+
+    private static List<SkuDetails> productsCache = new ArrayList<>();
 
     public static void setup(String apiKey, String appUserId, String gameObject_, boolean observerMode) {
         gameObject = gameObject_;
@@ -82,27 +81,72 @@ public class PurchasesWrapper {
     }
 
     // makePurchase to upgrade/downgrade current subscriptions
-    public static void makePurchase(String productIdentifier, String type, String oldSku) {
-        ArrayList<String> oldSkuList = new ArrayList<>();
-        if (oldSku != null) {
-            oldSkuList.add(oldSku);
-        }
-        Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productIdentifier, type, oldSkuList,
-                new MakePurchaseListener() {
+    public static void makePurchase(final String productIdentifier, final String type, @Nullable final String oldSku) {
+        if (UnityPlayer.currentActivity != null) {
+            if (productsCache.isEmpty()) {
+                Purchases.getSharedInstance().getEntitlements(new ReceiveEntitlementsListener() {
                     @Override
-                    public void onCompleted(@NonNull Purchase purchase, @NonNull PurchaserInfo purchaserInfo) {
-                        sendCompletedPurchase(purchase, purchaserInfo);
+                    public void onReceived(Map<String, Entitlement> map) {
+                        try {
+                            mapEntitlementsAndCacheProducts(map);
+                            startPurchase(productIdentifier, type, oldSku);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     @Override
-                    public void onError(@NonNull PurchasesError purchasesError, @NonNull Boolean userCancelled) {
-                        sendErrorPurchase(purchasesError, userCancelled);
+                    public void onError(PurchasesError purchasesError) {
+                        sendErrorPurchase(purchasesError, false);
                     }
                 });
+            } else {
+                startPurchase(productIdentifier, type, oldSku);
+            }
+        } else {
+            sendErrorPurchase(
+                    new PurchasesError(PurchasesErrorCode.PurchaseInvalidError, "There is no current Activity"), false);
+        }
     }
 
     public static void makePurchase(String productIdentifier, String type) {
         makePurchase(productIdentifier, type, null);
+    }
+
+    @Nullable
+    private static SkuDetails findProduct(String productIdentifier, String type) {
+        for (SkuDetails product : productsCache) {
+            if (product.getSku().equals(productIdentifier) && product.getType().equalsIgnoreCase(type)) {
+                return product;
+            }
+        }
+        return null;
+    }
+
+    private static void startPurchase(final String productIdentifier, final String type,
+            @Nullable final String oldSku) {
+        SkuDetails productToBuy = findProduct(productIdentifier, type);
+        if (productToBuy != null) {
+            MakePurchaseListener listener = new MakePurchaseListener() {
+                @Override
+                public void onCompleted(@NonNull Purchase purchase, @NonNull PurchaserInfo purchaserInfo) {
+                    sendCompletedPurchase(purchase, purchaserInfo);
+                }
+
+                @Override
+                public void onError(@NonNull PurchasesError purchasesError, Boolean userCancelled) {
+                    sendErrorPurchase(purchasesError, userCancelled);
+                }
+            };
+            if (oldSku == null || oldSku.isEmpty()) {
+                Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productToBuy, listener);
+            } else {
+                Purchases.getSharedInstance().makePurchase(UnityPlayer.currentActivity, productToBuy, oldSku, listener);
+            }
+        } else {
+            sendErrorPurchase(new PurchasesError(PurchasesErrorCode.ProductNotAvailableForPurchaseError,
+                    "Couldn't find product."), false);
+        }
     }
 
     public static void addAttributionData(String dataJson, final int network, @Nullable String networkUserId) {
@@ -187,6 +231,28 @@ public class PurchasesWrapper {
         skuObject.put("price", sku.getPriceAmountMicros() / 1000000.0);
         skuObject.put("priceString", sku.getPrice());
         skuObject.put("title", sku.getTitle());
+        skuObject.put("currencyCode", sku.getPriceCurrencyCode());
+        String introductoryPriceAmountMicros = sku.getIntroductoryPriceAmountMicros();
+        if (introductoryPriceAmountMicros != null && !introductoryPriceAmountMicros.isEmpty()) {
+            skuObject.put("introPrice", Long.parseLong(introductoryPriceAmountMicros) / 1000000d);
+            skuObject.put("introPriceString", sku.getIntroductoryPrice());
+            skuObject.put("introPricePeriod", sku.getIntroductoryPricePeriod());
+            if (sku.getIntroductoryPricePeriod() != null && !sku.getIntroductoryPricePeriod().isEmpty()) {
+                PurchasesPeriod period = PurchasesPeriod.parse(sku.getIntroductoryPricePeriod());
+                if (period.years > 0) {
+                    skuObject.put("introPricePeriodUnit", "YEAR");
+                    skuObject.put("introPricePeriodNumberOfUnits", period.years);
+                } else if (period.months > 0) {
+                    skuObject.put("introPricePeriodUnit", "MONTH");
+                    skuObject.put("introPricePeriodNumberOfUnits", period.months);
+                } else if (period.days > 0) {
+                    skuObject.put("introPricePeriodUnit", "DAY");
+                    skuObject.put("introPricePeriodNumberOfUnits", period.days);
+                }
+            }
+            skuObject.put("introPriceCycles", sku.getIntroductoryPriceCycles());
+        }
+
         return skuObject;
     }
 
@@ -242,7 +308,9 @@ public class PurchasesWrapper {
         return jsonInfo;
     }
 
-    private static JSONArray entitlementsJSON(@NonNull Map<String, Entitlement> entitlementMap) throws JSONException {
+    private static JSONArray mapEntitlementsAndCacheProducts(@NonNull Map<String, Entitlement> entitlementMap)
+            throws JSONException {
+        productsCache = new ArrayList<>();
         JSONArray entitlementsArray = new JSONArray();
         for (String entId : entitlementMap.keySet()) {
             JSONObject entitlementObject = new JSONObject();
@@ -257,6 +325,7 @@ public class PurchasesWrapper {
                         offeringObject.put("offeringId", offeringId);
                         SkuDetails skuDetails = offering.getSkuDetails();
                         if (skuDetails != null) {
+                            productsCache.add(skuDetails);
                             JSONObject product = skuDetailsJSON(skuDetails);
                             offeringObject.put("product", product);
                         } else {
@@ -301,7 +370,7 @@ public class PurchasesWrapper {
     private static void sendEntitlements(@NonNull Map<String, Entitlement> entitlementMap) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("entitlements", entitlementsJSON(entitlementMap));
+            jsonObject.put("entitlements", mapEntitlementsAndCacheProducts(entitlementMap));
             sendJSONObject(jsonObject, GET_ENTITLEMENTS);
         } catch (JSONException e) {
             logJSONException(e);

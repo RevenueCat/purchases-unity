@@ -136,7 +136,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void SetAutomaticAttributionCollection(bool enabled)
+    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
         // NOOP
     }

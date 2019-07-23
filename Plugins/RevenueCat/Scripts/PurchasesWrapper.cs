@@ -17,5 +17,5 @@ public interface IPurchasesWrapper
     void GetPurchaserInfo();
     void GetEntitlements();
 	void SyncPurchases();
-	void SetAutomaticAttributionCollection(bool enabled);
+	void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
 }

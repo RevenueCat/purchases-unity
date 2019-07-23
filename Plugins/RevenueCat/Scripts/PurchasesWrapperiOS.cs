@@ -122,10 +122,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCSetAutomaticAttributionCollection(bool enabled);
-    public void SetAutomaticAttributionCollection(bool enabled)
+    private static extern void _RCSetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
+    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
-        _RCSetAutomaticAttributionCollection(enabled);
+        _RCSetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
 
 }

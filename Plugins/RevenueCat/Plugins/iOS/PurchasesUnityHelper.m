@@ -67,14 +67,64 @@ char *makeStringCopy(NSString *nstring) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.numberStyle = NSNumberFormatterCurrencyStyle;
     formatter.locale = p.priceLocale;
-    NSDictionary *d = @{
+    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:@{
             @"identifier": p.productIdentifier ?: @"",
             @"description": p.localizedDescription ?: @"",
             @"title": p.localizedTitle ?: @"",
             @"price": @(p.price.floatValue),
             @"priceString": [formatter stringFromNumber:p.price]
-    };
+    }];
+    
+    NSString *currencyCode = nil;
+    if(@available(iOS 10.0, *)) {
+        currencyCode = p.priceLocale.currencyCode;
+    } else {
+        currencyCode = [p.priceLocale objectForKey:NSLocaleCurrencyCode];
+    }
+    d[@"currencyCode"] = currencyCode ? currencyCode : [NSNull null];
+
+    if (@available(iOS 11.2, *)) {
+        if (p.introductoryPrice) {
+            d[@"introPrice"] = @(p.introductoryPrice.price.floatValue);
+            if (p.introductoryPrice.price) {
+                d[@"introPriceString"] = [formatter stringFromNumber:p.introductoryPrice.price];
+            }
+            d[@"introPricePeriod"] = [self normalizeSubscriptionPeriod:p.introductoryPrice.subscriptionPeriod];
+            d[@"introPricePeriodUnit"] = [self normalizeSubscriptionPeriodUnit:p.introductoryPrice.subscriptionPeriod.unit];
+            d[@"introPricePeriodNumberOfUnits"] = @(p.introductoryPrice.subscriptionPeriod.numberOfUnits);
+            d[@"introPriceCycles"] = @(p.introductoryPrice.numberOfPeriods);
+        }
+    }
+    
     return d;
+}
+
+- (NSString *)normalizeSubscriptionPeriod:(SKProductSubscriptionPeriod *)subscriptionPeriod API_AVAILABLE(ios(11.2)){
+    NSString *unit;
+    switch (subscriptionPeriod.unit) {
+        case SKProductPeriodUnitDay:
+            unit = @"D";
+        case SKProductPeriodUnitWeek:
+            unit = @"W";
+        case SKProductPeriodUnitMonth:
+            unit = @"M";
+        case SKProductPeriodUnitYear:
+            unit = @"Y";
+    }
+    return [NSString stringWithFormat:@"%@%@%@", @"P", @(subscriptionPeriod.numberOfUnits), unit];
+}
+
+- (NSString *)normalizeSubscriptionPeriodUnit:(SKProductPeriodUnit)subscriptionPeriodUnit API_AVAILABLE(ios(11.2)){
+    switch (subscriptionPeriodUnit) {
+        case SKProductPeriodUnitDay:
+            return @"DAY";
+        case SKProductPeriodUnitWeek:
+            return @"WEEK";
+        case SKProductPeriodUnitMonth:
+            return @"MONTH";
+        case SKProductPeriodUnitYear:
+            return @"YEAR";
+    }
 }
 
 - (NSDictionary *)errorJSON:(NSError *)error {
@@ -250,9 +300,9 @@ char *makeStringCopy(NSString *nstring) {
     [RCPurchases sharedPurchases].finishTransactions = finishTransactions;
 }
 
-- (void)setAutomaticAttributionCollection:(BOOL)enabled
+- (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled
 {
-    [RCPurchases setAutomaticAttributionCollection:enabled];
+    [RCPurchases setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
 
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
@@ -376,6 +426,6 @@ void _RCSyncPurchases() {
     // NOOP
 }
 
-void _RCSetAutomaticAttributionCollection(const BOOL enabled) {
-    [_RCUnityHelperShared() setAutomaticAttributionCollection:enabled];
+void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
+    [_RCUnityHelperShared() setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
