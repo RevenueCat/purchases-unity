@@ -1,3 +1,7 @@
+## 1.2.1
+
+- Fixes introductory offer period normalization in iOS.
+
 ## 1.2.0
 
 - Upgrades iOS SDK to https://github.com/RevenueCat/purchases-ios/releases/tag/2.5.0
