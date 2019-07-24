@@ -104,12 +104,16 @@ char *makeStringCopy(NSString *nstring) {
     switch (subscriptionPeriod.unit) {
         case SKProductPeriodUnitDay:
             unit = @"D";
+            break;
         case SKProductPeriodUnitWeek:
             unit = @"W";
+            break;
         case SKProductPeriodUnitMonth:
             unit = @"M";
+            break;
         case SKProductPeriodUnitYear:
             unit = @"Y";
+            break;
     }
     return [NSString stringWithFormat:@"%@%@%@", @"P", @(subscriptionPeriod.numberOfUnits), unit];
 }
