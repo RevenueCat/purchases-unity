@@ -1,3 +1,7 @@
+## 1.2.2
+
+- Updates Android SDK to 3.4.1 to include multiple bugfixes.
+
 ## 1.2.1
 
 - Fixes introductory offer period normalization in iOS.
