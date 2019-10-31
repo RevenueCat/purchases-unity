@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
 
 public class PurchasesWrapper {
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
@@ -232,25 +235,47 @@ public class PurchasesWrapper {
         skuObject.put("priceString", sku.getPrice());
         skuObject.put("title", sku.getTitle());
         skuObject.put("currencyCode", sku.getPriceCurrencyCode());
-        String introductoryPriceAmountMicros = sku.getIntroductoryPriceAmountMicros();
-        if (introductoryPriceAmountMicros != null && !introductoryPriceAmountMicros.isEmpty()) {
-            skuObject.put("introPrice", Long.parseLong(introductoryPriceAmountMicros) / 1000000d);
-            skuObject.put("introPriceString", sku.getIntroductoryPrice());
-            skuObject.put("introPricePeriod", sku.getIntroductoryPricePeriod());
-            if (sku.getIntroductoryPricePeriod() != null && !sku.getIntroductoryPricePeriod().isEmpty()) {
-                PurchasesPeriod period = PurchasesPeriod.parse(sku.getIntroductoryPricePeriod());
-                if (period.years > 0) {
-                    skuObject.put("introPricePeriodUnit", "YEAR");
-                    skuObject.put("introPricePeriodNumberOfUnits", period.years);
-                } else if (period.months > 0) {
-                    skuObject.put("introPricePeriodUnit", "MONTH");
-                    skuObject.put("introPricePeriodNumberOfUnits", period.months);
-                } else if (period.days > 0) {
-                    skuObject.put("introPricePeriodUnit", "DAY");
-                    skuObject.put("introPricePeriodNumberOfUnits", period.days);
+        if (sku.getFreeTrialPeriod().isEmpty()) {
+            String introductoryPriceAmountMicros = sku.getIntroductoryPriceAmountMicros();
+            if (introductoryPriceAmountMicros != null && !introductoryPriceAmountMicros.isEmpty()) {
+                skuObject.put("introPrice", Long.parseLong(introductoryPriceAmountMicros) / 1000000d);
+                skuObject.put("introPriceString", sku.getIntroductoryPrice());
+                skuObject.put("introPricePeriod", sku.getIntroductoryPricePeriod());
+                if (sku.getIntroductoryPricePeriod() != null && !sku.getIntroductoryPricePeriod().isEmpty()) {
+                    PurchasesPeriod period = PurchasesPeriod.parse(sku.getIntroductoryPricePeriod());
+                    if (period.years > 0) {
+                        skuObject.put("introPricePeriodUnit", "YEAR");
+                        skuObject.put("introPricePeriodNumberOfUnits", period.years);
+                    } else if (period.months > 0) {
+                        skuObject.put("introPricePeriodUnit", "MONTH");
+                        skuObject.put("introPricePeriodNumberOfUnits", period.months);
+                    } else if (period.days > 0) {
+                        skuObject.put("introPricePeriodUnit", "DAY");
+                        skuObject.put("introPricePeriodNumberOfUnits", period.days);
+                    }
                 }
+                skuObject.put("introPriceCycles", sku.getIntroductoryPriceCycles());
             }
-            skuObject.put("introPriceCycles", sku.getIntroductoryPriceCycles());
+        } else {
+            skuObject.put("introPrice", 0);
+            // Format using device locale. iOS will format using App Store locale, but there's no way
+            // to figure out how the price in the SKUDetails is being formatted.
+            NumberFormat format = NumberFormat.getCurrencyInstance();
+            format.setCurrency(Currency.getInstance(sku.getPriceCurrencyCode()));
+            skuObject.put("introPriceString", format.format(0));
+            skuObject.put("introPricePeriod", sku.getFreeTrialPeriod());
+            PurchasesPeriod period = PurchasesPeriod.parse(sku.getFreeTrialPeriod());
+            if (period.years > 0) {
+                skuObject.put("introPricePeriodUnit", "YEAR");
+                skuObject.put("introPricePeriodNumberOfUnits", period.years);
+            } else if (period.months > 0) {
+                skuObject.put("introPricePeriodUnit", "MONTH");
+                skuObject.put("introPricePeriodNumberOfUnits", period.months);
+            } else if (period.days > 0) {
+                skuObject.put("introPricePeriodUnit", "DAY");
+                skuObject.put("introPricePeriodNumberOfUnits", period.days);
+            }
+            skuObject.put("introPriceCycles", 1);
         }
 
         return skuObject;
