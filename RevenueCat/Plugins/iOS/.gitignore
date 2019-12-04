@@ -1,0 +1,6 @@
+*.h
+*.m
+!PurchasesUnityHelper.m
+!*HybridAdditions.*
+!RCErrorContainer.*
+!RCCommonFunctionality.*

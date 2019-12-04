@@ -1,9 +1,8 @@
 #!/bin/bash
-IOS_SDK_VERSION=2.5.0
-ANDROID_SDK_VERSION=2.4.1
+IOS_SDK_VERSION=3.0.0
 
 UNITY_DIR=`pwd`
-IOS_UNITY_DIR=$UNITY_DIR/Plugins/RevenueCat/Plugins/iOS/
+IOS_UNITY_DIR=$UNITY_DIR/RevenueCat/Plugins/iOS/
 
 TEMP_DIR=`mktemp -d -t "purchases-unity"`
 pushd $TEMP_DIR
@@ -22,14 +21,3 @@ find Purchases -iname '*.m' -exec cp \{\} /$IOS_UNITY_DIR/ \;
 rm ${IOS_UNITY_DIR}Purchases_macOS.h
 
 popd
-
-mkdir -p android
-pushd android
-
-ANDROID_FILENAME=purchases-$ANDROID_SDK_VERSION.aar
-ANDROID_SOURCE_URL=https://repo1.maven.org/maven2/com/revenuecat/purchases/purchases/$ANDROID_SDK_VERSION/$ANDROID_FILENAME
-wget $ANDROID_SOURCE_URL
-cp $ANDROID_FILENAME $UNITY_DIR/Plugins/RevenueCat/Plugins/Android
-
-
-#popd

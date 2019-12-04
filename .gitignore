@@ -1,5 +1,4 @@
 .DS_Store
-Plugins/Android/purchases-*
 *.meta
 .idea/
 org.eclipse.buildship.core.prefs

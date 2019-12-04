@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dependencies>
+    <androidPackages>
+        <androidPackage spec="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.61" />
+        <androidPackage spec="com.revenuecat.purchases:purchases:3.0.2" />
+    </androidPackages>
+</dependencies>
