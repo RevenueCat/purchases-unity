@@ -345,7 +345,7 @@ public class Purchases : MonoBehaviour
     public class Offerings
     {
         public readonly Dictionary<string, Offering> All;
-        public readonly Offering Current;
+        [CanBeNull] public readonly Offering Current;
 
         public Offerings(OfferingsResponse response)
         {
@@ -354,7 +354,9 @@ public class Purchases : MonoBehaviour
             {
                 All[response.allKeys[i]] = new Offering(response.allValues[i]);
             }
-            Current = new Offering(response.current);
+            if (response.current.identifier != null) {
+                Current = new Offering(response.current);
+            }
         }
 
     }
