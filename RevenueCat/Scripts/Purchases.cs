@@ -377,16 +377,16 @@ public class Purchases : MonoBehaviour
 
     public class Offering
     {
-        public string Identifier;
-        public string ServerDescription;
-        public List<Package> AvailablePackages;
-        public Package Lifetime;
-        public Package Annual;
-        public Package SixMonth;
-        public Package ThreeMonth;
-        public Package TwoMonth;
-        public Package Monthly;
-        public Package Weekly;
+        public readonly string Identifier;
+        public readonly string ServerDescription;
+        public readonly List<Package> AvailablePackages;
+        [CanBeNull] public readonly Package Lifetime;
+        [CanBeNull] public readonly Package Annual;
+        [CanBeNull] public readonly Package SixMonth;
+        [CanBeNull] public readonly Package ThreeMonth;
+        [CanBeNull] public readonly Package  TwoMonth;
+        [CanBeNull] public readonly Package  Monthly;
+        [CanBeNull] public readonly Package Weekly;
 
         public Offering(OfferingResponse response)
         {
@@ -397,13 +397,27 @@ public class Purchases : MonoBehaviour
             {
                 AvailablePackages.Add(new Package(packageResponse));
             }
-            Lifetime = new Package(response.lifetime);
-            Annual = new Package(response.annual);
-            SixMonth = new Package(response.sixMonth);
-            ThreeMonth = new Package(response.threeMonth);
-            TwoMonth = new Package(response.twoMonth);
-            Monthly = new Package(response.monthly);
-            Weekly = new Package(response.weekly);
+            if (response.lifetime.identifier != null) {
+                Lifetime = new Package(response.lifetime);
+            }
+            if (response.annual.identifier != null) {
+                Annual = new Package(response.annual);
+            }
+            if (response.sixMonth.identifier != null) {
+                SixMonth = new Package(response.sixMonth);
+            }
+            if (response.threeMonth.identifier != null) {
+                ThreeMonth = new Package(response.threeMonth);
+            }
+            if (response.twoMonth.identifier != null) {
+                TwoMonth = new Package(response.twoMonth);
+            }
+            if (response.monthly.identifier != null) {
+                Monthly = new Package(response.monthly);
+            }
+            if (response.weekly.identifier != null) {
+                Weekly = new Package(response.weekly);
+            }
         }
     }
 
@@ -740,18 +754,18 @@ public class Purchases : MonoBehaviour
     [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Product
     {
-        public string title;
-        public string identifier;
-        public string description;
-        public float price;
-        public string priceString;
-        [CanBeNull] public string currencyCode;
-        public float introPrice;
-        [CanBeNull] public string introPriceString;
-        [CanBeNull] public string introPricePeriod;
-        [CanBeNull] public string introPricePeriodUnit;
-        [CanBeNull] public int introPricePeriodNumberOfUnits;
-        [CanBeNull] public int introPriceCycles;
+        public readonly string title;
+        public readonly string identifier;
+        public readonly string description;
+        public readonly float price;
+        public readonly string priceString;
+        [CanBeNull] public readonly string currencyCode;
+        public readonly float introPrice;
+        public readonly string introPriceString;
+        public readonly string introPricePeriod;
+        public readonly string introPricePeriodUnit;
+        [CanBeNull] public readonly int introPricePeriodNumberOfUnits;
+        [CanBeNull] public readonly int introPriceCycles;
     }
 
     [Serializable]
@@ -815,13 +829,13 @@ public class Purchases : MonoBehaviour
         public string identifier;
         public string serverDescription;
         public List<PackageResponse> availablePackages;
-        public PackageResponse lifetime;
-        public PackageResponse annual;
-        public PackageResponse sixMonth;
-        public PackageResponse threeMonth;
-        public PackageResponse twoMonth;
-        public PackageResponse monthly;
-        public PackageResponse weekly;
+        [CanBeNull] public PackageResponse lifetime;
+        [CanBeNull] public PackageResponse annual;
+        [CanBeNull] public PackageResponse sixMonth;
+        [CanBeNull] public PackageResponse threeMonth;
+        [CanBeNull] public PackageResponse twoMonth;
+        [CanBeNull] public PackageResponse monthly;
+        [CanBeNull] public PackageResponse weekly;
     }
 
     [Serializable]

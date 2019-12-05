@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Makes packages inside Offering nullable.
+
 ## 2.0.0
 
 - `PurchaserInfo.LatestExpirationDate` can be null now, it was equal to epoch before if there was no expiration date. Same for `PurchaserInfo.AllExpirationDates`, that can contain nullable values now.
