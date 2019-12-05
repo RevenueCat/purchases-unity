@@ -1,3 +1,7 @@
+## 2.0.2
+
+- Rolls back Play services resolver to v1.2.132
+
 ## 2.0.1
 
 - Makes packages inside Offering nullable.
