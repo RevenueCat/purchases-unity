@@ -1,3 +1,7 @@
+## 2.0.3
+
+- Makes Offerings.Current nullable
+
 ## 2.0.2
 
 - Rolls back Play services resolver to v1.2.132
