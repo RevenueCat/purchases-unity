@@ -756,18 +756,18 @@ public class Purchases : MonoBehaviour
     [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Product
     {
-        public readonly string title;
-        public readonly string identifier;
-        public readonly string description;
-        public readonly float price;
-        public readonly string priceString;
-        [CanBeNull] public readonly string currencyCode;
-        public readonly float introPrice;
-        public readonly string introPriceString;
-        public readonly string introPricePeriod;
-        public readonly string introPricePeriodUnit;
-        [CanBeNull] public readonly int introPricePeriodNumberOfUnits;
-        [CanBeNull] public readonly int introPriceCycles;
+        public string title;
+        public string identifier;
+        public string description;
+        public float price;
+        public string priceString;
+        [CanBeNull] public string currencyCode;
+        public float introPrice;
+        public string introPriceString;
+        public string introPricePeriod;
+        public string introPricePeriodUnit;
+        [CanBeNull] public int introPricePeriodNumberOfUnits;
+        [CanBeNull] public int introPriceCycles;
     }
 
     [Serializable]
