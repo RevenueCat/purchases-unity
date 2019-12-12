@@ -1,3 +1,9 @@
+## 2.0.5
+
+- Fixes Product class
+- Removes unnecessary iOS import
+- Adds mission iOS files
+
 ## 2.0.4
 
 - Updates Android library to 3.0.3
