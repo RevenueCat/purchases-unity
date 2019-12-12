@@ -6,3 +6,4 @@ org.eclipse.buildship.core.prefs
 .classpath
 Android/.idea/*
 .vscode
+Subtester/Assets/Plugins/Android/
