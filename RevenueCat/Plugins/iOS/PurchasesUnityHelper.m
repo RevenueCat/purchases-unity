@@ -9,7 +9,6 @@
 #import <AdSupport/AdSupport.h>
 #import "RCPurchases.h"
 #import "RCPurchaserInfo.h"
-#import "RCOffering+Protected.h"
 #import "RCCommonFunctionality.h"
 #import "RCPurchaserInfo+HybridAdditions.h"
 #import "RCErrorContainer.h"
