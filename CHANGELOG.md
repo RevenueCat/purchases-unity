@@ -2,7 +2,7 @@
 
 - Fixes Product class
 - Removes unnecessary iOS import
-- Adds mission iOS files
+- Adds missing iOS files
 
 ## 2.0.4
 
