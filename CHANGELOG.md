@@ -1,3 +1,7 @@
+## 2.0.6
+
+- Adds `CheckTrialOrIntroductoryPriceEligibility`
+
 ## 2.0.5
 
 - Fixes Product class

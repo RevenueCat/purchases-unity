@@ -33,6 +33,7 @@ public class PurchasesWrapper {
     private static final String IDENTIFY = "_identify";
     private static final String RESET = "_reset";
     private static final String GET_OFFERINGS = "_getOfferings";
+    private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
 
     private static String gameObject;
     private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {
@@ -209,6 +210,32 @@ public class PurchasesWrapper {
 
     public static boolean isAnonymous() {
         return CommonKt.isAnonymous();
+    }
+
+    public static void checkTrialOrIntroductoryPriceEligibility(String jsonProducts) {
+        try {
+            JSONObject request = new JSONObject(jsonProducts);
+            JSONArray products = request.getJSONArray("productIdentifiers");
+            List<String> productIds = new ArrayList<>();
+            for (int i = 0; i < products.length(); i++) {
+                String product = products.getString(i);
+                productIds.add(product);
+            }
+
+            Map<String, Map<String, Object>> map = CommonKt.checkTrialOrIntroductoryPriceEligibility(productIds);
+
+            try {
+                JSONObject object = new JSONObject();
+                object.put("keys", MappersKt.convertToJsonArray(new ArrayList<>(map.keySet())));
+                object.put("values", MappersKt.convertToJsonArray(new ArrayList<>(map.values())));
+                sendJSONObject(object, CHECK_ELIGIBILITY);
+            } catch (JSONException e) {
+                logJSONException(e);
+            }
+        } catch (JSONException e) {
+            Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
+        }
+
     }
 
     private static void logJSONException(JSONException e) {

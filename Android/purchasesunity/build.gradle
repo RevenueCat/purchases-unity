@@ -27,7 +27,7 @@ dependencies {
     compileOnly files('./libs/Unity.jar')
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    compileOnly "com.revenuecat.purchases:purchases:3.0.3"
+    compileOnly "com.revenuecat.purchases:purchases:3.0.4"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

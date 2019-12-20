@@ -22,6 +22,8 @@ static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
 static NSString *const GET_OFFERINGS = @"_getOfferings";
 static NSString *const GET_PURCHASER_INFO = @"_getPurchaserInfo";
+static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
+
 #pragma mark Utility Methods
 
 NSString *convertCString(const char *string) {
@@ -188,6 +190,17 @@ char *makeStringCopy(NSString *nstring) {
     return @([RCCommonFunctionality isAnonymous]);
 }
 
+- (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers
+{
+    [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
+        NSDictionary *response = @{
+            @"keys": responseDictionary.allKeys,
+            @"values": responseDictionary.allValues,
+        };
+        [self sendJSONObject:response toMethod:CHECK_ELIGIBILITY];
+    }];
+}
+
 #pragma mark Helper Methods
 
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName
@@ -311,4 +324,16 @@ void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
 
 void _RCIsAnonymous() {
     [_RCUnityHelperShared() isAnonymous];
+}
+
+void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJSON) {
+    NSError *error = nil;
+    NSDictionary *productsRequest = [NSJSONSerialization JSONObjectWithData:[convertCString(productIdentifiersJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+
+    if (error) {
+        NSLog(@"Error parsing productIdentifiers JSON: %s %@", productIdentifiersJSON, error.localizedDescription);
+        return;
+    }
+
+    [_RCUnityHelperShared() checkTrialOrIntroductoryPriceEligibility:productsRequest[@"productIdentifiers"]];
 }

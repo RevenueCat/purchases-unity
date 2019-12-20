@@ -20,4 +20,5 @@ public interface IPurchasesWrapper
 	void SyncPurchases();
 	void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     bool IsAnonymous();
+    void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
 }

@@ -1,5 +1,12 @@
-1. Update to the latest SDK versions (update the update-sdks.sh and run update-sdks.sh and Android/build_and_install.sh).
+1. Update to the latest SDK versions:
+   1. Update the ios version in update-sdks.sh
+   1. Run update-sdks.sh
+   1. Update the Android version in RevenueCatDependencies.xml
+   1. Update the Android version in the `purchasesunit/build.gradle`
+   1. Download the latest common files, replace them and make the changes to make them compatible with Unity.
+   1. Run `Android/build_and_install.sh`.
 1. Update the VERSION file.
+1. Update the VERSIONS.md file.
 1. Add an entry to CHANGELOG.md
 1. `git commit -am "Preparing for version x.y.z"`
 1. `git tag x.y.z`

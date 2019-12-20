@@ -43,6 +43,17 @@ public class Purchases : MonoBehaviour
         Deferred = 4
     }
 
+    public enum IntroEligibilityStatus {
+        /// RevenueCat doesn't have enough information to determine eligibility.
+        IntroEligibilityStatusUnknown = 0,
+
+        /// The user is not eligible for a free trial or intro pricing for this product.
+        IntroEligibilityStatusIneligible = 1,
+
+        /// The user is eligible for a free trial or intro pricing for this product.
+        IntroEligibilityStatusEligible = 2
+    }
+
     public delegate void GetProductsFunc(List<Product> products, Error error);
 
     public delegate void MakePurchaseFunc(string productIdentifier, PurchaserInfo purchaserInfo, bool userCancelled, Error error);
@@ -52,6 +63,8 @@ public class Purchases : MonoBehaviour
     public delegate void GetEntitlementsFunc(Dictionary<string, object> entitlements, Error error);
 
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
+
+    public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
     public abstract class UpdatedPurchaserInfoListener : MonoBehaviour
     {
@@ -154,6 +167,11 @@ public class Purchases : MonoBehaviour
         public bool IsAnonymous()
         {
             return false;
+        }
+
+        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+        {
+        
         }
     }
 
@@ -423,6 +441,26 @@ public class Purchases : MonoBehaviour
         }
     }
 
+    public class IntroEligibility
+    {
+        /// The introductory price eligibility status
+        public readonly IntroEligibilityStatus Status; 
+        
+        /// Description of the status
+        public readonly string Description;
+
+        public IntroEligibility(IntroEligibilityResponse response)
+        {
+            Status = (IntroEligibilityStatus)response.status;
+            Description = response.description;
+        }
+
+        public override string ToString()
+        {
+            return "{ status:" + Status + "; description:" + Description + " }";
+        }
+    }
+
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
     public string revenueCatAPIKey;
@@ -601,6 +639,12 @@ public class Purchases : MonoBehaviour
     {
         _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
+    private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }    
+    public void CheckTrialOrIntroductoryPriceEligibility(string[] products, CheckTrialOrIntroductoryPriceEligibilityFunc callback)
+    {
+        CheckTrialOrIntroductoryPriceEligibilityCallback = callback;
+        _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
+    }
 
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
@@ -705,7 +749,7 @@ public class Purchases : MonoBehaviour
         ResetCallback = null;
     }
 
-    // ReSharper disable once UnusedMember.Local
+    // ReSharper disable once UnusedMember.Local 
     private void _getOfferings(string offeringsJson)
     {
         Debug.Log("_getOfferings " + offeringsJson);
@@ -721,6 +765,24 @@ public class Purchases : MonoBehaviour
             GetOfferingsCallback(new Offerings(response.offerings), null);
         }
         GetEntitlementsCallback = null;
+    }
+    private void _checkTrialOrIntroductoryPriceEligibility(string json)
+    {
+        Debug.Log("_checkTrialOrIntroductoryPriceEligibilit " + json);
+
+        if (CheckTrialOrIntroductoryPriceEligibilityCallback == null) return;
+
+        var responseMap = JsonUtility.FromJson<MapResponse<string, IntroEligibilityResponse>>(json);
+
+        var dictionary = new Dictionary<string, IntroEligibility>();
+        for (var i = 0; i < responseMap.keys.Count; i++)
+        {
+            dictionary[responseMap.keys[i]] = new IntroEligibility(responseMap.values[i]);
+        }
+
+        CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
+        
+        CheckTrialOrIntroductoryPriceEligibilityCallback = null;
     }
 
     private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)
@@ -873,5 +935,19 @@ public class Purchases : MonoBehaviour
         public bool isSandbox;
         [CanBeNull] public long unsubscribeDetectedAt;
         [CanBeNull] public long billingIssueDetectedAt;
+    }
+    
+    [Serializable]
+    public class IntroEligibilityResponse
+    {
+        public int status;
+        public string description;
+    }
+    
+    [Serializable]
+    public class MapResponse<K, V>
+    {
+        public List<K> keys;
+        public List<V> values;
     }
 }

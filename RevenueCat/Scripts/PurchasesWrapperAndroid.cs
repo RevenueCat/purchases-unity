@@ -168,5 +168,18 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             return purchases.CallStatic<bool>("isAnonymous");
         }
     }
+
+    public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+    {
+        var request = new ProductsRequest
+        {
+            productIdentifiers = productIdentifiers
+        };
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
+        }
+    }
+
 }
 #endif

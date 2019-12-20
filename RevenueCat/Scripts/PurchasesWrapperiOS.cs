@@ -142,5 +142,17 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         return _RCIsAnonymous();
     }
 
+    [DllImport("__Internal")]
+    private static extern void _RCCheckTrialOrIntroductoryPriceEligibility(string productIdentifiersJson);
+    public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+    {
+        var request = new ProductsRequest
+        {
+            productIdentifiers = productIdentifiers
+        };
+
+        _RCCheckTrialOrIntroductoryPriceEligibility(JsonUtility.ToJson(request));
+    }
+
 }
 #endif
