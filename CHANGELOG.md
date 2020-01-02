@@ -1,3 +1,7 @@
+## 2.0.7
+
+- Adds optional type parameter to GetProducts call
+
 ## 2.0.6
 
 - Adds `CheckTrialOrIntroductoryPriceEligibility`

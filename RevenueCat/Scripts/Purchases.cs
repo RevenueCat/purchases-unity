@@ -505,10 +505,10 @@ public class Purchases : MonoBehaviour
     // Optionally call this if you want to fetch more products,
     // called automatically with pre-configured products
     // ReSharper disable once MemberCanBePrivate.Global
-    public void GetProducts(string[] products, GetProductsFunc callback)
+    public void GetProducts(string[] products, GetProductsFunc callback, string type = "subs")
     {
         ProductsCallback = callback;
-        _wrapper.GetProducts(products);
+        _wrapper.GetProducts(products, type);
     }
 
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
