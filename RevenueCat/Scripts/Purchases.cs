@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 #pragma warning disable CS0649
@@ -487,9 +488,22 @@ public class Purchases : MonoBehaviour
         _wrapper = new PurchasesWrapperAndroid();
 #elif UNITY_IPHONE && !UNITY_EDITOR
         _wrapper = new PurchasesWrapperiOS();
+#elif UNITY_STANDALONE_OSX && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperiOS();
+        // PurchasesWrapperiOS.ConnectCallback((objectName, commandName, commandData) => {
+        //     string objName = Marshal.PtrToStringAuto(objectName);
+        //     string commName = Marshal.PtrToStringAuto(commandName);
+        //     string commData = Marshal.PtrToStringAuto(commandData);
+
+        //     GameObject foundObject = GameObject.Find(objName);
+        //     if (foundObject != null) {
+        //         foundObject.SendMessage(commName, commData);
+        //     }
+        // });
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
+
         Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }

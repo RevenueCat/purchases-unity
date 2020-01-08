@@ -1,0 +1,540 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		358E7ECD23C60C8400732A9B /* RCEntitlementInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EAD23C60C8300732A9B /* RCEntitlementInfo.m */; };
+		358E7ECE23C60C8400732A9B /* RCIdentityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EAE23C60C8300732A9B /* RCIdentityManager.m */; };
+		358E7ECF23C60C8400732A9B /* RCEntitlementInfo+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EAF23C60C8300732A9B /* RCEntitlementInfo+HybridAdditions.m */; };
+		358E7ED023C60C8400732A9B /* RCEntitlementInfos.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB023C60C8300732A9B /* RCEntitlementInfos.m */; };
+		358E7ED123C60C8400732A9B /* RCPackage+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB123C60C8300732A9B /* RCPackage+HybridAdditions.m */; };
+		358E7ED223C60C8400732A9B /* RCPurchases.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB223C60C8300732A9B /* RCPurchases.m */; };
+		358E7ED323C60C8400732A9B /* RCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB323C60C8300732A9B /* RCUtils.m */; };
+		358E7ED423C60C8400732A9B /* RCAttributionData.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB423C60C8300732A9B /* RCAttributionData.m */; };
+		358E7ED523C60C8400732A9B /* RCHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB523C60C8300732A9B /* RCHTTPClient.m */; };
+		358E7ED623C60C8400732A9B /* RCIntroEligibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB623C60C8300732A9B /* RCIntroEligibility.m */; };
+		358E7ED723C60C8400732A9B /* RCBackend.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB723C60C8300732A9B /* RCBackend.m */; };
+		358E7ED923C60C8400732A9B /* RCOfferingsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EB923C60C8300732A9B /* RCOfferingsFactory.m */; };
+		358E7EDA23C60C8400732A9B /* SKProduct+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EBA23C60C8300732A9B /* SKProduct+HybridAdditions.m */; };
+		358E7EDB23C60C8400732A9B /* RCOffering+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EBB23C60C8300732A9B /* RCOffering+HybridAdditions.m */; };
+		358E7EDC23C60C8400732A9B /* RCErrorContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EBC23C60C8300732A9B /* RCErrorContainer.m */; };
+		358E7EDD23C60C8400732A9B /* RCStoreKitRequestFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EBD23C60C8300732A9B /* RCStoreKitRequestFetcher.m */; };
+		358E7EDE23C60C8400732A9B /* RCPurchasesErrorUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EBE23C60C8300732A9B /* RCPurchasesErrorUtils.m */; };
+		358E7EDF23C60C8400732A9B /* RCPurchaserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EBF23C60C8300732A9B /* RCPurchaserInfo.m */; };
+		358E7EE023C60C8400732A9B /* RCPromotionalOffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC023C60C8300732A9B /* RCPromotionalOffer.m */; };
+		358E7EE123C60C8400732A9B /* RCStoreKitWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC123C60C8300732A9B /* RCStoreKitWrapper.m */; };
+		358E7EE223C60C8400732A9B /* RCOfferings+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC223C60C8300732A9B /* RCOfferings+HybridAdditions.m */; };
+		358E7EE323C60C8400732A9B /* RCEntitlementInfos+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC323C60C8300732A9B /* RCEntitlementInfos+HybridAdditions.m */; };
+		358E7EE423C60C8400732A9B /* RCPurchaserInfo+HybridAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC423C60C8300732A9B /* RCPurchaserInfo+HybridAdditions.m */; };
+		358E7EE523C60C8400732A9B /* RCAttributionFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC523C60C8300732A9B /* RCAttributionFetcher.m */; };
+		358E7EE623C60C8400732A9B /* NSLocale+RCExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC623C60C8300732A9B /* NSLocale+RCExtensions.m */; };
+		358E7EE723C60C8400732A9B /* RCDeviceCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC723C60C8300732A9B /* RCDeviceCache.m */; };
+		358E7EE823C60C8400732A9B /* RCOfferings.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC823C60C8400732A9B /* RCOfferings.m */; };
+		358E7EE923C60C8400732A9B /* RCPackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7EC923C60C8400732A9B /* RCPackage.m */; };
+		358E7EEA23C60C8400732A9B /* RCOffering.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7ECA23C60C8400732A9B /* RCOffering.m */; };
+		358E7EEB23C60C8400732A9B /* RCCommonFunctionality.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7ECB23C60C8400732A9B /* RCCommonFunctionality.m */; };
+		358E7EEC23C60C8400732A9B /* RCReceiptFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7ECC23C60C8400732A9B /* RCReceiptFetcher.m */; };
+		358E7F1923C60D0C00732A9B /* PurchasesUnityHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 358E7F1823C60D0C00732A9B /* PurchasesUnityHelper.m */; };
+		35C6DF4E23C4D708002DFCF5 /* Bridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 35C6DF4C23C4D708002DFCF5 /* Bridge.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		358E7EAD23C60C8300732A9B /* RCEntitlementInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCEntitlementInfo.m; path = ../../../RevenueCat/Plugins/iOS/RCEntitlementInfo.m; sourceTree = "<group>"; };
+		358E7EAE23C60C8300732A9B /* RCIdentityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCIdentityManager.m; path = ../../../RevenueCat/Plugins/iOS/RCIdentityManager.m; sourceTree = "<group>"; };
+		358E7EAF23C60C8300732A9B /* RCEntitlementInfo+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCEntitlementInfo+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCEntitlementInfo+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EB023C60C8300732A9B /* RCEntitlementInfos.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCEntitlementInfos.m; path = ../../../RevenueCat/Plugins/iOS/RCEntitlementInfos.m; sourceTree = "<group>"; };
+		358E7EB123C60C8300732A9B /* RCPackage+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCPackage+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCPackage+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EB223C60C8300732A9B /* RCPurchases.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPurchases.m; path = ../../../RevenueCat/Plugins/iOS/RCPurchases.m; sourceTree = "<group>"; };
+		358E7EB323C60C8300732A9B /* RCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCUtils.m; path = ../../../RevenueCat/Plugins/iOS/RCUtils.m; sourceTree = "<group>"; };
+		358E7EB423C60C8300732A9B /* RCAttributionData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAttributionData.m; path = ../../../RevenueCat/Plugins/iOS/RCAttributionData.m; sourceTree = "<group>"; };
+		358E7EB523C60C8300732A9B /* RCHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCHTTPClient.m; path = ../../../RevenueCat/Plugins/iOS/RCHTTPClient.m; sourceTree = "<group>"; };
+		358E7EB623C60C8300732A9B /* RCIntroEligibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCIntroEligibility.m; path = ../../../RevenueCat/Plugins/iOS/RCIntroEligibility.m; sourceTree = "<group>"; };
+		358E7EB723C60C8300732A9B /* RCBackend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCBackend.m; path = ../../../RevenueCat/Plugins/iOS/RCBackend.m; sourceTree = "<group>"; };
+		358E7EB923C60C8300732A9B /* RCOfferingsFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOfferingsFactory.m; path = ../../../RevenueCat/Plugins/iOS/RCOfferingsFactory.m; sourceTree = "<group>"; };
+		358E7EBA23C60C8300732A9B /* SKProduct+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "SKProduct+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/SKProduct+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EBB23C60C8300732A9B /* RCOffering+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCOffering+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCOffering+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EBC23C60C8300732A9B /* RCErrorContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCErrorContainer.m; path = ../../../RevenueCat/Plugins/iOS/RCErrorContainer.m; sourceTree = "<group>"; };
+		358E7EBD23C60C8300732A9B /* RCStoreKitRequestFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCStoreKitRequestFetcher.m; path = ../../../RevenueCat/Plugins/iOS/RCStoreKitRequestFetcher.m; sourceTree = "<group>"; };
+		358E7EBE23C60C8300732A9B /* RCPurchasesErrorUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPurchasesErrorUtils.m; path = ../../../RevenueCat/Plugins/iOS/RCPurchasesErrorUtils.m; sourceTree = "<group>"; };
+		358E7EBF23C60C8300732A9B /* RCPurchaserInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPurchaserInfo.m; path = ../../../RevenueCat/Plugins/iOS/RCPurchaserInfo.m; sourceTree = "<group>"; };
+		358E7EC023C60C8300732A9B /* RCPromotionalOffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPromotionalOffer.m; path = ../../../RevenueCat/Plugins/iOS/RCPromotionalOffer.m; sourceTree = "<group>"; };
+		358E7EC123C60C8300732A9B /* RCStoreKitWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCStoreKitWrapper.m; path = ../../../RevenueCat/Plugins/iOS/RCStoreKitWrapper.m; sourceTree = "<group>"; };
+		358E7EC223C60C8300732A9B /* RCOfferings+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCOfferings+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCOfferings+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EC323C60C8300732A9B /* RCEntitlementInfos+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCEntitlementInfos+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCEntitlementInfos+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EC423C60C8300732A9B /* RCPurchaserInfo+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCPurchaserInfo+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCPurchaserInfo+HybridAdditions.m"; sourceTree = "<group>"; };
+		358E7EC523C60C8300732A9B /* RCAttributionFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAttributionFetcher.m; path = ../../../RevenueCat/Plugins/iOS/RCAttributionFetcher.m; sourceTree = "<group>"; };
+		358E7EC623C60C8300732A9B /* NSLocale+RCExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSLocale+RCExtensions.m"; path = "../../../RevenueCat/Plugins/iOS/NSLocale+RCExtensions.m"; sourceTree = "<group>"; };
+		358E7EC723C60C8300732A9B /* RCDeviceCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCDeviceCache.m; path = ../../../RevenueCat/Plugins/iOS/RCDeviceCache.m; sourceTree = "<group>"; };
+		358E7EC823C60C8400732A9B /* RCOfferings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOfferings.m; path = ../../../RevenueCat/Plugins/iOS/RCOfferings.m; sourceTree = "<group>"; };
+		358E7EC923C60C8400732A9B /* RCPackage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPackage.m; path = ../../../RevenueCat/Plugins/iOS/RCPackage.m; sourceTree = "<group>"; };
+		358E7ECA23C60C8400732A9B /* RCOffering.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOffering.m; path = ../../../RevenueCat/Plugins/iOS/RCOffering.m; sourceTree = "<group>"; };
+		358E7ECB23C60C8400732A9B /* RCCommonFunctionality.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCommonFunctionality.m; path = ../../../RevenueCat/Plugins/iOS/RCCommonFunctionality.m; sourceTree = "<group>"; };
+		358E7ECC23C60C8400732A9B /* RCReceiptFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCReceiptFetcher.m; path = ../../../RevenueCat/Plugins/iOS/RCReceiptFetcher.m; sourceTree = "<group>"; };
+		358E7EED23C60C9100732A9B /* RCOfferingsFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOfferingsFactory.h; path = ../../../RevenueCat/Plugins/iOS/RCOfferingsFactory.h; sourceTree = "<group>"; };
+		358E7EEE23C60C9100732A9B /* RCHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCHTTPClient.h; path = ../../../RevenueCat/Plugins/iOS/RCHTTPClient.h; sourceTree = "<group>"; };
+		358E7EEF23C60C9100732A9B /* RCPackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCPackage.h; path = ../../../RevenueCat/Plugins/iOS/RCPackage.h; sourceTree = "<group>"; };
+		358E7EF023C60C9100732A9B /* RCAttributionFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCAttributionFetcher.h; path = ../../../RevenueCat/Plugins/iOS/RCAttributionFetcher.h; sourceTree = "<group>"; };
+		358E7EF123C60C9100732A9B /* RCPackage+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCPackage+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCPackage+Protected.h"; sourceTree = "<group>"; };
+		358E7EF223C60C9100732A9B /* RCStoreKitRequestFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStoreKitRequestFetcher.h; path = ../../../RevenueCat/Plugins/iOS/RCStoreKitRequestFetcher.h; sourceTree = "<group>"; };
+		358E7EF323C60C9100732A9B /* RCEntitlementInfos+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCEntitlementInfos+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCEntitlementInfos+Protected.h"; sourceTree = "<group>"; };
+		358E7EF423C60C9200732A9B /* RCDeviceCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDeviceCache.h; path = ../../../RevenueCat/Plugins/iOS/RCDeviceCache.h; sourceTree = "<group>"; };
+		358E7EF523C60C9200732A9B /* RCStoreKitWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStoreKitWrapper.h; path = ../../../RevenueCat/Plugins/iOS/RCStoreKitWrapper.h; sourceTree = "<group>"; };
+		358E7EF623C60C9200732A9B /* RCOffering+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCOffering+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCOffering+Protected.h"; sourceTree = "<group>"; };
+		358E7EF723C60C9200732A9B /* RCEntitlementInfo+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCEntitlementInfo+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/RCEntitlementInfo+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7EF823C60C9200732A9B /* RCCommonFunctionality.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCommonFunctionality.h; path = ../../../RevenueCat/Plugins/iOS/RCCommonFunctionality.h; sourceTree = "<group>"; };
+		358E7EF923C60C9200732A9B /* RCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCUtils.h; path = ../../../RevenueCat/Plugins/iOS/RCUtils.h; sourceTree = "<group>"; };
+		358E7EFA23C60C9200732A9B /* NSLocale+RCExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSLocale+RCExtensions.h"; path = "../../../RevenueCat/Plugins/iOS/NSLocale+RCExtensions.h"; sourceTree = "<group>"; };
+		358E7EFB23C60C9200732A9B /* RCIdentityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCIdentityManager.h; path = ../../../RevenueCat/Plugins/iOS/RCIdentityManager.h; sourceTree = "<group>"; };
+		358E7EFC23C60C9200732A9B /* RCEntitlementInfo+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCEntitlementInfo+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCEntitlementInfo+Protected.h"; sourceTree = "<group>"; };
+		358E7EFD23C60C9200732A9B /* RCPromotionalOffer+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCPromotionalOffer+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCPromotionalOffer+Protected.h"; sourceTree = "<group>"; };
+		358E7EFE23C60C9200732A9B /* RCPurchaserInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCPurchaserInfo.h; path = ../../../RevenueCat/Plugins/iOS/RCPurchaserInfo.h; sourceTree = "<group>"; };
+		358E7EFF23C60C9200732A9B /* RCBackend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCBackend.h; path = ../../../RevenueCat/Plugins/iOS/RCBackend.h; sourceTree = "<group>"; };
+		358E7F0023C60C9200732A9B /* RCPurchaserInfo+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCPurchaserInfo+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCPurchaserInfo+Protected.h"; sourceTree = "<group>"; };
+		358E7F0123C60C9200732A9B /* RCOfferings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOfferings.h; path = ../../../RevenueCat/Plugins/iOS/RCOfferings.h; sourceTree = "<group>"; };
+		358E7F0223C60C9200732A9B /* RCPurchasesErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCPurchasesErrors.h; path = ../../../RevenueCat/Plugins/iOS/RCPurchasesErrors.h; sourceTree = "<group>"; };
+		358E7F0323C60C9200732A9B /* RCReceiptFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCReceiptFetcher.h; path = ../../../RevenueCat/Plugins/iOS/RCReceiptFetcher.h; sourceTree = "<group>"; };
+		358E7F0423C60C9200732A9B /* RCPurchases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCPurchases.h; path = ../../../RevenueCat/Plugins/iOS/RCPurchases.h; sourceTree = "<group>"; };
+		358E7F0523C60C9200732A9B /* RCAttributionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCAttributionData.h; path = ../../../RevenueCat/Plugins/iOS/RCAttributionData.h; sourceTree = "<group>"; };
+		358E7F0623C60C9200732A9B /* SKProduct+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SKProduct+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/SKProduct+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7F0723C60C9200732A9B /* Purchases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Purchases.h; path = ../../../RevenueCat/Plugins/iOS/Purchases.h; sourceTree = "<group>"; };
+		358E7F0823C60C9200732A9B /* RCEntitlementInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCEntitlementInfo.h; path = ../../../RevenueCat/Plugins/iOS/RCEntitlementInfo.h; sourceTree = "<group>"; };
+		358E7F0923C60C9200732A9B /* RCOfferings+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCOfferings+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/RCOfferings+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7F0A23C60C9200732A9B /* RCOffering+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCOffering+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/RCOffering+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7F0B23C60C9300732A9B /* RCErrorContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCErrorContainer.h; path = ../../../RevenueCat/Plugins/iOS/RCErrorContainer.h; sourceTree = "<group>"; };
+		358E7F0C23C60C9300732A9B /* RCOfferings+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCOfferings+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCOfferings+Protected.h"; sourceTree = "<group>"; };
+		358E7F0D23C60C9300732A9B /* RCPackage+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCPackage+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/RCPackage+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7F0E23C60C9300732A9B /* RCEntitlementInfos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCEntitlementInfos.h; path = ../../../RevenueCat/Plugins/iOS/RCEntitlementInfos.h; sourceTree = "<group>"; };
+		358E7F0F23C60C9300732A9B /* RCPromotionalOffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCPromotionalOffer.h; path = ../../../RevenueCat/Plugins/iOS/RCPromotionalOffer.h; sourceTree = "<group>"; };
+		358E7F1023C60C9300732A9B /* RCEntitlementInfos+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCEntitlementInfos+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/RCEntitlementInfos+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7F1123C60C9300732A9B /* RCOffering.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOffering.h; path = ../../../RevenueCat/Plugins/iOS/RCOffering.h; sourceTree = "<group>"; };
+		358E7F1223C60C9300732A9B /* RCCrossPlatformSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCrossPlatformSupport.h; path = ../../../RevenueCat/Plugins/iOS/RCCrossPlatformSupport.h; sourceTree = "<group>"; };
+		358E7F1323C60C9300732A9B /* RCPurchaserInfo+HybridAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCPurchaserInfo+HybridAdditions.h"; path = "../../../RevenueCat/Plugins/iOS/RCPurchaserInfo+HybridAdditions.h"; sourceTree = "<group>"; };
+		358E7F1423C60C9300732A9B /* RCIntroEligibility+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCIntroEligibility+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCIntroEligibility+Protected.h"; sourceTree = "<group>"; };
+		358E7F1523C60C9300732A9B /* RCPurchases+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCPurchases+Protected.h"; path = "../../../RevenueCat/Plugins/iOS/RCPurchases+Protected.h"; sourceTree = "<group>"; };
+		358E7F1623C60C9300732A9B /* RCIntroEligibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCIntroEligibility.h; path = ../../../RevenueCat/Plugins/iOS/RCIntroEligibility.h; sourceTree = "<group>"; };
+		358E7F1723C60C9300732A9B /* RCPurchasesErrorUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCPurchasesErrorUtils.h; path = ../../../RevenueCat/Plugins/iOS/RCPurchasesErrorUtils.h; sourceTree = "<group>"; };
+		358E7F1823C60D0C00732A9B /* PurchasesUnityHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PurchasesUnityHelper.m; sourceTree = "<group>"; };
+		35C6DED523C4BB94002DFCF5 /* Purchases.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Purchases.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		35C6DED823C4BB94002DFCF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		35C6DF1423C4BCA3002DFCF5 /* PurchasesUnityHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PurchasesUnityHelper.m; path = ../../../RevenueCat/Plugins/iOS/PurchasesUnityHelper.m; sourceTree = "<group>"; };
+		35C6DF2823C4BCA5002DFCF5 /* NSLocale+RCExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSLocale+RCExtensions.m"; path = "../../../RevenueCat/Plugins/iOS/NSLocale+RCExtensions.m"; sourceTree = "<group>"; };
+		35C6DF4C23C4D708002DFCF5 /* Bridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Bridge.mm; sourceTree = "<group>"; };
+		35C6DF4D23C4D708002DFCF5 /* Bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridge.h; sourceTree = "<group>"; };
+		35C6DF4F23C5D74D002DFCF5 /* PurchasesUnityHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PurchasesUnityHelper.h; sourceTree = "<group>"; };
+		35C6DF5123C60897002DFCF5 /* RCDeviceCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCDeviceCache.m; path = ../../../RevenueCat/Plugins/iOS/RCDeviceCache.m; sourceTree = "<group>"; };
+		35C6DF5223C60897002DFCF5 /* RCPromotionalOffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPromotionalOffer.m; path = ../../../RevenueCat/Plugins/iOS/RCPromotionalOffer.m; sourceTree = "<group>"; };
+		35C6DF5323C60897002DFCF5 /* RCAttributionData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAttributionData.m; path = ../../../RevenueCat/Plugins/iOS/RCAttributionData.m; sourceTree = "<group>"; };
+		35C6DF5B23C60898002DFCF5 /* RCPurchaserInfo+HybridAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCPurchaserInfo+HybridAdditions.m"; path = "../../../RevenueCat/Plugins/iOS/RCPurchaserInfo+HybridAdditions.m"; sourceTree = "<group>"; };
+		35C6DF5D23C60898002DFCF5 /* RCOfferings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOfferings.m; path = ../../../RevenueCat/Plugins/iOS/RCOfferings.m; sourceTree = "<group>"; };
+		35C6DF6223C60898002DFCF5 /* RCAttributionFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAttributionFetcher.m; path = ../../../RevenueCat/Plugins/iOS/RCAttributionFetcher.m; sourceTree = "<group>"; };
+		35C6DF6723C60899002DFCF5 /* RCPackage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCPackage.m; path = ../../../RevenueCat/Plugins/iOS/RCPackage.m; sourceTree = "<group>"; };
+		35C6DF6823C60899002DFCF5 /* RCEntitlementInfos.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCEntitlementInfos.m; path = ../../../RevenueCat/Plugins/iOS/RCEntitlementInfos.m; sourceTree = "<group>"; };
+		35C6DFB223C608D0002DFCF5 /* RCBackend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCBackend.m; path = ../../../RevenueCat/Plugins/iOS/RCBackend.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		35C6DED223C4BB94002DFCF5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		35C6DECC23C4BB94002DFCF5 = {
+			isa = PBXGroup;
+			children = (
+				35C6DED723C4BB94002DFCF5 /* Purchases */,
+				35C6DED623C4BB94002DFCF5 /* Products */,
+				35C6DFBD23C60A34002DFCF5 /* Recovered References */,
+			);
+			sourceTree = "<group>";
+		};
+		35C6DED623C4BB94002DFCF5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				35C6DED523C4BB94002DFCF5 /* Purchases.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		35C6DED723C4BB94002DFCF5 /* Purchases */ = {
+			isa = PBXGroup;
+			children = (
+				358E7F1823C60D0C00732A9B /* PurchasesUnityHelper.m */,
+				35C6DF4D23C4D708002DFCF5 /* Bridge.h */,
+				35C6DF4C23C4D708002DFCF5 /* Bridge.mm */,
+				35C6DED823C4BB94002DFCF5 /* Info.plist */,
+				358E7EFA23C60C9200732A9B /* NSLocale+RCExtensions.h */,
+				358E7EC623C60C8300732A9B /* NSLocale+RCExtensions.m */,
+				358E7F0723C60C9200732A9B /* Purchases.h */,
+				35C6DF4F23C5D74D002DFCF5 /* PurchasesUnityHelper.h */,
+				358E7F0523C60C9200732A9B /* RCAttributionData.h */,
+				358E7EB423C60C8300732A9B /* RCAttributionData.m */,
+				358E7EF023C60C9100732A9B /* RCAttributionFetcher.h */,
+				358E7EC523C60C8300732A9B /* RCAttributionFetcher.m */,
+				358E7EFF23C60C9200732A9B /* RCBackend.h */,
+				358E7EB723C60C8300732A9B /* RCBackend.m */,
+				358E7EF823C60C9200732A9B /* RCCommonFunctionality.h */,
+				358E7ECB23C60C8400732A9B /* RCCommonFunctionality.m */,
+				358E7F1223C60C9300732A9B /* RCCrossPlatformSupport.h */,
+				358E7EF423C60C9200732A9B /* RCDeviceCache.h */,
+				358E7EC723C60C8300732A9B /* RCDeviceCache.m */,
+				358E7F0823C60C9200732A9B /* RCEntitlementInfo.h */,
+				358E7EAD23C60C8300732A9B /* RCEntitlementInfo.m */,
+				358E7EF723C60C9200732A9B /* RCEntitlementInfo+HybridAdditions.h */,
+				358E7EAF23C60C8300732A9B /* RCEntitlementInfo+HybridAdditions.m */,
+				358E7EFC23C60C9200732A9B /* RCEntitlementInfo+Protected.h */,
+				358E7F0E23C60C9300732A9B /* RCEntitlementInfos.h */,
+				358E7EB023C60C8300732A9B /* RCEntitlementInfos.m */,
+				358E7F1023C60C9300732A9B /* RCEntitlementInfos+HybridAdditions.h */,
+				358E7EC323C60C8300732A9B /* RCEntitlementInfos+HybridAdditions.m */,
+				358E7EF323C60C9100732A9B /* RCEntitlementInfos+Protected.h */,
+				358E7F0B23C60C9300732A9B /* RCErrorContainer.h */,
+				358E7EBC23C60C8300732A9B /* RCErrorContainer.m */,
+				358E7EEE23C60C9100732A9B /* RCHTTPClient.h */,
+				358E7EB523C60C8300732A9B /* RCHTTPClient.m */,
+				358E7EFB23C60C9200732A9B /* RCIdentityManager.h */,
+				358E7EAE23C60C8300732A9B /* RCIdentityManager.m */,
+				358E7F1623C60C9300732A9B /* RCIntroEligibility.h */,
+				358E7EB623C60C8300732A9B /* RCIntroEligibility.m */,
+				358E7F1423C60C9300732A9B /* RCIntroEligibility+Protected.h */,
+				358E7F1123C60C9300732A9B /* RCOffering.h */,
+				358E7ECA23C60C8400732A9B /* RCOffering.m */,
+				358E7F0A23C60C9200732A9B /* RCOffering+HybridAdditions.h */,
+				358E7EBB23C60C8300732A9B /* RCOffering+HybridAdditions.m */,
+				358E7EF623C60C9200732A9B /* RCOffering+Protected.h */,
+				358E7F0123C60C9200732A9B /* RCOfferings.h */,
+				358E7EC823C60C8400732A9B /* RCOfferings.m */,
+				358E7F0923C60C9200732A9B /* RCOfferings+HybridAdditions.h */,
+				358E7EC223C60C8300732A9B /* RCOfferings+HybridAdditions.m */,
+				358E7F0C23C60C9300732A9B /* RCOfferings+Protected.h */,
+				358E7EED23C60C9100732A9B /* RCOfferingsFactory.h */,
+				358E7EB923C60C8300732A9B /* RCOfferingsFactory.m */,
+				358E7EEF23C60C9100732A9B /* RCPackage.h */,
+				358E7EC923C60C8400732A9B /* RCPackage.m */,
+				358E7F0D23C60C9300732A9B /* RCPackage+HybridAdditions.h */,
+				358E7EB123C60C8300732A9B /* RCPackage+HybridAdditions.m */,
+				358E7EF123C60C9100732A9B /* RCPackage+Protected.h */,
+				358E7F0F23C60C9300732A9B /* RCPromotionalOffer.h */,
+				358E7EC023C60C8300732A9B /* RCPromotionalOffer.m */,
+				358E7EFD23C60C9200732A9B /* RCPromotionalOffer+Protected.h */,
+				358E7EFE23C60C9200732A9B /* RCPurchaserInfo.h */,
+				358E7EBF23C60C8300732A9B /* RCPurchaserInfo.m */,
+				358E7F1323C60C9300732A9B /* RCPurchaserInfo+HybridAdditions.h */,
+				358E7EC423C60C8300732A9B /* RCPurchaserInfo+HybridAdditions.m */,
+				358E7F0023C60C9200732A9B /* RCPurchaserInfo+Protected.h */,
+				358E7F0423C60C9200732A9B /* RCPurchases.h */,
+				358E7EB223C60C8300732A9B /* RCPurchases.m */,
+				358E7F1523C60C9300732A9B /* RCPurchases+Protected.h */,
+				358E7F0223C60C9200732A9B /* RCPurchasesErrors.h */,
+				358E7F1723C60C9300732A9B /* RCPurchasesErrorUtils.h */,
+				358E7EBE23C60C8300732A9B /* RCPurchasesErrorUtils.m */,
+				358E7F0323C60C9200732A9B /* RCReceiptFetcher.h */,
+				358E7ECC23C60C8400732A9B /* RCReceiptFetcher.m */,
+				358E7EF223C60C9100732A9B /* RCStoreKitRequestFetcher.h */,
+				358E7EBD23C60C8300732A9B /* RCStoreKitRequestFetcher.m */,
+				358E7EF523C60C9200732A9B /* RCStoreKitWrapper.h */,
+				358E7EC123C60C8300732A9B /* RCStoreKitWrapper.m */,
+				358E7EF923C60C9200732A9B /* RCUtils.h */,
+				358E7EB323C60C8300732A9B /* RCUtils.m */,
+				358E7F0623C60C9200732A9B /* SKProduct+HybridAdditions.h */,
+				358E7EBA23C60C8300732A9B /* SKProduct+HybridAdditions.m */,
+			);
+			path = Purchases;
+			sourceTree = "<group>";
+		};
+		35C6DFBD23C60A34002DFCF5 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				35C6DFB223C608D0002DFCF5 /* RCBackend.m */,
+				35C6DF6223C60898002DFCF5 /* RCAttributionFetcher.m */,
+				35C6DF5B23C60898002DFCF5 /* RCPurchaserInfo+HybridAdditions.m */,
+				35C6DF1423C4BCA3002DFCF5 /* PurchasesUnityHelper.m */,
+				35C6DF5D23C60898002DFCF5 /* RCOfferings.m */,
+				35C6DF6723C60899002DFCF5 /* RCPackage.m */,
+				35C6DF2823C4BCA5002DFCF5 /* NSLocale+RCExtensions.m */,
+				35C6DF5123C60897002DFCF5 /* RCDeviceCache.m */,
+				35C6DF6823C60899002DFCF5 /* RCEntitlementInfos.m */,
+				35C6DF5323C60897002DFCF5 /* RCAttributionData.m */,
+				35C6DF5223C60897002DFCF5 /* RCPromotionalOffer.m */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		35C6DED423C4BB94002DFCF5 /* Purchases */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 35C6DEDB23C4BB94002DFCF5 /* Build configuration list for PBXNativeTarget "Purchases" */;
+			buildPhases = (
+				35C6DED123C4BB94002DFCF5 /* Sources */,
+				35C6DED223C4BB94002DFCF5 /* Frameworks */,
+				35C6DED323C4BB94002DFCF5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Purchases;
+			productName = Purchases;
+			productReference = 35C6DED523C4BB94002DFCF5 /* Purchases.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		35C6DECD23C4BB94002DFCF5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1120;
+				ORGANIZATIONNAME = RevenueCat;
+				TargetAttributes = {
+					35C6DED423C4BB94002DFCF5 = {
+						CreatedOnToolsVersion = 11.2.1;
+					};
+				};
+			};
+			buildConfigurationList = 35C6DED023C4BB94002DFCF5 /* Build configuration list for PBXProject "Purchases" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 35C6DECC23C4BB94002DFCF5;
+			productRefGroup = 35C6DED623C4BB94002DFCF5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				35C6DED423C4BB94002DFCF5 /* Purchases */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		35C6DED323C4BB94002DFCF5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		35C6DED123C4BB94002DFCF5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				358E7ED923C60C8400732A9B /* RCOfferingsFactory.m in Sources */,
+				358E7EDA23C60C8400732A9B /* SKProduct+HybridAdditions.m in Sources */,
+				358E7ED423C60C8400732A9B /* RCAttributionData.m in Sources */,
+				358E7EDC23C60C8400732A9B /* RCErrorContainer.m in Sources */,
+				358E7EE223C60C8400732A9B /* RCOfferings+HybridAdditions.m in Sources */,
+				358E7EDE23C60C8400732A9B /* RCPurchasesErrorUtils.m in Sources */,
+				358E7EDB23C60C8400732A9B /* RCOffering+HybridAdditions.m in Sources */,
+				358E7ED023C60C8400732A9B /* RCEntitlementInfos.m in Sources */,
+				358E7ED723C60C8400732A9B /* RCBackend.m in Sources */,
+				358E7ED523C60C8400732A9B /* RCHTTPClient.m in Sources */,
+				358E7EDD23C60C8400732A9B /* RCStoreKitRequestFetcher.m in Sources */,
+				358E7EE923C60C8400732A9B /* RCPackage.m in Sources */,
+				358E7EEA23C60C8400732A9B /* RCOffering.m in Sources */,
+				358E7ED623C60C8400732A9B /* RCIntroEligibility.m in Sources */,
+				358E7EEB23C60C8400732A9B /* RCCommonFunctionality.m in Sources */,
+				358E7EE323C60C8400732A9B /* RCEntitlementInfos+HybridAdditions.m in Sources */,
+				358E7ED123C60C8400732A9B /* RCPackage+HybridAdditions.m in Sources */,
+				358E7ECE23C60C8400732A9B /* RCIdentityManager.m in Sources */,
+				358E7EE623C60C8400732A9B /* NSLocale+RCExtensions.m in Sources */,
+				358E7EE723C60C8400732A9B /* RCDeviceCache.m in Sources */,
+				358E7ED223C60C8400732A9B /* RCPurchases.m in Sources */,
+				35C6DF4E23C4D708002DFCF5 /* Bridge.mm in Sources */,
+				358E7ECF23C60C8400732A9B /* RCEntitlementInfo+HybridAdditions.m in Sources */,
+				358E7EEC23C60C8400732A9B /* RCReceiptFetcher.m in Sources */,
+				358E7EE423C60C8400732A9B /* RCPurchaserInfo+HybridAdditions.m in Sources */,
+				358E7EE823C60C8400732A9B /* RCOfferings.m in Sources */,
+				358E7ED323C60C8400732A9B /* RCUtils.m in Sources */,
+				358E7ECD23C60C8400732A9B /* RCEntitlementInfo.m in Sources */,
+				358E7EDF23C60C8400732A9B /* RCPurchaserInfo.m in Sources */,
+				358E7EE023C60C8400732A9B /* RCPromotionalOffer.m in Sources */,
+				358E7EE523C60C8400732A9B /* RCAttributionFetcher.m in Sources */,
+				358E7EE123C60C8400732A9B /* RCStoreKitWrapper.m in Sources */,
+				358E7F1923C60D0C00732A9B /* PurchasesUnityHelper.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		35C6DED923C4BB94002DFCF5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		35C6DEDA23C4BB94002DFCF5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		35C6DEDC23C4BB94002DFCF5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8SXR2327BM;
+				INFOPLIST_FILE = Purchases/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				PRODUCT_BUNDLE_IDENTIFIER = com.revenuecat.Purchases;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		35C6DEDD23C4BB94002DFCF5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8SXR2327BM;
+				INFOPLIST_FILE = Purchases/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				PRODUCT_BUNDLE_IDENTIFIER = com.revenuecat.Purchases;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		35C6DED023C4BB94002DFCF5 /* Build configuration list for PBXProject "Purchases" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35C6DED923C4BB94002DFCF5 /* Debug */,
+				35C6DEDA23C4BB94002DFCF5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		35C6DEDB23C4BB94002DFCF5 /* Build configuration list for PBXNativeTarget "Purchases" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35C6DEDC23C4BB94002DFCF5 /* Debug */,
+				35C6DEDD23C4BB94002DFCF5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 35C6DECD23C4BB94002DFCF5 /* Project object */;
+}

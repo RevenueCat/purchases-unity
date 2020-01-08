@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Text;
 
 public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
 {
@@ -20,7 +21,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
         CreateButton("Do Other Stuff", DoOtherStuff, 300);
 
         var purchases = GetComponent<Purchases>();
-        purchases.SetDebugLogsEnabled(true);
+        // purchases.SetDebugLogsEnabled(true);
         purchases.GetOfferings((offerings, error) =>
         {
             if (error != null)
@@ -40,6 +41,17 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
                     CreateButton(label, () => ButtonClicked(package), 500 + yOffset);
                     yOffset += 70;
                 }
+                purchases.CheckTrialOrIntroductoryPriceEligibility(new string[] { offerings.Current.Annual.Product.identifier, "mierda" }, (map) => 
+                {
+                    var str = new StringBuilder();
+                    str.Append("{");
+                    foreach (var pair in map)
+                    {
+                        str.Append(String.Format(" {0}={1} ", pair.Key, pair.Value));
+                    }
+                    str.Append("}");
+                    Debug.Log("TrialEligibility " + str.ToString());
+                });
             }
         });
     }
@@ -113,14 +125,14 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
                 LogError(error);
             }
         });
-        purchases.GetProducts(new[] { "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
+        purchases.GetProducts(new[] { "consumable" }, (products, error) =>
         {
             Debug.Log("getProducts " + products);
             if (error != null)
             {
                 LogError(error);
             }
-        });
+        }, "inapp");
 
         purchases.SyncPurchases();
         purchases.SetFinishTransactions(false);
