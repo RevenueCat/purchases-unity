@@ -44,9 +44,9 @@ static NSString * stringFromDate(NSDate *date)
             break;
     }
     
-    jsonDict[@"latestPurchaseDate"] = stringFromDate(self.latestPurchaseDate);
-    jsonDict[@"originalPurchaseDate"] = stringFromDate(self.originalPurchaseDate);
-    jsonDict[@"expirationDate"] = stringFromDate(self.expirationDate) ?: [NSNull null];
+    jsonDict[@"latestPurchaseDate"] = @(self.latestPurchaseDate.timeIntervalSince1970);
+    jsonDict[@"originalPurchaseDate"] = @(self.originalPurchaseDate.timeIntervalSince1970);
+    jsonDict[@"expirationDate"] = self.expirationDate ? @(self.expirationDate.timeIntervalSince1970) : [NSNull null];
 
     switch (self.store) {
         case RCAppStore:
@@ -71,8 +71,8 @@ static NSString * stringFromDate(NSDate *date)
     
     jsonDict[@"productIdentifier"] = self.productIdentifier;
     jsonDict[@"isSandbox"] = @(self.isSandbox);
-    jsonDict[@"unsubscribeDetectedAt"] = stringFromDate(self.unsubscribeDetectedAt) ?: [NSNull null];
-    jsonDict[@"billingIssueDetectedAt"] = stringFromDate(self.billingIssueDetectedAt) ?: [NSNull null];
+    jsonDict[@"unsubscribeDetectedAt"] = self.unsubscribeDetectedAt ? @(self.unsubscribeDetectedAt.timeIntervalSince1970) : [NSNull null];
+    jsonDict[@"billingIssueDetectedAt"] = self.billingIssueDetectedAt ? @(self.billingIssueDetectedAt.timeIntervalSince1970) : [NSNull null];
     
     return [NSDictionary dictionaryWithDictionary:jsonDict];
 }
