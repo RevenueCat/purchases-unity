@@ -1,3 +1,7 @@
+## 2.0.8
+
+- Fixes active entitlements in iOS and the format of the dates in the EntitlementInfo objects in iOS
+
 ## 2.0.7
 
 - Adds optional type parameter to GetProducts call
