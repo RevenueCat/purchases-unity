@@ -11,17 +11,24 @@
 - (NSDictionary *)dictionary
 {
     NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-    NSMutableDictionary *all = [NSMutableDictionary new];
-    for (NSString *entId in self.all) {
-        all[entId] = self.all[entId].dictionary;
-    }
-    jsonDict[@"all"] = all;
 
-    NSMutableDictionary *active = [NSMutableDictionary new];
-    for (NSString *entId in self.active) {
-        active[entId] = self.active[entId].dictionary;
+    NSMutableArray *allKeys = [NSMutableArray new];
+    NSMutableArray *allValues = [NSMutableArray new];
+    for (NSString *entId in self.all) {
+        [allKeys addObject:entId];
+        [allValues addObject:self.all[entId].dictionary];
     }
-    jsonDict[@"active"] = active;
+    jsonDict[@"allKeys"] = allKeys;
+    jsonDict[@"allValues"] = allValues;
+
+    NSMutableArray *activeKeys = [NSMutableArray new];
+    NSMutableArray *activeValues = [NSMutableArray new];
+    for (NSString *entId in self.active) {
+        [activeKeys addObject:entId];
+        [activeValues addObject:self.active[entId].dictionary];
+    }
+    jsonDict[@"activeKeys"] = activeKeys;
+    jsonDict[@"activeValues"] = activeValues;
 
     return [NSDictionary dictionaryWithDictionary:jsonDict];
 }
