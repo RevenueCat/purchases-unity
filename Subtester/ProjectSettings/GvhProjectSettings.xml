@@ -1,6 +1,17 @@
 <projectSettings>
+  <projectSetting name="com.google.unity.oss.play_services_resolverAnalyticsCookie" value="aedf5e7251b14322af19f45bfbff1d9a" />
+  <projectSetting name="com.google.unity.oss.play_services_resolverAnalyticsEnabled" value="True" />
   <projectSetting name="Google.IOSResolver.VerboseLoggingEnabled" value="False" />
   <projectSetting name="Google.VersionHandler.VerboseLoggingEnabled" value="False" />
-  <projectSetting name="GooglePlayServices.PromptBeforeAutoResolution" value="False" />
+  <projectSetting name="GooglePlayServices.AndroidPackageInstallationEnabled" value="True" />
+  <projectSetting name="GooglePlayServices.AutoResolutionDisabledWarning" value="True" />
+  <projectSetting name="GooglePlayServices.AutoResolveOnBuild" value="False" />
+  <projectSetting name="GooglePlayServices.AutoResolverEnabled" value="False" />
+  <projectSetting name="GooglePlayServices.ExplodeAars" value="True" />
+  <projectSetting name="GooglePlayServices.PatchAndroidManifest" value="True" />
+  <projectSetting name="GooglePlayServices.PatchMainTemplateGradle" value="True" />
+  <projectSetting name="GooglePlayServices.PromptBeforeAutoResolution" value="True" />
+  <projectSetting name="GooglePlayServices.UseGradleDaemon" value="False" />
   <projectSetting name="GooglePlayServices.UseJetifier" value="True" />
+  <projectSetting name="GooglePlayServices.VerboseLogging" value="False" />
 </projectSettings>
