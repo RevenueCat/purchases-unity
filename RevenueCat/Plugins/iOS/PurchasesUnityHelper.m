@@ -177,7 +177,9 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
-    [self sendJSONObject:purchaserInfo.dictionary toMethod:RECEIVE_PURCHASER_INFO];
+    NSMutableDictionary *response = [NSMutableDictionary new];
+    response[@"purchaserInfo"] = purchaserInfo.dictionary;
+    [self sendJSONObject:response toMethod:RECEIVE_PURCHASER_INFO];
 }
 
 - (char *)getAppUserID
