@@ -1,3 +1,7 @@
+## 2.0.9
+
+- Fixes updated PurchaserInfo listener in iOS
+
 ## 2.0.8
 
 - Fixes active entitlements in iOS and the format of the dates in the EntitlementInfo objects in iOS
