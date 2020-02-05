@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://d2jzmbury1aqmc.cloudfront.net/assets/images/build.svg" alt="RevenueCat"/>
+</p>
+
 # Purchases.framework for Unity
 The Purchases SDK provided by RevenueCat allows you to implement subscriptions in your Unity app easily.
 
