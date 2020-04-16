@@ -266,6 +266,34 @@ fun checkTrialOrIntroductoryPriceEligibility(
     }.toMap()
 }
 
+fun invalidatePurchaserInfoCache() { 
+    Purchases.sharedInstance.invalidatePurchaserInfoCache()
+}
+
+// region Subscriber Attributes
+
+fun setAttributes(attributes: Map<String, String?>) {
+    Purchases.sharedInstance.setAttributes(attributes)
+}
+
+fun setEmail(email: String?) {
+    Purchases.sharedInstance.setEmail(email)
+}
+
+fun setPhoneNumber(phoneNumber: String?) {
+    Purchases.sharedInstance.setPhoneNumber(phoneNumber)
+}
+
+fun setDisplayName(displayName: String?) {
+    Purchases.sharedInstance.setDisplayName(displayName)
+}
+
+fun setPushToken(fcmToken: String?) {
+    Purchases.sharedInstance.setPushToken(fcmToken)
+}
+
+// region private functions
+
 private fun getMakePurchaseErrorFunction(onResult: OnResult): (PurchasesError, Boolean) -> Unit {
     return { error, userCancelled -> onResult.onError(error.map(mapOf("userCancelled" to userCancelled))) }
 }
@@ -291,6 +319,7 @@ private fun PurchasesError.map(
             "code" to code.ordinal,
             "message" to message,
             "readableErrorCode" to code.name,
+            "readable_error_code" to code.name,
             "underlyingErrorMessage" to (underlyingErrorMessage ?: "")
         ) + extra
     )

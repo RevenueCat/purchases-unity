@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
+using System.Collections.Generic;
+using RevenueCat.MiniJSON;
 
 #if UNITY_ANDROID
 public class PurchasesWrapperAndroid : IPurchasesWrapper
@@ -178,6 +180,54 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
         {
             purchases.CallStatic("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
+        }
+    }
+
+    public void InvalidatePurchaserInfoCache()
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("invalidatePurchaserInfoCache");
+        }
+    }
+
+    public void SetAttributes(Dictionary<string, string> attributes)
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("setAttributes", Json.Serialize(attributes));
+        }
+    }
+
+    public void SetEmail(string email)
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("setEmail", email);
+        }
+    }
+
+    public void SetPhoneNumber(string phoneNumber)
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("setPhoneNumber", phoneNumber);
+        }
+    }
+
+    public void SetDisplayName(string displayName)
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("setDisplayName", displayName);
+        }
+    }
+
+    public void SetPushToken(string token)
+    {
+        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        {
+            purchases.CallStatic("setPushToken", token);
         }
     }
 

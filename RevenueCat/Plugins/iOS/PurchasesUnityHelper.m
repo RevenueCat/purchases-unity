@@ -78,7 +78,9 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (void)purchaseProduct:(NSString *)productIdentifier {
-    [RCCommonFunctionality purchaseProduct:productIdentifier completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+    [RCCommonFunctionality purchaseProduct:productIdentifier
+                   signedDiscountTimestamp:nil
+                           completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
         if (error) {
             response = [NSMutableDictionary new];
@@ -95,7 +97,10 @@ char *makeStringCopy(NSString *nstring) {
 
 - (void)purchasePackage:(NSString *)packageIdentifier
      offeringIdentifier:(NSString *)offeringIdentifier {
-    [RCCommonFunctionality purchasePackage:packageIdentifier offering:offeringIdentifier completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+    [RCCommonFunctionality purchasePackage:packageIdentifier
+                                  offering:offeringIdentifier
+                   signedDiscountTimestamp:nil
+                           completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
         if (error) {
             response = [NSMutableDictionary new];
@@ -114,8 +119,7 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality restoreTransactionsWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
 }
 
-- (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId
-{
+- (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId {
     NSError *error = nil;
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding]
                                                          options:0
@@ -166,13 +170,11 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality getPurchaserInfoWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:GET_PURCHASER_INFO]];
 }
 
--  (void)setFinishTransactions:(BOOL)finishTransactions
-{
+-  (void)setFinishTransactions:(BOOL)finishTransactions {
     [RCCommonFunctionality setFinishTransactions:finishTransactions];
 }
 
-- (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled
-{
+- (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled {
     [RCCommonFunctionality setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
 
@@ -182,18 +184,15 @@ char *makeStringCopy(NSString *nstring) {
     [self sendJSONObject:response toMethod:RECEIVE_PURCHASER_INFO];
 }
 
-- (char *)getAppUserID
-{
+- (char *)getAppUserID {
     return makeStringCopy([RCCommonFunctionality appUserID]);
 }
 
-- (BOOL)isAnonymous
-{
+- (BOOL)isAnonymous {
     return @([RCCommonFunctionality isAnonymous]);
 }
 
-- (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers
-{
+- (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers {
     [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
         NSDictionary *response = @{
             @"keys": responseDictionary.allKeys,
@@ -203,10 +202,33 @@ char *makeStringCopy(NSString *nstring) {
     }];
 }
 
+- (void)invalidatePurchaserInfoCache {
+    [RCCommonFunctionality invalidatePurchaserInfoCache];
+}
+
+- (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
+    [RCCommonFunctionality setAttributes:attributes];
+}
+
+- (void)setEmail:(nullable NSString *)email {
+    [RCCommonFunctionality setEmail:email];
+}
+
+- (void)setPhoneNumber:(nullable NSString *)phoneNumber {
+    [RCCommonFunctionality setPhoneNumber:phoneNumber];
+}
+
+- (void)setDisplayName:(nullable NSString *)displayName {
+    [RCCommonFunctionality setDisplayName:displayName];
+}
+
+- (void)setPushToken:(nullable NSString *)pushToken {
+    [RCCommonFunctionality setPushToken:pushToken];
+}
+
 #pragma mark Helper Methods
 
-- (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName
-{
+- (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName {
     NSError *error = nil;
     NSData *responseJSONData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
 
@@ -338,4 +360,36 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
     }
 
     [_RCUnityHelperShared() checkTrialOrIntroductoryPriceEligibility:productsRequest[@"productIdentifiers"]];
+}
+
+void _RCInvalidatePurchaserInfoCache() {
+    [_RCUnityHelperShared() invalidatePurchaserInfoCache];
+}
+
+void _RCSetAttributes(const char* attributesJSON) {
+    NSError *error = nil;
+    NSDictionary *attributes = [NSJSONSerialization JSONObjectWithData:[convertCString(attributesJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    
+    if (error) {
+        NSLog(@"Error parsing attributes JSON: %s %@", attributesJSON, error.localizedDescription);
+        return;
+    }
+    
+    [_RCUnityHelperShared() setAttributes:attributes];
+}
+
+void _RCSetEmail(const char *email) {
+    [_RCUnityHelperShared() setEmail:convertCString(email)];
+}
+
+void _RCSetPhoneNumber(const char *phoneNumber) {
+    [_RCUnityHelperShared() setPhoneNumber:convertCString(phoneNumber)];
+}
+
+void _RCSetDisplayName(const char *displayName) {
+    [_RCUnityHelperShared() setDisplayName:convertCString(displayName)];
+}
+
+void _RCSetPushToken(const char *pushToken) {
+    [_RCUnityHelperShared() setPushToken:convertCString(pushToken)];
 }

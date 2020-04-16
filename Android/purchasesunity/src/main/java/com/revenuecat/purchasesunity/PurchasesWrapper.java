@@ -20,6 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -238,6 +240,35 @@ public class PurchasesWrapper {
 
     }
 
+    public static void invalidatePurchaserInfoCache() {
+        CommonKt.invalidatePurchaserInfoCache();
+    }
+
+    public static void setAttributes(String jsonAttributes) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonAttributes);
+            CommonKt.setAttributes(MappersKt.convertToMap(jsonObject));
+        } catch (JSONException e) {
+            Log.e("Purchases", "Failure parsing attributes " + jsonAttributes);
+        }
+    }
+
+    public static void setEmail(String email) {
+        CommonKt.setEmail(email);
+    }
+
+    public static void setPhoneNumber(String phoneNumber) {
+        CommonKt.setPhoneNumber(phoneNumber);
+    }
+
+    public static void setDisplayName(String displayName) {
+        CommonKt.setDisplayName(displayName);
+    }
+
+    public static void setPushToken(String token) {
+        CommonKt.setPushToken(token);
+    }
+
     private static void logJSONException(JSONException e) {
         Log.e("Purchases", "JSON Error: " + e.getLocalizedMessage());
     }
@@ -292,4 +323,5 @@ public class PurchasesWrapper {
             }
         };
     }
+
 }
