@@ -22,26 +22,6 @@ public partial class Purchases : MonoBehaviour
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
 
-    public class IntroEligibility
-    {
-        /// The introductory price eligibility status
-        public readonly IntroEligibilityStatus Status;
-
-        /// Description of the status
-        public readonly string Description;
-
-        public IntroEligibility(IntroEligibilityResponse response)
-        {
-            Status = (IntroEligibilityStatus)response.status;
-            Description = response.description;
-        }
-
-        public override string ToString()
-        {
-            return "{ status:" + Status + "; description:" + Description + " }";
-        }
-    }
-
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
     public string revenueCatAPIKey;
