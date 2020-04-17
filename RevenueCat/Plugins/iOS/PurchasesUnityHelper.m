@@ -193,7 +193,8 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers {
-    [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
+    [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers
+                                                    completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
         NSDictionary *response = @{
             @"keys": responseDictionary.allKeys,
             @"values": responseDictionary.allValues,
@@ -368,7 +369,10 @@ void _RCInvalidatePurchaserInfoCache() {
 
 void _RCSetAttributes(const char* attributesJSON) {
     NSError *error = nil;
-    NSDictionary *attributes = [NSJSONSerialization JSONObjectWithData:[convertCString(attributesJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    NSData *attributesAsData = [convertCString(attributesJSON) dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *attributes = [NSJSONSerialization JSONObjectWithData:attributesAsData
+                                                               options:0
+                                                                 error:&error];
     
     if (error) {
         NSLog(@"Error parsing attributes JSON: %s %@", attributesJSON, error.localizedDescription);

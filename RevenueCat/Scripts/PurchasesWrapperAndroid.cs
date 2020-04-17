@@ -18,144 +18,96 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         {
             productIdentifiers = productIdentifiers
         };
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("getProducts", JsonUtility.ToJson(request), type);
-        }
+        CallPurchases("getProducts", JsonUtility.ToJson(request), type);
     }
 
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        if (oldSku == null)
         {
-            if (oldSku == null)
-            {
-                purchases.CallStatic("purchaseProduct", productIdentifier, type);
-            }
-            else
-            {
-                purchases.CallStatic("purchaseProduct", productIdentifier, type, oldSku, (int) prorationMode);
-            }
+            CallPurchases("purchaseProduct", productIdentifier, type);
+        }
+        else
+        {
+            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int) prorationMode);
         }
     }
 
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        if (oldSku == null)
         {
-            if (oldSku == null)
-            {
-                purchases.CallStatic("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier);
-            }
-            else
-            {
-                purchases.CallStatic("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku, (int) prorationMode);
-            }
+            CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier);
+        }
+        else
+        {
+            CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku, (int) prorationMode);
         }
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setup", apiKey, appUserId, gameObject, observerMode);
-        }
+        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode);
     }
 
     public void RestoreTransactions()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("restoreTransactions");
-        }
+        CallPurchases("restoreTransactions");
     }
 
     public void AddAttributionData(int network, string data, string networkUserId)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("addAttributionData", data, network, networkUserId);
-        }
+        CallPurchases("addAttributionData", data, network, networkUserId);
     }
 
     public void CreateAlias(string newAppUserId)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("createAlias", newAppUserId);
-        }
+        CallPurchases("createAlias", newAppUserId);
     }
 
     public void Identify(string appUserId)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("identify", appUserId);
-        }
+        CallPurchases("identify", appUserId);
     }
 
     public void Reset()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("reset");
-        }
+        CallPurchases("reset");
     }
 
     public void SetFinishTransactions(bool finishTransactions)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setFinishTransactions", finishTransactions);
-        }
+        CallPurchases("setFinishTransactions", finishTransactions);
     }
 
     public void SetAllowSharingStoreAccount(bool allow)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setAllowSharingStoreAccount", allow);
-        }
+        CallPurchases("setAllowSharingStoreAccount", allow);
     }
 
     public void SetDebugLogsEnabled(bool enabled)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setDebugLogsEnabled", enabled);
-        }
+        CallPurchases("setDebugLogsEnabled", enabled);
     }
 
     public string GetAppUserId()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            return purchases.CallStatic<string>("getAppUserID");
-        }
+        return CallPurchases<string>("getAppUserID");
     }
 
     public void GetPurchaserInfo()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("getPurchaserInfo");
-        }
+        CallPurchases("getPurchaserInfo");
     }
 
     public void GetOfferings()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("getOfferings");
-        }
+        CallPurchases("getOfferings");
     }
 
     public void SyncPurchases()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("syncPurchases");
-        }
+        CallPurchases("syncPurchases");
     }
 
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
@@ -165,10 +117,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public bool IsAnonymous()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            return purchases.CallStatic<bool>("isAnonymous");
-        }
+        return CallPurchases<bool>("isAnonymous");
     }
 
     public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
@@ -177,57 +126,54 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         {
             productIdentifiers = productIdentifiers
         };
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
-        }
+        CallPurchases("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
     }
 
     public void InvalidatePurchaserInfoCache()
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("invalidatePurchaserInfoCache");
-        }
+        CallPurchases("invalidatePurchaserInfoCache");
     }
 
     public void SetAttributes(Dictionary<string, string> attributes)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setAttributes", Json.Serialize(attributes));
-        }
+        CallPurchases("setAttributes", Json.Serialize(attributes));
     }
 
     public void SetEmail(string email)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setEmail", email);
-        }
+        CallPurchases("setEmail", email);
     }
 
     public void SetPhoneNumber(string phoneNumber)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setPhoneNumber", phoneNumber);
-        }
+        CallPurchases("setPhoneNumber", phoneNumber);
     }
 
     public void SetDisplayName(string displayName)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
-        {
-            purchases.CallStatic("setDisplayName", displayName);
-        }
+        CallPurchases("setDisplayName", displayName);
     }
 
     public void SetPushToken(string token)
     {
-        using (var purchases = new AndroidJavaClass("com.revenuecat.purchasesunity.PurchasesWrapper"))
+        CallPurchases("setPushToken", token);
+    }
+
+    private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";
+
+    private static void CallPurchases(string methodName, params object[] args)
+    {
+        using (var purchases = new AndroidJavaClass(PurchasesWrapper))
         {
-            purchases.CallStatic("setPushToken", token);
+            purchases.CallStatic(methodName, args);
+        }
+    }
+    
+    private static ReturnType CallPurchases<ReturnType>(string methodName, params object[] args)
+    {
+        using (var purchases = new AndroidJavaClass(PurchasesWrapper))
+        {
+            return purchases.CallStatic<ReturnType>(methodName, args);
         }
     }
 
