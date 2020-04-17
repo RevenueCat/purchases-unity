@@ -22,22 +22,6 @@ public partial class Purchases : MonoBehaviour
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
 
-    public class Package
-    {
-        public readonly string Identifier;
-        public readonly string PackageType;
-        public readonly Product Product;
-        public readonly string OfferingIdentifier;
-
-        public Package(PackageResponse response)
-        {
-            Identifier = response.identifier;
-            PackageType = response.packageType;
-            Product = new Product(response.product);
-            OfferingIdentifier = response.offeringIdentifier;
-        }
-    }
-
     public class Offering
     {
         public readonly string Identifier;
