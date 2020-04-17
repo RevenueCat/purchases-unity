@@ -9,18 +9,6 @@ using RevenueCat.MiniJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public enum IntroEligibilityStatus
-    {
-        /// RevenueCat doesn't have enough information to determine eligibility.
-        IntroEligibilityStatusUnknown = 0,
-
-        /// The user is not eligible for a free trial or intro pricing for this product.
-        IntroEligibilityStatusIneligible = 1,
-
-        /// The user is eligible for a free trial or intro pricing for this product.
-        IntroEligibilityStatusEligible = 2
-    }
-
     public delegate void GetProductsFunc(List<Product> products, Error error);
 
     public delegate void MakePurchaseFunc(string productIdentifier, PurchaserInfo purchaserInfo, bool userCancelled, Error error);
