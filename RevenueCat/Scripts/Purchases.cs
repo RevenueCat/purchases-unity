@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using RevenueCat.MiniJSON;
 
@@ -403,16 +402,6 @@ public partial class Purchases : MonoBehaviour
         {
             callback(info, null);
         }
-    }
-
-    [Serializable]
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
-    public class Error
-    {
-        public string message;
-        public int code;
-        public string underlyingErrorMessage;
-        public string readableErrorCode;
     }
 
     [Serializable]
