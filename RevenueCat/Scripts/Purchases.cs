@@ -21,11 +21,6 @@ public partial class Purchases : MonoBehaviour
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
-    public abstract class UpdatedPurchaserInfoListener : MonoBehaviour
-    {
-        public abstract void PurchaserInfoReceived(PurchaserInfo purchaserInfo);
-    }
-
     /*
      * PurchaserInfo encapsulate the current status of subscriber. 
      * Use it to determine which entitlements to unlock, typically by checking 
