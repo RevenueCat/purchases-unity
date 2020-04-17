@@ -22,27 +22,6 @@ public partial class Purchases : MonoBehaviour
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
 
-    public class EntitlementInfos
-    {
-        public readonly Dictionary<string, EntitlementInfo> All;
-        public readonly Dictionary<string, EntitlementInfo> Active;
-
-        public EntitlementInfos(EntitlementInfosResponse response)
-        {
-            All = new Dictionary<string, EntitlementInfo>();
-            for (var i = 0; i < response.allKeys.Count; i++)
-            {
-                All[response.allKeys[i]] = new EntitlementInfo(response.allValues[i]);
-            }
-            Active = new Dictionary<string, EntitlementInfo>();
-            for (var i = 0; i < response.activeKeys.Count; i++)
-            {
-                Active[response.activeKeys[i]] = new EntitlementInfo(response.activeValues[i]);
-            }
-        }
-
-    }
-
     public class Offerings
     {
         public readonly Dictionary<string, Offering> All;
