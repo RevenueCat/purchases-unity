@@ -9,19 +9,6 @@ using RevenueCat.MiniJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum AttributionNetwork
-    {
-        APPLE_SEARCH_ADS = 0,
-        ADJUST = 1,
-        APPSFLYER = 2,
-        BRANCH = 3,
-        TENJIN = 4,
-        FACEBOOK = 5
-    }
-
     public enum ProrationMode
     {
         UnknownSubscriptionUpgradeDowngradePolicy = 0,
