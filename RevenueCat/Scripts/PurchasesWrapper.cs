@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public interface IPurchasesWrapper
 {
@@ -21,4 +22,10 @@ public interface IPurchasesWrapper
 	void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     bool IsAnonymous();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
+    void InvalidatePurchaserInfoCache();
+    void SetAttributes(Dictionary<string, string> attributes );
+    void SetEmail(string email);
+    void SetPhoneNumber(string phoneNumber);
+    void SetDisplayName(string displayName);
+    void SetPushToken(string token);
 }

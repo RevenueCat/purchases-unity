@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using RevenueCat.MiniJSON;
 
 #pragma warning disable CS0649
 
@@ -43,7 +44,8 @@ public class Purchases : MonoBehaviour
         Deferred = 4
     }
 
-    public enum IntroEligibilityStatus {
+    public enum IntroEligibilityStatus
+    {
         /// RevenueCat doesn't have enough information to determine eligibility.
         IntroEligibilityStatusUnknown = 0,
 
@@ -171,8 +173,39 @@ public class Purchases : MonoBehaviour
 
         public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
         {
-        
+
         }
+
+        public void InvalidatePurchaserInfoCache()
+        {
+
+        }
+
+        public void SetAttributes(Dictionary<string, string> attributes)
+        {
+
+        }
+
+        public void SetEmail(string email)
+        {
+
+        }
+
+        public void SetPhoneNumber(string phoneNumber)
+        {
+
+        }
+
+        public void SetDisplayName(string displayName)
+        {
+
+        }
+
+        public void SetPushToken(string token)
+        {
+
+        }
+
     }
 
     /*
@@ -212,9 +245,9 @@ public class Purchases : MonoBehaviour
         {
             get
             {
-                if (_response.latestExpirationDate != 0L)
+                if (_response.latestExpirationDateMillis != 0L)
                 {
-                    return FromUnixTime(_response.latestExpirationDate);
+                    return FromUnixTime(_response.latestExpirationDateMillis);
                 }
                 else
                 {
@@ -224,8 +257,8 @@ public class Purchases : MonoBehaviour
         }
 
         public DateTime FirstSeen
-        {
-            get { return FromUnixTime(_response.firstSeen); }
+        {            
+            get { return FromUnixTime(_response.firstSeenMillis); }
         }
 
         public string OriginalAppUserId
@@ -235,7 +268,7 @@ public class Purchases : MonoBehaviour
 
         public DateTime RequestDate
         {
-            get { return FromUnixTime(_response.requestDate); }
+            get { return FromUnixTime(_response.requestDateMillis); }
         }
 
         public Dictionary<string, DateTime?> AllExpirationDates
@@ -243,16 +276,16 @@ public class Purchases : MonoBehaviour
             get
             {
                 var allExpirations = new Dictionary<string, DateTime?>();
-                for (var i = 0; i < _response.allExpirationDateKeys.Count; i++)
+                for (var i = 0; i < _response.allExpirationDatesMillisKeys.Count; i++)
                 {
-                    if (_response.allExpirationDateValues[i] != 0L)
+                    if (_response.allExpirationDatesMillisValues[i] != 0L)
                     {
-                        var date = FromUnixTime(_response.allExpirationDateValues[i]);
-                        allExpirations[_response.allExpirationDateKeys[i]] = date;
+                        var date = FromUnixTime(_response.allExpirationDatesMillisValues[i]);
+                        allExpirations[_response.allExpirationDatesMillisKeys[i]] = date;
                     }
                     else
                     {
-                        allExpirations[_response.allExpirationDateKeys[i]] = null;
+                        allExpirations[_response.allExpirationDatesMillisKeys[i]] = null;
                     }
                 }
 
@@ -265,10 +298,10 @@ public class Purchases : MonoBehaviour
             get
             {
                 var allPurchases = new Dictionary<string, DateTime>();
-                for (var i = 0; i < _response.allPurchaseDateKeys.Count; i++)
+                for (var i = 0; i < _response.allPurchaseDatesMillisKeys.Count; i++)
                 {
-                    var date = FromUnixTime(_response.allPurchaseDateValues[i]);
-                    allPurchases[_response.allPurchaseDateKeys[i]] = date;
+                    var date = FromUnixTime(_response.allPurchaseDatesMillisValues[i]);
+                    allPurchases[_response.allPurchaseDatesMillisKeys[i]] = date;
                 }
 
                 return allPurchases;
@@ -311,22 +344,22 @@ public class Purchases : MonoBehaviour
             IsActive = response.isActive;
             WillRenew = response.willRenew;
             PeriodType = response.periodType;
-            LatestPurchaseDate = FromUnixTime(response.latestPurchaseDate);
-            OriginalPurchaseDate = FromUnixTime(response.originalPurchaseDate);
-            if (response.expirationDate != 0L)
+            LatestPurchaseDate = FromUnixTime(response.latestPurchaseDateMillis);
+            OriginalPurchaseDate = FromUnixTime(response.originalPurchaseDateMillis);
+            if (response.expirationDateMillis != 0L)
             {
-                ExpirationDate = FromUnixTime(response.expirationDate);
+                ExpirationDate = FromUnixTime(response.expirationDateMillis);
             }
             Store = response.store;
             ProductIdentifier = response.productIdentifier;
             IsSandbox = response.isSandbox;
-            if (response.unsubscribeDetectedAt != 0L)
+            if (response.unsubscribeDetectedAtMillis != 0L)
             {
-                UnsubscribeDetectedAt = FromUnixTime(response.unsubscribeDetectedAt);
+                UnsubscribeDetectedAt = FromUnixTime(response.unsubscribeDetectedAtMillis);
             }
-            if (response.billingIssueDetectedAt != 0L)
+            if (response.billingIssueDetectedAtMillis != 0L)
             {
-                BillingIssueDetectedAt = FromUnixTime(response.billingIssueDetectedAt);
+                BillingIssueDetectedAt = FromUnixTime(response.billingIssueDetectedAtMillis);
             }
         }
 
@@ -390,7 +423,7 @@ public class Purchases : MonoBehaviour
         {
             Identifier = response.identifier;
             PackageType = response.packageType;
-            Product = response.product;
+            Product = new Product(response.product);
             OfferingIdentifier = response.offeringIdentifier;
         }
     }
@@ -404,8 +437,8 @@ public class Purchases : MonoBehaviour
         [CanBeNull] public readonly Package Annual;
         [CanBeNull] public readonly Package SixMonth;
         [CanBeNull] public readonly Package ThreeMonth;
-        [CanBeNull] public readonly Package  TwoMonth;
-        [CanBeNull] public readonly Package  Monthly;
+        [CanBeNull] public readonly Package TwoMonth;
+        [CanBeNull] public readonly Package Monthly;
         [CanBeNull] public readonly Package Weekly;
 
         public Offering(OfferingResponse response)
@@ -417,25 +450,32 @@ public class Purchases : MonoBehaviour
             {
                 AvailablePackages.Add(new Package(packageResponse));
             }
-            if (response.lifetime.identifier != null) {
+            if (response.lifetime.identifier != null)
+            {
                 Lifetime = new Package(response.lifetime);
             }
-            if (response.annual.identifier != null) {
+            if (response.annual.identifier != null)
+            {
                 Annual = new Package(response.annual);
             }
-            if (response.sixMonth.identifier != null) {
+            if (response.sixMonth.identifier != null)
+            {
                 SixMonth = new Package(response.sixMonth);
             }
-            if (response.threeMonth.identifier != null) {
+            if (response.threeMonth.identifier != null)
+            {
                 ThreeMonth = new Package(response.threeMonth);
             }
-            if (response.twoMonth.identifier != null) {
+            if (response.twoMonth.identifier != null)
+            {
                 TwoMonth = new Package(response.twoMonth);
             }
-            if (response.monthly.identifier != null) {
+            if (response.monthly.identifier != null)
+            {
                 Monthly = new Package(response.monthly);
             }
-            if (response.weekly.identifier != null) {
+            if (response.weekly.identifier != null)
+            {
                 Weekly = new Package(response.weekly);
             }
         }
@@ -444,8 +484,8 @@ public class Purchases : MonoBehaviour
     public class IntroEligibility
     {
         /// The introductory price eligibility status
-        public readonly IntroEligibilityStatus Status; 
-        
+        public readonly IntroEligibilityStatus Status;
+
         /// Description of the status
         public readonly string Description;
 
@@ -547,6 +587,11 @@ public class Purchases : MonoBehaviour
         _wrapper.AddAttributionData((int)network, dataJson, networkUserId);
     }
 
+    public void AddAttributionData(Dictionary<string, object> data, AttributionNetwork network, string networkUserId = null)
+    {
+        _wrapper.AddAttributionData((int)network, Json.Serialize(data), networkUserId);
+    }
+
     private PurchaserInfoFunc CreateAliasCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
@@ -639,11 +684,41 @@ public class Purchases : MonoBehaviour
     {
         _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
-    private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }    
+    private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
     public void CheckTrialOrIntroductoryPriceEligibility(string[] products, CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
         CheckTrialOrIntroductoryPriceEligibilityCallback = callback;
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
+    }
+
+    public void InvalidatePurchaserInfoCache()
+    {
+        _wrapper.InvalidatePurchaserInfoCache();
+    }
+
+    public void SetAttributes(Dictionary<string, string> attributes)
+    {
+        _wrapper.SetAttributes(attributes);
+    }
+
+    public void SetEmail(string email)
+    {
+        _wrapper.SetEmail(email);
+    }
+
+    public void SetPhoneNumber(string phoneNumber)
+    {
+        _wrapper.SetPhoneNumber(phoneNumber);
+    }
+
+    public void SetDisplayName(string displayName)
+    {
+        _wrapper.SetDisplayName(displayName);
+    }
+
+    public void SetPushToken(string token)
+    {
+        _wrapper.SetPushToken(token);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -652,7 +727,7 @@ public class Purchases : MonoBehaviour
         Debug.Log("_receiveProducts " + productsJson);
 
         if (ProductsCallback == null) return;
-
+        
         var response = JsonUtility.FromJson<ReceiveProductsResponse>(productsJson);
         var error = response.error.message != null ? response.error : null;
 
@@ -662,7 +737,12 @@ public class Purchases : MonoBehaviour
         }
         else
         {
-            ProductsCallback(response.products, null);
+            var products = new List<Product>();
+            foreach (var productResponse in response.products)
+            {
+                products.Add(new Product(productResponse));
+            }
+            ProductsCallback(products, null);
         }
         ProductsCallback = null;
     }
@@ -781,7 +861,7 @@ public class Purchases : MonoBehaviour
         }
 
         CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
-        
+
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
     }
 
@@ -814,8 +894,6 @@ public class Purchases : MonoBehaviour
         public string readableErrorCode;
     }
 
-    [Serializable]
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Product
     {
         public string title;
@@ -830,12 +908,28 @@ public class Purchases : MonoBehaviour
         public string introPricePeriodUnit;
         [CanBeNull] public int introPricePeriodNumberOfUnits;
         [CanBeNull] public int introPriceCycles;
+
+        public Product(ProductResponse response)
+        {
+            title = response.title;
+            identifier = response.identifier;
+            description = response.description;
+            price = response.price;
+            priceString = response.price_string;
+            currencyCode = response.currency_code;
+            introPrice = response.intro_price;
+            introPriceString = response.intro_price_string;
+            introPricePeriod = response.intro_price_period;
+            introPricePeriodUnit = response.intro_price_period_unit;
+            introPricePeriodNumberOfUnits = response.intro_price_period_number_of_units;
+            introPriceCycles = response.intro_price_cycles;
+        }
     }
 
     [Serializable]
     private class ReceiveProductsResponse
     {
-        public List<Product> products;
+        public List<ProductResponse> products;
         public Error error;
     }
 
@@ -861,14 +955,14 @@ public class Purchases : MonoBehaviour
         public EntitlementInfosResponse entitlements;
         public List<string> activeSubscriptions;
         public List<string> allPurchasedProductIdentifiers;
-        public long latestExpirationDate;
-        public long firstSeen;
+        public long latestExpirationDateMillis;
+        public long firstSeenMillis;
         public string originalAppUserId;
-        public long requestDate;
-        public List<string> allExpirationDateKeys;
-        public List<long> allExpirationDateValues;
-        public List<string> allPurchaseDateKeys;
-        public List<long> allPurchaseDateValues;
+        public long requestDateMillis;
+        public List<string> allExpirationDatesMillisKeys;
+        public List<long> allExpirationDatesMillisValues;
+        public List<string> allPurchaseDatesMillisKeys;
+        public List<long> allPurchaseDatesMillisValues;
         public string originalApplicationVersion;
     }
 
@@ -907,7 +1001,7 @@ public class Purchases : MonoBehaviour
     {
         public string identifier;
         public string packageType;
-        public Product product;
+        public ProductResponse product;
         public string offeringIdentifier;
     }
 
@@ -927,27 +1021,44 @@ public class Purchases : MonoBehaviour
         public bool isActive;
         public bool willRenew;
         public string periodType;
-        public long latestPurchaseDate;
-        public long originalPurchaseDate;
-        [CanBeNull] public long expirationDate;
+        public long latestPurchaseDateMillis;
+        public long originalPurchaseDateMillis;
+        [CanBeNull] public long expirationDateMillis;
         public string store;
         public string productIdentifier;
         public bool isSandbox;
-        [CanBeNull] public long unsubscribeDetectedAt;
-        [CanBeNull] public long billingIssueDetectedAt;
+        [CanBeNull] public long unsubscribeDetectedAtMillis;
+        [CanBeNull] public long billingIssueDetectedAtMillis;
     }
-    
+
     [Serializable]
     public class IntroEligibilityResponse
     {
         public int status;
         public string description;
     }
-    
+
     [Serializable]
     public class MapResponse<K, V>
     {
         public List<K> keys;
         public List<V> values;
+    }
+
+    [Serializable]
+    public class ProductResponse
+    {
+        public string title;
+        public string identifier;
+        public string description;
+        public float price;
+        public string price_string;
+        [CanBeNull] public string currency_code;
+        public float intro_price;
+        public string intro_price_string;
+        public string intro_price_period;
+        public string intro_price_period_unit;
+        [CanBeNull] public int intro_price_period_number_of_units;
+        [CanBeNull] public int intro_price_cycles;
     }
 }

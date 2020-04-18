@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using System.Collections.Generic;
+using RevenueCat.MiniJSON;
 
 #if UNITY_IOS
 public class PurchasesWrapperiOS : IPurchasesWrapper
@@ -152,6 +154,48 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         };
 
         _RCCheckTrialOrIntroductoryPriceEligibility(JsonUtility.ToJson(request));
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCInvalidatePurchaserInfoCache();
+    public void InvalidatePurchaserInfoCache() 
+    {
+        _RCInvalidatePurchaserInfoCache();
+    }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCSetAttributes(string attributesJson);
+    public void SetAttributes(Dictionary<string, string> attributes)
+    {
+        _RCSetAttributes(Json.Serialize(attributes));
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetEmail(string email);
+    public void SetEmail(string email)
+    {
+        _RCSetEmail(email);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetPhoneNumber(string phoneNumber);
+    public void SetPhoneNumber(string phoneNumber)
+    {
+        _RCSetPhoneNumber(phoneNumber);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetDisplayName(string displayName);
+    public void SetDisplayName(string displayName)
+    {
+        _RCSetDisplayName(displayName);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetPushToken(string token);
+    public void SetPushToken(string token)
+    {
+        _RCSetPushToken(token);
     }
 
 }

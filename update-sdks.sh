@@ -1,5 +1,5 @@
 #!/bin/bash
-IOS_SDK_VERSION=3.0.1
+IOS_SDK_VERSION=3.2.2
 
 UNITY_DIR=`pwd`
 IOS_UNITY_DIR=$UNITY_DIR/RevenueCat/Plugins/iOS/
