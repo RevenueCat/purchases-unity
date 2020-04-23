@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using RevenueCat.SimpleJSON;
+
 public partial class Purchases
 {
     public class IntroEligibility
@@ -8,15 +11,15 @@ public partial class Purchases
         /// Description of the status
         public readonly string Description;
 
-        public IntroEligibility(IntroEligibilityResponse response)
+        public IntroEligibility(JSONNode response)
         {
-            Status = (IntroEligibilityStatus)response.status;
-            Description = response.description;
+            Status = (IntroEligibilityStatus) response["status"].AsInt;
+            Description = response["description"];
         }
 
         public override string ToString()
         {
-            return "{ status:" + Status + "; description:" + Description + " }";
+            return $"{nameof(Status)}: {Status}, {nameof(Description)}: {Description}";
         }
     }
 }

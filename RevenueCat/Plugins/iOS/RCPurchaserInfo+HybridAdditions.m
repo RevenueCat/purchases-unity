@@ -14,22 +14,20 @@
     NSArray *productIdentifiers = self.allPurchasedProductIdentifiers.allObjects;
     NSArray *sorted = [productIdentifiers sortedArrayUsingSelector:@selector(compare:)];
 
-    NSMutableArray *allExpirationsMillisKeys = [NSMutableArray new];
-    NSMutableArray *allExpirationsMillisValues = [NSMutableArray new];
+    NSMutableDictionary *allExpirations = [NSMutableDictionary new];
+    NSMutableDictionary *allExpirationsMillis = [NSMutableDictionary new];
     for (NSString *productIdentifier in sorted) {
-        [allExpirationsMillisKeys addObject:productIdentifier];
         NSDate *date = [self expirationDateForProductIdentifier:productIdentifier];
-        NSDate *value = date ? @(date.timeIntervalSince1970) : [NSNull null];
-        [allExpirationsMillisValues addObject:value];
+        allExpirations[productIdentifier] = date.formattedAsISO8601 ?: [NSNull null];
+        allExpirationsMillis[productIdentifier] = date ? @(date.timeIntervalSince1970) : [NSNull null];
     }
 
-    NSMutableArray *allPurchaseDatesMillisKeys = [NSMutableArray new];
-    NSMutableArray *allPurchaseDatesMillisValues = [NSMutableArray new];
+    NSMutableDictionary *allPurchases = [NSMutableDictionary new];
+    NSMutableDictionary *allPurchasesMillis = [NSMutableDictionary new];
     for (NSString *productIdentifier in sorted) {
-        [allPurchaseDatesMillisKeys addObject:productIdentifier];
         NSDate *date = [self purchaseDateForProductIdentifier:productIdentifier];
-        NSDate *value = date ? @(date.timeIntervalSince1970) : [NSNull null];
-        [allPurchaseDatesMillisValues addObject:value];
+        allPurchases[productIdentifier] = date.formattedAsISO8601 ?: [NSNull null];
+        allPurchasesMillis[productIdentifier] = date ? @(date.timeIntervalSince1970) : [NSNull null];
     }
 
     id latestExpiration = self.latestExpirationDate.formattedAsISO8601 ?: [NSNull null];
@@ -38,14 +36,17 @@
             @"entitlements": self.entitlements.dictionary,
             @"activeSubscriptions": self.activeSubscriptions.allObjects,
             @"allPurchasedProductIdentifiers": self.allPurchasedProductIdentifiers.allObjects,
+            @"latestExpirationDate": latestExpiration,
             @"latestExpirationDateMillis": self.latestExpirationDate ? @(self.latestExpirationDate.timeIntervalSince1970) : [NSNull null],
+            @"firstSeen": self.firstSeen.formattedAsISO8601,
             @"firstSeenMillis": @(self.firstSeen.timeIntervalSince1970),
             @"originalAppUserId": self.originalAppUserId,
+            @"requestDate": self.requestDate.formattedAsISO8601,
             @"requestDateMillis": @(self.requestDate.timeIntervalSince1970),
-            @"allExpirationDatesMillisKeys": allExpirationsMillisKeys,
-            @"allExpirationDatesMillisValues": allExpirationsMillisValues,
-            @"allPurchaseDatesMillisKeys": allPurchaseDatesMillisKeys,
-            @"allPurchaseDatesMillisValues": allPurchaseDatesMillisValues,
+            @"allExpirationDates": allExpirations,
+            @"allExpirationDatesMillis": allExpirationsMillis,
+            @"allPurchaseDates": allPurchases,
+            @"allPurchaseDatesMillis": allPurchasesMillis,
             @"originalApplicationVersion": self.originalApplicationVersion ?: [NSNull null],
     };
 }

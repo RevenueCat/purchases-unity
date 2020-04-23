@@ -109,7 +109,7 @@ char *makeStringCopy(NSString *nstring) {
             [self sendJSONObject:response toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:MAKE_PURCHASE];
     }];
@@ -195,11 +195,7 @@ char *makeStringCopy(NSString *nstring) {
 - (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers {
     [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers
                                                     completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
-        NSDictionary *response = @{
-            @"keys": responseDictionary.allKeys,
-            @"values": responseDictionary.allValues,
-        };
-        [self sendJSONObject:response toMethod:CHECK_ELIGIBILITY];
+        [self sendJSONObject:responseDictionary toMethod:CHECK_ELIGIBILITY];
     }];
 }
 

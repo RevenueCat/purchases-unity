@@ -92,7 +92,7 @@ public partial class Purchases
         {
         }
 
-        public void SetAttributes(Dictionary<string, string> attributes)
+        public void SetAttributes(string attributesJson)
         {
         }
 

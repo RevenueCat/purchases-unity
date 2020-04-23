@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using RevenueCat.MiniJSON;
+using RevenueCat.SimpleJSON;
 
 #pragma warning disable CS0649
 
@@ -105,11 +105,6 @@ public partial class Purchases : MonoBehaviour
     public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null)
     {
         _wrapper.AddAttributionData((int)network, dataJson, networkUserId);
-    }
-
-    public void AddAttributionData(Dictionary<string, object> data, AttributionNetwork network, string networkUserId = null)
-    {
-        _wrapper.AddAttributionData((int)network, Json.Serialize(data), networkUserId);
     }
 
     private PurchaserInfoFunc CreateAliasCallback { get; set; }
@@ -218,7 +213,19 @@ public partial class Purchases : MonoBehaviour
 
     public void SetAttributes(Dictionary<string, string> attributes)
     {
-        _wrapper.SetAttributes(attributes);
+        var jsonObject = new JSONObject();
+        foreach (var keyValuePair in attributes)
+        {
+            if (keyValuePair.Value == null)
+            {
+                jsonObject[keyValuePair.Key] = JSONNull.CreateOrGet();
+            }
+            else
+            {
+                jsonObject[keyValuePair.Key] = keyValuePair.Value;
+            }
+        }
+        _wrapper.SetAttributes(jsonObject.ToString());
     }
 
     public void SetEmail(string email)
@@ -248,20 +255,21 @@ public partial class Purchases : MonoBehaviour
 
         if (ProductsCallback == null) return;
         
-        var response = JsonUtility.FromJson<ReceiveProductsResponse>(productsJson);
-        var error = response.error.message != null ? response.error : null;
+        var response = JSON.Parse(productsJson);
 
-        if (error != null)
+        if (ResponseHasError(response))
         {
-            ProductsCallback(null, error);
+            ProductsCallback(null, new Error(response["error"]));
         }
         else
         {
             var products = new List<Product>();
-            foreach (var productResponse in response.products)
+            foreach (JSONNode productResponse in response["products"])
             {
-                products.Add(new Product(productResponse));
+                var product = new Product(productResponse);
+                products.Add(product);
             }
+
             ProductsCallback(products, null);
         }
         ProductsCallback = null;
@@ -282,21 +290,20 @@ public partial class Purchases : MonoBehaviour
 
         if (MakePurchaseCallback == null) return;
 
-        var response = JsonUtility.FromJson<MakePurchaseResponse>(makePurchaseResponseJson);
+        var response = JSON.Parse(makePurchaseResponseJson);
 
-        var error = response.error.message != null ? response.error : null;
-        var info = response.purchaserInfo.activeSubscriptions != null
-            ? new PurchaserInfo(response.purchaserInfo)
-            : null;
-
-        if (error != null)
+        if (ResponseHasError(response))
         {
-            MakePurchaseCallback(null, null, response.userCancelled, error);
+            MakePurchaseCallback(null, null, response["userCancelled"],
+                new Error(response["error"]));
         }
         else
         {
-            MakePurchaseCallback(response.productIdentifier, info, false, null);
+            var info = new PurchaserInfo(response["purchaserInfo"]);
+            var productIdentifier = response["productIdentifier"];
+            MakePurchaseCallback(productIdentifier, info, false, null);
         }
+
         MakePurchaseCallback = null;
     }
 
@@ -315,14 +322,10 @@ public partial class Purchases : MonoBehaviour
 
         if (listener == null) return;
 
-        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(purchaserInfoJson);
-        var info = response.purchaserInfo.activeSubscriptions != null
-                    ? new PurchaserInfo(response.purchaserInfo)
-                    : null;
-        if (info != null)
-        {
-            listener.PurchaserInfoReceived(info);
-        }
+        var response = JSON.Parse(purchaserInfoJson);
+        if (response["purchaserInfo"] == null) return;
+        var info = new PurchaserInfo(response["purchaserInfo"]);
+        listener.PurchaserInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -354,32 +357,32 @@ public partial class Purchases : MonoBehaviour
     {
         Debug.Log("_getOfferings " + offeringsJson);
         if (GetOfferingsCallback == null) return;
-        var response = JsonUtility.FromJson<GetOfferingsResponse>(offeringsJson);
-        var error = response.error.message != null ? response.error : null;
-        if (error != null)
+        var response = JSON.Parse(offeringsJson);
+        if (ResponseHasError(response))
         {
-            GetOfferingsCallback(null, error);
+            GetOfferingsCallback(null, new Error(response["error"]));
         }
         else
         {
-            GetOfferingsCallback(new Offerings(response.offerings), null);
+            var offeringsResponse = response["offerings"];
+            GetOfferingsCallback(new Offerings(offeringsResponse), null);
         }
         GetEntitlementsCallback = null;
     }
+    
     private void _checkTrialOrIntroductoryPriceEligibility(string json)
     {
-        Debug.Log("_checkTrialOrIntroductoryPriceEligibilit " + json);
+        Debug.Log("_checkTrialOrIntroductoryPriceEligibility " + json);
 
         if (CheckTrialOrIntroductoryPriceEligibilityCallback == null) return;
 
-        var responseMap = JsonUtility.FromJson<MapResponse<string, IntroEligibilityResponse>>(json);
-
+        var response = JSON.Parse(json);
         var dictionary = new Dictionary<string, IntroEligibility>();
-        for (var i = 0; i < responseMap.keys.Count; i++)
+        foreach (var keyValuePair in response)
         {
-            dictionary[responseMap.keys[i]] = new IntroEligibility(responseMap.values[i]);
+            dictionary[keyValuePair.Key] = new IntroEligibility(keyValuePair.Value);
         }
-
+        
         CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
 
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
@@ -388,21 +391,23 @@ public partial class Purchases : MonoBehaviour
     private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)
     {
         if (callback == null) return;
-        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(arguments);
 
-        var error = response.error.message != null ? response.error : null;
-        var info = response.purchaserInfo.activeSubscriptions != null
-            ? new PurchaserInfo(response.purchaserInfo)
-            : null;
-        if (error != null)
+        var response = JSON.Parse(arguments);
+        
+        if (ResponseHasError(response))
         {
-            callback(null, error);
+            callback(null, new Error(response["error"]));
         }
         else
         {
+            var info = new PurchaserInfo(response["purchaserInfo"]); 
             callback(info, null);
         }
     }
 
+    private static bool ResponseHasError(JSONNode response)
+    {
+        return response != null && response.HasKey("error") && response["error"] != null && !response["error"].IsNull;
+    }
 
 }

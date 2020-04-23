@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 using System.Collections.Generic;
-using RevenueCat.MiniJSON;
 
 #if UNITY_IOS
 public class PurchasesWrapperiOS : IPurchasesWrapper
@@ -165,9 +164,9 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     
     [DllImport("__Internal")]
     private static extern void _RCSetAttributes(string attributesJson);
-    public void SetAttributes(Dictionary<string, string> attributes)
+    public void SetAttributes(string attributesJson)
     {
-        _RCSetAttributes(Json.Serialize(attributes));
+        _RCSetAttributes(attributesJson);
     }
 
     [DllImport("__Internal")]

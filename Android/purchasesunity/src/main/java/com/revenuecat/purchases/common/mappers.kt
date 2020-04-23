@@ -9,12 +9,10 @@ import com.revenuecat.purchases.Package
 import com.revenuecat.purchases.PurchaserInfo
 import com.revenuecat.purchases.util.Iso8601Utils
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Date
-import java.util.HashMap
 
 fun EntitlementInfo.map(): Map<String, Any?> =
     mapOf(
@@ -40,11 +38,7 @@ fun EntitlementInfo.map(): Map<String, Any?> =
 fun EntitlementInfos.map(): Map<String, Any> =
     mapOf(
         "all" to this.all.asIterable().associate { it.key to it.value.map() },
-        "active" to this.active.asIterable().associate { it.key to it.value.map() },
-        "allKeys" to this.all.keys.toList(),
-        "allValues" to this.all.map { it.value.map() }.toList(),
-        "activeKeys" to this.active.keys.toList(),
-        "activeValues" to this.active.map { it.value.map() }.toList()
+        "active" to this.active.asIterable().associate { it.key to it.value.map() }
     )
 
 fun SkuDetails.map(): Map<String, Any?> =
@@ -69,18 +63,18 @@ fun PurchaserInfo.map(): Map<String, Any?> =
         "firstSeen" to firstSeen.toIso8601(),
         "firstSeenMillis" to firstSeen.toMillis(),
         "originalAppUserId" to originalAppUserId,
+        "requestDate" to requestDate.toIso8601(),
         "requestDateMillis" to requestDate.toMillis(),
-        "allExpirationDatesMillisKeys" to allExpirationDatesByProduct.keys.toList(),
-        "allExpirationDatesMillisValues" to allExpirationDatesByProduct.values.map { it?.toMillis() },
-        "allPurchaseDatesMillisKeys" to allPurchaseDatesByProduct.keys.toList(),
-        "allPurchaseDatesMillisValues" to allPurchaseDatesByProduct.values.map { it?.toMillis() },
+        "allExpirationDates" to allExpirationDatesByProduct.mapValues { it.value?.toIso8601() },
+        "allExpirationDatesMillis" to allExpirationDatesByProduct.mapValues { it.value?.toMillis() },
+        "allPurchaseDates" to allPurchaseDatesByProduct.mapValues { it.value?.toIso8601() },
+        "allPurchaseDatesMillis" to allPurchaseDatesByProduct.mapValues { it.value?.toMillis() },
         "originalApplicationVersion" to null
     )
 
 fun Offerings.map(): Map<String, Any?> =
     mapOf(
-        "allKeys" to this.all.keys.toList(),
-        "allValues" to this.all.map { it.value.map() }.toList(),
+        "all" to this.all.mapValues { it.value.map() },
         "current" to this.current?.map()
     )
 

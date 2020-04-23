@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using System.Collections.Generic;
-using RevenueCat.MiniJSON;
+using RevenueCat.SimpleJSON;
 
 #if UNITY_ANDROID
 public class PurchasesWrapperAndroid : IPurchasesWrapper
@@ -134,9 +134,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("invalidatePurchaserInfoCache");
     }
 
-    public void SetAttributes(Dictionary<string, string> attributes)
+    public void SetAttributes(string attributesJson)
     {
-        CallPurchases("setAttributes", Json.Serialize(attributes));
+        CallPurchases("setAttributes", attributesJson);
     }
 
     public void SetEmail(string email)

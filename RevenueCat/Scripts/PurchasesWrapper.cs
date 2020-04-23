@@ -23,7 +23,7 @@ public interface IPurchasesWrapper
     bool IsAnonymous();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidatePurchaserInfoCache();
-    void SetAttributes(Dictionary<string, string> attributes );
+    void SetAttributes(string attributesJson);
     void SetEmail(string email);
     void SetPhoneNumber(string phoneNumber);
     void SetDisplayName(string displayName);
