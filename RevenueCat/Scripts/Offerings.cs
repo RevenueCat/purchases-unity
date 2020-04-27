@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
@@ -8,17 +9,24 @@ public partial class Purchases
         public readonly Dictionary<string, Offering> All;
         [CanBeNull] public readonly Offering Current;
 
-        public Offerings(OfferingsResponse response)
+        public Offerings(JSONNode response)
         {
             All = new Dictionary<string, Offering>();
-            for (var i = 0; i < response.allKeys.Count; i++)
+            foreach (var keyValuePair in response["all"])
             {
-                All[response.allKeys[i]] = new Offering(response.allValues[i]);
+                All.Add(keyValuePair.Key, new Offering(keyValuePair.Value));
             }
-            if (response.current.identifier != null) {
-                Current = new Offering(response.current);
+
+            var currentJsonNode = response["current"];
+            if (currentJsonNode != null && !currentJsonNode.IsNull)
+            {
+                Current = new Offering(currentJsonNode);
             }
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(All)}: {All}, {nameof(Current)}: {Current}";
+        }
     }
 }

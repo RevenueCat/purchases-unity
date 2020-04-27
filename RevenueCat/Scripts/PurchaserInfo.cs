@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
+using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {    
@@ -15,100 +17,65 @@ public partial class Purchases
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class PurchaserInfo
     {
-        private readonly PurchaserInfoResponse _response;
+        public EntitlementInfos Entitlements;
+        public List<string> ActiveSubscriptions;
+        public List<string> AllPurchasedProductIdentifiers;
+        public DateTime? LatestExpirationDate;
+        public DateTime FirstSeen;
+        public string OriginalAppUserId;
+        public DateTime RequestDate;
+        public Dictionary<string, DateTime?> AllExpirationDates;
+        public Dictionary<string, DateTime> AllPurchaseDates;
+        [CanBeNull] public string OriginalApplicationVersion;
 
-        public PurchaserInfo(PurchaserInfoResponse response)
+        public PurchaserInfo(JSONNode response)
         {
-            _response = response;
-        }
-
-        public EntitlementInfos Entitlements
-        {
-            get { return new EntitlementInfos(_response.entitlements); }
-        }
-
-        public List<string> ActiveSubscriptions
-        {
-            get { return _response.activeSubscriptions; }
-        }
-
-        public List<string> AllPurchasedProductIdentifiers
-        {
-            get { return _response.allPurchasedProductIdentifiers; }
-        }
-
-        public DateTime? LatestExpirationDate
-        {
-            get
+            Entitlements = new EntitlementInfos(response["entitlements"]);
+            ActiveSubscriptions = new List<string>();
+            foreach (JSONNode subscription in response["activeSubscriptions"])
             {
-                if (_response.latestExpirationDateMillis != 0L)
+                ActiveSubscriptions.Add(subscription);
+            }
+            AllPurchasedProductIdentifiers = new List<string>();
+            foreach (JSONNode productIdentifier in response["allPurchasedProductIdentifiers"])
+            {
+                AllPurchasedProductIdentifiers.Add(productIdentifier);
+            }
+            
+            LatestExpirationDate = null;
+            var millis = (long) response["latestExpirationDateMillis"];
+            if (millis != 0L)
+            {
+                LatestExpirationDate = FromUnixTime(millis);
+            }
+            
+            FirstSeen = FromUnixTime(response["firstSeenMillis"].AsLong);
+            OriginalAppUserId = response["originalAppUserId"];
+            RequestDate = FromUnixTime(response["requestDateMillis"].AsLong);
+            AllExpirationDates = new Dictionary<string, DateTime?>();
+            foreach (var keyValue in response["allExpirationDatesMillis"])
+            {
+                var productID = keyValue.Key;
+                var expirationDateJSON = keyValue.Value;
+                if (expirationDateJSON != null && !expirationDateJSON.IsNull && expirationDateJSON.AsLong != 0L)
                 {
-                    return FromUnixTime(_response.latestExpirationDateMillis);
+                    AllExpirationDates.Add(productID, FromUnixTime(expirationDateJSON.AsLong));
                 }
                 else
                 {
-                    return null;
+                    AllExpirationDates.Add(productID, null);
                 }
             }
-        }
 
-        public DateTime FirstSeen
-        {            
-            get { return FromUnixTime(_response.firstSeenMillis); }
-        }
-
-        public string OriginalAppUserId
-        {
-            get { return _response.originalAppUserId; }
-        }
-
-        public DateTime RequestDate
-        {
-            get { return FromUnixTime(_response.requestDateMillis); }
-        }
-
-        public Dictionary<string, DateTime?> AllExpirationDates
-        {
-            get
+            AllPurchaseDates = new Dictionary<string, DateTime>();
+            foreach (var keyValue in response["allPurchaseDatesMillis"])
             {
-                var allExpirations = new Dictionary<string, DateTime?>();
-                for (var i = 0; i < _response.allExpirationDatesMillisKeys.Count; i++)
-                {
-                    if (_response.allExpirationDatesMillisValues[i] != 0L)
-                    {
-                        var date = FromUnixTime(_response.allExpirationDatesMillisValues[i]);
-                        allExpirations[_response.allExpirationDatesMillisKeys[i]] = date;
-                    }
-                    else
-                    {
-                        allExpirations[_response.allExpirationDatesMillisKeys[i]] = null;
-                    }
-                }
+                AllPurchaseDates.Add(keyValue.Key, FromUnixTime(keyValue.Value.AsLong));
+            } 
 
-                return allExpirations;
-            }
-        }
-
-        public Dictionary<string, DateTime> AllPurchaseDates
-        {
-            get
-            {
-                var allPurchases = new Dictionary<string, DateTime>();
-                for (var i = 0; i < _response.allPurchaseDatesMillisKeys.Count; i++)
-                {
-                    var date = FromUnixTime(_response.allPurchaseDatesMillisValues[i]);
-                    allPurchases[_response.allPurchaseDatesMillisKeys[i]] = date;
-                }
-
-                return allPurchases;
-            }
-        }
-
-        public string OriginalApplicationVersion
-        {
-            get { return _response.originalApplicationVersion; }
-        }
-
+            OriginalApplicationVersion = response["originalApplicationVersion"];
+        } 
+        
         private static DateTime FromUnixTime(long unixTime)
         {
             return Epoch.AddSeconds(unixTime);
@@ -116,5 +83,18 @@ public partial class Purchases
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+        public override string ToString()
+        {
+            return $"{nameof(Entitlements)}: {Entitlements}, " +
+                   $"{nameof(ActiveSubscriptions)}: {ActiveSubscriptions}, " +
+                   $"{nameof(AllPurchasedProductIdentifiers)}: {AllPurchasedProductIdentifiers}, " +
+                   $"{nameof(LatestExpirationDate)}: {LatestExpirationDate}, " +
+                   $"{nameof(FirstSeen)}: {FirstSeen}, " +
+                   $"{nameof(OriginalAppUserId)}: {OriginalAppUserId}, " +
+                   $"{nameof(RequestDate)}: {RequestDate}, " +
+                   $"{nameof(AllExpirationDates)}: {AllExpirationDates}, " +
+                   $"{nameof(AllPurchaseDates)}: {AllPurchaseDates}, " +
+                   $"{nameof(OriginalApplicationVersion)}: {OriginalApplicationVersion}";
+        }
     }
 }

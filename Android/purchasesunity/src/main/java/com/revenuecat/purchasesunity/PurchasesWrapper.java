@@ -225,19 +225,10 @@ public class PurchasesWrapper {
             }
 
             Map<String, Map<String, Object>> map = CommonKt.checkTrialOrIntroductoryPriceEligibility(productIds);
-
-            try {
-                JSONObject object = new JSONObject();
-                object.put("keys", MappersKt.convertToJsonArray(new ArrayList<>(map.keySet())));
-                object.put("values", MappersKt.convertToJsonArray(new ArrayList<>(map.values())));
-                sendJSONObject(object, CHECK_ELIGIBILITY);
-            } catch (JSONException e) {
-                logJSONException(e);
-            }
+            sendJSONObject(MappersKt.convertToJson(map), CHECK_ELIGIBILITY);
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
         }
-
     }
 
     public static void invalidatePurchaserInfoCache() {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
@@ -7,19 +8,24 @@ public partial class Purchases
         public readonly Dictionary<string, EntitlementInfo> All;
         public readonly Dictionary<string, EntitlementInfo> Active;
 
-        public EntitlementInfos(EntitlementInfosResponse response)
+        public EntitlementInfos(JSONNode response)
         {
             All = new Dictionary<string, EntitlementInfo>();
-            for (var i = 0; i < response.allKeys.Count; i++)
+            foreach (var keyValuePair in response["all"])
             {
-                All[response.allKeys[i]] = new EntitlementInfo(response.allValues[i]);
+                All.Add(keyValuePair.Key, new EntitlementInfo(keyValuePair.Value));
             }
+
             Active = new Dictionary<string, EntitlementInfo>();
-            for (var i = 0; i < response.activeKeys.Count; i++)
+            foreach (var keyValuePair in response["active"])
             {
-                Active[response.activeKeys[i]] = new EntitlementInfo(response.activeValues[i]);
+                Active.Add(keyValuePair.Key, new EntitlementInfo(keyValuePair.Value));
             }
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(All)}: {All}, {nameof(Active)}: {Active}";
+        }
     }
 }
