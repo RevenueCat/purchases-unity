@@ -5,23 +5,7 @@
 
 #import "RCEntitlementInfo+HybridAdditions.h"
 #import "SKProduct+HybridAdditions.h"
-
-static NSDateFormatter *formatter;
-static dispatch_once_t onceToken;
-
-static NSString * stringFromDate(NSDate *date)
-{
-    dispatch_once(&onceToken, ^{
-        // Here we're not using NSISO8601DateFormatter as we need to support iOS < 10
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        dateFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
-        dateFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss'Z'";
-        dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-        formatter = dateFormatter;
-    });
-    
-    return [formatter stringFromDate:date];
-}
+#import "NSDate+HybridAdditions.h"
 
 @implementation RCEntitlementInfo (HybridAdditions)
 
@@ -43,10 +27,13 @@ static NSString * stringFromDate(NSDate *date)
             jsonDict[@"periodType"] = @"TRIAL";
             break;
     }
-    
-    jsonDict[@"latestPurchaseDate"] = @(self.latestPurchaseDate.timeIntervalSince1970);
-    jsonDict[@"originalPurchaseDate"] = @(self.originalPurchaseDate.timeIntervalSince1970);
-    jsonDict[@"expirationDate"] = self.expirationDate ? @(self.expirationDate.timeIntervalSince1970) : [NSNull null];
+
+    jsonDict[@"latestPurchaseDate"] = self.latestPurchaseDate.formattedAsISO8601;
+    jsonDict[@"latestPurchaseDateMillis"] = @(self.latestPurchaseDate.timeIntervalSince1970);
+    jsonDict[@"originalPurchaseDate"] = self.originalPurchaseDate.formattedAsISO8601;
+    jsonDict[@"originalPurchaseDateMillis"] = @(self.originalPurchaseDate.timeIntervalSince1970);
+    jsonDict[@"expirationDate"] = self.expirationDate.formattedAsISO8601 ?: [NSNull null];
+    jsonDict[@"expirationDateMillis"] = self.expirationDate ? @(self.expirationDate.timeIntervalSince1970) : [NSNull null];
 
     switch (self.store) {
         case RCAppStore:
@@ -71,8 +58,10 @@ static NSString * stringFromDate(NSDate *date)
     
     jsonDict[@"productIdentifier"] = self.productIdentifier;
     jsonDict[@"isSandbox"] = @(self.isSandbox);
-    jsonDict[@"unsubscribeDetectedAt"] = self.unsubscribeDetectedAt ? @(self.unsubscribeDetectedAt.timeIntervalSince1970) : [NSNull null];
-    jsonDict[@"billingIssueDetectedAt"] = self.billingIssueDetectedAt ? @(self.billingIssueDetectedAt.timeIntervalSince1970) : [NSNull null];
+    jsonDict[@"unsubscribeDetectedAt"] = self.unsubscribeDetectedAt.formattedAsISO8601 ?: [NSNull null];
+    jsonDict[@"unsubscribeDetectedAtMillis"] = self.unsubscribeDetectedAt ? @(self.unsubscribeDetectedAt.timeIntervalSince1970) : [NSNull null];
+    jsonDict[@"billingIssueDetectedAt"] = self.billingIssueDetectedAt.formattedAsISO8601 ?: [NSNull null];
+    jsonDict[@"billingIssueDetectedAtMillis"] = self.billingIssueDetectedAt ? @(self.billingIssueDetectedAt.timeIntervalSince1970) : [NSNull null];
     
     return [NSDictionary dictionaryWithDictionary:jsonDict];
 }

@@ -1,59 +1,13 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using RevenueCat.SimpleJSON;
 
 #pragma warning disable CS0649
 
-public class Purchases : MonoBehaviour
+public partial class Purchases : MonoBehaviour
 {
-
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum AttributionNetwork
-    {
-        APPLE_SEARCH_ADS = 0,
-        ADJUST = 1,
-        APPSFLYER = 2,
-        BRANCH = 3,
-        TENJIN = 4,
-        FACEBOOK = 5
-    }
-
-    public enum ProrationMode
-    {
-        UnknownSubscriptionUpgradeDowngradePolicy = 0,
-
-        /// Replacement takes effect immediately, and the remaining time will be
-        /// prorated and credited to the user. This is the current default behavior.
-        ImmediateWithTimeProration = 1,
-
-        /// Replacement takes effect immediately, and the billing cycle remains the
-        /// same. The price for the remaining period will be charged. This option is
-        /// only available for subscription upgrade.
-        ImmediateAndChargeProratedPrice = 2,
-
-        /// Replacement takes effect immediately, and the new price will be charged on
-        /// next recurrence time. The billing cycle stays the same.
-        ImmediateWithoutProration = 3,
-
-        /// Replacement takes effect when the old plan expires, and the new price will
-        /// be charged at the same time.
-        Deferred = 4
-    }
-
-    public enum IntroEligibilityStatus {
-        /// RevenueCat doesn't have enough information to determine eligibility.
-        IntroEligibilityStatusUnknown = 0,
-
-        /// The user is not eligible for a free trial or intro pricing for this product.
-        IntroEligibilityStatusIneligible = 1,
-
-        /// The user is eligible for a free trial or intro pricing for this product.
-        IntroEligibilityStatusEligible = 2
-    }
-
     public delegate void GetProductsFunc(List<Product> products, Error error);
 
     public delegate void MakePurchaseFunc(string productIdentifier, PurchaserInfo purchaserInfo, bool userCancelled, Error error);
@@ -66,400 +20,6 @@ public class Purchases : MonoBehaviour
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
-    public abstract class UpdatedPurchaserInfoListener : MonoBehaviour
-    {
-        public abstract void PurchaserInfoReceived(PurchaserInfo purchaserInfo);
-    }
-
-    private class PurchasesWrapperNoop : IPurchasesWrapper
-    {
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
-        {
-
-        }
-
-        public void AddAttributionData(int network, string data, string networkUserId)
-        {
-
-        }
-
-        public void GetProducts(string[] productIdentifiers, string type = "subs")
-        {
-
-        }
-
-        public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
-        {
-
-        }
-
-        public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
-        {
-
-        }
-
-        public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
-        {
-
-        }
-
-        public void RestoreTransactions()
-        {
-
-        }
-
-        public void CreateAlias(string newAppUserId)
-        {
-
-        }
-
-        public void Identify(string appUserId)
-        {
-
-        }
-
-        public void Reset()
-        {
-
-        }
-
-        public void SetFinishTransactions(bool finishTransactions)
-        {
-
-        }
-
-        public void SetAllowSharingStoreAccount(bool allow)
-        {
-
-        }
-
-        public string GetAppUserId()
-        {
-            return null;
-        }
-
-        public void SetDebugLogsEnabled(bool enabled)
-        {
-
-        }
-
-        public void GetPurchaserInfo()
-        {
-
-        }
-
-        public void GetOfferings()
-        {
-
-        }
-
-        public void SyncPurchases()
-        {
-
-        }
-
-        public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
-        {
-
-        }
-
-
-        public bool IsAnonymous()
-        {
-            return false;
-        }
-
-        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
-        {
-        
-        }
-    }
-
-    /*
-     * PurchaserInfo encapsulate the current status of subscriber. 
-     * Use it to determine which entitlements to unlock, typically by checking 
-     * ActiveSubscriptions or via LatestExpirationDate. 
-     * 
-     * Note: All DateTimes are in UTC, be sure to compare them with 
-     * DateTime.UtcNow
-     */
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public class PurchaserInfo
-    {
-        private readonly PurchaserInfoResponse _response;
-
-        public PurchaserInfo(PurchaserInfoResponse response)
-        {
-            _response = response;
-        }
-
-        public EntitlementInfos Entitlements
-        {
-            get { return new EntitlementInfos(_response.entitlements); }
-        }
-
-        public List<string> ActiveSubscriptions
-        {
-            get { return _response.activeSubscriptions; }
-        }
-
-        public List<string> AllPurchasedProductIdentifiers
-        {
-            get { return _response.allPurchasedProductIdentifiers; }
-        }
-
-        public DateTime? LatestExpirationDate
-        {
-            get
-            {
-                if (_response.latestExpirationDate != 0L)
-                {
-                    return FromUnixTime(_response.latestExpirationDate);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        public DateTime FirstSeen
-        {
-            get { return FromUnixTime(_response.firstSeen); }
-        }
-
-        public string OriginalAppUserId
-        {
-            get { return _response.originalAppUserId; }
-        }
-
-        public DateTime RequestDate
-        {
-            get { return FromUnixTime(_response.requestDate); }
-        }
-
-        public Dictionary<string, DateTime?> AllExpirationDates
-        {
-            get
-            {
-                var allExpirations = new Dictionary<string, DateTime?>();
-                for (var i = 0; i < _response.allExpirationDateKeys.Count; i++)
-                {
-                    if (_response.allExpirationDateValues[i] != 0L)
-                    {
-                        var date = FromUnixTime(_response.allExpirationDateValues[i]);
-                        allExpirations[_response.allExpirationDateKeys[i]] = date;
-                    }
-                    else
-                    {
-                        allExpirations[_response.allExpirationDateKeys[i]] = null;
-                    }
-                }
-
-                return allExpirations;
-            }
-        }
-
-        public Dictionary<string, DateTime> AllPurchaseDates
-        {
-            get
-            {
-                var allPurchases = new Dictionary<string, DateTime>();
-                for (var i = 0; i < _response.allPurchaseDateKeys.Count; i++)
-                {
-                    var date = FromUnixTime(_response.allPurchaseDateValues[i]);
-                    allPurchases[_response.allPurchaseDateKeys[i]] = date;
-                }
-
-                return allPurchases;
-            }
-        }
-
-        public string OriginalApplicationVersion
-        {
-            get { return _response.originalApplicationVersion; }
-        }
-
-        private static DateTime FromUnixTime(long unixTime)
-        {
-            return Epoch.AddSeconds(unixTime);
-        }
-
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-    }
-
-
-    public class EntitlementInfo
-    {
-        public readonly string Identifier;
-        public readonly bool IsActive;
-        public readonly bool WillRenew;
-        public readonly string PeriodType;
-        public readonly DateTime LatestPurchaseDate;
-        public readonly DateTime OriginalPurchaseDate;
-        public readonly DateTime? ExpirationDate;
-        public readonly string Store;
-        public readonly string ProductIdentifier;
-        public readonly bool IsSandbox;
-        [CanBeNull] public readonly DateTime? UnsubscribeDetectedAt;
-        [CanBeNull] public readonly DateTime? BillingIssueDetectedAt;
-
-        public EntitlementInfo(EntitlementInfoResponse response)
-        {
-            Identifier = response.identifier;
-            IsActive = response.isActive;
-            WillRenew = response.willRenew;
-            PeriodType = response.periodType;
-            LatestPurchaseDate = FromUnixTime(response.latestPurchaseDate);
-            OriginalPurchaseDate = FromUnixTime(response.originalPurchaseDate);
-            if (response.expirationDate != 0L)
-            {
-                ExpirationDate = FromUnixTime(response.expirationDate);
-            }
-            Store = response.store;
-            ProductIdentifier = response.productIdentifier;
-            IsSandbox = response.isSandbox;
-            if (response.unsubscribeDetectedAt != 0L)
-            {
-                UnsubscribeDetectedAt = FromUnixTime(response.unsubscribeDetectedAt);
-            }
-            if (response.billingIssueDetectedAt != 0L)
-            {
-                BillingIssueDetectedAt = FromUnixTime(response.billingIssueDetectedAt);
-            }
-        }
-
-        private static DateTime FromUnixTime(long unixTime)
-        {
-            return Epoch.AddSeconds(unixTime);
-        }
-
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-    }
-
-    public class EntitlementInfos
-    {
-        public readonly Dictionary<string, EntitlementInfo> All;
-        public readonly Dictionary<string, EntitlementInfo> Active;
-
-        public EntitlementInfos(EntitlementInfosResponse response)
-        {
-            All = new Dictionary<string, EntitlementInfo>();
-            for (var i = 0; i < response.allKeys.Count; i++)
-            {
-                All[response.allKeys[i]] = new EntitlementInfo(response.allValues[i]);
-            }
-            Active = new Dictionary<string, EntitlementInfo>();
-            for (var i = 0; i < response.activeKeys.Count; i++)
-            {
-                Active[response.activeKeys[i]] = new EntitlementInfo(response.activeValues[i]);
-            }
-        }
-
-    }
-
-    public class Offerings
-    {
-        public readonly Dictionary<string, Offering> All;
-        [CanBeNull] public readonly Offering Current;
-
-        public Offerings(OfferingsResponse response)
-        {
-            All = new Dictionary<string, Offering>();
-            for (var i = 0; i < response.allKeys.Count; i++)
-            {
-                All[response.allKeys[i]] = new Offering(response.allValues[i]);
-            }
-            if (response.current.identifier != null) {
-                Current = new Offering(response.current);
-            }
-        }
-
-    }
-
-    public class Package
-    {
-        public readonly string Identifier;
-        public readonly string PackageType;
-        public readonly Product Product;
-        public readonly string OfferingIdentifier;
-
-        public Package(PackageResponse response)
-        {
-            Identifier = response.identifier;
-            PackageType = response.packageType;
-            Product = response.product;
-            OfferingIdentifier = response.offeringIdentifier;
-        }
-    }
-
-    public class Offering
-    {
-        public readonly string Identifier;
-        public readonly string ServerDescription;
-        public readonly List<Package> AvailablePackages;
-        [CanBeNull] public readonly Package Lifetime;
-        [CanBeNull] public readonly Package Annual;
-        [CanBeNull] public readonly Package SixMonth;
-        [CanBeNull] public readonly Package ThreeMonth;
-        [CanBeNull] public readonly Package  TwoMonth;
-        [CanBeNull] public readonly Package  Monthly;
-        [CanBeNull] public readonly Package Weekly;
-
-        public Offering(OfferingResponse response)
-        {
-            Identifier = response.identifier;
-            ServerDescription = response.serverDescription;
-            AvailablePackages = new List<Package>();
-            foreach (var packageResponse in response.availablePackages)
-            {
-                AvailablePackages.Add(new Package(packageResponse));
-            }
-            if (response.lifetime.identifier != null) {
-                Lifetime = new Package(response.lifetime);
-            }
-            if (response.annual.identifier != null) {
-                Annual = new Package(response.annual);
-            }
-            if (response.sixMonth.identifier != null) {
-                SixMonth = new Package(response.sixMonth);
-            }
-            if (response.threeMonth.identifier != null) {
-                ThreeMonth = new Package(response.threeMonth);
-            }
-            if (response.twoMonth.identifier != null) {
-                TwoMonth = new Package(response.twoMonth);
-            }
-            if (response.monthly.identifier != null) {
-                Monthly = new Package(response.monthly);
-            }
-            if (response.weekly.identifier != null) {
-                Weekly = new Package(response.weekly);
-            }
-        }
-    }
-
-    public class IntroEligibility
-    {
-        /// The introductory price eligibility status
-        public readonly IntroEligibilityStatus Status; 
-        
-        /// Description of the status
-        public readonly string Description;
-
-        public IntroEligibility(IntroEligibilityResponse response)
-        {
-            Status = (IntroEligibilityStatus)response.status;
-            Description = response.description;
-        }
-
-        public override string ToString()
-        {
-            return "{ status:" + Status + "; description:" + Description + " }";
-        }
-    }
 
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
@@ -639,11 +199,53 @@ public class Purchases : MonoBehaviour
     {
         _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
-    private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }    
+    private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
     public void CheckTrialOrIntroductoryPriceEligibility(string[] products, CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
         CheckTrialOrIntroductoryPriceEligibilityCallback = callback;
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
+    }
+
+    public void InvalidatePurchaserInfoCache()
+    {
+        _wrapper.InvalidatePurchaserInfoCache();
+    }
+
+    public void SetAttributes(Dictionary<string, string> attributes)
+    {
+        var jsonObject = new JSONObject();
+        foreach (var keyValuePair in attributes)
+        {
+            if (keyValuePair.Value == null)
+            {
+                jsonObject[keyValuePair.Key] = JSONNull.CreateOrGet();
+            }
+            else
+            {
+                jsonObject[keyValuePair.Key] = keyValuePair.Value;
+            }
+        }
+        _wrapper.SetAttributes(jsonObject.ToString());
+    }
+
+    public void SetEmail(string email)
+    {
+        _wrapper.SetEmail(email);
+    }
+
+    public void SetPhoneNumber(string phoneNumber)
+    {
+        _wrapper.SetPhoneNumber(phoneNumber);
+    }
+
+    public void SetDisplayName(string displayName)
+    {
+        _wrapper.SetDisplayName(displayName);
+    }
+
+    public void SetPushToken(string token)
+    {
+        _wrapper.SetPushToken(token);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -652,17 +254,23 @@ public class Purchases : MonoBehaviour
         Debug.Log("_receiveProducts " + productsJson);
 
         if (ProductsCallback == null) return;
+        
+        var response = JSON.Parse(productsJson);
 
-        var response = JsonUtility.FromJson<ReceiveProductsResponse>(productsJson);
-        var error = response.error.message != null ? response.error : null;
-
-        if (error != null)
+        if (ResponseHasError(response))
         {
-            ProductsCallback(null, error);
+            ProductsCallback(null, new Error(response["error"]));
         }
         else
         {
-            ProductsCallback(response.products, null);
+            var products = new List<Product>();
+            foreach (JSONNode productResponse in response["products"])
+            {
+                var product = new Product(productResponse);
+                products.Add(product);
+            }
+
+            ProductsCallback(products, null);
         }
         ProductsCallback = null;
     }
@@ -682,21 +290,20 @@ public class Purchases : MonoBehaviour
 
         if (MakePurchaseCallback == null) return;
 
-        var response = JsonUtility.FromJson<MakePurchaseResponse>(makePurchaseResponseJson);
+        var response = JSON.Parse(makePurchaseResponseJson);
 
-        var error = response.error.message != null ? response.error : null;
-        var info = response.purchaserInfo.activeSubscriptions != null
-            ? new PurchaserInfo(response.purchaserInfo)
-            : null;
-
-        if (error != null)
+        if (ResponseHasError(response))
         {
-            MakePurchaseCallback(null, null, response.userCancelled, error);
+            MakePurchaseCallback(null, null, response["userCancelled"],
+                new Error(response["error"]));
         }
         else
         {
-            MakePurchaseCallback(response.productIdentifier, info, false, null);
+            var info = new PurchaserInfo(response["purchaserInfo"]);
+            var productIdentifier = response["productIdentifier"];
+            MakePurchaseCallback(productIdentifier, info, false, null);
         }
+
         MakePurchaseCallback = null;
     }
 
@@ -715,14 +322,10 @@ public class Purchases : MonoBehaviour
 
         if (listener == null) return;
 
-        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(purchaserInfoJson);
-        var info = response.purchaserInfo.activeSubscriptions != null
-                    ? new PurchaserInfo(response.purchaserInfo)
-                    : null;
-        if (info != null)
-        {
-            listener.PurchaserInfoReceived(info);
-        }
+        var response = JSON.Parse(purchaserInfoJson);
+        if (response["purchaserInfo"] == null) return;
+        var info = new PurchaserInfo(response["purchaserInfo"]);
+        listener.PurchaserInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -754,200 +357,57 @@ public class Purchases : MonoBehaviour
     {
         Debug.Log("_getOfferings " + offeringsJson);
         if (GetOfferingsCallback == null) return;
-        var response = JsonUtility.FromJson<GetOfferingsResponse>(offeringsJson);
-        var error = response.error.message != null ? response.error : null;
-        if (error != null)
+        var response = JSON.Parse(offeringsJson);
+        if (ResponseHasError(response))
         {
-            GetOfferingsCallback(null, error);
+            GetOfferingsCallback(null, new Error(response["error"]));
         }
         else
         {
-            GetOfferingsCallback(new Offerings(response.offerings), null);
+            var offeringsResponse = response["offerings"];
+            GetOfferingsCallback(new Offerings(offeringsResponse), null);
         }
         GetEntitlementsCallback = null;
     }
+    
     private void _checkTrialOrIntroductoryPriceEligibility(string json)
     {
-        Debug.Log("_checkTrialOrIntroductoryPriceEligibilit " + json);
+        Debug.Log("_checkTrialOrIntroductoryPriceEligibility " + json);
 
         if (CheckTrialOrIntroductoryPriceEligibilityCallback == null) return;
 
-        var responseMap = JsonUtility.FromJson<MapResponse<string, IntroEligibilityResponse>>(json);
-
+        var response = JSON.Parse(json);
         var dictionary = new Dictionary<string, IntroEligibility>();
-        for (var i = 0; i < responseMap.keys.Count; i++)
+        foreach (var keyValuePair in response)
         {
-            dictionary[responseMap.keys[i]] = new IntroEligibility(responseMap.values[i]);
+            dictionary[keyValuePair.Key] = new IntroEligibility(keyValuePair.Value);
         }
-
-        CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
         
+        CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
+
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
     }
 
     private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)
     {
         if (callback == null) return;
-        var response = JsonUtility.FromJson<ReceivePurchaserInfoResponse>(arguments);
 
-        var error = response.error.message != null ? response.error : null;
-        var info = response.purchaserInfo.activeSubscriptions != null
-            ? new PurchaserInfo(response.purchaserInfo)
-            : null;
-        if (error != null)
+        var response = JSON.Parse(arguments);
+        
+        if (ResponseHasError(response))
         {
-            callback(null, error);
+            callback(null, new Error(response["error"]));
         }
         else
         {
+            var info = new PurchaserInfo(response["purchaserInfo"]); 
             callback(info, null);
         }
     }
 
-    [Serializable]
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
-    public class Error
+    private static bool ResponseHasError(JSONNode response)
     {
-        public string message;
-        public int code;
-        public string underlyingErrorMessage;
-        public string readableErrorCode;
+        return response != null && response.HasKey("error") && response["error"] != null && !response["error"].IsNull;
     }
 
-    [Serializable]
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
-    public class Product
-    {
-        public string title;
-        public string identifier;
-        public string description;
-        public float price;
-        public string priceString;
-        [CanBeNull] public string currencyCode;
-        public float introPrice;
-        public string introPriceString;
-        public string introPricePeriod;
-        public string introPricePeriodUnit;
-        [CanBeNull] public int introPricePeriodNumberOfUnits;
-        [CanBeNull] public int introPriceCycles;
-    }
-
-    [Serializable]
-    private class ReceiveProductsResponse
-    {
-        public List<Product> products;
-        public Error error;
-    }
-
-    [Serializable]
-    private class ReceivePurchaserInfoResponse
-    {
-        public PurchaserInfoResponse purchaserInfo;
-        public Error error;
-    }
-
-    [Serializable]
-    private class MakePurchaseResponse
-    {
-        public string productIdentifier;
-        public PurchaserInfoResponse purchaserInfo;
-        public bool userCancelled;
-        public Error error;
-    }
-
-    [Serializable]
-    public class PurchaserInfoResponse
-    {
-        public EntitlementInfosResponse entitlements;
-        public List<string> activeSubscriptions;
-        public List<string> allPurchasedProductIdentifiers;
-        public long latestExpirationDate;
-        public long firstSeen;
-        public string originalAppUserId;
-        public long requestDate;
-        public List<string> allExpirationDateKeys;
-        public List<long> allExpirationDateValues;
-        public List<string> allPurchaseDateKeys;
-        public List<long> allPurchaseDateValues;
-        public string originalApplicationVersion;
-    }
-
-    [Serializable]
-    public class OfferingsResponse
-    {
-        public List<string> allKeys;
-        public List<OfferingResponse> allValues;
-        public OfferingResponse current;
-    }
-
-    [Serializable]
-    public class GetOfferingsResponse
-    {
-        public OfferingsResponse offerings;
-        public Error error;
-    }
-
-    [Serializable]
-    public class OfferingResponse
-    {
-        public string identifier;
-        public string serverDescription;
-        public List<PackageResponse> availablePackages;
-        [CanBeNull] public PackageResponse lifetime;
-        [CanBeNull] public PackageResponse annual;
-        [CanBeNull] public PackageResponse sixMonth;
-        [CanBeNull] public PackageResponse threeMonth;
-        [CanBeNull] public PackageResponse twoMonth;
-        [CanBeNull] public PackageResponse monthly;
-        [CanBeNull] public PackageResponse weekly;
-    }
-
-    [Serializable]
-    public class PackageResponse
-    {
-        public string identifier;
-        public string packageType;
-        public Product product;
-        public string offeringIdentifier;
-    }
-
-    [Serializable]
-    public class EntitlementInfosResponse
-    {
-        public List<string> allKeys;
-        public List<EntitlementInfoResponse> allValues;
-        public List<string> activeKeys;
-        public List<EntitlementInfoResponse> activeValues;
-    }
-
-    [Serializable]
-    public class EntitlementInfoResponse
-    {
-        public string identifier;
-        public bool isActive;
-        public bool willRenew;
-        public string periodType;
-        public long latestPurchaseDate;
-        public long originalPurchaseDate;
-        [CanBeNull] public long expirationDate;
-        public string store;
-        public string productIdentifier;
-        public bool isSandbox;
-        [CanBeNull] public long unsubscribeDetectedAt;
-        [CanBeNull] public long billingIssueDetectedAt;
-    }
-    
-    [Serializable]
-    public class IntroEligibilityResponse
-    {
-        public int status;
-        public string description;
-    }
-    
-    [Serializable]
-    public class MapResponse<K, V>
-    {
-        public List<K> keys;
-        public List<V> values;
-    }
 }

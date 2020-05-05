@@ -7,8 +7,12 @@ import com.revenuecat.purchases.Offering
 import com.revenuecat.purchases.Offerings
 import com.revenuecat.purchases.Package
 import com.revenuecat.purchases.PurchaserInfo
+import com.revenuecat.purchases.util.Iso8601Utils
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.NumberFormat
+import java.util.Currency
+import java.util.Date
 
 fun EntitlementInfo.map(): Map<String, Any?> =
     mapOf(
@@ -16,24 +20,26 @@ fun EntitlementInfo.map(): Map<String, Any?> =
         "isActive" to this.isActive,
         "willRenew" to this.willRenew,
         "periodType" to this.periodType.name,
-        "latestPurchaseDate" to latestPurchaseDate.time / 1000.0,
-        "originalPurchaseDate" to originalPurchaseDate.time / 1000.0,
-        "expirationDate" to this.expirationDate?.let { it.time / 1000.0 },
+        "latestPurchaseDateMillis" to this.latestPurchaseDate.toMillis(),
+        "latestPurchaseDate" to this.latestPurchaseDate.toIso8601(),
+        "originalPurchaseDateMillis" to this.originalPurchaseDate.toMillis(),
+        "originalPurchaseDate" to this.originalPurchaseDate.toIso8601(),
+        "expirationDateMillis" to this.expirationDate?.toMillis(),
+        "expirationDate" to this.expirationDate?.toIso8601(),
         "store" to this.store.name,
         "productIdentifier" to this.productIdentifier,
         "isSandbox" to this.isSandbox,
-        "unsubscribeDetectedAt" to this.unsubscribeDetectedAt?.let { it.time / 1000.0 },
-        "billingIssueDetectedAt" to this.billingIssueDetectedAt?.let { it.time / 1000.0 }
+        "unsubscribeDetectedAt" to this.unsubscribeDetectedAt?.toIso8601(),
+        "unsubscribeDetectedAtMillis" to this.unsubscribeDetectedAt?.toMillis(),
+        "billingIssueDetectedAt" to this.billingIssueDetectedAt?.toIso8601(),
+        "billingIssueDetectedAtMillis" to this.billingIssueDetectedAt?.toMillis()
     )
 
 fun EntitlementInfos.map(): Map<String, Any> =
     mapOf(
-        "allKeys" to this.all.keys.toList(),
-        "allValues" to this.all.map { it.value.map() }.toList(),
-        "activeKeys" to this.active.keys.toList(),
-        "activeValues" to this.active.map { it.value.map() }.toList()
+        "all" to this.all.asIterable().associate { it.key to it.value.map() },
+        "active" to this.active.asIterable().associate { it.key to it.value.map() }
     )
-
 
 fun SkuDetails.map(): Map<String, Any?> =
     mapOf(
@@ -41,30 +47,34 @@ fun SkuDetails.map(): Map<String, Any?> =
         "description" to description,
         "title" to title,
         "price" to priceAmountMicros / 1000000.0,
-        "priceString" to price,
-        "currencyCode" to priceCurrencyCode
-    ) + mapIntroPrice()
+        "price_string" to price,
+        "currency_code" to priceCurrencyCode,
+        "introPrice" to mapIntroPrice(),
+        "discounts" to null
+    ) + mapIntroPriceDeprecated()
 
 fun PurchaserInfo.map(): Map<String, Any?> =
     mapOf(
         "entitlements" to entitlements.map(),
         "activeSubscriptions" to activeSubscriptions.toList(),
         "allPurchasedProductIdentifiers" to allPurchasedSkus.toList(),
-        "latestExpirationDate" to latestExpirationDate?.let { it.time / 1000.0 },
-        "firstSeen" to firstSeen.time / 1000.0,
+        "latestExpirationDate" to latestExpirationDate?.toIso8601(),
+        "latestExpirationDateMillis" to latestExpirationDate?.toMillis(),
+        "firstSeen" to firstSeen.toIso8601(),
+        "firstSeenMillis" to firstSeen.toMillis(),
         "originalAppUserId" to originalAppUserId,
-        "requestDate" to requestDate.time / 1000.0,
-        "allExpirationDateKeys" to allExpirationDatesByProduct.keys.toList(),
-        "allExpirationDateValues" to allExpirationDatesByProduct.values.map { it?.time?.div(1000.0) },
-        "allPurchaseDateKeys" to allPurchaseDatesByProduct.keys.toList(),
-        "allPurchaseDateValues" to allPurchaseDatesByProduct.values.map { it?.time?.div(1000.0) },
+        "requestDate" to requestDate.toIso8601(),
+        "requestDateMillis" to requestDate.toMillis(),
+        "allExpirationDates" to allExpirationDatesByProduct.mapValues { it.value?.toIso8601() },
+        "allExpirationDatesMillis" to allExpirationDatesByProduct.mapValues { it.value?.toMillis() },
+        "allPurchaseDates" to allPurchaseDatesByProduct.mapValues { it.value?.toIso8601() },
+        "allPurchaseDatesMillis" to allPurchaseDatesByProduct.mapValues { it.value?.toMillis() },
         "originalApplicationVersion" to null
     )
 
 fun Offerings.map(): Map<String, Any?> =
     mapOf(
-        "allKeys" to this.all.keys.toList(),
-        "allValues" to this.all.map { it.value.map() }.toList(),
+        "all" to this.all.mapValues { it.value.map() },
         "current" to this.current?.map()
     )
 
@@ -92,8 +102,41 @@ private fun Package.map(offeringIdentifier: String): Map<String, Any?> =
         "offeringIdentifier" to offeringIdentifier
     )
 
+private fun SkuDetails.mapIntroPriceDeprecated(): Map<String, Any?> {
+    val isFreeTrialAvailable = freeTrialPeriod != null && freeTrialPeriod.isNotBlank()
+    return if (isFreeTrialAvailable) {
+        val format = formatUsingDeviceLocale()
+        mapOf(
+            "intro_price" to 0,
+            "intro_price_string" to format.format(0),
+            "intro_price_period" to freeTrialPeriod,
+            "intro_price_cycles" to 1
+        ) + freeTrialPeriod.mapPeriodDeprecated()
+    } else if (introductoryPrice != null || introductoryPrice.isNotBlank()) {
+        mapOf(
+            "intro_price" to introductoryPriceAmountMicros / 1000000.0,
+            "intro_price_string" to introductoryPrice,
+            "intro_price_period" to introductoryPricePeriod,
+            "intro_price_cycles" to introductoryPriceCycles?.ifBlank { "0" }?.toInt()
+        ) + introductoryPricePeriod.mapPeriodDeprecated()
+    } else {
+        mapOf(
+            "intro_price" to null,
+            "intro_price_string" to null,
+            "intro_price_period" to null,
+            "intro_price_cycles" to null
+        ) + introductoryPricePeriod.mapPeriodDeprecated()
+    }
+}
+
+private fun SkuDetails.formatUsingDeviceLocale(): NumberFormat {
+    return NumberFormat.getCurrencyInstance().apply {
+        currency = Currency.getInstance(priceCurrencyCode)
+    }
+}
+
 private fun SkuDetails.mapIntroPrice(): Map<String, Any?> {
-    return if (!freeTrialPeriod.isNullOrBlank()) {
+    return if (freeTrialPeriod != null && freeTrialPeriod.isNotBlank()) {
         // Check freeTrialPeriod first to give priority to trials
         // Format using device locale. iOS will format using App Store locale, but there's no way
         // to figure out how the price in the SKUDetails is being formatted.
@@ -101,54 +144,82 @@ private fun SkuDetails.mapIntroPrice(): Map<String, Any?> {
             currency = java.util.Currency.getInstance(priceCurrencyCode)
         }
         mapOf(
-            "introPrice" to 0,
-            "introPriceString" to format.format(0),
-            "introPricePeriod" to freeTrialPeriod,
-            "introPriceCycles" to 1
+            "price" to 0,
+            "priceString" to format.format(0),
+            "period" to freeTrialPeriod,
+            "cycles" to 1
         ) + freeTrialPeriod.mapPeriod()
-    } else if (!introductoryPrice.isNullOrBlank()) {
+    } else if (introductoryPrice != null && introductoryPrice.isNotBlank()) {
         mapOf(
-            "introPrice" to introductoryPriceAmountMicros / 1000000.0,
-            "introPriceString" to introductoryPrice,
-            "introPricePeriod" to introductoryPricePeriod,
-            "introPriceCycles" to (introductoryPriceCycles?.takeUnless { it.isBlank() }?.toInt() ?: 0)
+            "price" to introductoryPriceAmountMicros / 1000000.0,
+            "priceString" to introductoryPrice,
+            "period" to introductoryPricePeriod,
+            "cycles" to introductoryPriceCycles?.ifBlank { "0" }?.toInt()
         ) + introductoryPricePeriod.mapPeriod()
     } else {
         mapOf(
-            "introPrice" to null,
-            "introPriceString" to null,
-            "introPricePeriod" to null,
-            "introPriceCycles" to null,
-            "introPricePeriodUnit" to null,
-            "introPricePeriodNumberOfUnits" to null
+            "price" to null,
+            "priceString" to null,
+            "period" to null,
+            "cycles" to null
+        ) + introductoryPricePeriod.mapPeriod()
+    }
+}
+
+private fun String?.mapPeriodDeprecated(): Map<String, Any?> {
+    return if (this == null || this.isBlank()) {
+        mapOf(
+            "intro_price_period_unit" to null,
+            "intro_price_period_number_of_units" to null
         )
+    } else {
+        PurchasesPeriod.parse(this).let { period ->
+            when {
+                period.years > 0 -> mapOf(
+                    "intro_price_period_unit" to "YEAR",
+                    "intro_price_period_number_of_units" to period.years
+                )
+                period.months > 0 -> mapOf(
+                    "intro_price_period_unit" to "MONTH",
+                    "intro_price_period_number_of_units" to period.months
+                )
+                period.days > 0 -> mapOf(
+                    "intro_price_period_unit" to "DAY",
+                    "intro_price_period_number_of_units" to period.days
+                )
+                else -> mapOf(
+                    "intro_price_period_unit" to "DAY",
+                    "intro_price_period_number_of_units" to 0
+                )
+            }
+        }
     }
 }
 
 private fun String?.mapPeriod(): Map<String, Any?> {
     return if (this == null || this.isBlank()) {
         mapOf(
-            "introPricePeriodUnit" to null,
-            "introPricePeriodNumberOfUnits" to null
+            "periodUnit" to null,
+            "periodNumberOfUnits" to null
         )
     } else {
         PurchasesPeriod.parse(this).let { period ->
             when {
                 period.years > 0 -> mapOf(
-                    "introPricePeriodUnit" to "YEAR",
-                    "introPricePeriodNumberOfUnits" to period.years
+                    "periodUnit" to "YEAR",
+                    "periodNumberOfUnits" to period.years
                 )
                 period.months > 0 -> mapOf(
-                    "introPricePeriodUnit" to "MONTH",
-                    "introPricePeriodNumberOfUnits" to period.months
+                    "periodUnit" to "MONTH",
+                    "periodNumberOfUnits" to period.months
                 )
                 period.days > 0 -> mapOf(
-                    "introPricePeriodUnit" to "DAY",
-                    "introPricePeriodNumberOfUnits" to period.days
+                    "periodUnit" to "DAY",
+                    "periodNumberOfUnits" to period.days
                 )
                 else -> mapOf(
-                    "introPricePeriodUnit" to "DAY",
-                    "introPricePeriodNumberOfUnits" to 0
+                    "periodUnit" to "DAY",
+                    "periodNumberOfUnits" to 0
                 )
             }
         }
@@ -182,3 +253,16 @@ fun List<*>.convertToJsonArray(): JSONArray {
     }
     return writableArray
 }
+
+fun JSONObject.convertToMap(): Map<String, String?> =
+    this.keys().asSequence<String>().associate { key ->
+        if (this.isNull(key)) {
+            key to null
+        } else {
+            key to this.getString(key)
+        }
+    }
+
+private fun Date.toMillis(): Double = this.time.div(1000.0)
+
+private fun Date.toIso8601(): String = Iso8601Utils.format(this)

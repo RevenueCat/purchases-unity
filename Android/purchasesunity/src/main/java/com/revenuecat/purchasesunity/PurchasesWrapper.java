@@ -20,6 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -223,19 +225,39 @@ public class PurchasesWrapper {
             }
 
             Map<String, Map<String, Object>> map = CommonKt.checkTrialOrIntroductoryPriceEligibility(productIds);
-
-            try {
-                JSONObject object = new JSONObject();
-                object.put("keys", MappersKt.convertToJsonArray(new ArrayList<>(map.keySet())));
-                object.put("values", MappersKt.convertToJsonArray(new ArrayList<>(map.values())));
-                sendJSONObject(object, CHECK_ELIGIBILITY);
-            } catch (JSONException e) {
-                logJSONException(e);
-            }
+            sendJSONObject(MappersKt.convertToJson(map), CHECK_ELIGIBILITY);
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
         }
+    }
 
+    public static void invalidatePurchaserInfoCache() {
+        CommonKt.invalidatePurchaserInfoCache();
+    }
+
+    public static void setAttributes(String jsonAttributes) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonAttributes);
+            CommonKt.setAttributes(MappersKt.convertToMap(jsonObject));
+        } catch (JSONException e) {
+            Log.e("Purchases", "Failure parsing attributes " + jsonAttributes);
+        }
+    }
+
+    public static void setEmail(String email) {
+        CommonKt.setEmail(email);
+    }
+
+    public static void setPhoneNumber(String phoneNumber) {
+        CommonKt.setPhoneNumber(phoneNumber);
+    }
+
+    public static void setDisplayName(String displayName) {
+        CommonKt.setDisplayName(displayName);
+    }
+
+    public static void setPushToken(String token) {
+        CommonKt.setPushToken(token);
     }
 
     private static void logJSONException(JSONException e) {
@@ -292,4 +314,5 @@ public class PurchasesWrapper {
             }
         };
     }
+
 }

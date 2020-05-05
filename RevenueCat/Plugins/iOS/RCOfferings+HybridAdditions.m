@@ -11,17 +11,14 @@
 - (NSDictionary *)dictionary
 {
     NSMutableDictionary *jsonDict = [NSMutableDictionary new];
+    NSMutableDictionary *all = [NSMutableDictionary new];
 
-    NSMutableArray *allKeys = [NSMutableArray new];
-    NSMutableArray *allValues = [NSMutableArray new];
     for (NSString *offeringId in self.all) {
-        [allKeys addObject:offeringId];
         RCOffering *offering = self.all[offeringId];
-        [allValues addObject:offering.dictionary];
+        all[offeringId] = offering.dictionary;
     }
 
-    jsonDict[@"allKeys"] = allKeys;
-    jsonDict[@"allValues"] = allValues;
+    jsonDict[@"all"] = [NSDictionary dictionaryWithDictionary:all];
     jsonDict[@"current"] = self.current.dictionary;
 
     return [NSDictionary dictionaryWithDictionary:jsonDict];

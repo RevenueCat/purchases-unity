@@ -1,3 +1,25 @@
+## 2.1.0
+
+- Adds Subscriber Attributes, which allow developers to store additional, structured information
+for a user in RevenueCat. More info: https://docs.revenuecat.com/docs/user-attributes.
+- Added new method to invalidate the purchaser info cache, useful when promotional purchases are granted from outside the app.
+
+**iOS Native SDK Update 3.2.2**
+ - [Release Notes 3.2.2](https://github.com/RevenueCat/purchases-ios/releases/tag/3.2.2)
+ - [Release Notes 3.2.1](https://github.com/RevenueCat/purchases-ios/releases/tag/3.2.1)
+ - [Release Notes 3.1.2](https://github.com/RevenueCat/purchases-ios/releases/tag/3.1.2)
+ - [Release Notes 3.1.1](https://github.com/RevenueCat/purchases-ios/releases/tag/3.1.1)
+ - [Release Notes 3.1.0](https://github.com/RevenueCat/purchases-ios/releases/tag/3.1.0)
+ - [Release Notes 3.0.4](https://github.com/RevenueCat/purchases-ios/releases/tag/3.0.4)
+ - [Release Notes 3.0.3](https://github.com/RevenueCat/purchases-ios/releases/tag/3.0.3)
+ - [Release Notes 3.0.2](https://github.com/RevenueCat/purchases-ios/releases/tag/3.0.2)
+
+**Android Native SDK Update 3.1.0**
+ - [Release Notes 3.1.0](https://github.com/RevenueCat/purchases-ios/releases/tag/3.1.0)
+ - [Release Notes 3.0.7](https://github.com/RevenueCat/purchases-ios/releases/tag/3.0.7)
+ - [Release Notes 3.0.6](https://github.com/RevenueCat/purchases-ios/releases/tag/3.0.6)
+ - [Release Notes 3.0.5](https://github.com/RevenueCat/purchases-ios/releases/tag/3.0.5)
+
 ## 2.0.9
 
 - Fixes updated PurchaserInfo listener in iOS
