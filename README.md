@@ -1,115 +1,24 @@
-# Purchases.framework for Unity
-The Purchases SDK provided by RevenueCat allows you to implement subscriptions in your Unity app easily.
+<p align="center">
+  <img src="https://uploads-ssl.webflow.com/5e2613cf294dc30503dcefb7/5e752025f8c3a31d56a51408_logo_red%20(1).svg" width="350" alt="RevenueCat"/>
+<br>
+React Native in-app subscriptions made easy
+</p>
 
-## 1. Add the Purchases Unity package
-Get the latest version of [Purchases.unitypackage](https://github.com/RevenueCat/purchases-unity/releases) from Github. Add it to your Unity project.
+# What is purchases-unity?
 
-## 2. Create a GameObject with the Purchases behavior
-The Purchases package will include a MonoBehaviour called Purchases. This will be your access point to RevenueCat from inside Unity. It should be instantiated once and kept as a singleton. You can use properties to configure your API Key, app user ID (if you have one), and product identifiers you want to fetch.
+Purchases Unity is a client for the [RevenueCat](https://www.revenuecat.com/) subscription and purchase tracking system. It is an open source framework that provides a wrapper around `StoreKit`, `Google Play Billing` and the RevenueCat backend to make implementing in-app purchases in `React Native` easy.
 
-![](https://files.readme.io/9c094e8-Screen_Shot_2018-05-31_at_11.24.09_AM.png)
-*The Purchases behaviour is configured with your RevenueCat API key and the product identifiers you want to fetch.*
+## Features
+|   | RevenueCat |
+| --- | --- |
+✅ | Server-side receipt validation
+➡️ | [Webhooks](https://docs.revenuecat.com/docs/webhooks) - enhanced server-to-server communication with events for purchases, renewals, cancellations, and more   
+🎯 | Subscription status tracking - know whether a user is subscribed whether they're on iOS, Android or web  
+📊 | Analytics - automatic calculation of metrics like conversion, mrr, and churn  
+📝 | [Online documentation](https://docs.revenuecat.com/docs) up to date  
+🔀 | [Integrations](https://www.revenuecat.com/integrations) - over a dozen integrations to easily send purchase data where you need it  
+💯 | Well maintained - [frequent releases](https://github.com/RevenueCat/purchases-ios/releases)  
+📮 | Great support - [Help Center](https://revenuecat.zendesk.com) 
 
-## 3. Subclass Purchases.Listener MonoBehaviour
-The Purchases behavior takes one additional parameter, a GameObject with a Purchases.Listener component. This will be where you handle purchase events, and updated subscriber information from RevenueCat. Here is a simple example:
-
-```C#
-using System;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
-
-public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
-{
-    void ButtonClicked(string product)
-    {
-        Purchases purchases = GetComponent<Purchases>();
-        purchases.MakePurchase(product, (productIdentifier, purchaserInfo, userCancelled, error) =>
-        {
-            if (!userCancelled)
-            {
-                if (error != null)
-                {
-                    LogError(error);
-                }
-                else
-                {
-                    DisplayPurchaserInfo(purchaserInfo);
-                }
-            } else
-            {
-                Debug.Log("Subtester: User cancelled, don't show an error");
-            }
-        });
-    }
-    
-    void DoOtherStuff()
-    {
-        var purchases = GetComponent<Purchases>();
-        var data = new AdjustData
-        {
-            adid = "test",
-            network = "network",
-            adgroup = "adgroup",
-            campaign = "campaign",
-            creative = "creative",
-            clickLabel = "clickLabel",
-            trackerName = "trackerName",
-            trackerToken = "trackerToken"
-        };
-
-        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST);
-        
-        purchases.GetPurchaserInfo((info, error) =>
-        {
-            Debug.Log("purchaser info " + info.ActiveSubscriptions);
-            if (error != null) {
-                LogError(error);
-            }
-        });
-        purchases.GetProducts(new []{ "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
-        {
-            Debug.Log("getProducts " + products);
-            if (error != null) {
-                LogError(error);
-            }
-        });
-        
-        Debug.Log("user ID " + purchases.GetAppUserId());
-    }
-
-    void RestoreClicked()
-    {
-        var purchases = GetComponent<Purchases>();
-        purchases.RestoreTransactions((purchaserInfo, error) =>
-        {
-            if (error != null)
-            {
-                LogError(error);
-            }
-            else
-            {
-                DisplayPurchaserInfo(purchaserInfo);
-            }
-        });
-    }
-
-    
-    public override void PurchaserInfoReceived(Purchases.PurchaserInfo purchaserInfo)
-    {
-        DisplayPurchaserInfo(purchaserInfo);
-    }
-    
-    private void logError(Purchases.Error error)
-    {
-        Debug.Log("Subtester: " + JsonUtility.ToJson(error));
-    }
-
-
-    private void DisplayPurchaserInfo(Purchases.PurchaserInfo purchaserInfo)
-    {
-        // Show purchaser info on screen
-    }
-}
-
-```
+## Getting Started
+For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/v3.0/docs).

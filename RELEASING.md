@@ -12,7 +12,7 @@
 1. `git tag x.y.z`
 1. `git push origin master && git push --tags`
 1. Run unity using the terminal with the flag `-gvh_disable`. Remove the Play Services Resolver plugin. This is to make sure the VersionManager of the Play Services Resolver doesn't run. Import the latest version of the plugin. Use Unity to create a `Purchases.unitypackage` from the Assets folder. Don't include the Scenes and make sure `Plugins/Android` is empty. Include the Play Services Resolver folder. (https://github.com/googlesamples/unity-jar-resolver#getting-started)
-1. Resolve Android dependencies using `Assets/PlayServicesResolver/Android Resolver/Resolve`. Substitute the billing client in `Plugins/Android` with the one in the root of the repo. Rename to remove the `-no-service` so that it overwrites the original one. This special `aar` is the billing client without the `InAppBillingService.aidl`. Create a `Purchases_NoInAppBillingService.unitypackage` but this time include the `Plugins/Android` folder and don't include the PlayServicesResolver plugin.
+1. Add `com.android.billingclient.billing-2.0.3-no-service.aar` to `Revenuecat/Plugins/Android`. This special `aar` is the billing client without the `InAppBillingService.aidl`. Create a `Purchases_NoInAppBillingService.unitypackage` but this time don't include the `RevenueCatDependencies.xml` so that the Play Services Resolver doesn't resolve anything.
 1. Create a new release in github and upload both packages.
 1. Update docs link to new unity package
 
