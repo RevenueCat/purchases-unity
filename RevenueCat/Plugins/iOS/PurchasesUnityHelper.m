@@ -7,11 +7,8 @@
 #import <Foundation/Foundation.h>
 #import <StoreKit/StoreKit.h>
 #import <AdSupport/AdSupport.h>
-#import "RCPurchases.h"
-#import "RCPurchaserInfo.h"
-#import "RCCommonFunctionality.h"
-#import "RCPurchaserInfo+HybridAdditions.h"
-#import "RCErrorContainer.h"
+#import <RCPurchases/RCPurchases.h>
+#import <RCPurchasesHybridCommon/RCPurchasesHybridCommon.h>
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
