@@ -21,4 +21,4 @@ Purchases Unity is a client for the [RevenueCat](https://www.revenuecat.com/) su
 📮 | Great support - [Help Center](https://revenuecat.zendesk.com) 
 
 ## Getting Started
-For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/v3.0/docs).
+For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/docs/unity).
