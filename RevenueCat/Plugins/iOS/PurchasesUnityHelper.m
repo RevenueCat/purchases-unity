@@ -58,7 +58,13 @@ char *makeStringCopy(NSString *nstring) {
     self.products = nil;
     self.gameObject = nil;
 
-    [RCPurchases configureWithAPIKey:apiKey appUserID:appUserID observerMode:observerMode];
+    [RCPurchases configureWithAPIKey:apiKey
+                           appUserID:appUserID
+                        observerMode:observerMode
+                        userDefaults:nil
+                      platformFlavor:self.platformFlavor
+               platformFlavorVersion:self.platformFlavorVersion];
+    
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
 }
@@ -248,6 +254,14 @@ char *makeStringCopy(NSString *nstring) {
         }
         [self sendJSONObject:response toMethod:method];
     };
+}
+
+- (NSString *)platformFlavor { 
+    return @"unity";
+}
+
+- (NSString *)platformFlavorVersion { 
+    return @"2.1.0";
 }
 
 @end
