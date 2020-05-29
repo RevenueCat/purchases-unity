@@ -37,6 +37,9 @@ public class PurchasesWrapper {
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
 
+    private static final String PLATFORM_NAME = "unity";
+    private static final String PLUGIN_VERSION = "2.1.0-SNAPSHOT";
+
     private static String gameObject;
     private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {
         @Override
@@ -47,7 +50,8 @@ public class PurchasesWrapper {
 
     public static void setup(String apiKey, String appUserId, String gameObject_, boolean observerMode) {
         gameObject = gameObject_;
-        Purchases.configure(UnityPlayer.currentActivity, apiKey, appUserId, observerMode);
+        PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
+        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserID, observerMode, platformInfo);
         Purchases.getSharedInstance().setUpdatedPurchaserInfoListener(listener);
     }
 
