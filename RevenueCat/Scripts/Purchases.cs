@@ -168,9 +168,9 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
-    public void SetProxyURL(string proxyUrl)
+    public void SetProxyURL(string proxyURL)
     {
-        _wrapper.SetProxyURL(proxyUrl);
+        _wrapper.SetProxyURL(proxyURL);
     }
 
     private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }

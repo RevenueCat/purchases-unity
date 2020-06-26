@@ -63,7 +63,7 @@ public partial class Purchases
         {
         }
 
-        public void SetProxyUrl(string proxyUrl)
+        public void SetProxyURL(string proxyURL)
         {
         }
 

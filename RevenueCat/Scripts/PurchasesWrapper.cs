@@ -15,6 +15,7 @@ public interface IPurchasesWrapper
 	void SetFinishTransactions(bool finishTransactions);
     void SetAllowSharingStoreAccount(bool allow);
     void SetDebugLogsEnabled(bool enabled);
+    void SetProxyURL(string proxyURL);
     string GetAppUserId();
     void GetPurchaserInfo();
     void GetOfferings();

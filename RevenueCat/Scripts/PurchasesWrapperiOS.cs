@@ -102,10 +102,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCSetProxyUrl(string proxyUrl);
-    public void SetProxyUrl(string proxyUrl)
+    private static extern void _RCSetProxyURL(string proxyURL);
+    public void SetProxyURL(string proxyURL)
     {
-        _RCSetProxyUrl(proxyUrl);
+        _RCSetProxyURL(proxyURL);
     }
 
     [DllImport("__Internal")]
