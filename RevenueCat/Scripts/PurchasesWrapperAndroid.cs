@@ -89,6 +89,10 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setDebugLogsEnabled", enabled);
     }
+    public void SetProxyURL(string proxyURL)
+    {
+        CallPurchases("setProxyURL", proxyURL);
+    }
 
     public string GetAppUserId()
     {
