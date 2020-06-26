@@ -48,7 +48,7 @@ public class PurchasesWrapper {
         }
     };
 
-    public static void setup(String apiKey, String appUserId, String gameObject_, boolean observerMode) {
+    public static void setup(String apiKey, String appUserId, String gameObject_, boolean observerMode, string userDefaultsSuiteName) {
         gameObject = gameObject_;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserID, observerMode, platformInfo);
@@ -196,6 +196,10 @@ public class PurchasesWrapper {
 
     public static void setDebugLogsEnabled(boolean enabled) {
         CommonKt.setDebugLogsEnabled(enabled);
+    }
+
+    public static void setProxyUrl(string proxyUrl) {
+        CommonKt.setProxyUrl(proxyUrl);
     }
 
     public static String getAppUserID() {
