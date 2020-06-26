@@ -53,7 +53,11 @@ char *makeStringCopy(NSString *nstring) {
 
 @implementation RCUnityHelperDelegate
 
-- (void)setupPurchases:(NSString *)apiKey appUserID:(NSString *)appUserID gameObject:(NSString *)gameObject observerMode:(BOOL)observerMode {
+- (void)setupPurchases:(NSString *)apiKey
+             appUserID:(nullable NSString *)appUserID
+            gameObject:(NSString *)gameObject
+          observerMode:(BOOL)observerMode
+ userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName {
     [[RCPurchases sharedPurchases] setDelegate:nil];
     self.products = nil;
     self.gameObject = nil;
@@ -61,7 +65,7 @@ char *makeStringCopy(NSString *nstring) {
     [RCPurchases configureWithAPIKey:apiKey
                            appUserID:appUserID
                         observerMode:observerMode
-                        userDefaults:nil
+               userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
                platformFlavorVersion:self.platformFlavorVersion];
     
@@ -277,8 +281,16 @@ static RCUnityHelperDelegate *_RCUnityHelperShared() {
     return _RCUnityHelper;
 }
 
-void _RCSetupPurchases(const char *gameObject, const char *apiKey, const char *appUserID, const BOOL observerMode) {
-    [_RCUnityHelperShared() setupPurchases:convertCString(apiKey) appUserID:convertCString(appUserID) gameObject:convertCString(gameObject) observerMode:observerMode];
+void _RCSetupPurchases(const char *gameObject,
+                       const char *apiKey,
+                       const char *appUserID,
+                       const BOOL observerMode
+                       const char *userDefaultsSuiteName) {
+    [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
+                                 appUserID:convertCString(appUserID)
+                                gameObject:convertCString(gameObject)
+                              observerMode:observerMode
+                      userDefaultSuiteName:userDefaultsSuiteName];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
