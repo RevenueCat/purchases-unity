@@ -172,6 +172,10 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality setDebugLogsEnabled:enabled];
 }
 
+- (void)setProxyURLString:(nullable NSString •)proxyURLString {
+    [RCCommonFunctionality setProxyURLString:proxyURLString];
+}
+
 - (void)getPurchaserInfo {
     [RCCommonFunctionality getPurchaserInfoWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:GET_PURCHASER_INFO]];
 }
@@ -347,6 +351,10 @@ void _RCGetOfferings() {
 
 void _RCSetDebugLogsEnabled(const BOOL enabled) {
     [_RCUnityHelperShared() setDebugLogsEnabled:enabled];
+}
+
+void _RCSetProxyURLString(const char *proxyURLString) {
+    [_RCUnityHelperShared() setProxyURLString:proxyURLString];
 }
 
 void _RCGetPurchaserInfo() {
