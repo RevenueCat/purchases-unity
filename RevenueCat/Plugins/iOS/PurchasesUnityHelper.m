@@ -172,7 +172,7 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality setDebugLogsEnabled:enabled];
 }
 
-- (void)setProxyURLString:(nullable NSString •)proxyURLString {
+- (void)setProxyURLString:(nullable NSString *)proxyURLString {
     [RCCommonFunctionality setProxyURLString:proxyURLString];
 }
 
@@ -288,13 +288,13 @@ static RCUnityHelperDelegate *_RCUnityHelperShared() {
 void _RCSetupPurchases(const char *gameObject,
                        const char *apiKey,
                        const char *appUserID,
-                       const BOOL observerMode
+                       const BOOL observerMode,
                        const char *userDefaultsSuiteName) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
                               observerMode:observerMode
-                      userDefaultSuiteName:userDefaultsSuiteName];
+                     userDefaultsSuiteName:convertCString(userDefaultsSuiteName)];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
@@ -354,7 +354,7 @@ void _RCSetDebugLogsEnabled(const BOOL enabled) {
 }
 
 void _RCSetProxyURLString(const char *proxyURLString) {
-    [_RCUnityHelperShared() setProxyURLString:proxyURLString];
+    [_RCUnityHelperShared() setProxyURLString:convertCString(proxyURLString)];
 }
 
 void _RCGetPurchaserInfo() {
