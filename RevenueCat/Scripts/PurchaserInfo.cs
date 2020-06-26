@@ -24,9 +24,12 @@ public partial class Purchases
         public DateTime FirstSeen;
         public string OriginalAppUserId;
         public DateTime RequestDate;
+        [CanBeNull] public DateTime OriginalPurchaseDate;
         public Dictionary<string, DateTime?> AllExpirationDates;
         public Dictionary<string, DateTime> AllPurchaseDates;
         [CanBeNull] public string OriginalApplicationVersion;
+        [CanBeNull] public string ManagementUrl;
+
 
         public PurchaserInfo(JSONNode response)
         {
@@ -52,6 +55,8 @@ public partial class Purchases
             FirstSeen = FromUnixTime(response["firstSeenMillis"].AsLong);
             OriginalAppUserId = response["originalAppUserId"];
             RequestDate = FromUnixTime(response["requestDateMillis"].AsLong);
+            OriginalPurchaseDate = FromUnixTime(response["originalPurchaseDateMillis"].AsLong);
+            ManagementUrl = response["managementURL"];
             AllExpirationDates = new Dictionary<string, DateTime?>();
             foreach (var keyValue in response["allExpirationDatesMillis"])
             {
@@ -94,6 +99,8 @@ public partial class Purchases
                    $"{nameof(RequestDate)}: {RequestDate}, " +
                    $"{nameof(AllExpirationDates)}: {AllExpirationDates}, " +
                    $"{nameof(AllPurchaseDates)}: {AllPurchaseDates}, " +
+                   $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}, " +
+                   $"{nameof(ManagementUrl)}: {ManagementUrl}, " +
                    $"{nameof(OriginalApplicationVersion)}: {OriginalApplicationVersion}";
         }
     }
