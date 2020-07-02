@@ -45,7 +45,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
     {
         CallPurchases("setup", apiKey, appUserId, gameObject, observerMode);
     }

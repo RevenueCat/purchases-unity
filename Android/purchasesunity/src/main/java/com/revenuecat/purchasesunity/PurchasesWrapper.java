@@ -198,8 +198,8 @@ public class PurchasesWrapper {
         CommonKt.setDebugLogsEnabled(enabled);
     }
 
-    public static void setProxyURL(string proxyURL) {
-        CommonKt.setProxyURL(proxyURL);
+    public static void setProxyURL(String proxyURL) {
+        CommonKt.setProxyURLString(proxyURL);
     }
 
     public static String getAppUserID() {
