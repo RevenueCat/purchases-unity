@@ -47,7 +47,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
     {
-        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode);
+        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName);
     }
 
     public void RestoreTransactions()
@@ -89,6 +89,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setDebugLogsEnabled", enabled);
     }
+    
     public void SetProxyURL(string proxyURL)
     {
         CallPurchases("setProxyURL", proxyURL);
