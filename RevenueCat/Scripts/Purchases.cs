@@ -171,6 +171,8 @@ public partial class Purchases : MonoBehaviour
     public void SetProxyURL(string proxyURL)
     {
         _wrapper.SetProxyURL(proxyURL);
+        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
+        GetProducts(productIdentifiers, null);
     }
 
     private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }
