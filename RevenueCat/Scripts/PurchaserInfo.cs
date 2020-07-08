@@ -24,7 +24,7 @@ public partial class Purchases
         public DateTime FirstSeen;
         public string OriginalAppUserId;
         public DateTime RequestDate;
-        [CanBeNull] public DateTime OriginalPurchaseDate;
+        public DateTime? OriginalPurchaseDate;
         public Dictionary<string, DateTime?> AllExpirationDates;
         public Dictionary<string, DateTime> AllPurchaseDates;
         [CanBeNull] public string OriginalApplicationVersion;
@@ -45,17 +45,11 @@ public partial class Purchases
                 AllPurchasedProductIdentifiers.Add(productIdentifier);
             }
             
-            LatestExpirationDate = null;
-            var millis = (long) response["latestExpirationDateMillis"];
-            if (millis != 0L)
-            {
-                LatestExpirationDate = FromUnixTime(millis);
-            }
-            
             FirstSeen = FromUnixTime(response["firstSeenMillis"].AsLong);
             OriginalAppUserId = response["originalAppUserId"];
             RequestDate = FromUnixTime(response["requestDateMillis"].AsLong);
-            OriginalPurchaseDate = FromUnixTime(response["originalPurchaseDateMillis"].AsLong);
+            OriginalPurchaseDate = FromOptionalUnixTime(response["originalPurchaseDateMillis"].AsLong);
+            LatestExpirationDate = FromOptionalUnixTime(response["latestExpirationDateMillis"].AsLong);
             ManagementURL = response["managementURL"];
             AllExpirationDates = new Dictionary<string, DateTime?>();
             foreach (var keyValue in response["allExpirationDatesMillis"])
@@ -81,6 +75,15 @@ public partial class Purchases
             OriginalApplicationVersion = response["originalApplicationVersion"];
         } 
         
+        private static DateTime? FromOptionalUnixTime(long unixTime)
+         {
+            DateTime? value = null;
+             if (unixTime != 0L) { 
+                value = FromUnixTime(unixTime);
+             }
+             return value;
+         }
+
         private static DateTime FromUnixTime(long unixTime)
         {
             return Epoch.AddSeconds(unixTime);
