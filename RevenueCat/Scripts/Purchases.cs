@@ -42,6 +42,10 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.")]
     public string userDefaultsSuiteName;
 
+    [Header("Advanced")]
+    [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
+    public string proxyURL;
+
     private IPurchasesWrapper _wrapper;
 
     private void Start()
@@ -53,6 +57,10 @@ public partial class Purchases : MonoBehaviour
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
+        if (!string.IsNullOrEmpty(proxyURL))
+        {
+            _wrapper.SetProxyURL(proxyURL);
+        }
         Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }
@@ -166,15 +174,7 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.SetDebugLogsEnabled(logsEnabled);
     }
-
-    // ReSharper disable once UnusedMember.Global
-    public void SetProxyURL(string proxyURL)
-    {
-        _wrapper.SetProxyURL(proxyURL);
-        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
-        GetProducts(productIdentifiers, null);
-    }
-
+    
     private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
