@@ -39,6 +39,13 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
     public bool observerMode;
 
+    [Tooltip("An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.")]
+    public string userDefaultsSuiteName;
+
+    [Header("Advanced")]
+    [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
+    public string proxyURL;
+
     private IPurchasesWrapper _wrapper;
 
     private void Start()
@@ -50,6 +57,10 @@ public partial class Purchases : MonoBehaviour
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
+        if (!string.IsNullOrEmpty(proxyURL))
+        {
+            _wrapper.SetProxyURL(proxyURL);
+        }
         Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }
@@ -57,7 +68,7 @@ public partial class Purchases : MonoBehaviour
     // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
-        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode);
+        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode, userDefaultsSuiteName);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
@@ -163,7 +174,7 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.SetDebugLogsEnabled(logsEnabled);
     }
-
+    
     private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global

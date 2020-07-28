@@ -7,10 +7,10 @@ using System.Collections.Generic;
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
-    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode);
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
+    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
     {
-        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode);
+        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -99,6 +99,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void SetDebugLogsEnabled(bool enabled)
     {
         _RCSetDebugLogsEnabled(enabled);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetProxyURLString(string proxyURL);
+    public void SetProxyURL(string proxyURL)
+    {
+        _RCSetProxyURLString(proxyURL);
     }
 
     [DllImport("__Internal")]

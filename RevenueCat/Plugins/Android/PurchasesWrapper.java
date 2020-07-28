@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
+import com.revenuecat.purchases.PlatformInfo;
 import com.revenuecat.purchases.common.CommonKt;
 import com.revenuecat.purchases.common.ErrorContainer;
 import com.revenuecat.purchases.common.MappersKt;
@@ -48,10 +49,14 @@ public class PurchasesWrapper {
         }
     };
 
-    public static void setup(String apiKey, String appUserId, String gameObject_, boolean observerMode) {
+    public static void setup(String apiKey,
+                             String appUserId,
+                             String gameObject_,
+                             boolean observerMode,
+                             String userDefaultsSuiteName) {
         gameObject = gameObject_;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
-        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserID, observerMode, platformInfo);
+        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, observerMode, platformInfo);
         Purchases.getSharedInstance().setUpdatedPurchaserInfoListener(listener);
     }
 
@@ -196,6 +201,10 @@ public class PurchasesWrapper {
 
     public static void setDebugLogsEnabled(boolean enabled) {
         CommonKt.setDebugLogsEnabled(enabled);
+    }
+
+    public static void setProxyURL(String proxyURL) {
+        CommonKt.setProxyURLString(proxyURL);
     }
 
     public static String getAppUserID() {

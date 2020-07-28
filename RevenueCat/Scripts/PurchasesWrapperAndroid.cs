@@ -45,9 +45,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode)
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
     {
-        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode);
+        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName);
     }
 
     public void RestoreTransactions()
@@ -88,6 +88,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void SetDebugLogsEnabled(bool enabled)
     {
         CallPurchases("setDebugLogsEnabled", enabled);
+    }
+    
+    public void SetProxyURL(string proxyURL)
+    {
+        CallPurchases("setProxyURL", proxyURL);
     }
 
     public string GetAppUserId()
