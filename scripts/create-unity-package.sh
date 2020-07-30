@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
-FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
+PACKAGE_OBSERVER_MODE="$PWD/Purchases_NoInAppBillingService.unitypackage"
+FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune ! -name ObserverMode.xml)
 
-pwd
+if ! [ -d "$PROJECT" ]; then
+    echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
+    exit 1
+fi
 
 # while true; do
 #     read -p "Have you deleted the External Dependency Manager from the Subtester Packages?" yn
@@ -55,6 +59,34 @@ if [[ $? -ne 0 ]]; then
   echo "😱 Unity shouldn't be running when executing the script."
   exit $return_code
 else
-  echo "🚀 Exporting finished!"
-  open .
+  echo "🚀 Exporting finished for the regular package! Path: $PACKAGE" 
 fi
+
+echo "📦 Moving com.android.billingclient.billing-no-service.aar to Revenuecat/Plugins/Android"
+cp $PWD/ObserverMode/com.android.billingclient.billing-no-service.aar $PWD/RevenueCat/Plugins/Android
+
+echo "📦 Modifying RevenueCatDependencies.xml to use observer mode dependencies"
+mkdir $PWD/Temp
+mv $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml $PWD/Temp/RevenueCatDependencies.xml.bck
+cp $PWD/ObserverMode/RevenueCatDependencies.xml $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+
+echo "📦 Creating Purchases_NoInAppBillingService.unitypackage, this may take a minute."
+$UNITY_BIN -gvh_disable -projectPath $PROJECT -force-free -quit -batchmode -logFile exportlog.txt \
+    -importPackage $PROJECT/external-dependency-manager-*.unitypackage \
+    -exportPackage $FOLDERS_TO_EXPORT $PACKAGE_OBSERVER_MODE >& /dev/null
+
+if [[ $? -ne 0 ]]; then
+  echo "😱 Exporting has failed! Checkout exportlogs.txt"
+  echo "😱 Unity shouldn't be running when executing the script."
+  exit $return_code
+else
+  echo "🚀 Exporting finished for the observer mode package! Path: $PACKAGE_OBSERVER_MODE" 
+fi
+
+echo "📦 Cleaning up..."
+rm $PWD/RevenueCat/Plugins/Android/com.android.billingclient.billing-no-service.aar
+rm $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+mv $PWD/Temp/RevenueCatDependencies.xml.bck $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+rm -rf $PWD/Temp
+
+open .
