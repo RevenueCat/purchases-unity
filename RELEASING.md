@@ -9,7 +9,7 @@
 1. `git push origin master && git push --tags`
 1. Run `./scripts/create-unity-package.sh`
 1. Create a new release in github and upload both packages.
-1. Update docs link to new unity package
+1. Update docs link to new unity package. Update the version in [here](https://docs.revenuecat.com/docs/unity#1-add-the-purchases-unity-package) and the common version in [here](https://docs.revenuecat.com/docs/unity#installation-with-unity-iap-side-by-side)
 
 
 ## How to modify billing client to remove IInAppBillingService.aidl
