@@ -269,7 +269,7 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (NSString *)platformFlavorVersion { 
-    return @"2.1.0";
+    return @"2.2.0";
 }
 
 @end
