@@ -3,6 +3,7 @@ PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
 PACKAGE_OBSERVER_MODE="$PWD/Purchases_NoInAppBillingService.unitypackage"
 FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune ! -name ObserverMode.xml)
+PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
 if ! [ -d "$PROJECT" ]; then
     echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
@@ -63,12 +64,12 @@ else
 fi
 
 echo "📦 Moving com.android.billingclient.billing-no-service.aar to Revenuecat/Plugins/Android"
-cp $PWD/ObserverMode/com.android.billingclient.billing-no-service.aar $PWD/RevenueCat/Plugins/Android
+cp $PWD/ObserverMode/com.android.billingclient.billing-no-service.aar $PLUGINS_FOLDER/Android
 
 echo "📦 Modifying RevenueCatDependencies.xml to use observer mode dependencies"
 mkdir $PWD/Temp
-mv $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml $PWD/Temp/RevenueCatDependencies.xml.bck
-cp $PWD/ObserverMode/RevenueCatDependencies.xml $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+mv $PLUGINS_FOLDER/Editor/RevenueCatDependencies.xml $PWD/Temp/RevenueCatDependencies.xml.bck
+cp $PWD/ObserverMode/RevenueCatDependencies.xml $PLUGINS_FOLDER/Editor/RevenueCatDependencies.xml
 
 echo "📦 Creating Purchases_NoInAppBillingService.unitypackage, this may take a minute."
 $UNITY_BIN -gvh_disable -projectPath $PROJECT -force-free -quit -batchmode -logFile exportlog.txt \
@@ -84,9 +85,9 @@ else
 fi
 
 echo "📦 Cleaning up..."
-rm $PWD/RevenueCat/Plugins/Android/com.android.billingclient.billing-no-service.aar
-rm $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
-mv $PWD/Temp/RevenueCatDependencies.xml.bck $PWD/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+rm $PLUGINS_FOLDER/Android/com.android.billingclient.billing-no-service.aar
+rm $PLUGINS_FOLDER/Editor/RevenueCatDependencies.xml
+mv $PWD/Temp/RevenueCatDependencies.xml.bck $PLUGINS_FOLDER/Editor/RevenueCatDependencies.xml
 rm -rf $PWD/Temp
 
 open .
