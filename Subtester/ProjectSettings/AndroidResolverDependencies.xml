@@ -1,6 +1,5 @@
 <dependencies>
   <packages>
-    <package>com.revenuecat.purchases:purchases:3.2.0</package>
     <package>com.revenuecat.purchases:purchases-hybrid-common:1.2.0</package>
     <package>org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.61</package>
   </packages>

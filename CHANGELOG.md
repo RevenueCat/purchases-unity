@@ -1,3 +1,25 @@
+## 2.2.0
+
+- Adds proxyURL property, useful for kids category apps, so that they can set up a proxy to send requests through. Do not use this unless you've talked to RevenueCat support about it.
+- Adds userDefaultsSuiteName. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.
+- Update to ExternalDependencyManager 1.2.156
+- A lot of internal changes:
+  - iOS now downloads the dependency from CocoaPods
+  - Android downloads the common code from Maven
+  - Removed a bunch of scripts
+  - Removed the Android project and added the files to the plugin folder
+  - Added platform version and name to the http headers
+  - Added a script to create the unitypackage
+  - Moved inner classes to their own files
+  - Use SimpleJSON instead of JSONUtility
+
+
+**iOS Native SDK Update 3.4.0**
+ - [Release Notes](https://github.com/RevenueCat/purchases-ios/releases/)
+
+**Android Native SDK Update 3.2.0**
+ - [Release Notes](https://github.com/RevenueCat/purchases-ios/releases/)
+
 ## 2.1.0
 
 - Adds Subscriber Attributes, which allow developers to store additional, structured information

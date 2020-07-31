@@ -7,3 +7,4 @@ org.eclipse.buildship.core.prefs
 Android/.idea/*
 .vscode
 Subtester/Assets/Plugins/Android/
+exportlog.txt
