@@ -1,3 +1,7 @@
+## 2.2.1
+
+- Fixes duplicated files error in iOS.
+
 ## 2.2.0
 
 - Adds proxyURL property, useful for kids category apps, so that they can set up a proxy to send requests through. Do not use this unless you've talked to RevenueCat support about it.
