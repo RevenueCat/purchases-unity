@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 
 public partial class Purchases
-{    
+{
     /*
      * PurchaserInfo encapsulate the current status of subscriber. 
      * Use it to determine which entitlements to unlock, typically by checking 
@@ -29,7 +29,7 @@ public partial class Purchases
         public Dictionary<string, DateTime> AllPurchaseDates;
         [CanBeNull] public string OriginalApplicationVersion;
         [CanBeNull] public string ManagementURL;
-
+        public List<Transaction> NonSubscriptionTransactions;
 
         public PurchaserInfo(JSONNode response)
         {
@@ -39,17 +39,20 @@ public partial class Purchases
             {
                 ActiveSubscriptions.Add(subscription);
             }
+
             AllPurchasedProductIdentifiers = new List<string>();
             foreach (JSONNode productIdentifier in response["allPurchasedProductIdentifiers"])
             {
                 AllPurchasedProductIdentifiers.Add(productIdentifier);
             }
-            
+
             FirstSeen = RevenueCat.Utilities.FromUnixTime(response["firstSeenMillis"].AsLong);
             OriginalAppUserId = response["originalAppUserId"];
             RequestDate = RevenueCat.Utilities.FromUnixTime(response["requestDateMillis"].AsLong);
-            OriginalPurchaseDate = RevenueCat.Utilities.FromOptionalUnixTime(response["originalPurchaseDateMillis"].AsLong);
-            LatestExpirationDate = RevenueCat.Utilities.FromOptionalUnixTime(response["latestExpirationDateMillis"].AsLong);
+            OriginalPurchaseDate =
+                RevenueCat.Utilities.FromOptionalUnixTime(response["originalPurchaseDateMillis"].AsLong);
+            LatestExpirationDate =
+                RevenueCat.Utilities.FromOptionalUnixTime(response["latestExpirationDateMillis"].AsLong);
             ManagementURL = response["managementURL"];
             AllExpirationDates = new Dictionary<string, DateTime?>();
             foreach (var keyValue in response["allExpirationDatesMillis"])
@@ -70,10 +73,16 @@ public partial class Purchases
             foreach (var keyValue in response["allPurchaseDatesMillis"])
             {
                 AllPurchaseDates.Add(keyValue.Key, RevenueCat.Utilities.FromUnixTime(keyValue.Value.AsLong));
-            } 
+            }
 
             OriginalApplicationVersion = response["originalApplicationVersion"];
-        } 
+            
+            NonSubscriptionTransactions = new List<Transaction>();
+            foreach (JSONNode transactionResponse in response["nonSubscriptionTransactions"])
+            {
+                NonSubscriptionTransactions.Add(new Transaction(transactionResponse));
+            }
+        }
 
         public override string ToString()
         {
@@ -88,7 +97,9 @@ public partial class Purchases
                    $"{nameof(AllPurchaseDates)}: {AllPurchaseDates}, " +
                    $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}, " +
                    $"{nameof(ManagementURL)}: {ManagementURL}, " +
+                   $"{nameof(NonSubscriptionTransactions)}: {NonSubscriptionTransactions}, " +
                    $"{nameof(OriginalApplicationVersion)}: {OriginalApplicationVersion}";
         }
+
     }
 }

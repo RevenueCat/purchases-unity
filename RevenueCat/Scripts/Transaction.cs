@@ -22,7 +22,7 @@ public partial class Purchases
         {
             RevenueCatId = response["revenuecatId"];
             ProductId = response["productId"];
-            PurchaseDate = Utilities.FromUnixTime(response["purchaseDateMillis"].AsLong);
+            PurchaseDate = RevenueCat.Utilities.FromUnixTime(response["purchaseDateMillis"].AsLong);
         } 
         
         public override string ToString()
