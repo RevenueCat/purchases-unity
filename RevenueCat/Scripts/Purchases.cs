@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 
 #pragma warning disable CS0649
@@ -257,6 +256,144 @@ public partial class Purchases : MonoBehaviour
     public void SetPushToken(string token)
     {
         _wrapper.SetPushToken(token);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the Adjust Id for the user.
+     * Required for the RevenueCat Adjust integration
+     * </summary>
+     * <param name="adjustID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetAdjustID(string adjustID)
+    {
+        _wrapper.SetAdjustID(adjustID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the Appsflyer Id for the user
+     * Required for the RevenueCat Appsflyer integration
+     * </summary>
+     * <param name="appsflyerID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetAppsflyerID(string appsflyerID)
+    {
+        _wrapper.SetAppsflyerID(appsflyerID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the Facebook SDK Anonymous Id for the user
+     * Required for the RevenueCat Facebook integration
+     * </summary>
+     * <param name="fbAnonymousID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetFBAnonymousID(string fbAnonymousID)
+    {
+        _wrapper.SetFBAnonymousID(fbAnonymousID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the mParticle Id for the user
+     * Required for the RevenueCat mParticle integration
+     * </summary>
+     * <param name="mparticleID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetMparticleID(string mparticleID)
+    {
+        _wrapper.SetMparticleID(mparticleID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the OneSignal Player Id for the user
+     * Required for the RevenueCat OneSignal integration
+     * </summary>
+     * <param name="onesignalID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetOnesignalID(string onesignalID)
+    {
+        _wrapper.SetOnesignalID(onesignalID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the install media source for the user
+     * </summary>
+     * <param name="mediaSource">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetMediaSource(string mediaSource)
+    {
+        _wrapper.SetMediaSource(mediaSource);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the install campaign for the user
+     * </summary>
+     * <param name="campaign">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetCampaign(string campaign)
+    {
+        _wrapper.SetCampaign(campaign);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the install ad group for the user
+     * </summary>
+     * <param name="adGroup">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetAdGroup(string adGroup)
+    {
+        _wrapper.SetAdGroup(adGroup);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the install ad for the user
+     * </summary>
+     * <param name="ad">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetAd(string ad)
+    {
+        _wrapper.SetAd(ad);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the install keyword for the user
+     * </summary>
+     * <param name="keyword">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetKeyword(string keyword)
+    {
+        _wrapper.SetKeyword(keyword);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the install creative for the user
+     * </summary>
+     * <param name="creative">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetCreative(string creative)
+    {
+        _wrapper.SetCreative(creative);
+    }
+
+    /**
+     * <summary>
+     * Automatically collect subscriber attributes associated with the device identifiers.
+     * $idfa, $idfv, $ip on iOS
+     * $gpsAdId, $androidId, $ip on Android
+     * </summary>
+     */
+    public void CollectDeviceIdentifiers()
+    {
+        _wrapper.CollectDeviceIdentifiers();
     }
 
     // ReSharper disable once UnusedMember.Local
