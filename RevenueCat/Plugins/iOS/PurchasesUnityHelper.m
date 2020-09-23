@@ -213,6 +213,8 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality invalidatePurchaserInfoCache];
 }
 
+#pragma mark - Subcriber Attributes
+
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
     [RCCommonFunctionality setAttributes:attributes];
 }
@@ -231,6 +233,58 @@ char *makeStringCopy(NSString *nstring) {
 
 - (void)setPushToken:(nullable NSString *)pushToken {
     [RCCommonFunctionality setPushToken:pushToken];
+}
+
+#pragma mark Attribution IDs
+
+- (void)collectDeviceIdentifiers {
+    [RCCommonFunctionality collectDeviceIdentifiers];
+}
+
+- (void)setAdjustID:(nullable NSString *)adjustID {
+    [RCCommonFunctionality setAdjustID:adjustID];
+}
+
+- (void)setAppsflyerID:(nullable NSString *)appsflyerID {
+    [RCCommonFunctionality setAppsflyerID:appsflyerID];
+}
+
+- (void)setFBAnonymousID:(nullable NSString *)fbAnonymousID {
+    [RCCommonFunctionality setFBAnonymousID:fbAnonymousID];
+}
+
+- (void)setMparticleID:(nullable NSString *)mparticleID {
+    [RCCommonFunctionality setMparticleID:mparticleID];
+}
+
+- (void)setOnesignalID:(nullable NSString *)onesignalID {
+    [RCCommonFunctionality setOnesignalID:onesignalID];
+}
+
+#pragma mark Campaign parameters
+
+- (void)setMediaSource:(nullable NSString *)mediaSource {
+    [RCCommonFunctionality setMediaSource:mediaSource];
+}
+
+- (void)setCampaign:(nullable NSString *)campaign {
+    [RCCommonFunctionality setCampaign:campaign];
+}
+
+- (void)setAdGroup:(nullable NSString *)adGroup {
+    [RCCommonFunctionality setAdGroup:adGroup];
+}
+
+- (void)setAd:(nullable NSString *)ad {
+    [RCCommonFunctionality setAd:ad];
+}
+
+- (void)setKeyword:(nullable NSString *)keyword {
+    [RCCommonFunctionality setKeyword:keyword];
+}
+
+- (void)setCreative:(nullable NSString *)creative {
+    [RCCommonFunctionality setCreative:creative];
 }
 
 #pragma mark Helper Methods
@@ -269,7 +323,7 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (NSString *)platformFlavorVersion { 
-    return @"2.2.1";
+    return @"2.3.0";
 }
 
 @end
@@ -422,4 +476,52 @@ void _RCSetDisplayName(const char *displayName) {
 
 void _RCSetPushToken(const char *pushToken) {
     [_RCUnityHelperShared() setPushToken:convertCString(pushToken)];
+}
+
+void _RCSetAdjustID(const char *adjustID) {
+    [_RCUnityHelperShared() setAdjustID:convertCString(adjustID)];
+}
+
+void _RCSetAppsflyerID(const char *appsflyerID) {
+    [_RCUnityHelperShared() setAppsflyerID:convertCString(appsflyerID)];
+}
+
+void _RCSetFBAnonymousID(const char *fbAnonymousID) {
+    [_RCUnityHelperShared() setFBAnonymousID:convertCString(fbAnonymousID)];
+}
+
+void _RCSetMparticleID(const char *mparticleID) {
+    [_RCUnityHelperShared() setMparticleID:convertCString(mparticleID)];
+}
+
+void _RCSetOnesignalID(const char *onesignalID) {
+    [_RCUnityHelperShared() setOnesignalID:convertCString(onesignalID)];
+}
+
+void _RCSetMediaSource(const char *mediaSource) {
+    [_RCUnityHelperShared() setMediaSource:convertCString(mediaSource)];
+}
+
+void _RCSetCampaign(const char *campaign) {
+    [_RCUnityHelperShared() setCampaign:convertCString(campaign)];
+}
+
+void _RCSetAdGroup(const char *adGroup) {
+    [_RCUnityHelperShared() setAdGroup:convertCString(adGroup)];
+}
+
+void _RCSetAd(const char *ad) {
+    [_RCUnityHelperShared() setAd:convertCString(ad)];
+}
+
+void _RCSetKeyword(const char *keyword) {
+    [_RCUnityHelperShared() setKeyword:convertCString(keyword)];
+}
+
+void _RCSetCreative(const char *creative) {
+    [_RCUnityHelperShared() setCreative:convertCString(creative)];
+}
+
+void _RCCollectDeviceIdentifiers() {
+    [_RCUnityHelperShared() collectDeviceIdentifiers];
 }
