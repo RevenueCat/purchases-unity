@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
-using System.Collections.Generic;
-using RevenueCat.SimpleJSON;
 
 #if UNITY_ANDROID
 public class PurchasesWrapperAndroid : IPurchasesWrapper
@@ -162,6 +160,66 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void SetPushToken(string token)
     {
         CallPurchases("setPushToken", token);
+    }
+
+    public void SetAdjustID(string adjustID)
+    {
+        CallPurchases("setAdjustID", adjustID);
+    }
+
+    public void SetAppsflyerID(string appsflyerID)
+    {
+        CallPurchases("setAppsflyerID", appsflyerID);
+    }
+
+    public void SetFBAnonymousID(string fbAnonymousID)
+    {
+        CallPurchases("setFBAnonymousID", fbAnonymousID);
+    }
+
+    public void SetMparticleID(string mparticleID)
+    {
+        CallPurchases("setMparticleID", mparticleID);
+    }
+
+    public void SetOnesignalID(string onesignalID)
+    {
+        CallPurchases("setOnesignalID", onesignalID);
+    }
+
+    public void SetMediaSource(string mediaSource)
+    {
+        CallPurchases("setMediaSource", mediaSource);
+    }
+
+    public void SetCampaign(string campaign)
+    {
+        CallPurchases("setCampaign", campaign);
+    }
+
+    public void SetAdGroup(string adGroup)
+    {
+        CallPurchases("setAdGroup", adGroup);
+    }
+
+    public void SetAd(string ad)
+    {
+        CallPurchases("setAd", ad);
+    }
+
+    public void SetKeyword(string keyword)
+    {
+        CallPurchases("setKeyword", keyword);
+    }
+
+    public void SetCreative(string creative)
+    {
+        CallPurchases("setCreative", creative);
+    }
+
+    public void CollectDeviceIdentifiers()
+    {
+        CallPurchases("collectDeviceIdentifiers");
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

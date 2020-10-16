@@ -7,12 +7,14 @@ import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
-import com.revenuecat.purchases.PlatformInfo;
 import com.revenuecat.purchases.common.CommonKt;
 import com.revenuecat.purchases.common.ErrorContainer;
-import com.revenuecat.purchases.common.MappersKt;
 import com.revenuecat.purchases.common.OnResult;
 import com.revenuecat.purchases.common.OnResultList;
+import com.revenuecat.purchases.common.PlatformInfo;
+import com.revenuecat.purchases.common.SubscriberAttributesKt;
+import com.revenuecat.purchases.common.mappers.MappersHelpersKt;
+import com.revenuecat.purchases.common.mappers.PurchaserInfoMapperKt;
 import com.revenuecat.purchases.interfaces.UpdatedPurchaserInfoListener;
 import com.unity3d.player.UnityPlayer;
 
@@ -21,8 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,13 +39,13 @@ public class PurchasesWrapper {
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "2.2.1";
+    private static final String PLUGIN_VERSION = "2.3.0";
 
     private static String gameObject;
     private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {
         @Override
         public void onReceived(@NonNull PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(MappersKt.map(purchaserInfo), RECEIVE_PURCHASER_INFO);
+            sendPurchaserInfo(PurchaserInfoMapperKt.map(purchaserInfo), RECEIVE_PURCHASER_INFO);
         }
     };
 
@@ -75,7 +75,7 @@ public class PurchasesWrapper {
                 public void onReceived(List<Map<String, ?>> map) {
                     try {
                         JSONObject object = new JSONObject();
-                        object.put("products", MappersKt.convertToJsonArray(map));
+                        object.put("products", MappersHelpersKt.convertToJsonArray(map));
                         sendJSONObject(object, RECEIVE_PRODUCTS);
                     } catch (JSONException e) {
                         logJSONException(e);
@@ -105,7 +105,7 @@ public class PurchasesWrapper {
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
-                        sendJSONObject(MappersKt.convertToJson(map), MAKE_PURCHASE);
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
                     }
 
                     @Override
@@ -132,7 +132,7 @@ public class PurchasesWrapper {
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
-                        sendJSONObject(MappersKt.convertToJson(map), MAKE_PURCHASE);
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
                     }
 
                     @Override
@@ -156,7 +156,7 @@ public class PurchasesWrapper {
             return;
         }
 
-        CommonKt.addAttributionData(data, network, networkUserId);
+        SubscriberAttributesKt.addAttributionData(data, network, networkUserId);
     }
 
     public static void restoreTransactions() {
@@ -185,7 +185,7 @@ public class PurchasesWrapper {
             public void onReceived(Map<String, ?> map) {
                 try {
                     JSONObject object = new JSONObject();
-                    object.put("offerings", MappersKt.convertToJson(map));
+                    object.put("offerings", MappersHelpersKt.convertToJson(map));
                     sendJSONObject(object, GET_OFFERINGS);
                 } catch (JSONException e) {
                     logJSONException(e);
@@ -238,7 +238,7 @@ public class PurchasesWrapper {
             }
 
             Map<String, Map<String, Object>> map = CommonKt.checkTrialOrIntroductoryPriceEligibility(productIds);
-            sendJSONObject(MappersKt.convertToJson(map), CHECK_ELIGIBILITY);
+            sendJSONObject(MappersHelpersKt.convertToJson(map), CHECK_ELIGIBILITY);
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
         }
@@ -251,26 +251,74 @@ public class PurchasesWrapper {
     public static void setAttributes(String jsonAttributes) {
         try {
             JSONObject jsonObject = new JSONObject(jsonAttributes);
-            CommonKt.setAttributes(MappersKt.convertToMap(jsonObject));
+            SubscriberAttributesKt.setAttributes(MappersHelpersKt.convertToMap(jsonObject));
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing attributes " + jsonAttributes);
         }
     }
 
     public static void setEmail(String email) {
-        CommonKt.setEmail(email);
+        SubscriberAttributesKt.setEmail(email);
     }
 
     public static void setPhoneNumber(String phoneNumber) {
-        CommonKt.setPhoneNumber(phoneNumber);
+        SubscriberAttributesKt.setPhoneNumber(phoneNumber);
     }
 
     public static void setDisplayName(String displayName) {
-        CommonKt.setDisplayName(displayName);
+        SubscriberAttributesKt.setDisplayName(displayName);
     }
 
     public static void setPushToken(String token) {
-        CommonKt.setPushToken(token);
+        SubscriberAttributesKt.setPushToken(token);
+    }
+
+    public static void setAdjustID(String adjustID) {
+        SubscriberAttributesKt.setAdjustID(adjustID);
+    }
+
+    public static void setAppsflyerID(String appsflyerID) {
+        SubscriberAttributesKt.setAppsflyerID(appsflyerID);
+    }
+
+    public static void setFBAnonymousID(String fbAnonymousID) {
+        SubscriberAttributesKt.setFBAnonymousID(fbAnonymousID);
+    }
+
+    public static void setMparticleID(String mparticleID) {
+        SubscriberAttributesKt.setMparticleID(mparticleID);
+    }
+
+    public static void setOnesignalID(String onesignalID) {
+        SubscriberAttributesKt.setOnesignalID(onesignalID);
+    }
+
+    public static void setMediaSource(String mediaSource) {
+        SubscriberAttributesKt.setMediaSource(mediaSource);
+    }
+
+    public static void setCampaign(String campaign) {
+        SubscriberAttributesKt.setCampaign(campaign);
+    }
+
+    public static void setAdGroup(String adGroup) {
+        SubscriberAttributesKt.setAdGroup(adGroup);
+    }
+
+    public static void setAd(String ad) {
+        SubscriberAttributesKt.setAd(ad);
+    }
+
+    public static void setKeyword(String keyword) {
+        SubscriberAttributesKt.setKeyword(keyword);
+    }
+
+    public static void setCreative(String creative) {
+        SubscriberAttributesKt.setCreative(creative);
+    }
+
+    public static void collectDeviceIdentifiers() {
+        SubscriberAttributesKt.collectDeviceIdentifiers();
     }
 
     private static void logJSONException(JSONException e) {
@@ -285,7 +333,7 @@ public class PurchasesWrapper {
     private static void sendError(ErrorContainer error, String method) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("error", MappersKt.convertToJson(error.getInfo()));
+            jsonObject.put("error", MappersHelpersKt.convertToJson(error.getInfo()));
         } catch (JSONException e) {
             logJSONException(e);
         }
@@ -295,7 +343,7 @@ public class PurchasesWrapper {
     private static void sendPurchaserInfo(Map<String, ?> map, String method) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("purchaserInfo", MappersKt.convertToJson(map));
+            jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(map));
         } catch (JSONException e) {
             logJSONException(e);
         }
@@ -305,7 +353,7 @@ public class PurchasesWrapper {
     private static void sendErrorPurchase(ErrorContainer errorContainer) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("error", MappersKt.convertToJson(errorContainer.getInfo()));
+            jsonObject.put("error", MappersHelpersKt.convertToJson(errorContainer.getInfo()));
             jsonObject.put("userCancelled", errorContainer.getInfo().get("userCancelled"));
         } catch (JSONException e) {
             logJSONException(e);

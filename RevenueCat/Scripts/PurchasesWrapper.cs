@@ -29,4 +29,16 @@ public interface IPurchasesWrapper
     void SetPhoneNumber(string phoneNumber);
     void SetDisplayName(string displayName);
     void SetPushToken(string token);
+    void SetAdjustID(string adjustID);
+    void SetAppsflyerID(string appsflyerID);
+    void SetFBAnonymousID(string fbAnonymousID);
+    void SetMparticleID(string mparticleID);
+    void SetOnesignalID(string onesignalID);
+    void SetMediaSource(string mediaSource);
+    void SetCampaign(string campaign);
+    void SetAdGroup(string adGroup);
+    void SetAd(string ad);
+    void SetKeyword(string keyword);
+    void SetCreative(string creative);
+    void CollectDeviceIdentifiers();
 }

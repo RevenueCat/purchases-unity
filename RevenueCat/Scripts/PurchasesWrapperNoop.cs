@@ -115,5 +115,53 @@ public partial class Purchases
         public void SetPushToken(string token)
         {
         }
+
+        public void SetAdjustID(string adjustID)
+        {
+        }
+
+        public void SetAppsflyerID(string appsflyerID)
+        {
+        }
+
+        public void SetFBAnonymousID(string fbAnonymousID)
+        {
+        }
+
+        public void SetMparticleID(string mparticleID)
+        {
+        }
+
+        public void SetOnesignalID(string onesignalID)
+        {
+        }
+
+        public void SetMediaSource(string mediaSource)
+        {
+        }
+
+        public void SetCampaign(string campaign)
+        {
+        }
+
+        public void SetAdGroup(string adGroup)
+        {
+        }
+
+        public void SetAd(string ad)
+        {
+        }
+
+        public void SetKeyword(string keyword)
+        {
+        }
+
+        public void SetCreative(string creative)
+        {
+        }
+
+        public void CollectDeviceIdentifiers()
+        {
+        }
     }
 }

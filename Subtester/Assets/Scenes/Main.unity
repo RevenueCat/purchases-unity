@@ -227,13 +227,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 559298752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adc47f1e05a5743c8bdda17969f1bdbe, type: 3}
+  m_Script: {fileID: 11500000, guid: 1066017fd38404493828b48915eb4d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parentPanel: {fileID: 1575378375}
-  buttonPrefab: {fileID: 1696602566380582, guid: f6a1a3ffd59f44ec1b83a43597fe9201,
-    type: 3}
-  purchaserInfoLabel: {fileID: 53425791}
+  revenueCatAPIKey: VtDdmbdWBySmqJeeQUTyrNxETUVkhuaJ
+  appUserID: 
+  productIdentifiers: []
+  listener: {fileID: 559298755}
+  observerMode: 0
+  userDefaultsSuiteName: 
+  proxyURL: 
 --- !u!4 &559298754
 Transform:
   m_ObjectHideFlags: 0
@@ -257,14 +260,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 559298752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da1a774a6628049869499faf38d343f4, type: 3}
+  m_Script: {fileID: 11500000, guid: ea6a3555b4d8f4385aaa5bbc4ca6edc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  revenueCatAPIKey: 
-  appUserID: 
-  productIdentifiers: []
-  listener: {fileID: 0}
-  observerMode: 0
+  parentPanel: {fileID: 1575378375}
+  buttonPrefab: {fileID: 1696602566380582, guid: cacc06bcb22a64073bbe88de11c1149f,
+    type: 3}
+  purchaserInfoLabel: {fileID: 53425791}
 --- !u!1 &1090981152
 GameObject:
   m_ObjectHideFlags: 0

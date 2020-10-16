@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using System.Collections.Generic;
 
 #if UNITY_IOS
 public class PurchasesWrapperiOS : IPurchasesWrapper
@@ -204,5 +203,88 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCSetPushToken(token);
     }
 
+    [DllImport("__Internal")]
+    private static extern void _RCSetAdjustID(string adjustID);
+    public void SetAdjustID(string adjustID)
+    {
+        _RCSetAdjustID(adjustID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetAppsflyerID(string appsflyerID);
+    public void SetAppsflyerID(string appsflyerID)
+    {
+        _RCSetAppsflyerID(appsflyerID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetFBAnonymousID(string fbAnonymousID);
+    public void SetFBAnonymousID(string fbAnonymousID)
+    {
+        _RCSetFBAnonymousID(fbAnonymousID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetMparticleID(string mparticleID);
+    public void SetMparticleID(string mparticleID)
+    {
+        _RCSetMparticleID(mparticleID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetOnesignalID(string onesignalID);
+    public void SetOnesignalID(string onesignalID)
+    {
+        _RCSetOnesignalID(onesignalID);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetMediaSource(string mediaSource);
+    public void SetMediaSource(string mediaSource)
+    {
+        _RCSetMediaSource(mediaSource);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetCampaign(string campaign);
+    public void SetCampaign(string campaign)
+    {
+        _RCSetCampaign(campaign);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetAdGroup(string adGroup);
+    public void SetAdGroup(string adGroup)
+    {
+        _RCSetAdGroup(adGroup);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetAd(string ad);
+    public void SetAd(string ad)
+    {
+        _RCSetAd(ad);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetKeyword(string keyword);
+    public void SetKeyword(string keyword)
+    {
+        _RCSetKeyword(keyword);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSetCreative(string creative);
+    public void SetCreative(string creative)
+    {
+        _RCSetCreative(creative);
+    }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCCollectDeviceIdentifiers();
+    public void CollectDeviceIdentifiers()
+    {
+        _RCCollectDeviceIdentifiers();
+    }
 }
 #endif
