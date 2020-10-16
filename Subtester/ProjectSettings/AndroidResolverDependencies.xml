@@ -1,6 +1,6 @@
 <dependencies>
   <packages>
-    <package>com.revenuecat.purchases:purchases-hybrid-common:1.4.2</package>
+    <package>com.revenuecat.purchases:purchases-hybrid-common:1.4.4</package>
   </packages>
   <files>
     <file>Assets/Plugins/Android/androidx.activity.activity-1.0.0.aar</file>
@@ -31,16 +31,17 @@
     <file>Assets/Plugins/Android/androidx.vectordrawable.vectordrawable-animated-1.1.0.aar</file>
     <file>Assets/Plugins/Android/androidx.versionedparcelable.versionedparcelable-1.1.0.aar</file>
     <file>Assets/Plugins/Android/androidx.viewpager.viewpager-1.0.0.aar</file>
-    <file>Assets/Plugins/Android/com.android.billingclient.billing-3.0.0.aar</file>
+    <file>Assets/Plugins/Android/com.android.billingclient.billing-3.0.1.aar</file>
     <file>Assets/Plugins/Android/com.google.android.gms.play-services-ads-identifier-17.0.0.aar</file>
     <file>Assets/Plugins/Android/com.google.android.gms.play-services-basement-17.0.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-3.5.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-common-3.5.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-feature-identity-3.5.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-feature-subscriber-attributes-3.5.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-public-3.5.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-utils-3.5.0.aar</file>
-    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-hybrid-common-1.4.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-common-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-feature-identity-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-feature-subscriber-attributes-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-public-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-strings-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-core-utils-3.5.2.aar</file>
+    <file>Assets/Plugins/Android/com.revenuecat.purchases.purchases-hybrid-common-1.4.4.aar</file>
     <file>Assets/Plugins/Android/org.jetbrains.annotations-13.0.jar</file>
     <file>Assets/Plugins/Android/org.jetbrains.kotlin.kotlin-android-extensions-runtime-1.4.10.jar</file>
     <file>Assets/Plugins/Android/org.jetbrains.kotlin.kotlin-stdlib-1.4.10.jar</file>

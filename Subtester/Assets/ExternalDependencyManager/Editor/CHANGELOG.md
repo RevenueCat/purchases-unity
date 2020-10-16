@@ -1,29 +1,3 @@
-# Version 1.2.159 - Sep 11, 2020
-* Android Resolver - Fixed #322 where the Unity editor will lose its target SDK
-  setting between Unity restarts if `>28` is selected in 2019.  This is due to
-  Unity AndroidSdkVersions enum does not contain values above 28.
-* Android Resolver - Fixed #360 where building Android app with Untiy 2019.3+
-  may fail due to Jetifier and AndroidX not enabled properly in generated
-  Gradle project. This fix requires the user to enable
-  `Custom Gradle Properties Template` found under
-  `Player Settings > Settings for Android > Publishing Settings`.
-
-# Version 1.2.158 - Sep 3, 2020
-* Version Handler: Fixed editor freeze when `-executeMethod` is used in
-  non-batch mode.
-* Android Resolver: Normalized file paths when generating local Maven repo
-  since the path may contains a mix of forward and backward slash on Windows.
-* Export Unity Package: Fixed generation of .unitypackage with tarfile on
-  Windows.
-
-# Version 1.2.157 - Aug 6, 2020
-* Android Resolver: Delay initialization until active build target is Android
-  and the editor is not in play mode.
-* iOS Resolver: Delay initialization until active build target is iOS
-  and the editor is not in play mode.
-* Export Unity Package: Workaround directory creation racy if multiple export
-  operations are spawned at the same time.
-
 # Version 1.2.156 - June 10, 2020
 * All: Described EDM4U analytics data usage in readme.
 * Android Resolver: Fixed that the generated local repo assets contains
