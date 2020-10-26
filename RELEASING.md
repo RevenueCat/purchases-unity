@@ -1,7 +1,6 @@
 1. Update to the latest SDK versions:
    1. Update the versions in RevenueCatDependencies.xml for Android and iOS
-   1. Update the Android version in the `purchasesunit/build.gradle`
-1. Update the VERSION file and the platformFlavorVersion number in `PurchasesUnityHelper.m`
+1. Update the VERSION file and the platformFlavorVersion number in `PurchasesUnityHelper.m` and `PurchasesWrapper.java`
 1. Update the VERSIONS.md file.
 1. Add an entry to CHANGELOG.md
 1. `git commit -am "Preparing for version x.y.z"`
