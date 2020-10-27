@@ -38,8 +38,7 @@ if [ -f $PROJECT/external-dependency-manager-*.unitypackage ];
 then
     echo "👌 External dependency manager plugin found. It will be added to the unitypackage."
 else
-    echo "⚠️  External dependency manager plugin not found. Please download the latest version and locate it inside the Subtester folder."
-    exit 1
+    wget https://github.com/googlesamples/unity-jar-resolver/raw/master/external-dependency-manager-latest.unitypackage -P $PROJECT
 fi
 
 if [ -f $PACKAGE ]; 
