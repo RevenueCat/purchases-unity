@@ -83,3 +83,16 @@ Update Mode: updateDependencies
 
 The following packages were updated:
   com.unity.ads from version 2.0.8 to 3.4.4
+
+=== Fri Oct 23 18:13:07 2020
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ads from version 3.4.4 to 3.4.9
+  com.unity.ide.vscode from version 1.1.4 to 1.2.2
+  com.unity.multiplayer-hlapi from version 1.0.4 to 1.0.6
+  com.unity.purchasing from version 2.0.6 to 2.1.1
+  com.unity.test-framework from version 1.1.13 to 1.1.18
+  com.unity.xr.legacyinputhelpers from version 2.0.2 to 2.1.4
