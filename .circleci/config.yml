@@ -1,0 +1,230 @@
+version: 2.1
+
+executors:
+  unity:
+    docker:
+      - image: gableroux/unity3d:2019.4.13f1
+        environment:
+          TAR_OPTIONS: --no-same-owner
+
+  unity-android:
+    docker:
+      - image: gableroux/unity3d:2019.4.13f1-android
+  unity-ios:
+    docker:
+      - image: gableroux/unity3d:2019.4.13f1-ios
+
+commands:
+  import-package:
+    description: "Import Purchases.unitypackage"
+    steps:
+      # When importing the unity package in the following step, Unity tries to compile the project.
+      # The project is referencing Purchases, but the Purchases plugin hasn't been imported yet, so the 
+      # compilation fails. Temporarily removing scripts that reference any dependency before importing the
+      # package is a way to avoid the compilation issues.
+      - run:
+          name: Temporarily remove scripts
+          command: |
+            mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
+            mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
+
+      - run:
+          name: Import package
+          command: |
+            /opt/Unity/Editor/Unity \
+              -projectPath IntegrationTests \
+              -quit \
+              -batchmode \
+              -nographics \
+              -logFile /dev/stdout \
+              -importPackage ../Purchases.unitypackage
+      
+      - run:
+          name: Bring scripts back
+          command: |
+            mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
+            mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
+
+  activate-license:
+    description: "Activates Unity license"
+    steps:
+      - run: echo $BASE64_LICENSE | base64 --decode >> Unity_v2019.x.ulf
+      - run: |
+          /opt/Unity/Editor/Unity -projectPath IntegrationTests \
+          -quit \
+          -batchmode \
+          -nographics -silent-crashes -logFile -manualLicenseFile Unity_v2019.x.ulf || exit 0
+  
+  perform-build:
+    description: "Builds Unity project"
+    parameters:
+      target:
+        type: string
+    steps:
+      - run:
+          name: Build Unity project and export it
+          command: |
+            /opt/Unity/Editor/Unity \
+            -projectPath IntegrationTests \
+            -quit \
+            -batchmode \
+            -buildTarget << parameters.target >> \
+            -customBuildTarget << parameters.target >> \
+            -customBuildName << parameters.target >> \
+            -customBuildPath build \
+            -customBuildOptions AcceptExternalModificationsToPlayer \
+            -executeMethod BuildCommand.PerformBuild \
+            -nographics \
+            -logFile /dev/stdout || exit 0
+  
+  resolve-dependencies:
+    description: "Resolve Dependencies"
+    parameters:
+      target:
+        type: string
+    steps:
+      - run:
+          name: Resolve project dependencies
+          command: |
+            /opt/Unity/Editor/Unity \
+              -projectPath IntegrationTests \
+              -batchmode \
+              -buildTarget << parameters.target >> \
+              -customBuildTarget << parameters.target >> \
+              -customBuildOptions AcceptExternalModificationsToPlayer \
+              -executeMethod BuildCommand.Resolve \
+              -nographics \
+              -logFile /dev/stdout
+    
+  install-gems:
+    parameters:
+      directory:
+        type: string
+        default: .
+    steps:
+       # Bundler
+      - restore_cache:
+          keys: 
+            - gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
+      - run: 
+          name: Bundle install
+          working_directory: << parameters.directory >>
+          command: bundle install --clean --path vendor/bundle
+      - save_cache:
+          key: gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+  
+jobs:
+  export-package:
+    executor: unity
+
+    steps:
+      - checkout
+      - activate-license
+
+      - run:
+          description: Creating Purchases.unitypackage, this may take a minute.
+          command: |
+            ./scripts/create-unity-package.sh -u /opt/Unity/Editor/Unity
+
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - Purchases.unitypackage
+
+      - store_artifacts:
+          path: Purchases.unitypackage
+
+  build-test-android:
+    executor: unity-android
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      
+      - activate-license
+
+      - import-package
+
+      - resolve-dependencies:
+          target: Android
+    
+      - perform-build:
+          target: Android
+
+      - store_artifacts:
+          path: IntegrationTests/buildAndroid.apk
+
+  build-test-ios:
+    executor: unity-ios
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - activate-license
+      
+      - import-package
+
+      - resolve-dependencies:
+          target: iOS
+
+      - perform-build:
+          target: iOS
+      
+      - persist_to_workspace:
+          root: .
+          paths:
+            - IntegrationTests/buildiOS
+
+  archive-ios:
+    description: "Run iOS integration tests for Unity"
+    macos:
+      xcode: 12.2.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      
+      - install-gems:
+          directory: IntegrationTests
+
+      - restore_cache:
+          key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+
+      - run:
+          name: Install Pods
+          working_directory: IntegrationTests/buildiOS
+          command: pod install --verbose
+      
+      - save_cache:
+          key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+          paths:
+            - IntegrationTests/buildiOS/Pods
+
+      - run:
+          name: Setup fastlane
+          working_directory: IntegrationTests/buildiOS
+          command: |
+            ln -s ../fastlane .
+
+      - run:
+          name: Archive
+          working_directory: IntegrationTests/buildiOS
+          command: bundle exec fastlane archive workspace:"buildiOS/Unity-iPhone.xcworkspace"
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - export-package
+      - build-test-android:
+          requires:
+            - export-package
+      - build-test-ios:
+          requires:
+            - export-package
+      - archive-ios:
+          requires:
+            - build-test-ios

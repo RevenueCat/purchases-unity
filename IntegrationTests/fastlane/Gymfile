@@ -1,0 +1,3 @@
+scheme("Unity-iPhone")
+clean(true)
+configuration("Release")
