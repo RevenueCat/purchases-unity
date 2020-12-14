@@ -17,15 +17,6 @@ if ! [ -d "$PROJECT" ]; then
     exit 1
 fi
 
-# while true; do
-#     read -p "Have you deleted the External Dependency Manager from the Subtester Packages?" yn
-#     case $yn in
-#         [Yy]* ) break;;
-#         [Nn]* ) exit;;
-#         * ) echo "Please answer yes or no.";;
-#     esac
-# done
-
 if [ -z "$UNITY_BIN" ]; then
     echo "😞 Unity not passed as parameter!"
     echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh /Applications/Unity/Hub/Editor/2019.3.10f1/Unity.app/Contents/MacOS/Unity"
@@ -71,13 +62,3 @@ else
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
 fi 
-
-# if [[ $? -ne 0 ]]; then
-#   echo "😱 Exporting has failed! Checkout exportlog.txt"
-#   echo "😱 Unity shouldn't be running when executing the script."
-#   exit $return_code
-# else
-#   echo "🚀 Exporting finished! Path: $PACKAGE" 
-# fi
-
-# open .

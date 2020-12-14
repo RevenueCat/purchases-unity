@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿// Adapted from https://github.com/game-ci/unity3d-ci-example/blob/master/Assets/Scripts/Editor/BuildCommand.cs
+
+using UnityEditor;
 using System.Linq;
 using System;
 using Google;
@@ -199,8 +201,7 @@ public class BuildCommand
 
         var buildTarget = GetBuildTarget();
 
-        // if (buildTarget == BuildTarget.iOS) PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
-        
+        // This would only work locally since this job runs in a linux machine and cocoapods is not available
         EditorPrefs.SetBool("Google.IOSResolver.PodfileGenerationEnabled", true);
 
         var buildPath      = GetBuildPath();
