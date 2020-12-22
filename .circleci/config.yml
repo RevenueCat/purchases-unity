@@ -62,13 +62,13 @@ commands:
       - run: 
           name: Import Unity license file
           command: |
-          /opt/Unity/Editor/Unity -projectPath IntegrationTests \
-          -quit \
-          -batchmode \
-          -nographics \
-          -silent-crashes \
-          -logFile \
-          -manualLicenseFile Unity_v2019.x.ulf || exit 0
+            /opt/Unity/Editor/Unity -projectPath IntegrationTests \
+            -quit \
+            -batchmode \
+            -nographics \
+            -silent-crashes \
+            -logFile \
+            -manualLicenseFile Unity_v2019.x.ulf || exit 0
   
   perform-build:
     description: "Builds Unity project"
