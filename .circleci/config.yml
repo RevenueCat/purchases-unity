@@ -48,12 +48,19 @@ commands:
   activate-license:
     description: "Activates Unity license"
     steps:
-      - run: echo $BASE64_LICENSE | base64 --decode >> Unity_v2019.x.ulf
-      - run: |
+      - run:
+          name: Decode license in env variable
+          command: echo $BASE64_LICENSE | base64 --decode >> Unity_v2019.x.ulf
+      - run: 
+          name: Import Unity license file
+          command: |
           /opt/Unity/Editor/Unity -projectPath IntegrationTests \
           -quit \
           -batchmode \
-          -nographics -silent-crashes -logFile -manualLicenseFile Unity_v2019.x.ulf || exit 0
+          -nographics \
+          -silent-crashes \
+          -logFile \
+          -manualLicenseFile Unity_v2019.x.ulf || exit 0
   
   perform-build:
     description: "Builds Unity project"
