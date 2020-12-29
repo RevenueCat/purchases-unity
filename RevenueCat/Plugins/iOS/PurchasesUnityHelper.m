@@ -213,6 +213,14 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality invalidatePurchaserInfoCache];
 }
 
+- (void)presentCodeRedemptionSheet {
+    if (@available(iOS 14.0, *)) {
+         [RCCommonFunctionality presentCodeRedemptionSheet];
+     } else {
+         NSLog(@"[Purchases] Warning: tried to present codeRedemptionSheet, but it's only available on iOS 14.0 or greater.");
+     }
+}
+
 #pragma mark - Subcriber Attributes
 
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
@@ -445,6 +453,10 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
 
 void _RCInvalidatePurchaserInfoCache() {
     [_RCUnityHelperShared() invalidatePurchaserInfoCache];
+}
+
+void _RCPresentCodeRedemptionSheet() {
+    [_RCUnityHelperShared() presentCodeRedemptionSheet];
 }
 
 void _RCSetAttributes(const char* attributesJSON) {

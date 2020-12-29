@@ -167,6 +167,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCInvalidatePurchaserInfoCache();
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCPresentCodeRedemptionSheet();
+    public void PresentCodeRedemptionSheet() 
+    {
+        _RCPresentCodeRedemptionSheet();
+    }
     
     [DllImport("__Internal")]
     private static extern void _RCSetAttributes(string attributesJson);

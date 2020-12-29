@@ -137,6 +137,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("invalidatePurchaserInfoCache");
     }
 
+    public void PresentCodeRedemptionSheet()
+    {
+        // NOOP
+    }
+
     public void SetAttributes(string attributesJson)
     {
         CallPurchases("setAttributes", attributesJson);

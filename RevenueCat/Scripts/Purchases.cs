@@ -213,6 +213,11 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.InvalidatePurchaserInfoCache();
     }
+    
+    public void PresentCodeRedemptionSheet()
+    {
+        _wrapper.PresentCodeRedemptionSheet();
+    }
 
     public void SetAttributes(Dictionary<string, string> attributes)
     {
