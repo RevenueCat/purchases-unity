@@ -52,6 +52,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSyncPurchases();
+    public void SyncPurchases()
+    {
+        _RCSyncPurchases();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCAddAttributionData(int network, string data, string networkUserId);
     public void AddAttributionData(int network, string data, string networkUserId)
     {
@@ -126,13 +133,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void GetOfferings()
     {
         _RCGetOfferings();
-    }
-
-    [DllImport("__Internal")]
-    private static extern void _RCSyncPurchases();
-    public void SyncPurchases()
-    {
-        // NOOP
     }
 
     [DllImport("__Internal")]

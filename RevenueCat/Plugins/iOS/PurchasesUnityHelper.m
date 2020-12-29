@@ -13,6 +13,7 @@ static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
 static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
 static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
+static NSString *const SYNC_PURCHASES = @"_syncPurchases";
 static NSString *const IDENTIFY = @"_identify";
 static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
@@ -123,6 +124,10 @@ char *makeStringCopy(NSString *nstring) {
 
 - (void)restoreTransactions {
     [RCCommonFunctionality restoreTransactionsWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
+}
+
+- (void)syncPurchases {
+    [RCCommonFunctionality syncPurchasesWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:SYNC_PURCHASES]];
 }
 
 - (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId {
@@ -383,6 +388,10 @@ void _RCRestoreTransactions() {
     [_RCUnityHelperShared() restoreTransactions];
 }
 
+void _RCSyncPurchases() {
+    [_RCUnityHelperShared() syncPurchases];
+}
+
 void _RCAddAttributionData(const int network, const char *data, const char *networkUserId)
 {
     [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network networkUserId:convertCString(networkUserId)];
@@ -425,10 +434,6 @@ void _RCGetPurchaserInfo() {
 
 char * _RCGetAppUserID() {
     return [_RCUnityHelperShared() getAppUserID];
-}
-
-void _RCSyncPurchases() {
-    // NOOP
 }
 
 void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
