@@ -140,8 +140,11 @@ char *makeStringCopy(NSString *nstring) {
         NSLog(@"Error reading attribution data: %@", error.localizedDescription);
         return;
     }
-    
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
+#pragma clang diagnostic pop
 }
 
 - (void)createAlias:(NSString *)newAppUserID {
