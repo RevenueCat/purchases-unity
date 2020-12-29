@@ -125,6 +125,15 @@ char *makeStringCopy(NSString *nstring) {
     [RCCommonFunctionality restoreTransactionsWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
 }
 
+- (void)syncPurchases {
+    // on Android, syncPurchases doesn't have a completion block. So instead of
+    // calling getPurchaserInfoCompletionBlockFor:SYNC_PURCHASES, we just
+    // print the response, to match Android behavior. 
+    [RCCommonFunctionality syncPurchasesWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSLog(@"received syncPurchases response: \n purchaserInfo: %@ \n error:%@", responseDictionary, error);
+    }];
+}
+
 - (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId {
     NSError *error = nil;
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding]
@@ -135,8 +144,11 @@ char *makeStringCopy(NSString *nstring) {
         NSLog(@"Error reading attribution data: %@", error.localizedDescription);
         return;
     }
-    
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
+#pragma clang diagnostic pop
 }
 
 - (void)createAlias:(NSString *)newAppUserID {
@@ -211,6 +223,14 @@ char *makeStringCopy(NSString *nstring) {
 
 - (void)invalidatePurchaserInfoCache {
     [RCCommonFunctionality invalidatePurchaserInfoCache];
+}
+
+- (void)presentCodeRedemptionSheet {
+    if (@available(iOS 14.0, *)) {
+         [RCCommonFunctionality presentCodeRedemptionSheet];
+     } else {
+         NSLog(@"[Purchases] Warning: tried to present codeRedemptionSheet, but it's only available on iOS 14.0 or greater.");
+     }
 }
 
 #pragma mark - Subcriber Attributes
@@ -323,7 +343,7 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (NSString *)platformFlavorVersion { 
-    return @"2.3.1";
+    return @"3.0.0";
 }
 
 @end
@@ -375,6 +395,10 @@ void _RCRestoreTransactions() {
     [_RCUnityHelperShared() restoreTransactions];
 }
 
+void _RCSyncPurchases() {
+    [_RCUnityHelperShared() syncPurchases];
+}
+
 void _RCAddAttributionData(const int network, const char *data, const char *networkUserId)
 {
     [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network networkUserId:convertCString(networkUserId)];
@@ -419,10 +443,6 @@ char * _RCGetAppUserID() {
     return [_RCUnityHelperShared() getAppUserID];
 }
 
-void _RCSyncPurchases() {
-    // NOOP
-}
-
 void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
     [_RCUnityHelperShared() setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
@@ -445,6 +465,10 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
 
 void _RCInvalidatePurchaserInfoCache() {
     [_RCUnityHelperShared() invalidatePurchaserInfoCache];
+}
+
+void _RCPresentCodeRedemptionSheet() {
+    [_RCUnityHelperShared() presentCodeRedemptionSheet];
 }
 
 void _RCSetAttributes(const char* attributesJSON) {

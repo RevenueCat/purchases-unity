@@ -83,14 +83,6 @@ public partial class Purchases : MonoBehaviour
 
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
-    // Call this to initiate a purchase
-    [ObsoleteAttribute("This method will soon be deprecated. Use PurchaseProduct instead.")]
-    public void MakePurchase(string productIdentifier, MakePurchaseFunc callback,
-        string type = "subs", string oldSku = null)
-    {
-        _wrapper.PurchaseProduct(productIdentifier, type, oldSku);
-    }
-
     public void PurchaseProduct(string productIdentifier, MakePurchaseFunc callback,
         string type = "subs", string oldSku = null, ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
@@ -220,6 +212,11 @@ public partial class Purchases : MonoBehaviour
     public void InvalidatePurchaserInfoCache()
     {
         _wrapper.InvalidatePurchaserInfoCache();
+    }
+    
+    public void PresentCodeRedemptionSheet()
+    {
+        _wrapper.PresentCodeRedemptionSheet();
     }
 
     public void SetAttributes(Dictionary<string, string> attributes)

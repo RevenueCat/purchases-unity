@@ -24,6 +24,7 @@ public interface IPurchasesWrapper
     bool IsAnonymous();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidatePurchaserInfoCache();
+    void PresentCodeRedemptionSheet();
     void SetAttributes(string attributesJson);
     void SetEmail(string email);
     void SetPhoneNumber(string phoneNumber);

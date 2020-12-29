@@ -52,6 +52,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSyncPurchases();
+    public void SyncPurchases()
+    {
+        _RCSyncPurchases();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCAddAttributionData(int network, string data, string networkUserId);
     public void AddAttributionData(int network, string data, string networkUserId)
     {
@@ -129,13 +136,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCSyncPurchases();
-    public void SyncPurchases()
-    {
-        // NOOP
-    }
-
-    [DllImport("__Internal")]
     private static extern void _RCSetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
@@ -166,6 +166,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void InvalidatePurchaserInfoCache() 
     {
         _RCInvalidatePurchaserInfoCache();
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCPresentCodeRedemptionSheet();
+    public void PresentCodeRedemptionSheet() 
+    {
+        _RCPresentCodeRedemptionSheet();
     }
     
     [DllImport("__Internal")]
