@@ -13,7 +13,6 @@ static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
 static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
 static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
-static NSString *const SYNC_PURCHASES = @"_syncPurchases";
 static NSString *const IDENTIFY = @"_identify";
 static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
@@ -127,7 +126,12 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (void)syncPurchases {
-    [RCCommonFunctionality syncPurchasesWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:SYNC_PURCHASES]];
+    // on Android, syncPurchases doesn't have a completion block. So instead of
+    // calling getPurchaserInfoCompletionBlockFor:SYNC_PURCHASES, we just
+    // print the response, to match Android behavior. 
+    [RCCommonFunctionality syncPurchasesWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSLog(@"received syncPurchases response: \n purchaserInfo: %@ \n error:%@", responseDictionary, error);
+    }];
 }
 
 - (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId {
