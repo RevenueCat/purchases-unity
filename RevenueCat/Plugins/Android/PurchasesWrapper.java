@@ -39,7 +39,7 @@ public class PurchasesWrapper {
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "3.0.0";
+    private static final String PLUGIN_VERSION = "3.0.1";
 
     private static String gameObject;
     private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {
