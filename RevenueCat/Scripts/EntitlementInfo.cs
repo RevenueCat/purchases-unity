@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
+using static RevenueCat.Utilities;
+
 
 public partial class Purchases
 {
@@ -26,15 +28,15 @@ public partial class Purchases
             IsActive = response["isActive"].AsBool;
             WillRenew = response["willRenew"].AsBool;
             PeriodType = response["periodType"];
-            LatestPurchaseDate = FromUnixTime(response["latestPurchaseDateMillis"].AsLong);
-            OriginalPurchaseDate = FromUnixTime(response["originalPurchaseDateMillis"].AsLong);
+            LatestPurchaseDate = FromUnixTimeInMilliseconds(response["latestPurchaseDateMillis"].AsLong);
+            OriginalPurchaseDate = FromUnixTimeInMilliseconds(response["originalPurchaseDateMillis"].AsLong);
 
             var expirationDateJson = response["expirationDateMillis"];
             var hasExpirationDate = expirationDateJson != null && !expirationDateJson.IsNull &&
                                     expirationDateJson.AsLong != 0L;
             if (hasExpirationDate)
             {
-                ExpirationDate = FromUnixTime(expirationDateJson.AsLong);
+                ExpirationDate = FromUnixTimeInMilliseconds(expirationDateJson.AsLong);
             }
 
             Store = response["store"];
@@ -46,7 +48,7 @@ public partial class Purchases
                                          unsubscribeDetectedJson.AsLong != 0L;
             if (hasUnsubscribeDetected)
             {
-                UnsubscribeDetectedAt = FromUnixTime(unsubscribeDetectedJson.AsLong);
+                UnsubscribeDetectedAt = FromUnixTimeInMilliseconds(unsubscribeDetectedJson.AsLong);
             }
 
             var billingIssueJson = response["billingIssueDetectedAtMillis"];
@@ -54,16 +56,9 @@ public partial class Purchases
                                   billingIssueJson.AsLong != 0L;
             if (hasBillingIssue)
             {
-                BillingIssueDetectedAt = FromUnixTime(billingIssueJson.AsLong);
+                BillingIssueDetectedAt = FromUnixTimeInMilliseconds(billingIssueJson.AsLong);
             }
         }
-
-        private static DateTime FromUnixTime(long unixTime)
-        {
-            return Epoch.AddSeconds(unixTime);
-        }
-
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public override string ToString()
         {

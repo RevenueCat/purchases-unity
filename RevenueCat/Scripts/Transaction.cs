@@ -1,5 +1,7 @@
 using System;
 using RevenueCat.SimpleJSON;
+using static RevenueCat.Utilities;
+
 
 public partial class Purchases
 {    
@@ -28,7 +30,7 @@ public partial class Purchases
         {
             RevenueCatId = response["revenueCatId"];
             ProductId = response["productId"];
-            PurchaseDate = RevenueCat.Utilities.FromUnixTime(response["purchaseDateMillis"].AsLong);
+            PurchaseDate = FromUnixTimeInMilliseconds(response["purchaseDateMillis"].AsLong);
         } 
         
         public override string ToString()
