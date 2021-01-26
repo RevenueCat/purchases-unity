@@ -1,7 +1,7 @@
 ## 3.0.1
 - Fixed a crash in iOS when parsing dates in milliseconds, as well as a bug in Android that caused dates that were reported as `milliseconds` to actually have values in seconds. 
 https://github.com/RevenueCat/purchases-unity/pull/39
-- Bumped `purchases-hybrid-common` to 1.5.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/1.5.0)
+- Bumped `purchases-hybrid-common` to 1.5.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/1.5.1)
 
 ## 3.0.0
 
