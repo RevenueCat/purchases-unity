@@ -3,16 +3,16 @@ using System;
 namespace RevenueCat
 {
     internal static class Utilities {
-        internal static DateTime FromUnixTime(long unixTime)
+        internal static DateTime FromUnixTimeInMilliseconds(long unixTimeInMilliseconds)
         {
-            return Epoch.AddSeconds(unixTime);
+            return Epoch.AddSeconds(unixTimeInMilliseconds / 1000.0);
         }
     
-        internal static DateTime? FromOptionalUnixTime(long unixTime)
+        internal static DateTime? FromOptionalUnixTimeInMilliseconds(long unixTimeInMilliseconds)
         {
             DateTime? value = null;
-            if (unixTime != 0L) { 
-                value = FromUnixTime(unixTime);
+            if (unixTimeInMilliseconds != 0L) { 
+                value = FromUnixTimeInMilliseconds(unixTimeInMilliseconds);
             }
             return value;
         }

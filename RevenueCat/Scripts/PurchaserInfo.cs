@@ -47,13 +47,13 @@ public partial class Purchases
                 AllPurchasedProductIdentifiers.Add(productIdentifier);
             }
 
-            FirstSeen = FromUnixTime(response["firstSeenMillis"].AsLong);
+            FirstSeen = FromUnixTimeInMilliseconds(response["firstSeenMillis"].AsLong);
             OriginalAppUserId = response["originalAppUserId"];
-            RequestDate = FromUnixTime(response["requestDateMillis"].AsLong);
+            RequestDate = FromUnixTimeInMilliseconds(response["requestDateMillis"].AsLong);
             OriginalPurchaseDate =
-                FromOptionalUnixTime(response["originalPurchaseDateMillis"].AsLong);
+                FromOptionalUnixTimeInMilliseconds(response["originalPurchaseDateMillis"].AsLong);
             LatestExpirationDate =
-                FromOptionalUnixTime(response["latestExpirationDateMillis"].AsLong);
+                FromOptionalUnixTimeInMilliseconds(response["latestExpirationDateMillis"].AsLong);
             ManagementURL = response["managementURL"];
             AllExpirationDates = new Dictionary<string, DateTime?>();
             foreach (var keyValue in response["allExpirationDatesMillis"])
@@ -62,7 +62,7 @@ public partial class Purchases
                 var expirationDateJSON = keyValue.Value;
                 if (expirationDateJSON != null && !expirationDateJSON.IsNull && expirationDateJSON.AsLong != 0L)
                 {
-                    AllExpirationDates.Add(productID, FromUnixTime(expirationDateJSON.AsLong));
+                    AllExpirationDates.Add(productID, FromUnixTimeInMilliseconds(expirationDateJSON.AsLong));
                 }
                 else
                 {
@@ -73,7 +73,7 @@ public partial class Purchases
             AllPurchaseDates = new Dictionary<string, DateTime>();
             foreach (var keyValue in response["allPurchaseDatesMillis"])
             {
-                AllPurchaseDates.Add(keyValue.Key, FromUnixTime(keyValue.Value.AsLong));
+                AllPurchaseDates.Add(keyValue.Key, FromUnixTimeInMilliseconds(keyValue.Value.AsLong));
             }
 
             OriginalApplicationVersion = response["originalApplicationVersion"];

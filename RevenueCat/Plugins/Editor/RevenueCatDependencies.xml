@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dependencies>
     <androidPackages>
-        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:1.5.0" />
+        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:1.5.1" />
     </androidPackages>
     <iosPods>
-        <iosPod name="PurchasesHybridCommon" version="1.5.0" minTargetSdk="9.0"/>
+        <iosPod name="PurchasesHybridCommon" version="1.5.1" minTargetSdk="9.0"/>
     </iosPods>
 </dependencies>
