@@ -231,13 +231,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e401cc5a2ed4a7ba02f2e6ef35c6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  revenueCatAPIKey: 
+  useRuntimeSetup: 1
+  revenueCatAPIKey: VtDdmbdWBySmqJeeQUTyrNxETUVkhuaJ
   appUserID: 
   productIdentifiers: []
   listener: {fileID: 559298755}
   observerMode: 0
   userDefaultsSuiteName: 
   proxyURL: 
+  useAmazon: 0
 --- !u!4 &559298754
 Transform:
   m_ObjectHideFlags: 0
