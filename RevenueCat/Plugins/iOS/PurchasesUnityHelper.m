@@ -58,7 +58,8 @@ char *makeStringCopy(NSString *nstring) {
              appUserID:(nullable NSString *)appUserID
             gameObject:(NSString *)gameObject
           observerMode:(BOOL)observerMode
- userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName {
+ userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
+             useAmazon:(BOOL)useAmazon {
     [[RCPurchases sharedPurchases] setDelegate:nil];
     self.products = nil;
     self.gameObject = nil;
