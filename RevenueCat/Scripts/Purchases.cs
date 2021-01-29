@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using RevenueCat.Scripts;
 using RevenueCat.SimpleJSON;
 
 #pragma warning disable CS0649
@@ -19,7 +20,9 @@ public partial class Purchases : MonoBehaviour
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
-
+    [Tooltip("Activate if you plan to call Purchases.Setup programmatically.")]
+    public bool useRuntimeSetup; 
+    
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
     public string revenueCatAPIKey;
@@ -44,6 +47,10 @@ public partial class Purchases : MonoBehaviour
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
     public string proxyURL;
+    
+    [Header("Alternative Stores")]
+    [Tooltip("Activate to use Amazon App Store.")]
+    public bool useAmazon;
 
     private IPurchasesWrapper _wrapper;
 
@@ -60,14 +67,31 @@ public partial class Purchases : MonoBehaviour
         {
             _wrapper.SetProxyURL(proxyURL);
         }
-        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
+
+        if (!useRuntimeSetup)
+        {
+            Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);    
+        }
+        
         GetProducts(productIdentifiers, null);
     }
 
-    // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
-        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode, userDefaultsSuiteName);
+        var builder = PurchasesConfiguration.Builder.Init(revenueCatAPIKey)
+            .SetAppUserId(newUserId)
+            .SetObserverMode(observerMode)
+            .SetUserDefaultsSuiteName(userDefaultsSuiteName)
+            .SetUseAmazon(useAmazon);
+            
+        Setup(builder.Build());
+    }
+
+    public void Setup(PurchasesConfiguration purchasesConfiguration)
+    {
+        _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId, 
+            purchasesConfiguration.ObserverMode, purchasesConfiguration.UserDefaultsSuiteName, 
+            purchasesConfiguration.UseAmazon);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
