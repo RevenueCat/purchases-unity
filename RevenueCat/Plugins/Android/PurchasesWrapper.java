@@ -7,6 +7,11 @@ import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
+import com.revenuecat.purchases.Store;
+import com.revenuecat.purchases.common.CommonKt;
+import com.revenuecat.purchases.common.ErrorContainer;
+import com.revenuecat.purchases.common.OnResult;
+import com.revenuecat.purchases.common.OnResultList;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
 import com.revenuecat.purchases.hybridcommon.ErrorContainer;
@@ -55,10 +60,16 @@ public class PurchasesWrapper {
                              String appUserId,
                              String gameObject_,
                              boolean observerMode,
-                             String userDefaultsSuiteName) {
+                             String userDefaultsSuiteName,
+                             boolean useAmazon) {
         gameObject = gameObject_;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
-        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, observerMode, platformInfo);
+        Store store = Store.PLAY_STORE;
+        if (useAmazon) {
+            store = Store.AMAZON;
+        }
+        CommonKt.configure(UnityPlayer.currentActivity,
+                apiKey, appUserId, observerMode, platformInfo, store);
         Purchases.getSharedInstance().setUpdatedPurchaserInfoListener(listener);
     }
 
