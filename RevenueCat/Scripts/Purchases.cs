@@ -68,11 +68,9 @@ public partial class Purchases : MonoBehaviour
             _wrapper.SetProxyURL(proxyURL);
         }
 
-        if (!useRuntimeSetup)
-        {
-            Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);    
-        }
+        if (useRuntimeSetup) return;
         
+        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }
 
