@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dependencies>
     <androidPackages>
-<!--        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:1.5.1" />-->
+       <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:AMAZON.RC1" />
     </androidPackages>
     <iosPods>
         <iosPod name="PurchasesHybridCommon" version="1.5.1" minTargetSdk="9.0"/>
