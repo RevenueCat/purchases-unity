@@ -219,6 +219,16 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PresentCodeRedemptionSheet();
     }
 
+    /**
+      * iOS only.
+      * Set this property to true *only* when testing the ask-to-buy / SCA purchases flow.
+      * More information: http://errors.rev.cat/ask-to-buy
+      */
+    public void SetSimulatesAskToBuyInSandbox(bool enabled)
+    {
+        _wrapper.SetSimulatesAskToBuyInSandbox(enabled);
+    }
+
     public void SetAttributes(Dictionary<string, string> attributes)
     {
         var jsonObject = new JSONObject();

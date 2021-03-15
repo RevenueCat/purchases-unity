@@ -25,6 +25,7 @@ public interface IPurchasesWrapper
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidatePurchaserInfoCache();
     void PresentCodeRedemptionSheet();
+    void SetSimulatesAskToBuyInSandbox(bool enabled);
     void SetAttributes(string attributesJson);
     void SetEmail(string email);
     void SetPhoneNumber(string phoneNumber);

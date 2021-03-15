@@ -142,6 +142,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         // NOOP
     }
 
+    public void SetSimulatesAskToBuyInSandbox(bool enabled)
+    {
+        // NOOP
+    }
+
     public void SetAttributes(string attributesJson)
     {
         CallPurchases("setAttributes", attributesJson);
