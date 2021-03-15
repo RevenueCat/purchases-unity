@@ -99,6 +99,10 @@ public partial class Purchases
         public void PresentCodeRedemptionSheet()
         {
         }
+
+        public void SetSimulatesAskToBuyInSandbox(bool enabled)
+        {
+        }
         
         public void SetAttributes(string attributesJson)
         {

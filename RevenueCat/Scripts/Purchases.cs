@@ -219,6 +219,12 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PresentCodeRedemptionSheet();
     }
 
+    // ReSharper disable once UnusedMember.Global
+    public void SetSimulatesAskToBuyInSandbox(bool enabled)
+    {
+        _wrapper.SetSimulatesAskToBuyInSandbox(enabled);
+    }
+
     public void SetAttributes(Dictionary<string, string> attributes)
     {
         var jsonObject = new JSONObject();

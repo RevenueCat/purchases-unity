@@ -233,6 +233,10 @@ char *makeStringCopy(NSString *nstring) {
      }
 }
 
+- (void)setSimulatesAskToBuyInSandbox:(BOOL enabled) {
+     [RCCommonFunctionality setSimulatesAskToBuyInSandbox:enabled];
+}
+
 #pragma mark - Subcriber Attributes
 
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
@@ -433,6 +437,10 @@ void _RCSetDebugLogsEnabled(const BOOL enabled) {
 
 void _RCSetProxyURLString(const char *proxyURLString) {
     [_RCUnityHelperShared() setProxyURLString:convertCString(proxyURLString)];
+}
+
+void _RCSetSimulatesAskToBuyInSandbox(const BOOL enabled) {
+    [_RCUnityHelperShared() setSimulatesAskToBuyInSandbox:enabled];
 }
 
 void _RCGetPurchaserInfo() {

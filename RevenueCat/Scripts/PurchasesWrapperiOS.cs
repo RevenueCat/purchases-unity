@@ -176,6 +176,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
     
     [DllImport("__Internal")]
+    private static extern void _RCSetSimulatesAskToBuyInSandbox(bool enabled);
+    public void SetSimulatesAskToBuyInSandbox(bool enabled)
+    {
+        _RCSetSimulatesAskToBuyInSandbox(enabled);
+    }
+    
+    [DllImport("__Internal")]
     private static extern void _RCSetAttributes(string attributesJson);
     public void SetAttributes(string attributesJson)
     {
