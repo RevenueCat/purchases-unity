@@ -233,7 +233,7 @@ char *makeStringCopy(NSString *nstring) {
      }
 }
 
-- (void)setSimulatesAskToBuyInSandbox:(BOOL enabled) {
+- (void)setSimulatesAskToBuyInSandbox:(BOOL)enabled {
      [RCCommonFunctionality setSimulatesAskToBuyInSandbox:enabled];
 }
 
