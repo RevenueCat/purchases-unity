@@ -20,7 +20,8 @@ checkCheckboxes: true
 keywords:
   - Platform
   - SDK version
-  - OS version
+  - OS + version
   - XCode/Android Studio version
+  - Unity version
   - Debug logs
   - Steps to reproduce, with a description of expected vs. actual behavior
