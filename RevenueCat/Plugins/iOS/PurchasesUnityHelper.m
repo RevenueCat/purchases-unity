@@ -347,7 +347,7 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (NSString *)platformFlavorVersion { 
-    return @"3.1.0";
+    return @"3.1.1";
 }
 
 @end
