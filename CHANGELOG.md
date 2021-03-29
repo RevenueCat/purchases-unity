@@ -6,7 +6,6 @@
 - Bumped purchases-android to 4.0.5 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/4.0.5)
     https://github.com/RevenueCat/purchases-flutter/pull/171
 
-
 ## 3.1.0
 - iOS: 
     - Added a new method `setSimulatesAskToBuyInSandbox`, that allows developers to test deferred purchases easily.
