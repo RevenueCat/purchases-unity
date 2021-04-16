@@ -1,5 +1,6 @@
 .DS_Store
 *.meta
+!SubTester/**/*.meta
 .idea/
 org.eclipse.buildship.core.prefs
 .project
