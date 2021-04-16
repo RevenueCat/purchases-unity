@@ -553,6 +553,22 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
+    private void _logIn(string logInResultJson)
+    {
+        Debug.Log("_logIn " + logInResultJson);
+        ReceiveLogInResultMethod(logInResultJson, LogInCallback);
+        LogInCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _logOut(string purchaserInfoJson)
+    {
+        Debug.Log("_logOut " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, LogOutCallback);
+        LogOutCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
     private void _identify(string purchaserInfoJson)
     {
         Debug.Log("_identify " + purchaserInfoJson);
@@ -638,6 +654,24 @@ public partial class Purchases : MonoBehaviour
         {
             var info = new PurchaserInfo(response["purchaserInfo"]); 
             callback(info, null);
+        }
+    }
+
+    private static void ReceiveLogInResultMethod(string arguments, LogInFunc callback)
+    {
+        if (callback == null) return;
+
+        var response = JSON.Parse(arguments);
+        
+        if (ResponseHasError(response))
+        {
+            callback(null, false, new Error(response["error"]));
+        }
+        else
+        {
+            var info = new PurchaserInfo(response["purchaserInfo"]); 
+            var created = response["created"];
+            callback(info, created, null);
         }
     }
 
