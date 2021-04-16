@@ -142,7 +142,7 @@ public partial class Purchases : MonoBehaviour
     
     private PurchaserInfoFunc LogOutCallback { get; set; }
 
-    public void LogOutCallback(PurchaserInfoFunc callback)
+    public void LogOut(PurchaserInfoFunc callback)
     {
         LogOutCallback = callback;
         _wrapper.LogOut();

@@ -369,8 +369,8 @@ char *makeStringCopy(NSString *nstring) {
         if (error) {
             response[@"error"] = error.info;
         } else {
-            response[@"purchaserInfo"] = responseDictionary["purchaserInfo"];
-            response[@"created"] = responseDictionary["created"];
+            response[@"purchaserInfo"] = responseDictionary[@@"purchaserInfo"];
+            response[@"created"] = responseDictionary[@"created"];
         }
         [self sendJSONObject:response toMethod:method];
     };
