@@ -66,6 +66,20 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCLogIn(string appUserId);
+    public void LogIn(string appUserId)
+    {
+        _RCLogIn(appUserId);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCLogOut();
+    public void LogOut()
+    {
+        _RCLogOut();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCCreateAlias(string newAppUserId);
     public void CreateAlias(string newAppUserId)
     {
