@@ -13,6 +13,8 @@ static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
 static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
 static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
+static NSString *const LOG_IN = @"_logIn";
+static NSString *const LOG_OUT = @"_logOut";
 static NSString *const IDENTIFY = @"_identify";
 static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
@@ -150,6 +152,14 @@ char *makeStringCopy(NSString *nstring) {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
 #pragma clang diagnostic pop
+}
+
+- (void)logInWithAppUserID:(NSString *)appUserID {
+    [RCCommonFunctionality logInWithAppUserID:appUserID completionBlock:[self getLogInCompletionBlockForMethod:LOG_IN]];
+}
+
+- (void)logOut {
+    [RCCommonFunctionality logOutWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:LOG_OUT]];
 }
 
 - (void)createAlias:(NSString *)newAppUserID {
@@ -352,6 +362,20 @@ char *makeStringCopy(NSString *nstring) {
     };
 }
 
+- (void (^)(NSDictionary *, RCErrorContainer *))getLogInCompletionBlockForMethod:(NSString *)method {
+    return ^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+
+        if (error) {
+            response[@"error"] = error.info;
+        } else {
+            response[@"purchaserInfo"] = responseDictionary["purchaserInfo"];
+            response[@"created"] = responseDictionary["created"];
+        }
+        [self sendJSONObject:response toMethod:method];
+    };
+}
+
 - (NSString *)platformFlavor { 
     return @"unity";
 }
@@ -416,6 +440,14 @@ void _RCSyncPurchases() {
 void _RCAddAttributionData(const int network, const char *data, const char *networkUserId)
 {
     [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network networkUserId:convertCString(networkUserId)];
+}
+
+void _RCLogIn(const char *appUserID) {
+    [_RCUnityHelperShared() logInWithAppUserID:convertCString(appUserID)];
+}
+
+void _RCLogOut() {
+    [_RCUnityHelperShared() logOut];
 }
 
 void _RCCreateAlias(const char *newAppUserID) {

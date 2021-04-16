@@ -58,6 +58,16 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("addAttributionData", data, network, networkUserId);
     }
 
+    public void LogIn(string appUserId)
+    {
+        CallPurchases("logIn", appUserId);
+    }
+
+    public void LogOut()
+    {
+        CallPurchases("logOut");
+    }
+    
     public void CreateAlias(string newAppUserId)
     {
         CallPurchases("createAlias", newAppUserId);
