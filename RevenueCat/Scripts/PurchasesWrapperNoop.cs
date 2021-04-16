@@ -34,6 +34,14 @@ public partial class Purchases
         {
         }
 
+        public void LogIn(string appUserId)
+        {
+        }
+        
+        public void LogOut()
+        {
+        }
+
         public void CreateAlias(string newAppUserId)
         {
         }
