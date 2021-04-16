@@ -34,6 +34,8 @@ public class PurchasesWrapper {
     private static final String CREATE_ALIAS = "_createAlias";
     private static final String RECEIVE_PURCHASER_INFO = "_receivePurchaserInfo";
     private static final String RESTORE_TRANSACTIONS = "_restoreTransactions";
+    private static final String LOG_IN = "_logIn";
+    private static final String LOG_OUT = "_logOut";
     private static final String IDENTIFY = "_identify";
     private static final String RESET = "_reset";
     private static final String GET_OFFERINGS = "_getOfferings";
@@ -163,6 +165,15 @@ public class PurchasesWrapper {
 
     public static void restoreTransactions() {
         CommonKt.restoreTransactions(getPurchaserInfoListener(RESTORE_TRANSACTIONS));
+    }
+
+
+    public static void logIn(String appUserId) {
+        CommonKt.logIn(appUserID, getLogInListener(LOG_IN));
+    }
+
+    public static void logOut() {
+        CommonKt.logOut(getPurchaserInfoListener(LOG_OUT));
     }
 
     public static void createAlias(String newAppUserID) {
@@ -393,6 +404,28 @@ public class PurchasesWrapper {
             logJSONException(e);
         }
         sendJSONObject(jsonObject, MAKE_PURCHASE);
+    }
+
+    @NonNull
+    private static OnResult getLogInListener(final String method) {
+        return new OnResult() {
+            @Override
+            public void onReceived(Map<String, ?> map) {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(map["purchaserInfo"]));
+                    jsonObject.put("created", MappersHelpersKt.convertToJson(map["created"]));
+                } catch (JSONException e) {
+                    logJSONException(e);
+                }
+                sendJSONObject(jsonObject, method);
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendError(errorContainer, method);
+            }
+        };
     }
 
     @NonNull
