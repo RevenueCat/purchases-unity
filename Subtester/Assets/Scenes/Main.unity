@@ -234,7 +234,7 @@ MonoBehaviour:
   revenueCatAPIKey: 
   appUserID: 
   productIdentifiers: []
-  listener: {fileID: 0}
+  listener: {fileID: 559298755}
   observerMode: 0
   userDefaultsSuiteName: 
   proxyURL: 
