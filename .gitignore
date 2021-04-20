@@ -1,5 +1,4 @@
 .DS_Store
-*.meta
 .idea/
 org.eclipse.buildship.core.prefs
 .project

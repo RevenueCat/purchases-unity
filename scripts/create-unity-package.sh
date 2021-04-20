@@ -19,7 +19,7 @@ fi
 
 if [ -z "$UNITY_BIN" ]; then
     echo "😞 Unity not passed as parameter!"
-    echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh /Applications/Unity/Hub/Editor/2019.3.10f1/Unity.app/Contents/MacOS/Unity"
+    echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/2019.3.10f1/Unity.app/Contents/MacOS/Unity"
     exit 1
 fi
 

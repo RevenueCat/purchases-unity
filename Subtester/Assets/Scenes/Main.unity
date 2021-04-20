@@ -173,6 +173,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -227,10 +228,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 559298752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1066017fd38404493828b48915eb4d49, type: 3}
+  m_Script: {fileID: 11500000, guid: 98e401cc5a2ed4a7ba02f2e6ef35c6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  revenueCatAPIKey: VtDdmbdWBySmqJeeQUTyrNxETUVkhuaJ
+  revenueCatAPIKey: 
   appUserID: 
   productIdentifiers: []
   listener: {fileID: 559298755}
@@ -260,11 +261,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 559298752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea6a3555b4d8f4385aaa5bbc4ca6edc3, type: 3}
+  m_Script: {fileID: 11500000, guid: d4d983d93d67c4367bf31ba35790ced8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parentPanel: {fileID: 1575378375}
-  buttonPrefab: {fileID: 1696602566380582, guid: cacc06bcb22a64073bbe88de11c1149f,
+  buttonPrefab: {fileID: 1696602566380582, guid: 08be051e1286142ac9bb1c2a81c63bc3,
     type: 3}
   purchaserInfoLabel: {fileID: 53425791}
 --- !u!1 &1090981152
@@ -385,6 +386,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
