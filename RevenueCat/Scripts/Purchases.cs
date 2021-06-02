@@ -18,6 +18,8 @@ public partial class Purchases : MonoBehaviour
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
+    
+    public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
 
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
@@ -403,6 +405,15 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.CollectDeviceIdentifiers();
     }
+    
+    private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
+
+    public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback)
+    {
+        CanMakePaymentsCallback = callback;
+        _wrapper.CanMakePayments(features);
+    }
+    
 
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
@@ -542,6 +553,26 @@ public partial class Purchases : MonoBehaviour
         CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
 
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
+    }
+
+    private void _receiveCanMakePayments(string canMakePaymentsJson)
+    {
+        Debug.Log("_receiveCanMakePayments" + canMakePaymentsJson);
+
+        if (CanMakePaymentsCallback == null) return;
+        
+        var response = JSON.Parse(canMakePaymentsJson);
+
+        if (ResponseHasError(response))
+        {
+            CanMakePaymentsCallback(false, new Error(response["error"]));
+        }
+        else
+        {
+            var canMakePayments = response["canMakePayments"];
+            CanMakePaymentsCallback(canMakePayments, null);
+        }
+        CanMakePaymentsCallback = null;
     }
 
     private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)

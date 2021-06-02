@@ -232,6 +232,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("collectDeviceIdentifiers");
     }
 
+    public void CanMakePayments(Purchases.BillingFeature[] features) 
+    {
+        CallPurchases("canMakePayments", features);
+    }
+
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";
 
     private static void CallPurchases(string methodName, params object[] args)

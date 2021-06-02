@@ -37,6 +37,7 @@ public class PurchasesWrapper {
     private static final String RESET = "_reset";
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
+    private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "3.1.1";
@@ -319,6 +320,34 @@ public class PurchasesWrapper {
 
     public static void collectDeviceIdentifiers() {
         SubscriberAttributesKt.collectDeviceIdentifiers();
+    }
+    
+    public static void canMakePayments(int[] features) {
+//         try {
+//             JSONObject request = new JSONObject(features);
+//             List<Int> featureOrdinals = new ArrayList<>();
+//             for (int i = 0; i < features.length(); i++) {
+//                 String feature = features.getString(i);
+//                 featureOrdinals.feature(product);
+//             }
+
+            CommonKt.canMakePayments(features, new OnResultAny<boolean>() {
+                @Override
+                public void onReceived(boolean canMakePayments) {
+                    JSONObject object = new JSONObject();
+                    object.put("canMakePayments", canMakePayments);
+                    sendJSONObject(object, CAN_MAKE_PAYMENTS);
+             
+                }
+
+                @Override
+                public void onError(ErrorContainer errorContainer) {
+                    sendError(errorContainer, CAN_MAKE_PAYMENTS);
+                }
+            });
+//         } catch (JSONException e) {
+//             Log.e("Purchases", "Failure parsing feature list " + features);
+//         }
     }
 
     private static void logJSONException(JSONException e) {
