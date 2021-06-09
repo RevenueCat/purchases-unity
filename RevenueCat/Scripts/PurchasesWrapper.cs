@@ -10,6 +10,8 @@ public interface IPurchasesWrapper
     void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy);
     void RestoreTransactions();
 	void CreateAlias(string newAppUserId);
+	void LogIn(string appUserId);
+	void LogOut();
 	void Identify(string appUserId);
 	void Reset();
 	void SetFinishTransactions(bool finishTransactions);
