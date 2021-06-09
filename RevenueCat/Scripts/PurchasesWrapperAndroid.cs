@@ -234,7 +234,12 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void CanMakePayments(Purchases.BillingFeature[] features) 
     {
-        CallPurchases("canMakePayments", features);
+        int[] featuresAsInts = new int[features.Length];
+        for (int i = 0; i < features.Length; i++) {
+            Purchases.BillingFeature feature = features[i];
+            featuresAsInts[i] = (int) feature;
+        }
+        CallPurchases("canMakePayments", featuresAsInts);
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

@@ -555,9 +555,9 @@ public partial class Purchases : MonoBehaviour
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
     }
 
-    private void _receiveCanMakePayments(string canMakePaymentsJson)
+    private void _canMakePayments(string canMakePaymentsJson)
     {
-        Debug.Log("_receiveCanMakePayments" + canMakePaymentsJson);
+        Debug.Log("_canMakePayments" + canMakePaymentsJson);
 
         if (CanMakePaymentsCallback == null) return;
         
