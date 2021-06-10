@@ -1,0 +1,9 @@
+<registries>
+  <!-- Registry that contains the External Dependency Manager plugin. -->
+  <registry name="nmpjs"
+            url="https://registry.npmjs.org/">
+    <scopes>
+      <scope>com.revenuecat</scope>
+    </scopes>
+  </registry>
+</registries>

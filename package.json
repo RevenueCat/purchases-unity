@@ -1,0 +1,41 @@
+{
+    "name": "com.revenuecat.purchases-unity",
+    "displayName": "Purchases Unity",
+    "version": "3.1.1",
+    "unity": "2019.4",
+    "description": "Unity in-app purchases and subscriptions made easy. Supports iOS and Android.",
+    "keywords": [
+        "unity",
+        "in-app purchase",
+        "subscriptions",
+        "iap",
+        "iOS",
+        "Apple",
+        "Android"
+    ],
+    "files": [
+        "package.json.meta",
+        "CHANGELOG.md",
+        "CHANGELOG.md.meta",
+        "RevenueCat",
+        "RevenueCat.meta",
+        "!**/*.tgz",
+        "!**/*.tgz.meta",
+        "!**/.DS_Store"
+    ],
+    "homepage": "https://www.revenuecat.com/",
+    "bugs": {
+        "url": "https://github.com/revenuecat/purchases-unity/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/revenuecat/purchases-unity.git",
+        "baseUrl": "https://github.com/revenuecat/purchases-unity"
+    },
+    "license": "MIT",
+    "author": "RevenueCat, Inc.",
+    "readmeFilename": "../README.md",
+    "dependencies": {
+        "com.google.external-dependency-manager" : "1.2.164"
+    }
+}
