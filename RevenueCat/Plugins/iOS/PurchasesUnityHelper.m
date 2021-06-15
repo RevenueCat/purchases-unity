@@ -19,6 +19,7 @@ static NSString *const MAKE_PURCHASE = @"_makePurchase";
 static NSString *const GET_OFFERINGS = @"_getOfferings";
 static NSString *const GET_PURCHASER_INFO = @"_getPurchaserInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
+static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
 
 #pragma mark Utility Methods
 
@@ -237,6 +238,15 @@ char *makeStringCopy(NSString *nstring) {
      [RCCommonFunctionality setSimulatesAskToBuyInSandbox:enabled];
 }
 
+- (void)canMakePaymentsWithFeatures:(NSArray<NSNumber *> *)features {
+    BOOL canMakePayments = [RCCommonFunctionality canMakePaymentsWithFeatures:features];
+    
+    NSDictionary *response = @{
+        @"canMakePayments": @(canMakePayments)
+    };
+    
+    [self sendJSONObject:response toMethod:CAN_MAKE_PAYMENTS];
+}
 #pragma mark - Subcriber Attributes
 
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
@@ -557,3 +567,16 @@ void _RCSetCreative(const char *creative) {
 void _RCCollectDeviceIdentifiers() {
     [_RCUnityHelperShared() collectDeviceIdentifiers];
 }
+
+void _RCCanMakePayments(const char *featuresJSON) {
+    NSError *error = nil;
+    NSDictionary *canMakePaymentsRequest = [NSJSONSerialization JSONObjectWithData:[convertCString(featuresJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+
+    if (error) {
+        NSLog(@"Error parsing features JSON: %s %@", featuresJSON, error.localizedDescription);
+        return;
+    }
+
+    [_RCUnityHelperShared() canMakePaymentsWithFeatures:canMakePaymentsRequest[@"features"]];
+}
+

@@ -127,7 +127,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
         Debug.Log("user ID " + purchases.GetAppUserId());
         Debug.Log("user is anonymous " + purchases.IsAnonymous());
         
-        purchases.CanMakePayments(new[] { Purchases.BillingFeature.Subscriptions }, (canMakePayments, error) =>
+        purchases.CanMakePayments(new Purchases.BillingFeature[] { Purchases.BillingFeature.Subscriptions }, (canMakePayments, error) =>
             Debug.Log("canMakePayments " + canMakePayments));
     }
 

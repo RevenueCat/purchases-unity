@@ -17,8 +17,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         public string[] productIdentifiers;
     }
-
-    [DllImport("__Internal")]
+ [DllImport("__Internal")]
     private static extern void _RCGetProducts(string productIdentifiersJson, string type);
     public void GetProducts(string[] productIdentifiers, string type = "subs")
     {
@@ -29,6 +28,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
         _RCGetProducts(JsonUtility.ToJson(request), type);
     }
+   
 
     [DllImport("__Internal")]
     private static extern void _RCPurchaseProduct(string productIdentifier);
@@ -299,6 +299,30 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void CollectDeviceIdentifiers()
     {
         _RCCollectDeviceIdentifiers();
+    }
+
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    private class CanMakePaymentsRequest
+    {
+        public int[] features;
+    }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCCanMakePayments(string featuresJson);
+    public void CanMakePayments(Purchases.BillingFeature[] features)
+    {
+        int[] featuresAsInts = new int[features.Length];
+        for (int i = 0; i < features.Length; i++) {
+            Purchases.BillingFeature feature = features[i];
+            featuresAsInts[i] = (int)feature;
+        }
+
+        var request = new CanMakePaymentsRequest
+        {
+            features = featuresAsInts
+        };
+        
+        _RCCanMakePayments(JsonUtility.ToJson(request));
     }
 }
 #endif

@@ -21,7 +21,6 @@ public partial class Purchases : MonoBehaviour
     
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
-
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
     public string revenueCatAPIKey;
@@ -408,10 +407,14 @@ public partial class Purchases : MonoBehaviour
     
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
 
-    public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback)
-    {
+    public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
         CanMakePaymentsCallback = callback;
         _wrapper.CanMakePayments(features);
+    }
+    
+    public void CanMakePayments(CanMakePaymentsFunc callback)
+    {
+        CanMakePayments(new BillingFeature[] { }, callback);
     }
     
 

@@ -232,14 +232,25 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("collectDeviceIdentifiers");
     }
 
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    private class CanMakePaymentsRequest
+    {
+        public int[] features;
+    }
+
     public void CanMakePayments(Purchases.BillingFeature[] features) 
     {
         int[] featuresAsInts = new int[features.Length];
         for (int i = 0; i < features.Length; i++) {
             Purchases.BillingFeature feature = features[i];
-            featuresAsInts[i] = (int) feature;
+            featuresAsInts[i] = (int)feature;
         }
-        CallPurchases("canMakePayments", featuresAsInts);
+
+        var request = new CanMakePaymentsRequest
+        {
+            features = featuresAsInts
+        };
+        CallPurchases("canMakePayments", JsonUtility.ToJson(request));
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

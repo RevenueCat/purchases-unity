@@ -323,31 +323,36 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.collectDeviceIdentifiers();
     }
     
-    public static void canMakePayments(int[] features) {
-        List<Integer> featuresToSend = new ArrayList<>();
-        for (Integer feature : features) {
-            featuresToSend.add(feature);
+    public static void canMakePayments(String featuresJson) {
+        try {
+            JSONObject request = new JSONObject(featuresJson);
+            JSONArray features = request.getJSONArray("features");
+            List<Integer> featuresToSend = new ArrayList<>();
+            for (int i = 0; i < features.length(); i++) {
+                int feature = features.getInt(i);
+                featuresToSend.add(feature);
+            }
+
+            CommonKt.canMakePayments(UnityPlayer.currentActivity, featuresToSend, new OnResultAny<Boolean>() {
+               @Override
+               public void onReceived(Boolean canMakePayments) {
+                   JSONObject object = new JSONObject();
+                   try {
+                       object.put("canMakePayments", canMakePayments);
+                   } catch (JSONException e) {
+                       e.printStackTrace();
+                   }
+                   sendJSONObject(object, CAN_MAKE_PAYMENTS);
+               }
+   
+               @Override
+               public void onError(ErrorContainer errorContainer) {
+                   sendError(errorContainer, CAN_MAKE_PAYMENTS);
+               }
+           });
+        } catch (JSONException e) {
+           Log.e("Purchases", "Failure parsing features " + featuresJson);
         }
-
-        CommonKt.canMakePayments(UnityPlayer.currentActivity, featuresToSend, new OnResultAny<Boolean>() {
-            @Override
-            public void onReceived(Boolean canMakePayments) {
-                JSONObject object = new JSONObject();
-                try {
-                    object.put("canMakePayments", canMakePayments);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                sendJSONObject(object, CAN_MAKE_PAYMENTS);
-
-            }
-
-            @Override
-            public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, CAN_MAKE_PAYMENTS);
-            }
-        });
-
     }
 
     private static void logJSONException(JSONException e) {
