@@ -17,7 +17,8 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         public string[] productIdentifiers;
     }
- [DllImport("__Internal")]
+
+    [DllImport("__Internal")]
     private static extern void _RCGetProducts(string productIdentifiersJson, string type);
     public void GetProducts(string[] productIdentifiers, string type = "subs")
     {
@@ -28,7 +29,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
         _RCGetProducts(JsonUtility.ToJson(request), type);
     }
-   
 
     [DllImport("__Internal")]
     private static extern void _RCPurchaseProduct(string productIdentifier);
