@@ -19,6 +19,15 @@ public partial class Purchases : MonoBehaviour
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
     
+    /// <summary>
+    /// Callback function containing the result of CanMakePayments
+    /// <param name="canMakePayments">A bool value indicating whether billing
+    /// is supported for the current user (meaning IN-APP purchases are supported),
+    /// and, if provided, whether a list of specified BillingFeatures are supported.
+    /// This will be false if there is an error</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
@@ -407,11 +416,25 @@ public partial class Purchases : MonoBehaviour
     
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
 
-    public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
+     /// <summary>
+     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
+     /// and whether a list of specified feature types are supported.
+     ///
+     /// Note: BillingFeatures are only relevant to Google Play Android users.
+     /// For other stores and platforms, BillingFeatures won't be checked.
+     /// </summary>
+     /// <param name="features">An array of BillingFeatures to check for support.
+     /// If empty, no features will be checked.</param>
+     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
+     public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
         CanMakePaymentsCallback = callback;
         _wrapper.CanMakePayments(features);
     }
     
+     /// <summary>
+     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
+     /// </summary>
+     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
     public void CanMakePayments(CanMakePaymentsFunc callback)
     {
         CanMakePayments(new BillingFeature[] { }, callback);
