@@ -570,7 +570,12 @@ void _RCCollectDeviceIdentifiers() {
 
 void _RCCanMakePayments(const char *featuresJSON) {
     NSError *error = nil;
-    NSDictionary *canMakePaymentsRequest = [NSJSONSerialization JSONObjectWithData:[convertCString(featuresJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    
+    NSDictionary *canMakePaymentsRequest = [NSJSONSerialization 
+        JSONObjectWithData:[convertCString(featuresJSON)        
+            dataUsingEncoding:NSUTF8StringEncoding]
+        options:0
+        error:&error];
 
     if (error) {
         NSLog(@"Error parsing features JSON: %s %@", featuresJSON, error.localizedDescription);
