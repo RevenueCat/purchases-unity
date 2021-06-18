@@ -427,8 +427,9 @@ public partial class Purchases : MonoBehaviour
      /// If empty, no features will be checked.</param>
      /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
      public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
-        CanMakePaymentsCallback = callback;
-        _wrapper.CanMakePayments(features);
+         CanMakePaymentsCallback = callback;
+        _wrapper.CanMakePayments(features == null ? new BillingFeature[] {} : features);
+        
     }
     
      /// <summary>
