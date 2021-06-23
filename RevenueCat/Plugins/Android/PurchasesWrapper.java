@@ -340,7 +340,7 @@ public class PurchasesWrapper {
                    try {
                        object.put("canMakePayments", canMakePayments);
                    } catch (JSONException e) {
-                       e.printStackTrace();
+                       logJSONException(e);
                    }
                    sendJSONObject(object, CAN_MAKE_PAYMENTS);
                }
@@ -351,7 +351,7 @@ public class PurchasesWrapper {
                }
            });
         } catch (JSONException e) {
-           Log.e("Purchases", "Failure parsing features " + featuresJson);
+            logJSONException(e);
         }
     }
 
