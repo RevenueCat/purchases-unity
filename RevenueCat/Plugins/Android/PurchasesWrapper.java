@@ -7,14 +7,15 @@ import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
-import com.revenuecat.purchases.common.CommonKt;
-import com.revenuecat.purchases.common.ErrorContainer;
-import com.revenuecat.purchases.common.OnResult;
-import com.revenuecat.purchases.common.OnResultList;
 import com.revenuecat.purchases.common.PlatformInfo;
-import com.revenuecat.purchases.common.SubscriberAttributesKt;
-import com.revenuecat.purchases.common.mappers.MappersHelpersKt;
-import com.revenuecat.purchases.common.mappers.PurchaserInfoMapperKt;
+import com.revenuecat.purchases.hybridcommon.CommonKt;
+import com.revenuecat.purchases.hybridcommon.ErrorContainer;
+import com.revenuecat.purchases.hybridcommon.OnResult;
+import com.revenuecat.purchases.hybridcommon.OnResultList;
+import com.revenuecat.purchases.hybridcommon.SubscriberAttributesKt;
+import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
+import com.revenuecat.purchases.hybridcommon.mappers.PurchaserInfoMapperKt;
+import com.revenuecat.purchases.hybridcommon.OnResultAny;
 import com.revenuecat.purchases.interfaces.UpdatedPurchaserInfoListener;
 import com.unity3d.player.UnityPlayer;
 
@@ -37,6 +38,7 @@ public class PurchasesWrapper {
     private static final String RESET = "_reset";
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
+    private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "3.1.1";
@@ -319,6 +321,38 @@ public class PurchasesWrapper {
 
     public static void collectDeviceIdentifiers() {
         SubscriberAttributesKt.collectDeviceIdentifiers();
+    }
+    
+    public static void canMakePayments(String featuresJson) {
+        try {
+            JSONObject request = new JSONObject(featuresJson);
+            JSONArray features = request.getJSONArray("features");
+            List<Integer> featuresToSend = new ArrayList<>();
+            for (int i = 0; i < features.length(); i++) {
+                int feature = features.getInt(i);
+                featuresToSend.add(feature);
+            }
+
+            CommonKt.canMakePayments(UnityPlayer.currentActivity, featuresToSend, new OnResultAny<Boolean>() {
+               @Override
+               public void onReceived(Boolean canMakePayments) {
+                   JSONObject object = new JSONObject();
+                   try {
+                       object.put("canMakePayments", canMakePayments);
+                   } catch (JSONException e) {
+                       logJSONException(e);
+                   }
+                   sendJSONObject(object, CAN_MAKE_PAYMENTS);
+               }
+   
+               @Override
+               public void onError(ErrorContainer errorContainer) {
+                   sendError(errorContainer, CAN_MAKE_PAYMENTS);
+               }
+           });
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
     }
 
     private static void logJSONException(JSONException e) {

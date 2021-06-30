@@ -18,7 +18,17 @@ public partial class Purchases : MonoBehaviour
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
-
+    
+    /// <summary>
+    /// Callback function containing the result of CanMakePayments
+    /// <param name="canMakePayments">A bool value indicating whether billing
+    /// is supported for the current user (meaning IN-APP purchases are supported),
+    /// and, if provided, whether a list of specified BillingFeatures are supported.
+    /// This will be false if there is an error</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
+    public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
@@ -403,6 +413,34 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.CollectDeviceIdentifiers();
     }
+    
+    private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
+
+     /// <summary>
+     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
+     /// and whether a list of specified feature types are supported.
+     ///
+     /// Note: BillingFeatures are only relevant to Google Play Android users.
+     /// For other stores and platforms, BillingFeatures won't be checked.
+     /// </summary>
+     /// <param name="features">An array of BillingFeatures to check for support.
+     /// If empty, no features will be checked.</param>
+     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
+     public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
+         CanMakePaymentsCallback = callback;
+        _wrapper.CanMakePayments(features == null ? new BillingFeature[] {} : features);
+        
+    }
+    
+     /// <summary>
+     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
+     /// </summary>
+     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
+    public void CanMakePayments(CanMakePaymentsFunc callback)
+    {
+        CanMakePayments(new BillingFeature[] { }, callback);
+    }
+    
 
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
@@ -542,6 +580,26 @@ public partial class Purchases : MonoBehaviour
         CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
 
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
+    }
+
+    private void _canMakePayments(string canMakePaymentsJson)
+    {
+        Debug.Log("_canMakePayments" + canMakePaymentsJson);
+
+        if (CanMakePaymentsCallback == null) return;
+        
+        var response = JSON.Parse(canMakePaymentsJson);
+
+        if (ResponseHasError(response))
+        {
+            CanMakePaymentsCallback(false, new Error(response["error"]));
+        }
+        else
+        {
+            var canMakePayments = response["canMakePayments"];
+            CanMakePaymentsCallback(canMakePayments, null);
+        }
+        CanMakePaymentsCallback = null;
     }
 
     private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)

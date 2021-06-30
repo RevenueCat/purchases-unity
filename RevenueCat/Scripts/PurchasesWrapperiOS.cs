@@ -300,5 +300,29 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCCollectDeviceIdentifiers();
     }
+
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    private class CanMakePaymentsRequest
+    {
+        public int[] features;
+    }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCCanMakePayments(string featuresJson);
+    public void CanMakePayments(Purchases.BillingFeature[] features)
+    {
+        int[] featuresAsInts = new int[features.Length];
+        for (int i = 0; i < features.Length; i++) {
+            Purchases.BillingFeature feature = features[i];
+            featuresAsInts[i] = (int)feature;
+        }
+
+        var request = new CanMakePaymentsRequest
+        {
+            features = featuresAsInts
+        };
+        
+        _RCCanMakePayments(JsonUtility.ToJson(request));
+    }
 }
 #endif

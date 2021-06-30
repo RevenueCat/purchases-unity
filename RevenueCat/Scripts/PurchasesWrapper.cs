@@ -43,4 +43,5 @@ public interface IPurchasesWrapper
     void SetKeyword(string keyword);
     void SetCreative(string creative);
     void CollectDeviceIdentifiers();
+    void CanMakePayments(Purchases.BillingFeature[] features);
 }

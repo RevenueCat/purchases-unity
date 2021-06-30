@@ -171,5 +171,9 @@ public partial class Purchases
         public void CollectDeviceIdentifiers()
         {
         }
+        
+        public void CanMakePayments(Purchases.BillingFeature[] features)
+        {
+        }
     }
 }
