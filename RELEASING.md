@@ -1,6 +1,6 @@
 1. Start a branch release/x.y.z
 1. Update to the latest SDK versions in RevenueCatDependencies.xml for Android and iOS
-1. Update the VERSION file and the platformFlavorVersion number in `PurchasesUnityHelper.m` and `PurchasesWrapper.java`
+1. Update the VERSION file, the platformFlavorVersion number in `PurchasesUnityHelper.m` and  the PLUGIN_VERSION number `PurchasesWrapper.java`
 1. Update the VERSIONS.md file.
 1. Add an entry to CHANGELOG.md
 1. Make a PR, merge when approved

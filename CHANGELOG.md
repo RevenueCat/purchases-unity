@@ -1,3 +1,11 @@
+## 3.2.0
+- Added canMakePaymentsMethod (https://github.com/RevenueCat/purchases-unity/pull/52)
+- Fixed missing meta files for Subtester sample app (https://github.com/RevenueCat/purchases-unity/pull/47)
+- Bumped purchases-hybrid-common to 1.7.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/1.7.1)
+- Bumped purchases-ios to 3.11.1 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.11.1)
+- Bumped purchases-android to 4.2.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/4.2.1)
+
+
 ## 3.1.1
 - Ensured that the `purchases-hybrid-common` version being used by the SDK is locked using `[x.y.z]`
     https://github.com/RevenueCat/purchases-unity/pull/44
