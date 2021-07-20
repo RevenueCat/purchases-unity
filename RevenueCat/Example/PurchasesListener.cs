@@ -61,7 +61,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
     private void SwitchUser()
     {
         var purchases = GetComponent<Purchases>();
-        purchases.Identify("newUser", (purchaserInfo, error) =>
+        purchases.LogIn("newUser", (purchaserInfo, created, error) =>
         {
             if (error != null)
             {
