@@ -169,7 +169,7 @@ public class PurchasesWrapper {
 
 
     public static void logIn(String appUserId) {
-        CommonKt.logIn(appUserID, getLogInListener(LOG_IN));
+        CommonKt.logIn(appUserId, getLogInListener(LOG_IN));
     }
 
     public static void logOut() {
@@ -413,8 +413,9 @@ public class PurchasesWrapper {
             public void onReceived(Map<String, ?> map) {
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(map["purchaserInfo"]));
-                    jsonObject.put("created", MappersHelpersKt.convertToJson(map["created"]));
+                    Map<String, ?> purchaserInfoMap = (Map<String, ?>)map.get("purchaserInfo");
+                    jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(purchaserInfoMap));
+                    jsonObject.put("created", (Boolean)map.get("created"));
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
