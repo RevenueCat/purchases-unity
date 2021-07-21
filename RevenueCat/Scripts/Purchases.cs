@@ -13,6 +13,8 @@ public partial class Purchases : MonoBehaviour
 
     public delegate void PurchaserInfoFunc(PurchaserInfo purchaserInfo, Error error);
 
+    public delegate void LogInFunc(PurchaserInfo purchaserInfo, bool created, Error error);
+
     public delegate void GetEntitlementsFunc(Dictionary<string, object> entitlements, Error error);
 
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
@@ -123,14 +125,32 @@ public partial class Purchases : MonoBehaviour
     private PurchaserInfoFunc CreateAliasCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
+    [Obsolete("Deprecated, use LogIn instead.")]
     public void CreateAlias(string newAppUserId, PurchaserInfoFunc callback)
     {
         CreateAliasCallback = callback;
         _wrapper.CreateAlias(newAppUserId);
     }
 
+    private LogInFunc LogInCallback { get; set; }
+
+    public void LogIn(string appUserId, LogInFunc callback)
+    {
+        LogInCallback = callback;
+        _wrapper.LogIn(appUserId);
+    }    
+    
+    private PurchaserInfoFunc LogOutCallback { get; set; }
+
+    public void LogOut(PurchaserInfoFunc callback)
+    {
+        LogOutCallback = callback;
+        _wrapper.LogOut();
+    }
+    
     private PurchaserInfoFunc IdentifyCallback { get; set; }
 
+    [Obsolete("Deprecated, use LogIn instead.")]
     public void Identify(string appUserId, PurchaserInfoFunc callback)
     {
         IdentifyCallback = callback;
@@ -141,6 +161,7 @@ public partial class Purchases : MonoBehaviour
 
     // ReSharper disable once Unity.IncorrectMethodSignature
     // ReSharper disable once UnusedMember.Global
+    [Obsolete("Deprecated, use LogOut instead.")]
     public void Reset(PurchaserInfoFunc callback)
     {
         ResetCallback = callback;
@@ -154,6 +175,7 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
+    [Obsolete("Deprecated, configure behavior through the RevenueCat Dashboard instead.")]
     public void SetAllowSharingStoreAccount(bool allow)
     {
         _wrapper.SetAllowSharingStoreAccount(allow);
@@ -531,6 +553,22 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
+    private void _logIn(string logInResultJson)
+    {
+        Debug.Log("_logIn " + logInResultJson);
+        ReceiveLogInResultMethod(logInResultJson, LogInCallback);
+        LogInCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _logOut(string purchaserInfoJson)
+    {
+        Debug.Log("_logOut " + purchaserInfoJson);
+        ReceivePurchaserInfoMethod(purchaserInfoJson, LogOutCallback);
+        LogOutCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
     private void _identify(string purchaserInfoJson)
     {
         Debug.Log("_identify " + purchaserInfoJson);
@@ -616,6 +654,24 @@ public partial class Purchases : MonoBehaviour
         {
             var info = new PurchaserInfo(response["purchaserInfo"]); 
             callback(info, null);
+        }
+    }
+
+    private static void ReceiveLogInResultMethod(string arguments, LogInFunc callback)
+    {
+        if (callback == null) return;
+
+        var response = JSON.Parse(arguments);
+        
+        if (ResponseHasError(response))
+        {
+            callback(null, false, new Error(response["error"]));
+        }
+        else
+        {
+            var info = new PurchaserInfo(response["purchaserInfo"]); 
+            var created = response["created"];
+            callback(info, created, null);
         }
     }
 
