@@ -416,6 +416,8 @@ public class PurchasesWrapper {
                     Map<String, ?> purchaserInfoMap = (Map<String, ?>)map.get("purchaserInfo");
                     jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(purchaserInfoMap));
                     jsonObject.put("created", (Boolean)map.get("created"));
+                } catch (ClassCastException castException) {
+                    Log.e("Purchases", "invalid casting Error: " + castException.getLocalizedMessage());
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
