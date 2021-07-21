@@ -1,10 +1,32 @@
+## 3.3.0
+
+### Identity V3:
+
+In this version, we’ve redesigned the way that user identification works. 
+Detailed docs about the new system are available [here](https://docs.revenuecat.com/v3.2/docs/user-ids).
+
+#### New methods
+- Introduces `LogIn`, a new way of identifying users, which also returns whether a new user has been registered in the system. 
+`LogIn` uses a new backend endpoint. 
+- Introduces `LogOut`, a replacement for `Reset`. 
+
+#### Deprecations
+- deprecates `CreateAlias` in favor of `LogIn`.
+- deprecates `Identify` in favor of `LogIn`.
+- deprecates `Reset` in favor of `LogOut`.
+- deprecates `SetAllowSharingStoreAccount` in favor of dashboard-side configuration.
+    https://github.com/RevenueCat/purchases-unity/pull/48/
+
+#### Other
+- Bumped purchases-ios to 3.12.2 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.12.2)
+- Bumped purchases-android to 4.3.0 [Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.3.0)
+
 ## 3.2.0
 - Added canMakePaymentsMethod (https://github.com/RevenueCat/purchases-unity/pull/52)
 - Fixed missing meta files for Subtester sample app (https://github.com/RevenueCat/purchases-unity/pull/47)
 - Bumped purchases-hybrid-common to 1.7.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/1.7.1)
 - Bumped purchases-ios to 3.11.1 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.11.1)
 - Bumped purchases-android to 4.2.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/4.2.1)
-
 
 ## 3.1.1
 - Ensured that the `purchases-hybrid-common` version being used by the SDK is locked using `[x.y.z]`
