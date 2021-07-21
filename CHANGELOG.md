@@ -11,7 +11,7 @@ Detailed docs about the new system are available [here](https://docs.revenuecat.
 - Introduces `LogOut`, a replacement for `Reset`. 
 
 #### Deprecations
-- deprecates `CcreateAlias` in favor of `LogIn`.
+- deprecates `CreateAlias` in favor of `LogIn`.
 - deprecates `Identify` in favor of `LogIn`.
 - deprecates `Reset` in favor of `LogOut`.
 - deprecates `SetAllowSharingStoreAccount` in favor of dashboard-side configuration.
