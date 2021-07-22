@@ -20,6 +20,8 @@ Detailed docs about the new system are available [here](https://docs.revenuecat.
 #### Other
 - Bumped purchases-ios to 3.12.2 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.12.2)
 - Bumped purchases-android to 4.3.0 [Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.3.0)
+- Updated BillingClient to version [4.0.0](https://developer.android.com/google/play/billing/release-notes#4-0).
+     https://github.com/RevenueCat/purchases-android/commit/f6554bbf7376c3fd492f0bc67183a9f35889ae78
 
 ## 3.2.0
 - Added canMakePaymentsMethod (https://github.com/RevenueCat/purchases-unity/pull/52)
