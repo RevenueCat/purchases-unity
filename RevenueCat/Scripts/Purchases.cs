@@ -35,7 +35,7 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Callback function containing the result of GetPaymentDiscount
     /// <param name="paymentDiscount">A Purchases.PaymentDiscount. It will be Null if platform is Android or
-    /// the iOS version is not compatible with subscription offers</param>
+    /// the iOS version is not compatible with promotional offers</param>
     /// <param name="error">An Error object or null if successful.</param>
     /// 
     /// </summary>

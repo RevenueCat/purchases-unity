@@ -20,7 +20,7 @@ public partial class Purchases
         public int introPricePeriodNumberOfUnits;
         public int introPriceCycles;
         /// <summary>
-        /// Collection of iOS subscription offers for a product. Null for Android.
+        /// Collection of iOS promotional offers for a product. Null for Android.
         /// </summary>
         /// <returns></returns>
         [CanBeNull] public Discount[] Discounts;
