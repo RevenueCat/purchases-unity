@@ -31,6 +31,15 @@ public partial class Purchases : MonoBehaviour
     /// 
     /// </summary>
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
+    
+    /// <summary>
+    /// Callback function containing the result of GetPaymentDiscount
+    /// <param name="paymentDiscount">A Purchases.PaymentDiscount. It will be Null if platform is Android or
+    /// the iOS version is not compatible with subscription offers</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
+    public delegate void GetPaymentDiscountFunc(PaymentDiscount paymentDiscount, Error error);
 
     [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
@@ -101,11 +110,23 @@ public partial class Purchases : MonoBehaviour
         MakePurchaseCallback = callback;
         _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode);
     }
+    
+    public void PurchaseDiscountedProduct(string productIdentifier, PaymentDiscount discount, MakePurchaseFunc callback)
+    {
+        MakePurchaseCallback = callback;
+        _wrapper.PurchaseProduct(productIdentifier, discount: discount);
+    }
 
     public void PurchasePackage(Package package, MakePurchaseFunc callback, string oldSku = null, ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackage(package, oldSku, prorationMode);
+    }
+
+    public void PurchaseDiscountedPackage(Package package, PaymentDiscount discount, MakePurchaseFunc callback)
+    {
+        MakePurchaseCallback = callback;
+        _wrapper.PurchasePackage(package, discount: discount);
     }
 
     private PurchaserInfoFunc RestoreTransactionsCallback { get; set; }
@@ -450,9 +471,8 @@ public partial class Purchases : MonoBehaviour
      /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
      public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
          CanMakePaymentsCallback = callback;
-        _wrapper.CanMakePayments(features == null ? new BillingFeature[] {} : features);
-        
-    }
+         _wrapper.CanMakePayments(features == null ? new BillingFeature[] { } : features);
+     }
     
      /// <summary>
      /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
@@ -462,8 +482,22 @@ public partial class Purchases : MonoBehaviour
     {
         CanMakePayments(new BillingFeature[] { }, callback);
     }
-    
+     
+     private GetPaymentDiscountFunc GetPaymentDiscountCallback { get; set; }
 
+     /// <summary>
+     /// iOS only. Use this function to retrieve the Purchases.PaymentDiscount for a given Purchases.Package.
+     /// </summary>
+     /// <param name="product">The Purchases.Product the user intends to purchase</param>
+     /// <param name="discount">The Purchases.Discount to apply to the product.</param>
+     /// <param name="callback">A callback receiving a Purchases.PaymentDiscount. Null is returned for Android and
+     /// incompatible iOS versions.</param>
+     public void GetPaymentDiscount(Product product, Discount discount, GetPaymentDiscountFunc callback)
+     {
+        GetPaymentDiscountCallback = callback;
+         _wrapper.GetPaymentDiscount(product.identifier, discount.identifier);
+     }
+     
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
     {
@@ -638,6 +672,26 @@ public partial class Purchases : MonoBehaviour
             CanMakePaymentsCallback(canMakePayments, null);
         }
         CanMakePaymentsCallback = null;
+    }
+
+    private void _getPaymentDiscount(string getPaymentDiscountJson)
+    {
+        Debug.Log("_getPaymentDiscount" + getPaymentDiscountJson);
+
+        if (GetPaymentDiscountCallback == null) return;
+        
+        var response = JSON.Parse(getPaymentDiscountJson);
+
+        if (ResponseHasError(response))
+        {
+            GetPaymentDiscountCallback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var paymentDiscount = new PaymentDiscount(response);
+            GetPaymentDiscountCallback(paymentDiscount, null);
+        }
+        GetPaymentDiscountCallback = null;
     }
 
     private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)

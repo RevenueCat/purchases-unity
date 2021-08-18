@@ -31,17 +31,31 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchaseProduct(string productIdentifier);
-    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+    private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
+    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
+        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        Purchases.PaymentDiscount discount = null)
     {
-        _RCPurchaseProduct(productIdentifier);
+        string discountTimestamp = null;
+        if (discount != null)
+        {
+            discountTimestamp = discount.timestamp.ToString();
+        }
+        _RCPurchaseProduct(productIdentifier, discountTimestamp);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier);
-    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+    private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
+    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
+        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        Purchases.PaymentDiscount discount = null)
     {
-        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier);
+        string discountTimestamp = null;
+        if (discount != null)
+        {
+            discountTimestamp = discount.timestamp.ToString();
+        }
+        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
     }
 
     [DllImport("__Internal")]
@@ -338,5 +352,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         
         _RCCanMakePayments(JsonUtility.ToJson(request));
     }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCGetPaymentDiscount(string productIdentifier, string discountIdentifier);
+    public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+    {
+        _RCGetPaymentDiscount(productIdentifier, discountIdentifier);
+    }
+    
 }
 #endif

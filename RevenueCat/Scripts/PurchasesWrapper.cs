@@ -6,8 +6,12 @@ public interface IPurchasesWrapper
 	void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
 	void AddAttributionData(int network, string data, string networkUserId);
 	void GetProducts(string[] productIdentifiers, string type = "subs");
-    void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy);
-    void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy);
+    void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
+	    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, 
+	    Purchases.PaymentDiscount discount = null);
+    void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
+	    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, 
+	    Purchases.PaymentDiscount discount = null);
     void RestoreTransactions();
 	void CreateAlias(string newAppUserId);
 	void LogIn(string appUserId);
@@ -46,4 +50,5 @@ public interface IPurchasesWrapper
     void SetCreative(string creative);
     void CollectDeviceIdentifiers();
     void CanMakePayments(Purchases.BillingFeature[] features);
+    void GetPaymentDiscount(string productIdentifier, string discountIdentifier);
 }

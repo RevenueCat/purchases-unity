@@ -19,7 +19,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("getProducts", JsonUtility.ToJson(request), type);
     }
 
-    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
+        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        Purchases.PaymentDiscount discount = null)
     {
         if (oldSku == null)
         {
@@ -31,7 +33,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
+        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        Purchases.PaymentDiscount discount = null)
     {
         if (oldSku == null)
         {
@@ -261,6 +265,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             features = featuresAsInts
         };
         CallPurchases("canMakePayments", JsonUtility.ToJson(request));
+    }
+
+    public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+    {
+        CallPurchases("getPaymentDiscount", productIdentifier, discountIdentifier);
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

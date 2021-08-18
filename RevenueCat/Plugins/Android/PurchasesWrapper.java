@@ -7,6 +7,8 @@ import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
+import com.revenuecat.purchases.PurchasesError;
+import com.revenuecat.purchases.PurchasesErrorCode;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
 import com.revenuecat.purchases.hybridcommon.ErrorContainer;
@@ -41,6 +43,7 @@ public class PurchasesWrapper {
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
+    private static final String GET_PAYMENT_DISCOUNT = "_getPaymentDiscount";
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "3.3.0";
@@ -364,6 +367,11 @@ public class PurchasesWrapper {
         } catch (JSONException e) {
             logJSONException(e);
         }
+    }
+
+    public static void getPaymentDiscount(String productIdentifier, String discountIdentifier) {
+        ErrorContainer errorContainer = CommonKt.getPaymentDiscount();
+        sendError(errorContainer, GET_PAYMENT_DISCOUNT);
     }
 
     private static void logJSONException(JSONException e) {

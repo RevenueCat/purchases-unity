@@ -22,6 +22,7 @@ static NSString *const GET_OFFERINGS = @"_getOfferings";
 static NSString *const GET_PURCHASER_INFO = @"_getPurchaserInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
+static NSString *const GET_PAYMENT_DISCOUNT = @"_getPaymentDiscount";
 
 #pragma mark Utility Methods
 
@@ -73,6 +74,7 @@ char *makeStringCopy(NSString *nstring) {
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
+    [RCCommonFunctionality configure];
 }
 
 - (void)getProducts:(NSArray *)productIdentifiers
@@ -85,9 +87,10 @@ char *makeStringCopy(NSString *nstring) {
     }];
 }
 
-- (void)purchaseProduct:(NSString *)productIdentifier {
+- (void)purchaseProduct:(NSString *)productIdentifier
+signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality purchaseProduct:productIdentifier
-                   signedDiscountTimestamp:nil
+                   signedDiscountTimestamp:signedDiscountTimestamp
                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
         if (error) {
@@ -104,10 +107,11 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (void)purchasePackage:(NSString *)packageIdentifier
-     offeringIdentifier:(NSString *)offeringIdentifier {
+     offeringIdentifier:(NSString *)offeringIdentifier
+signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality purchasePackage:packageIdentifier
                                   offering:offeringIdentifier
-                   signedDiscountTimestamp:nil
+                   signedDiscountTimestamp:signedDiscountTimestamp
                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
         if (error) {
@@ -256,6 +260,17 @@ char *makeStringCopy(NSString *nstring) {
     
     [self sendJSONObject:response toMethod:CAN_MAKE_PAYMENTS];
 }
+
+
+- (void)paymentDiscountForProductIdentifier:productIdentifier
+                                   discount:discountIdentifier {
+    [RCCommonFunctionality paymentDiscountForProductIdentifier:productIdentifier
+                                                      discount:discountIdentifier
+                                               completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        [self sendJSONObject:responseDictionary toMethod:GET_PAYMENT_DISCOUNT];
+    }];
+}
+
 #pragma mark - Subcriber Attributes
 
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
@@ -420,12 +435,15 @@ void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
     [_RCUnityHelperShared() getProducts:productsRequest[@"productIdentifiers"] type:convertCString(type)];
 }
 
-void _RCPurchaseProduct(const char *productIdentifier) {
-    [_RCUnityHelperShared() purchaseProduct:convertCString(productIdentifier)];
+void _RCPurchaseProduct(const char *productIdentifier, const char *signedDiscountTimestamp) {
+    [_RCUnityHelperShared() purchaseProduct:convertCString(productIdentifier)
+                    signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
 }
 
-void _RCPurchasePackage(const char *packageIdentifier, const char *offeringIdentifier) {
-    [_RCUnityHelperShared() purchasePackage:convertCString(packageIdentifier) offeringIdentifier:convertCString(offeringIdentifier)];
+void _RCPurchasePackage(const char *packageIdentifier, const char *offeringIdentifier, const char *signedDiscountTimestamp) {
+    [_RCUnityHelperShared() purchasePackage:convertCString(packageIdentifier)
+                         offeringIdentifier:convertCString(offeringIdentifier)
+                    signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
 }
 
 void _RCRestoreTransactions() {
@@ -613,5 +631,11 @@ void _RCCanMakePayments(const char *featuresJSON) {
     }
 
     [_RCUnityHelperShared() canMakePaymentsWithFeatures:canMakePaymentsRequest[@"features"]];
+}
+
+
+void _RCGetPaymentDiscount(const char *productIdentifier, const char *discountIdentifier) {
+    [_RCUnityHelperShared() paymentDiscountForProductIdentifier:convertCString(productIdentifier)
+                                                       discount:convertCString(discountIdentifier)];
 }
 
