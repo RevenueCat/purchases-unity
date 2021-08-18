@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
+using UnityEngine;
 
 public partial class Purchases
 {
@@ -18,7 +19,12 @@ public partial class Purchases
         public string introPricePeriodUnit;
         public int introPricePeriodNumberOfUnits;
         public int introPriceCycles;
-
+        /// <summary>
+        /// Collection of iOS subscription offers for a product. Null for Android.
+        /// </summary>
+        /// <returns></returns>
+        [CanBeNull] public Discount[] Discounts;
+            
         public Product(JSONNode response)
         {
             title = response["title"];
@@ -33,6 +39,13 @@ public partial class Purchases
             introPricePeriodUnit = response["intro_price_period_unit"];
             introPricePeriodNumberOfUnits = response["intro_price_period_number_of_units"];
             introPriceCycles = response["intro_price_cycles"];
+            
+            var temporaryList = new List<Discount>();
+            foreach (var discountResponse in response["discounts"])
+            {
+                temporaryList.Add(new Discount(discountResponse));
+            }
+            Discounts = temporaryList.ToArray();
         }
 
         public override string ToString()
@@ -48,7 +61,8 @@ public partial class Purchases
                    $"{nameof(introPricePeriod)}: {introPricePeriod}, " +
                    $"{nameof(introPricePeriodUnit)}: {introPricePeriodUnit}, " +
                    $"{nameof(introPricePeriodNumberOfUnits)}: {introPricePeriodNumberOfUnits}, " +
-                   $"{nameof(introPriceCycles)}: {introPriceCycles}";
+                   $"{nameof(introPriceCycles)}: {introPriceCycles}, " +
+                   $"{nameof(Discounts)}: {Discounts}";
         }
     }
 }
