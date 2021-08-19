@@ -40,8 +40,14 @@ public partial class Purchases
             introPricePeriodNumberOfUnits = response["intro_price_period_number_of_units"];
             introPriceCycles = response["intro_price_cycles"];
             
+            var discountsResponse = response["discounts"];
+            if (discountsResponse == null)
+            {
+                Discounts = null;
+                return;
+            }
             var temporaryList = new List<Discount>();
-            foreach (var discountResponse in response["discounts"])
+            foreach (var discountResponse in discountsResponse)
             {
                 temporaryList.Add(new Discount(discountResponse));
             }
