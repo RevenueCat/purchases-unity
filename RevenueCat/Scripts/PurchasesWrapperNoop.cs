@@ -21,12 +21,14 @@ public partial class Purchases
         }
 
         public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
-            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            Purchases.PaymentDiscount discount = null)
         {
         }
 
         public void PurchasePackage(Package packageToPurchase, string oldSku = null,
-            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            Purchases.PaymentDiscount discount = null)
         {
         }
 
@@ -181,6 +183,10 @@ public partial class Purchases
         }
         
         public void CanMakePayments(Purchases.BillingFeature[] features)
+        {
+        }
+        
+        public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
         {
         }
     }

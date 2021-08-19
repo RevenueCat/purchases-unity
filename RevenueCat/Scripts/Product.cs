@@ -18,7 +18,12 @@ public partial class Purchases
         public string introPricePeriodUnit;
         public int introPricePeriodNumberOfUnits;
         public int introPriceCycles;
-
+        /// <summary>
+        /// Collection of iOS promotional offers for a product. Null for Android.
+        /// </summary>
+        /// <returns></returns>
+        [CanBeNull] public Discount[] discounts;
+            
         public Product(JSONNode response)
         {
             title = response["title"];
@@ -33,6 +38,19 @@ public partial class Purchases
             introPricePeriodUnit = response["intro_price_period_unit"];
             introPricePeriodNumberOfUnits = response["intro_price_period_number_of_units"];
             introPriceCycles = response["intro_price_cycles"];
+            
+            var discountsResponse = response["discounts"];
+            if (discountsResponse == null)
+            {
+                discounts = null;
+                return;
+            }
+            var temporaryList = new List<Discount>();
+            foreach (var discountResponse in discountsResponse)
+            {
+                temporaryList.Add(new Discount(discountResponse));
+            }
+            discounts = temporaryList.ToArray();
         }
 
         public override string ToString()
@@ -48,7 +66,8 @@ public partial class Purchases
                    $"{nameof(introPricePeriod)}: {introPricePeriod}, " +
                    $"{nameof(introPricePeriodUnit)}: {introPricePeriodUnit}, " +
                    $"{nameof(introPricePeriodNumberOfUnits)}: {introPricePeriodNumberOfUnits}, " +
-                   $"{nameof(introPriceCycles)}: {introPriceCycles}";
+                   $"{nameof(introPriceCycles)}: {introPriceCycles}, " +
+                   $"{nameof(discounts)}: {discounts}";
         }
     }
 }
