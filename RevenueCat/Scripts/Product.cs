@@ -22,7 +22,7 @@ public partial class Purchases
         /// Collection of iOS promotional offers for a product. Null for Android.
         /// </summary>
         /// <returns></returns>
-        [CanBeNull] public Discount[] Discounts;
+        [CanBeNull] public Discount[] discounts;
             
         public Product(JSONNode response)
         {
@@ -42,7 +42,7 @@ public partial class Purchases
             var discountsResponse = response["discounts"];
             if (discountsResponse == null)
             {
-                Discounts = null;
+                discounts = null;
                 return;
             }
             var temporaryList = new List<Discount>();
@@ -50,7 +50,7 @@ public partial class Purchases
             {
                 temporaryList.Add(new Discount(discountResponse));
             }
-            Discounts = temporaryList.ToArray();
+            discounts = temporaryList.ToArray();
         }
 
         public override string ToString()
@@ -67,7 +67,7 @@ public partial class Purchases
                    $"{nameof(introPricePeriodUnit)}: {introPricePeriodUnit}, " +
                    $"{nameof(introPricePeriodNumberOfUnits)}: {introPricePeriodNumberOfUnits}, " +
                    $"{nameof(introPriceCycles)}: {introPriceCycles}, " +
-                   $"{nameof(Discounts)}: {Discounts}";
+                   $"{nameof(discounts)}: {discounts}";
         }
     }
 }
