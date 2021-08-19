@@ -1,3 +1,8 @@
+## 3.4.0
+
+- Adds iOS promotional offers support
+    https://github.com/RevenueCat/purchases-unity/pull/59
+
 ## 3.3.0
 
 ### Identity V3:
