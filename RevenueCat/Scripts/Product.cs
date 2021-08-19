@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
-using UnityEngine;
 
 public partial class Purchases
 {
