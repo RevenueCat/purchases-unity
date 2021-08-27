@@ -1,3 +1,8 @@
+## 3.4.1
+
+- Bumped purchases-android to 4.3.1 [Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.3.1), 
+which fixes https://github.com/RevenueCat/purchases-unity/issues/61
+
 ## 3.4.0
 
 - Adds iOS promotional offers support
