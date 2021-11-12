@@ -42,6 +42,7 @@ public interface IPurchasesWrapper
     void SetFBAnonymousID(string fbAnonymousID);
     void SetMparticleID(string mparticleID);
     void SetOnesignalID(string onesignalID);
+    void SetAirshipChannelID(string airshipChannelID);
     void SetMediaSource(string mediaSource);
     void SetCampaign(string campaign);
     void SetAdGroup(string adGroup);

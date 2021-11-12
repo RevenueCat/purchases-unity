@@ -281,6 +281,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSetAirshipChannelID(string airshipChannelID);
+    public void SetAirshipChannelID(string airshipChannelID)
+    {
+        _RCSetAirshipChannelID(airshipChannelID);
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetMediaSource(string mediaSource);
     public void SetMediaSource(string mediaSource)
     {
