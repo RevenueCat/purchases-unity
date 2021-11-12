@@ -211,6 +211,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("setOnesignalID", onesignalID);
     }
 
+    public void SetAirshipChannelID(string airshipChannelID)
+    {
+        CallPurchases("setAirshipChannelID", airshipChannelID);
+    }
+
     public void SetMediaSource(string mediaSource)
     {
         CallPurchases("setMediaSource", mediaSource);

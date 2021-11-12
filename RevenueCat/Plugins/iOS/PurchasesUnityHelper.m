@@ -319,6 +319,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setOnesignalID:onesignalID];
 }
 
+- (void)setAirshipChannelID:(nullable NSString *)airshipChannelID {
+    [RCCommonFunctionality setAirshipChannelID:airshipChannelID];
+}
+
 #pragma mark Campaign parameters
 
 - (void)setMediaSource:(nullable NSString *)mediaSource {
@@ -587,6 +591,10 @@ void _RCSetMparticleID(const char *mparticleID) {
 
 void _RCSetOnesignalID(const char *onesignalID) {
     [_RCUnityHelperShared() setOnesignalID:convertCString(onesignalID)];
+}
+
+void _RCSetAirshipChannelID(const char *airshipChannelID) {
+    [_RCUnityHelperShared() setAirshipChannelID:convertCString(airshipChannelID)];
 }
 
 void _RCSetMediaSource(const char *mediaSource) {

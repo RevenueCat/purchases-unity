@@ -309,6 +309,10 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.setOnesignalID(onesignalID);
     }
 
+    public static void setAirshipChannelID(String airshipChannelID) {
+        SubscriberAttributesKt.setAirshipChannelID(airshipChannelID);
+    }
+
     public static void setMediaSource(String mediaSource) {
         SubscriberAttributesKt.setMediaSource(mediaSource);
     }

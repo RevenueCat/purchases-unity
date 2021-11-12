@@ -154,6 +154,10 @@ public partial class Purchases
         {
         }
 
+        public void SetAirshipChannelID(string airshipChannelID)
+        {
+        }
+
         public void SetMediaSource(string mediaSource)
         {
         }

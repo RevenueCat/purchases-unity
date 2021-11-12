@@ -381,6 +381,18 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
+     * Subscriber attribute associated with the Airship Channel Id for the user
+     * Required for the RevenueCat Airship integration
+     * </summary>
+     * <param name="airshipChannelID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetAirshipChannelID(string airshipChannelID)
+    {
+        _wrapper.SetAirshipChannelID(airshipChannelID);
+    }
+
+    /**
+     * <summary>
      * Subscriber attribute associated with the install media source for the user
      * </summary>
      * <param name="mediaSource">Empty String or null will delete the subscriber attribute.</param>
