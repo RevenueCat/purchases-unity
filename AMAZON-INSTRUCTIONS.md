@@ -1,3 +1,8 @@
+This release adds pre-release support for Amazon store. It's based off 3.2.0 since that's the latest version compatible with Unity IAP 4.1.2. Unity IAP hasn't been updated to BillingClient 4, and the latest purchases-unity version compatible with BillingClient 3 is 3.2.0
+
+In order to be able to use this release you need an Amazon specific public key. You need to have access to the private beta of the platforms UI. Contact RevenueCat support if you want to have access.
+
+## Instructions
 - Download the `.unitypackage` in the release
 - Open your Unity Project
 - Select Import package -> Custom package
@@ -9,14 +14,13 @@
 
 - If `Package Manager Resolver` asks to solve conflicts, choose library versions and select OK
 
-- If your app also targets the Google Play Store, you would want to conditionally exclude the billingclient to prevent duplicated classes. This can be done by adding the following to your `mainTemplate.gradle` to prevent duplicated classes when Unity IAP is targeting the Play Store. If you don't have a `mainTemplate.gradle`, make sure you have `Custom Main Gradle Template` selected in the `Android Player Settings`. That should create a `mainTemplate.gradle` inside the Assets/Plugins/Android.
+- If your app also targets the Google Play Store, you will want to conditionally exclude the BillingClient to prevent duplicated classes. If you don't have a `mainTemplate.gradle`, make sure you have `Custom Main Gradle Template` selected in the `Android Player Settings`, which should create a `mainTemplate.gradle` inside the Assets/Plugins/Android.  Add the following to your `mainTemplate.gradle` to prevent duplicated classes when Unity IAP is targeting the Play Store:
 
 ```
 dependencies {
     ...
     
     // ** ADD THIS **
-    // Only exclude if billing client 3 is already in the project
     if (!project(":unityLibrary").fileTree(dir: 'libs', include: ['billing-3*.aar']).isEmpty()) {
         configurations.all {
             exclude group: 'com.android.billingclient', module: 'billing'
@@ -24,7 +28,6 @@ dependencies {
     }
 }
 ```
-
 
 - Perform a Resolve using the editor option `Assets/External Dependency Manager/Android Resolver/Resolve` menu. This will add the right dependencies to the `mainTemplate.gradle`.
 
