@@ -358,7 +358,7 @@ char *makeStringCopy(NSString *nstring) {
 }
 
 - (NSString *)platformFlavorVersion { 
-    return @"4.0.0-amazon.alpha.uiap";
+    return @"3.2.0-amazon.alpha";
 }
 
 @end

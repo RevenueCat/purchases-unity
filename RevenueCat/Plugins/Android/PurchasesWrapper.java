@@ -42,7 +42,7 @@ public class PurchasesWrapper {
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "4.0.0-amazon.alpha.uiap";
+    private static final String PLUGIN_VERSION = "3.2.0-amazon.alpha";
 
     private static String gameObject;
     private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {
