@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dependencies>
     <androidPackages>
-        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:AMAZON.RC1" />
+        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[2.0.0-amazon.alpha.4.billing3.iap2]" />
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
     </androidPackages>
     <iosPods>
