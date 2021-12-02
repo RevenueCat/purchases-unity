@@ -8,10 +8,6 @@ import androidx.annotation.Nullable;
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.Store;
-import com.revenuecat.purchases.common.CommonKt;
-import com.revenuecat.purchases.common.ErrorContainer;
-import com.revenuecat.purchases.common.OnResult;
-import com.revenuecat.purchases.common.OnResultList;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
 import com.revenuecat.purchases.hybridcommon.ErrorContainer;
@@ -46,7 +42,7 @@ public class PurchasesWrapper {
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "3.2.0";
+    private static final String PLUGIN_VERSION = "4.0.0-amazon.alpha.uiap";
 
     private static String gameObject;
     private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {

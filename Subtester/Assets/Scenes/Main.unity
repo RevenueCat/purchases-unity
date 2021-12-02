@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRuntimeSetup: 1
-  revenueCatAPIKey: VtDdmbdWBySmqJeeQUTyrNxETUVkhuaJ
+  revenueCatAPIKey: 
   appUserID: 
   productIdentifiers: []
   listener: {fileID: 559298755}

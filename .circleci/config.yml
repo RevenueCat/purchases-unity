@@ -3,8 +3,9 @@ release-tags-and-branches: &release-tags-and-branches
     tags:
       ignore: /^.*-SNAPSHOT/
     branches:
-      only: /^release\/.*/
-
+      only: 
+        - /^release\/.*/
+        - amazon-unity-iap
 
 version: 2.1
 
