@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using RevenueCat.SimpleJSON;
@@ -41,9 +42,21 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void GetPaymentDiscountFunc(PaymentDiscount paymentDiscount, Error error);
 
-    [Tooltip("Your RevenueCat API Key. Get from https://app.revenuecat.com/")]
+    [FormerlySerializedAs("revenueCatAPIKey")]
+    [ObsoleteAttribute("This property is obsolete. Use revenueCatAPIKeyIOS and revenueCatAPIKeyAndroid instead.", false)]
+    [Tooltip("(DEPRECATED) RevenueCat API Key. Get from https://app.revenuecat.com/. " +
+             "This property is obsolete. " +
+             "Use revenueCatAPIKeyIOS and revenueCatAPIKeyAndroid instead.")]
     // ReSharper disable once InconsistentNaming
-    public string revenueCatAPIKey;
+    public string deprecatedLegacyRevenueCatAPIKey;
+
+    [Tooltip("RevenueCat API Key specifically for iOS. Get from https://app.revenuecat.com/")]
+    // ReSharper disable once InconsistentNaming
+    public string revenueCatAPIKeyIOS;
+
+    [Tooltip("RevenueCat API Key specifically for Android. Get from https://app.revenuecat.com/")]
+    // ReSharper disable once InconsistentNaming
+    public string revenueCatAPIKeyAndroid;
 
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
@@ -88,7 +101,16 @@ public partial class Purchases : MonoBehaviour
     // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
-        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode, userDefaultsSuiteName);
+        var apiKey = deprecatedLegacyRevenueCatAPIKey;
+        if (String.IsNullOrEmpty(apiKey))
+        {
+            if (Application.platform == RuntimePlatform.IPhonePlayer)
+                apiKey = revenueCatAPIKeyIOS;
+            else if (Application.platform == RuntimePlatform.Android)
+                apiKey = revenueCatAPIKeyAndroid;
+        }
+        
+        _wrapper.Setup(gameObject.name, apiKey, newUserId, observerMode, userDefaultsSuiteName);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
