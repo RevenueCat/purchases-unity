@@ -101,15 +101,16 @@ public partial class Purchases : MonoBehaviour
     // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
-        var apiKey = deprecatedLegacyRevenueCatAPIKey;
-        if (String.IsNullOrEmpty(apiKey))
-        {
-            if (Application.platform == RuntimePlatform.IPhonePlayer)
-                apiKey = revenueCatAPIKeyIOS;
-            else if (Application.platform == RuntimePlatform.Android)
-                apiKey = revenueCatAPIKeyAndroid;
-        }
+        var apiKey = "";
         
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+            apiKey = revenueCatAPIKeyIOS;
+        else if (Application.platform == RuntimePlatform.Android)
+            apiKey = revenueCatAPIKeyAndroid;
+
+        if (String.IsNullOrEmpty(apiKey))
+            apiKey = deprecatedLegacyRevenueCatAPIKey;
+
         _wrapper.Setup(gameObject.name, apiKey, newUserId, observerMode, userDefaultsSuiteName);
     }
 
