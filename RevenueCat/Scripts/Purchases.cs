@@ -98,7 +98,6 @@ public partial class Purchases : MonoBehaviour
         GetProducts(productIdentifiers, null);
     }
 
-    // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
         var apiKey = "";
