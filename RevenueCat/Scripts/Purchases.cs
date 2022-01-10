@@ -43,10 +43,10 @@ public partial class Purchases : MonoBehaviour
     public delegate void GetPaymentDiscountFunc(PaymentDiscount paymentDiscount, Error error);
 
     [FormerlySerializedAs("revenueCatAPIKey")]
-    [ObsoleteAttribute("This property is obsolete. Use revenueCatAPIKeyApple and revenueCatAPIKeyAndroid instead.", false)]
+    [ObsoleteAttribute("This property is obsolete. Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.", false)]
     [Tooltip("(DEPRECATED) RevenueCat API Key. Get from https://app.revenuecat.com/. " +
              "This property is obsolete. " +
-             "Use revenueCatAPIKeyApple and revenueCatAPIKeyAndroid instead.")]
+             "Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.")]
     // ReSharper disable once InconsistentNaming
     public string deprecatedLegacyRevenueCatAPIKey;
 
@@ -56,7 +56,7 @@ public partial class Purchases : MonoBehaviour
 
     [Tooltip("RevenueCat API Key specifically for Android. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
-    public string revenueCatAPIKeyAndroid;
+    public string revenueCatAPIKeyGoogle;
 
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
@@ -106,7 +106,7 @@ public partial class Purchases : MonoBehaviour
             || Application.platform == RuntimePlatform.OSXPlayer)
             apiKey = revenueCatAPIKeyApple;
         else if (Application.platform == RuntimePlatform.Android)
-            apiKey = revenueCatAPIKeyAndroid;
+            apiKey = revenueCatAPIKeyGoogle;
 
         if (String.IsNullOrEmpty(apiKey))
             apiKey = deprecatedLegacyRevenueCatAPIKey;
