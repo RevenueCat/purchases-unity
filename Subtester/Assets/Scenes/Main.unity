@@ -238,6 +238,7 @@ MonoBehaviour:
   observerMode: 0
   userDefaultsSuiteName: 
   proxyURL: 
+  autoSyncPurchases: 0
 --- !u!4 &559298754
 Transform:
   m_ObjectHideFlags: 0

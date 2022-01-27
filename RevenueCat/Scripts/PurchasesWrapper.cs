@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public interface IPurchasesWrapper
 {
-	void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
+	void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, 
+		string dangerousSettingsJson);
 	void AddAttributionData(int network, string data, string networkUserId);
 	void GetProducts(string[] productIdentifiers, string type = "subs");
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy);

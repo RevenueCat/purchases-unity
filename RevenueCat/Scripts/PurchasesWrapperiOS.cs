@@ -6,10 +6,10 @@ using UnityEngine;
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
-    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
+    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, string dangerousSettingsJson);
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, string dangerousSettingsJson)
     {
-        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName);
+        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName, dangerousSettingsJson);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]

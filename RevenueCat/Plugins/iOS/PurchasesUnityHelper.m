@@ -58,17 +58,23 @@ char *makeStringCopy(NSString *nstring) {
              appUserID:(nullable NSString *)appUserID
             gameObject:(NSString *)gameObject
           observerMode:(BOOL)observerMode
- userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName {
-    [[RCPurchases sharedPurchases] setDelegate:nil];
+ userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
+     dangerousSettings:(NSDictionary *)dangerousSettingsAsDictionary {
+    if (RCPurchases.isConfigured) {
+        [[RCPurchases sharedPurchases] setDelegate:nil];
+    }
     self.products = nil;
     self.gameObject = nil;
+
+    RCDangerousSettings *dangerousSettings = [self dangerousSettingsFromDictionary:dangerousSettingsAsDictionary];
 
     [RCPurchases configureWithAPIKey:apiKey
                            appUserID:appUserID
                         observerMode:observerMode
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
-               platformFlavorVersion:self.platformFlavorVersion];
+               platformFlavorVersion:self.platformFlavorVersion
+                   dangerousSettings:dangerousSettings];
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -360,6 +366,15 @@ char *makeStringCopy(NSString *nstring) {
     return @"3.2.0";
 }
 
+- (nullable RCDangerousSettings *)dangerousSettingsFromDictionary:(NSDictionary *)dangerousSettingsAsDictionary {
+    RCDangerousSettings *dangerousSettings = nil;
+    if (dangerousSettingsAsDictionary.count != 0) {
+        BOOL autoSyncPurchases = [dangerousSettingsAsDictionary[@"AutoSyncPurchases"] boolValue];
+        dangerousSettings = [[RCDangerousSettings alloc]initWithAutoSyncPurchases:autoSyncPurchases];
+    }
+    return dangerousSettings;
+}
+
 @end
 
 #pragma mark Bridging Methods
@@ -377,12 +392,24 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *apiKey,
                        const char *appUserID,
                        const BOOL observerMode,
-                       const char *userDefaultsSuiteName) {
+                       const char *userDefaultsSuiteName,
+                       const char *dangerousSettingsJSON) {
+    NSError *error = nil;
+    NSData *dangerousSettingsData = [convertCString(dangerousSettingsJSON) dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *dangerousSettings = [NSJSONSerialization JSONObjectWithData:dangerousSettingsData
+                                                                      options:0
+                                                                        error:&error];
+    if (error) {
+        NSLog(@"Error parsing dangerousSettings JSON: %s %@", dangerousSettingsJSON, error.localizedDescription);
+        dangerousSettings = @{};
+    }
+
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
                               observerMode:observerMode
-                     userDefaultsSuiteName:convertCString(userDefaultsSuiteName)];
+                     userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
+                         dangerousSettings:dangerousSettings];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {

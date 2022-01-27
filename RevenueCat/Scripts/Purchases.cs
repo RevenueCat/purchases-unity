@@ -54,6 +54,16 @@ public partial class Purchases : MonoBehaviour
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
     public string proxyURL;
+    
+	[Header("Dangerous Settings")]
+    [Tooltip("Disable or enable subscribing to the StoreKit queue." +  
+	"If this is disabled, RevenueCat won't observe the StoreKit queue or check current purchasers, " +
+	"and it will not sync any purchase automatically. Call syncPurchases whenever a new transaction is " +
+	"completed so the receipt is sent to RevenueCat's backend. " +
+	"In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
+	"are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
+	"Auto syncing of purchases is enabled by default.")]
+    public bool autoSyncPurchases = true;
 
     private IPurchasesWrapper _wrapper;
 
@@ -77,7 +87,8 @@ public partial class Purchases : MonoBehaviour
     // Call this if you want to reset with a new user id
     private void Setup(string newUserId)
     {
-        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode, userDefaultsSuiteName);
+		var dangerousSettings = new DangerousSettings(autoSyncPurchases).Serialize().ToString();
+        _wrapper.Setup(gameObject.name, revenueCatAPIKey, newUserId, observerMode, userDefaultsSuiteName, dangerousSettings);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
