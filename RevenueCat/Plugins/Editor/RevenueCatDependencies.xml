@@ -2,7 +2,6 @@
 <dependencies>
     <!-- <androidPackages>
         <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[1.7.1]" />
-        <androidPackage spec="com.revenuecat.purchases:purchases:[4.3.0]" />
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
     </androidPackages> -->
     <iosPods>
