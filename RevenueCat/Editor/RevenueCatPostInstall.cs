@@ -15,14 +15,15 @@ namespace Editor
             {
                 ModifyFrameworks(path);
                 AddStoreKitFramework(path);
-                SaveProject(path);
             }
         }
  
         private static void ModifyFrameworks(string path)
         {
-            var project = GetProject(path);
- 
+            string projPath = PBXProject.GetPBXProjectPath(path);
+            var project = new PBXProject();
+            project.ReadFromFile(projPath);
+
             string mainTargetGuid = project.GetUnityMainTargetGuid();
            
             foreach (var targetGuid in new[] { mainTargetGuid, project.GetUnityFrameworkTargetGuid() })
@@ -31,27 +32,19 @@ namespace Editor
             }
            
             project.SetBuildProperty(mainTargetGuid, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "YES");
+
+            project.WriteToFile(projPath);
         }
 
         private static void AddStoreKitFramework(string path)
         {
-            var project = GetProject(path);
-            string mainTargetGUID = PBXProject.GetUnityMainTargetGuid();
-            project.AddFrameworkToProject(mainTargetGUID, "StoreKit", false);
-        }
-
-        private static PBXProject GetProject(string path)
-        {
             string projPath = PBXProject.GetPBXProjectPath(path);
             var project = new PBXProject();
             project.ReadFromFile(projPath);
-            return project
-        }
-
-        private static void SaveProject(string path)
-        {
-            string projPath = PBXProject.GetPBXProjectPath(path);
-            var project = GetProject(path);
+            
+            string mainTargetGUID = project.GetUnityMainTargetGuid();
+            project.AddFrameworkToProject(mainTargetGUID, "StoreKit.framework", false);
+            
             project.WriteToFile(projPath);
         }
         
