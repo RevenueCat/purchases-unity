@@ -70,7 +70,8 @@ char *makeStringCopy(NSString *nstring) {
                         observerMode:observerMode
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
-               platformFlavorVersion:self.platformFlavorVersion];
+               platformFlavorVersion:self.platformFlavorVersion
+                   dangerousSettings:nil];
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
