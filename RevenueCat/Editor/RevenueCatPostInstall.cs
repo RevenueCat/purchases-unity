@@ -1,3 +1,6 @@
+
+#if UNITY_IOS
+
 using System.IO;
 using UnityEngine;
 using UnityEditor;
@@ -14,6 +17,7 @@ namespace Editor
         {
             if (buildTarget == BuildTarget.iOS)
             {
+                Debug.Log("Installing for iOS. Setting ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES to NO and adding StoreKit");
                 ModifyFrameworks(path);
                 AddStoreKitFramework(path);
             }
@@ -51,3 +55,4 @@ namespace Editor
         
     }
 }
+#endif

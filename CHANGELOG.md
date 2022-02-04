@@ -1,3 +1,13 @@
+## 3.5.1
+
+- Fixed issue where builds got rejected when uploading to App Store Connect because of the existence of a `Frameworks` folder in the archive
+    https://github.com/RevenueCat/purchases-unity/pull/84
+- Added post-install script that automatically links the `StoreKit` framework to the main target
+    https://github.com/RevenueCat/purchases-unity/pull/85
+- Bump`purchases-hybrid-common` to `2.0.0` [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/1.10.0)
+- Bump `purchases-ios` to `3.14.0` ([Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.14.0))
+- Bump `purchases-android` to `4.6.0` ([Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.6.0))
+
 ## 3.5.0
 
 - Bump`purchases-hybrid-common` to `1.10.0` [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/1.10.0)

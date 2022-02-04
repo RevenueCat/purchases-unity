@@ -70,7 +70,8 @@ char *makeStringCopy(NSString *nstring) {
                         observerMode:observerMode
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
-               platformFlavorVersion:self.platformFlavorVersion];
+               platformFlavorVersion:self.platformFlavorVersion
+                   dangerousSettings:nil];
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -399,7 +400,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion { 
-    return @"3.5.0";
+    return @"3.5.1";
 }
 
 @end
