@@ -1,4 +1,4 @@
-## 3.5.0
+## 3.5.1
 
 - Fixed issue where builds got rejected when uploading to App Store Connect because of the existence of a `Frameworks` folder in the archive
     https://github.com/RevenueCat/purchases-unity/pull/84
