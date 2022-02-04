@@ -8,6 +8,7 @@ namespace Editor
 {
     public static class XcodeSwiftVersionPostProcess
     {
+        // set callbackOrder to 999 to ensure this runs as the last post process step
         [PostProcessBuild(999)]
         public static void OnPostProcessBuild(BuildTarget buildTarget, string path)
         {
