@@ -62,6 +62,16 @@ public partial class Purchases : MonoBehaviour
     [Header("Alternative Stores")]
     [Tooltip("Activate to use Amazon App Store.")]
     public bool useAmazon;
+	
+    [Header("Dangerous Settings")]
+    [Tooltip("Disable or enable subscribing to the StoreKit queue." +  
+	"If this is disabled, RevenueCat won't observe the StoreKit queue or check current purchasers, " +
+	"and it will not sync any purchase automatically. Call syncPurchases whenever a new transaction is " +
+	"completed so the receipt is sent to RevenueCat's backend. " +
+	"In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
+	"are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
+	"Auto syncing of purchases is enabled by default.")]
+    public bool autoSyncPurchases = true;
 
     private IPurchasesWrapper _wrapper;
 
@@ -87,20 +97,23 @@ public partial class Purchases : MonoBehaviour
 
     private void Setup(string newUserId)
     {
+        var dangerousSettings = new DangerousSettings(autoSyncPurchases);
         var builder = PurchasesConfiguration.Builder.Init(revenueCatAPIKey)
             .SetAppUserId(newUserId)
             .SetObserverMode(observerMode)
             .SetUserDefaultsSuiteName(userDefaultsSuiteName)
-            .SetUseAmazon(useAmazon);
-            
+            .SetUseAmazon(useAmazon)
+            .SetDangerousSettings(dangerousSettings);
+
         Setup(builder.Build());
     }
 
     public void Setup(PurchasesConfiguration purchasesConfiguration)
     {
+        var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId, 
             purchasesConfiguration.ObserverMode, purchasesConfiguration.UserDefaultsSuiteName, 
-            purchasesConfiguration.UseAmazon);
+            purchasesConfiguration.UseAmazon, dangerousSettings);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }

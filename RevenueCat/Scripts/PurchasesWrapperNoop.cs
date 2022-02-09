@@ -4,7 +4,7 @@ public partial class Purchases
 {
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon)
+        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
         {
         }
 
