@@ -136,6 +136,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID);
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
+    {
+        _RCSyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {

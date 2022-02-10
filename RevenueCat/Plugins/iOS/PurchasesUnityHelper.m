@@ -188,6 +188,12 @@ char *makeStringCopy(NSString *nstring) {
     }];
 }
 
+- (void)syncObserverModeAmazonPurchase:(NSString *)productID 
+                             receiptID:(NSString *)receiptID
+                          amazonUserID:(NSString *)amazonUserID {
+    // noop
+}
+
 - (void)setDebugLogsEnabled:(BOOL)enabled {
     [RCCommonFunctionality setDebugLogsEnabled:enabled];
 }
