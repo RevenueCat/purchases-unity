@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dependencies>
-    <!-- <androidPackages>
+    <androidPackages>
         <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[2.0.0-amazon.alpha.5.billing3.iap2]" />
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
-    </androidPackages> -->
+    </androidPackages>
     <iosPods>
         <iosPod name="PurchasesHybridCommon" version="2.0.0" minTargetSdk="9.0"/>
     </iosPods>
