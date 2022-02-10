@@ -211,6 +211,14 @@ public class PurchasesWrapper {
         });
     }
 
+    public static void syncObserverModeAmazonPurchase(
+        String productID,
+        String receiptID,
+        String amazonUserID
+    ) {
+        CommonKt.syncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+    }
+
     public static void setDebugLogsEnabled(boolean enabled) {
         CommonKt.setDebugLogsEnabled(enabled);
     }

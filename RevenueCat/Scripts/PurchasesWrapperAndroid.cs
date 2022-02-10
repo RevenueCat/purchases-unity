@@ -108,6 +108,10 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("getOfferings");
     }
 
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID) {
+        CallPurchases("syncObserverModeAmazonPurchase", productID, receiptID, amazonUserID);
+    }
+
     public void SyncPurchases()
     {
         CallPurchases("syncPurchases");

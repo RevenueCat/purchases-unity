@@ -59,7 +59,7 @@ char *makeStringCopy(NSString *nstring) {
             gameObject:(NSString *)gameObject
           observerMode:(BOOL)observerMode
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
-              useAmazon:(BOOL)useAmazon
+             useAmazon:(BOOL)useAmazon
      dangerousSettings:(NSDictionary *)dangerousSettingsAsDictionary {
     if (RCPurchases.isConfigured) {
         [[RCPurchases sharedPurchases] setDelegate:nil];
@@ -186,6 +186,12 @@ char *makeStringCopy(NSString *nstring) {
         
         [self sendJSONObject:response toMethod:GET_OFFERINGS];
     }];
+}
+
+- (void)syncObserverModeAmazonPurchase:(NSString *)productID 
+                             receiptID:(NSString *)receiptID
+                          amazonUserID:(NSString *)amazonUserID {
+    // noop
 }
 
 - (void)setDebugLogsEnabled:(BOOL)enabled {

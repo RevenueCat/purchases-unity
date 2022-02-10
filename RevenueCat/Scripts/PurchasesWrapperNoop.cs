@@ -71,6 +71,10 @@ public partial class Purchases
         {
         }
 
+        public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
+        {
+        }
+
         public void GetOfferings()
         {
         }

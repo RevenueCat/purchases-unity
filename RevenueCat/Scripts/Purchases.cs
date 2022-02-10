@@ -243,6 +243,21 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SyncPurchases();
     }
 
+     /// <summary>
+     /// Android only. Noop in iOS.
+     /// 
+     /// This method will send a purchase to the RevenueCat backend. This function should only be called if you are
+     /// in Amazon observer mode or performing a client side migration of your current users to RevenueCat.
+     /// The receipt IDs are cached if successfully posted so they are not posted more than once.
+     /// </summary>
+     /// <param name="productID">Product ID associated to the purchase.</param>
+     /// <param name="receiptID"> ReceiptId that represents the Amazon purchase.</param>
+     /// <param name="amazonUserID">Amazon's userID. This parameter will be ignored when syncing a Google purchase.</param>
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
+    {
+        _wrapper.SyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+    }
+
     // ReSharper disable once UnusedMember.Global
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
