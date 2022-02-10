@@ -1,4 +1,4 @@
-namespace RevenueCat.Scripts
+public partial class Purchases
 {
     public class PurchasesConfiguration
     {
@@ -40,7 +40,7 @@ namespace RevenueCat.Scripts
 
             public PurchasesConfiguration Build()
             {
-                return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName, _useAmazon);
+                return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName, _useAmazon, _dangerousSettings);
             }
             
             public Builder SetAppUserId(string appUserId)

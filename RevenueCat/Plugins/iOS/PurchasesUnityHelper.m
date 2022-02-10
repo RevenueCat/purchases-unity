@@ -59,7 +59,7 @@ char *makeStringCopy(NSString *nstring) {
             gameObject:(NSString *)gameObject
           observerMode:(BOOL)observerMode
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
-              useAmazon:(BOOL)useAmazon
+             useAmazon:(BOOL)useAmazon
      dangerousSettings:(NSDictionary *)dangerousSettingsAsDictionary {
     if (RCPurchases.isConfigured) {
         [[RCPurchases sharedPurchases] setDelegate:nil];

@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using RevenueCat.Scripts;
 using RevenueCat.SimpleJSON;
 
 #pragma warning disable CS0649
