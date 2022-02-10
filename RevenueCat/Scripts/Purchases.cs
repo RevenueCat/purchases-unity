@@ -251,7 +251,7 @@ public partial class Purchases : MonoBehaviour
      /// </summary>
      /// <param name="productID">Product ID associated to the purchase.</param>
      /// <param name="receiptID"> ReceiptId that represents the Amazon purchase.</param>
-     /// <param name="amazonUserID">Amazon's userID. This parameter will be ignored when syncing a Google purchase.</param>
+     /// <param name="amazonUserID">Amazon's userID.</param>
     public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
     {
         _wrapper.SyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
