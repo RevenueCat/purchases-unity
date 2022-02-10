@@ -216,7 +216,7 @@ public class PurchasesWrapper {
         String receiptID,
         String amazonUserID
     ) {
-        CommonKt.syncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+        Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
     }
 
     public static void setDebugLogsEnabled(boolean enabled) {
