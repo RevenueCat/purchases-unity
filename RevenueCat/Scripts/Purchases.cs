@@ -63,10 +63,10 @@ public partial class Purchases : MonoBehaviour
     public bool useAmazon;
 	
     [Header("Dangerous Settings")]
-    [Tooltip("Disable or enable subscribing to the StoreKit queue." +  
-	"If this is disabled, RevenueCat won't observe the StoreKit queue or check current purchasers, " +
-	"and it will not sync any purchase automatically. Call syncPurchases whenever a new transaction is " +
-	"completed so the receipt is sent to RevenueCat's backend. " +
+    [Tooltip("Disable or enable automatically detecting current subscriptions." +  
+	"If this is disabled, RevenueCat won't check current purchases, and it will not sync any purchase automatically " +
+    "when the app starts. Call syncPurchases whenever a new purchase is detected so the receipt is sent to " +
+    "RevenueCat's backend. " +
 	"In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
 	"are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
 	"Auto syncing of purchases is enabled by default.")]
