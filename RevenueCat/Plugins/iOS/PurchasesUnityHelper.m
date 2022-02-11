@@ -400,6 +400,7 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *appUserID,
                        const BOOL observerMode,
                        const char *userDefaultsSuiteName,
+                       const BOOL useAmazon,
                        const char *dangerousSettingsJSON) {
     NSError *error = nil;
     NSData *dangerousSettingsData = [convertCString(dangerousSettingsJSON) dataUsingEncoding:NSUTF8StringEncoding];
@@ -416,6 +417,7 @@ void _RCSetupPurchases(const char *gameObject,
                                 gameObject:convertCString(gameObject)
                               observerMode:observerMode
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
+                                 useAmazon:useAmazon
                          dangerousSettings:dangerousSettings];
 }
 
@@ -618,3 +620,8 @@ void _RCCanMakePayments(const char *featuresJSON) {
     [_RCUnityHelperShared() canMakePaymentsWithFeatures:canMakePaymentsRequest[@"features"]];
 }
 
+void _RCSyncObserverModeAmazonPurchase(const char *productID, const char *receiptID, const char *amazonUserID) {
+    [_RCUnityHelperShared() syncObserverModeAmazonPurchase:convertCString(productID)
+                                                 receiptID:convertCString(receiptID)
+                                              amazonUserID:convertCString(amazonUserID)];
+}
