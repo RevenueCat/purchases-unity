@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public interface IPurchasesWrapper
 {
-	void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon);
+	void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson);
 	void AddAttributionData(int network, string data, string networkUserId);
 	void GetProducts(string[] productIdentifiers, string type = "subs");
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy);
@@ -19,6 +19,7 @@ public interface IPurchasesWrapper
     string GetAppUserId();
     void GetPurchaserInfo();
     void GetOfferings();
+    void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID);
 	void SyncPurchases();
 	void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     bool IsAnonymous();

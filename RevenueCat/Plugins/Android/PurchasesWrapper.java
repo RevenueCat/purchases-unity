@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.revenuecat.purchases.DangerousSettings;
 import com.revenuecat.purchases.PurchaserInfo;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.Store;
@@ -57,15 +58,17 @@ public class PurchasesWrapper {
                              String gameObject_,
                              boolean observerMode,
                              String userDefaultsSuiteName,
-                             boolean useAmazon) {
+                             boolean useAmazon,
+                             String dangerousSettingsJSON) {
         gameObject = gameObject_;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = Store.PLAY_STORE;
         if (useAmazon) {
             store = Store.AMAZON;
         }
+        DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity,
-                apiKey, appUserId, observerMode, platformInfo, store);
+                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings);
         Purchases.getSharedInstance().setUpdatedPurchaserInfoListener(listener);
     }
 
@@ -206,6 +209,14 @@ public class PurchasesWrapper {
                 sendError(errorContainer, GET_OFFERINGS);
             }
         });
+    }
+
+    public static void syncObserverModeAmazonPurchase(
+        String productID,
+        String receiptID,
+        String amazonUserID
+    ) {
+        Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
     }
 
     public static void setDebugLogsEnabled(boolean enabled) {
@@ -415,6 +426,21 @@ public class PurchasesWrapper {
                 sendError(errorContainer, method);
             }
         };
+    }
+
+    @Nullable
+    private static DangerousSettings getDangerousSettingsFromJSON(String dangerousSettingsJSON) {
+        JSONObject jsonObject;
+        DangerousSettings dangerousSettings = null;
+        try {
+            jsonObject = new JSONObject(dangerousSettingsJSON);
+            boolean autoSyncPurchases = jsonObject.getBoolean("AutoSyncPurchases");
+            dangerousSettings = new DangerousSettings(autoSyncPurchases);
+        } catch (JSONException e) {
+            Log.e("Purchases", "Error parsing dangerousSettings JSON: " + dangerousSettingsJSON);
+            logJSONException(e);
+        }
+        return dangerousSettings;
     }
 
 }

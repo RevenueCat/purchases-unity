@@ -1,4 +1,4 @@
-namespace RevenueCat.Scripts
+public partial class Purchases
 {
     public class PurchasesConfiguration
     {
@@ -7,14 +7,16 @@ namespace RevenueCat.Scripts
         public readonly bool ObserverMode;
         public readonly string UserDefaultsSuiteName;
         public readonly bool UseAmazon;
+        public readonly DangerousSettings DangerousSettings;
 
-        private PurchasesConfiguration(string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon)
+        private PurchasesConfiguration(string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon, DangerousSettings dangerousSettings)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
             ObserverMode = observerMode;
             UserDefaultsSuiteName = userDefaultsSuiteName;
             UseAmazon = useAmazon;
+            DangerousSettings = dangerousSettings;
         }
         
         public class Builder
@@ -24,6 +26,7 @@ namespace RevenueCat.Scripts
             private bool _observerMode;
             private string _userDefaultsSuiteName;
             private bool _useAmazon;
+            private DangerousSettings _dangerousSettings;
 
             private Builder(string apiKey)
             {
@@ -37,7 +40,7 @@ namespace RevenueCat.Scripts
 
             public PurchasesConfiguration Build()
             {
-                return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName, _useAmazon);
+                return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName, _useAmazon, _dangerousSettings);
             }
             
             public Builder SetAppUserId(string appUserId)
@@ -61,6 +64,12 @@ namespace RevenueCat.Scripts
             public Builder SetUseAmazon(bool useAmazon)
             {
                 _useAmazon = useAmazon;
+                return this;
+            }
+            
+            public Builder SetDangerousSettings(DangerousSettings dangerousSettings)
+            {
+                _dangerousSettings = dangerousSettings;
                 return this;
             }
             

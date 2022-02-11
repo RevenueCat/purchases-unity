@@ -43,9 +43,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon)
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
-        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon);
+        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon, dangerousSettingsJson);
     }
 
     public void RestoreTransactions()
@@ -106,6 +106,10 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void GetOfferings()
     {
         CallPurchases("getOfferings");
+    }
+
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID) {
+        CallPurchases("syncObserverModeAmazonPurchase", productID, receiptID, amazonUserID);
     }
 
     public void SyncPurchases()

@@ -26,7 +26,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 // Android Resolver Dependencies Start
     implementation 'androidx.annotation:annotation:[1.2.0]' // Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml:5
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[2.0.0-amazon.alpha.4.billing3.iap2]' // Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml:4
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[2.0.0-amazon.alpha.5.billing3.iap2]' // Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml:4
 // Android Resolver Dependencies End
 **DEPS**}
 

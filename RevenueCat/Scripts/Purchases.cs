@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using RevenueCat.Scripts;
 using RevenueCat.SimpleJSON;
 
 #pragma warning disable CS0649
@@ -62,6 +61,16 @@ public partial class Purchases : MonoBehaviour
     [Header("Alternative Stores")]
     [Tooltip("Activate to use Amazon App Store.")]
     public bool useAmazon;
+	
+    [Header("Dangerous Settings")]
+    [Tooltip("Disable or enable automatically detecting current subscriptions." +  
+	"If this is disabled, RevenueCat won't check current purchases, and it will not sync any purchase automatically " +
+    "when the app starts. Call syncPurchases whenever a new purchase is detected so the receipt is sent to " +
+    "RevenueCat's backend. " +
+	"In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
+	"are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
+	"Auto syncing of purchases is enabled by default.")]
+    public bool autoSyncPurchases = true;
 
     private IPurchasesWrapper _wrapper;
 
@@ -87,20 +96,23 @@ public partial class Purchases : MonoBehaviour
 
     private void Setup(string newUserId)
     {
+        var dangerousSettings = new DangerousSettings(autoSyncPurchases);
         var builder = PurchasesConfiguration.Builder.Init(revenueCatAPIKey)
             .SetAppUserId(newUserId)
             .SetObserverMode(observerMode)
             .SetUserDefaultsSuiteName(userDefaultsSuiteName)
-            .SetUseAmazon(useAmazon);
-            
+            .SetUseAmazon(useAmazon)
+            .SetDangerousSettings(dangerousSettings);
+
         Setup(builder.Build());
     }
 
     public void Setup(PurchasesConfiguration purchasesConfiguration)
     {
+        var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId, 
             purchasesConfiguration.ObserverMode, purchasesConfiguration.UserDefaultsSuiteName, 
-            purchasesConfiguration.UseAmazon);
+            purchasesConfiguration.UseAmazon, dangerousSettings);
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
@@ -228,6 +240,21 @@ public partial class Purchases : MonoBehaviour
     public void SyncPurchases()
     {
         _wrapper.SyncPurchases();
+    }
+
+     /// <summary>
+     /// Android only. Noop in iOS.
+     /// 
+     /// This method will send a purchase to the RevenueCat backend. This function should only be called if you are
+     /// in Amazon observer mode or performing a client side migration of your current users to RevenueCat.
+     /// The receipt IDs are cached if successfully posted so they are not posted more than once.
+     /// </summary>
+     /// <param name="productID">Product ID associated to the purchase.</param>
+     /// <param name="receiptID"> ReceiptId that represents the Amazon purchase.</param>
+     /// <param name="amazonUserID">Amazon's userID.</param>
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
+    {
+        _wrapper.SyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
     }
 
     // ReSharper disable once UnusedMember.Global

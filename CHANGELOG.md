@@ -1,3 +1,10 @@
+## 3.2.0-amazon.alpha.5
+- Added DangerousSetting option to disable automatic syncing of purchases. Use only if instructed by RevenueCat support.
+- Amazon configured in observer mode won't register purchases automatically.
+- Added `syncObserverModeAmazonPurchase` to manually sync an Amazon purchase with our backend.
+- Updated `purchases-hybrid-common` android version to 2.0.0-amazon.alpha.5.billing3.iap2
+- Updated `purchases-hybrid-common` iOS version to 2.0.0
+
 ## 3.2.0
 - Added canMakePaymentsMethod (https://github.com/RevenueCat/purchases-unity/pull/52)
 - Fixed missing meta files for Subtester sample app (https://github.com/RevenueCat/purchases-unity/pull/47)
