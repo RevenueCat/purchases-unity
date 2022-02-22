@@ -1,7 +1,5 @@
 This release adds pre-release support for Amazon store. It's based off 3.2.0 since that's the latest version compatible with Unity IAP 4.1.2. Unity IAP hasn't been updated to BillingClient 4, and the latest purchases-unity version compatible with BillingClient 3 is 3.2.0
 
-In order to be able to use this release you need an Amazon specific public key. You need to have access to the private beta of the platforms UI. Contact RevenueCat support if you want to have access.
-
 ## Instructions
 - Download the `.unitypackage` in the release
 - Open your Unity Project
