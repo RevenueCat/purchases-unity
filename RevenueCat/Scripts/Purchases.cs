@@ -101,17 +101,35 @@ public partial class Purchases : MonoBehaviour
     private void Setup(string newUserId)
     {
         var apiKey = "";
-        
+
         if (Application.platform == RuntimePlatform.IPhonePlayer
             || Application.platform == RuntimePlatform.OSXPlayer)
             apiKey = revenueCatAPIKeyApple;
-        else if (Application.platform == RuntimePlatform.Android)
+        else if (Application.platform == RuntimePlatform.Android
+            || IsAndroidEmulator())
             apiKey = revenueCatAPIKeyGoogle;
 
         if (String.IsNullOrEmpty(apiKey))
             apiKey = deprecatedLegacyRevenueCatAPIKey;
 
         _wrapper.Setup(gameObject.name, apiKey, newUserId, observerMode, userDefaultsSuiteName);
+    }
+
+    public bool IsAndroidEmulator()
+    {
+        try
+        {
+            // From https://stackoverflow.com/questions/51880866/detect-if-game-running-in-android-emulator
+            AndroidJavaClass osBuild;
+            osBuild = new AndroidJavaClass("android.os.Build");
+            string fingerPrint = osBuild.GetStatic<string>("FINGERPRINT");
+            return fingerPrint.Contains("generic");
+        }
+        catch
+        {
+            // Throws error when running on non-Android platforms
+            return false;
+        }
     }
 
     private GetProductsFunc ProductsCallback { get; set; }
