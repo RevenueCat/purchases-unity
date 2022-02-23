@@ -115,13 +115,12 @@ public partial class Purchases : MonoBehaviour
         _wrapper.Setup(gameObject.name, apiKey, newUserId, observerMode, userDefaultsSuiteName);
     }
 
-    public bool IsAndroidEmulator()
+    private bool IsAndroidEmulator()
     {
         try
         {
             // From https://stackoverflow.com/questions/51880866/detect-if-game-running-in-android-emulator
-            AndroidJavaClass osBuild;
-            osBuild = new AndroidJavaClass("android.os.Build");
+            AndroidJavaClass osBuild = new AndroidJavaClass("android.os.Build");
             string fingerPrint = osBuild.GetStatic<string>("FINGERPRINT");
             return fingerPrint.Contains("generic");
         }
