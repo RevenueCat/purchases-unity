@@ -1,10 +1,19 @@
+## 3.5.2
+
+- Fixed a [crash when the deprecatedLegacyRevenueCatAPIKey hadn't been set when running on Android simulators](https://github.com/RevenueCat/purchases-unity/issues/89)
+    https://github.com/RevenueCat/purchases-unity/pull/93
+- Fixed a bug where `CheckTrialOrIntroductoryPriceEligibility` could prompt for login credentials on iOS if the user hasn't logged into App Store.
+- Bump`purchases-hybrid-common` to `2.0.1` [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/2.0.0)
+- Bump `purchases-ios` to `3.14.1` ([Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.14.1))
+- Bump `purchases-android` to `4.6.1` ([Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.6.1))
+
 ## 3.5.1
 
 - Fixed issue where builds got rejected when uploading to App Store Connect because of the existence of a `Frameworks` folder in the archive
     https://github.com/RevenueCat/purchases-unity/pull/84
 - Added post-install script that automatically links the `StoreKit` framework to the main target
     https://github.com/RevenueCat/purchases-unity/pull/85
-- Bump`purchases-hybrid-common` to `2.0.0` [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/1.10.0)
+- Bump`purchases-hybrid-common` to `2.0.0` [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/2.0.0)
 - Bump `purchases-ios` to `3.14.0` ([Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.14.0))
 - Bump `purchases-android` to `4.6.0` ([Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.6.0))
 
