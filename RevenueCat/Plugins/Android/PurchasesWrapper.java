@@ -214,9 +214,12 @@ public class PurchasesWrapper {
     public static void syncObserverModeAmazonPurchase(
         String productID,
         String receiptID,
-        String amazonUserID
+        String amazonUserID,
+        String isoCurrencyCode,
+        double price
     ) {
-        Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+        Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID,
+                amazonUserID, isoCurrencyCode, price);
     }
 
     public static void setDebugLogsEnabled(boolean enabled) {

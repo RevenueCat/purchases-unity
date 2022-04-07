@@ -136,10 +136,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCSyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID);
-    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
+    private static extern void _RCSyncObserverModeAmazonPurchase(string productID, string receiptID, 
+        string amazonUserID, string isoCurrencyCode, double price);
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+        string isoCurrencyCode, double price)
     {
-        _RCSyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+        _RCSyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
 
     [DllImport("__Internal")]

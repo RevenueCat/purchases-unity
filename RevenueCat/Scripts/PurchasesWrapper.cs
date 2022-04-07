@@ -19,7 +19,8 @@ public interface IPurchasesWrapper
     string GetAppUserId();
     void GetPurchaserInfo();
     void GetOfferings();
-    void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID);
+    void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode, 
+	    double price);
 	void SyncPurchases();
 	void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     bool IsAnonymous();

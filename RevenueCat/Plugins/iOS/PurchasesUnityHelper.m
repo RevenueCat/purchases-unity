@@ -190,7 +190,10 @@ char *makeStringCopy(NSString *nstring) {
 
 - (void)syncObserverModeAmazonPurchase:(NSString *)productID 
                              receiptID:(NSString *)receiptID
-                          amazonUserID:(NSString *)amazonUserID {
+                          amazonUserID:(NSString *)amazonUserID
+                       isoCurrencyCode:(NSString *)isoCurrencyCode
+                                 price:(double)price
+                           {
     // noop
 }
 
@@ -620,8 +623,11 @@ void _RCCanMakePayments(const char *featuresJSON) {
     [_RCUnityHelperShared() canMakePaymentsWithFeatures:canMakePaymentsRequest[@"features"]];
 }
 
-void _RCSyncObserverModeAmazonPurchase(const char *productID, const char *receiptID, const char *amazonUserID) {
+void _RCSyncObserverModeAmazonPurchase(const char *productID, const char *receiptID, const char *amazonUserID, 
+    const char *isoCurrencyCode, double price) {
     [_RCUnityHelperShared() syncObserverModeAmazonPurchase:convertCString(productID)
                                                  receiptID:convertCString(receiptID)
-                                              amazonUserID:convertCString(amazonUserID)];
+                                              amazonUserID:convertCString(amazonUserID)
+                                          isoCurrencyCode:convertCString(isoCurrencyCode)
+                                                    price:price];
 }
