@@ -1,3 +1,6 @@
+## 3.2.0-amazon.alpha.6
+- Added currency code and price to `syncObserverModeAmazonPurchase`
+
 ## 3.2.0-amazon.alpha.5
 - Added DangerousSetting option to disable automatic syncing of purchases. Use only if instructed by RevenueCat support.
 - Amazon configured in observer mode won't register purchases automatically.

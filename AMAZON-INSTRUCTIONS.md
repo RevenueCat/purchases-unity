@@ -60,7 +60,9 @@ dependencies {
                 purchases.SyncObserverModeAmazonPurchase(
                     product.definition.id,
                     product.transactionID,
-                    userId
+                    userId,
+                    product.metadata.isoCurrencyCode,
+                    Decimal.ToDouble(product.metadata.localizedPrice)
                 );
             }
         }
@@ -75,7 +77,9 @@ dependencies {
         purchases.SyncObserverModeAmazonPurchase(
             e.purchasedProduct.definition.id,
             e.purchasedProduct.transactionID,
-            userId
+            userId,
+            e.purchasedProduct.metadata.isoCurrencyCode,
+            Decimal.ToDouble(e.purchasedProduct.metadata.localizedPrice)
         );
         return PurchaseProcessingResult.Complete;
     }
