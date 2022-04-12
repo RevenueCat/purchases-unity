@@ -252,9 +252,12 @@ public partial class Purchases : MonoBehaviour
      /// <param name="productID">Product ID associated to the purchase.</param>
      /// <param name="receiptID"> ReceiptId that represents the Amazon purchase.</param>
      /// <param name="amazonUserID">Amazon's userID.</param>
-    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID)
+     /// <param name="isoCurrencyCode">Product's currency code in ISO 4217 format.</param>
+     /// <param name="price">Product's price.</param>
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+         string isoCurrencyCode, double price)
     {
-        _wrapper.SyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID);
+        _wrapper.SyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
 
     // ReSharper disable once UnusedMember.Global
