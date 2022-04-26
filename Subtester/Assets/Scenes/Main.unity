@@ -236,7 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e401cc5a2ed4a7ba02f2e6ef35c6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deprecatedLegacyRevenueCatAPIKey: VtDdmbdWBySmqJeeQUTyrNxETUVkhuaJ
+  deprecatedLegacyRevenueCatAPIKey: 
   revenueCatAPIKeyApple: 
   revenueCatAPIKeyGoogle: 
   appUserID: 
