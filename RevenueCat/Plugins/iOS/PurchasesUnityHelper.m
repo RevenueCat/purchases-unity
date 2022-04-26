@@ -12,8 +12,8 @@
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
-static NSString *const RECEIVE_PURCHASER_INFO = @"_receiveCustomerInfo";
-static NSString *const RESTORE_TRANSACTIONS = @"_restorePurchases";
+static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
+static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
 static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
 static NSString *const IDENTIFY = @"_identify";
