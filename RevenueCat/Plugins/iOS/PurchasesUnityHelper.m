@@ -12,7 +12,7 @@
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
-static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
+static NSString *const RECEIVE_PURCHASER_INFO = @"_receiveCustomerInfo";
 static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
 static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
@@ -20,7 +20,7 @@ static NSString *const IDENTIFY = @"_identify";
 static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
 static NSString *const GET_OFFERINGS = @"_getOfferings";
-static NSString *const GET_PURCHASER_INFO = @"_getPurchaserInfo";
+static NSString *const GET_PURCHASER_INFO = @"_getCustomerInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
 static NSString *const GET_PAYMENT_DISCOUNT = @"_getPaymentDiscount";
@@ -76,7 +76,6 @@ char *makeStringCopy(NSString *nstring) {
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
-    [RCCommonFunctionality configure];
 }
 
 - (void)getProducts:(NSArray *)productIdentifiers
@@ -130,15 +129,15 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)restoreTransactions {
-    [RCCommonFunctionality restoreTransactionsWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
+    [RCCommonFunctionality restoreTransactionsWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
 }
 
 - (void)syncPurchases {
     // on Android, syncPurchases doesn't have a completion block. So instead of
-    // calling getPurchaserInfoCompletionBlockFor:SYNC_PURCHASES, we just
+    // calling getCustomerInfoCompletionBlockFor:SYNC_PURCHASES, we just
     // print the response, to match Android behavior. 
     [RCCommonFunctionality syncPurchasesWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
-        NSLog(@"received syncPurchases response: \n purchaserInfo: %@ \n error:%@", responseDictionary, error);
+        NSLog(@"received syncPurchases response: \n customerInfo: %@ \n error:%@", responseDictionary, error);
     }];
 }
 
@@ -164,19 +163,19 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)logOut {
-    [RCCommonFunctionality logOutWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:LOG_OUT]];
+    [RCCommonFunctionality logOutWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:LOG_OUT]];
 }
 
 - (void)createAlias:(NSString *)newAppUserID {
-    [RCCommonFunctionality createAlias:newAppUserID completionBlock:[self getPurchaserInfoCompletionBlockFor:CREATE_ALIAS]];
+    [RCCommonFunctionality createAlias:newAppUserID completionBlock:[self getCustomerInfoCompletionBlockFor:CREATE_ALIAS]];
 }
 
 - (void)identify:(NSString *)appUserID {
-    [RCCommonFunctionality identify:appUserID completionBlock:[self getPurchaserInfoCompletionBlockFor:IDENTIFY]];
+    [RCCommonFunctionality identify:appUserID completionBlock:[self getCustomerInfoCompletionBlockFor:IDENTIFY]];
 }
 
 - (void)reset {
-    [RCCommonFunctionality resetWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:RESET]];
+    [RCCommonFunctionality resetWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESET]];
 }
 
 - (void)setAllowSharingStoreAccount:(BOOL)allow {
@@ -204,8 +203,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setProxyURLString:proxyURLString];
 }
 
-- (void)getPurchaserInfo {
-    [RCCommonFunctionality getPurchaserInfoWithCompletionBlock:[self getPurchaserInfoCompletionBlockFor:GET_PURCHASER_INFO]];
+- (void)getCustomerInfo {
+    [RCCommonFunctionality getCustomerInfoWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:GET_PURCHASER_INFO]];
 }
 
 -  (void)setFinishTransactions:(BOOL)finishTransactions {
@@ -216,9 +215,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
 
-- (void)purchases:(RCPurchases *)purchases didReceiveUpdatedPurchaserInfo:(RCPurchaserInfo *)purchaserInfo {
+- (void)purchases:(RCPurchases *)purchases didReceiveUpdatedCustomerInfo:(RCCustomerInfo *)customerInfo {
     NSMutableDictionary *response = [NSMutableDictionary new];
-    response[@"purchaserInfo"] = purchaserInfo.dictionary;
+    response[@"customerInfo"] = customerInfo.dictionary;
     [self sendJSONObject:response toMethod:RECEIVE_PURCHASER_INFO];
 }
 
@@ -237,8 +236,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)invalidatePurchaserInfoCache {
-    [RCCommonFunctionality invalidatePurchaserInfoCache];
+- (void)invalidateCustomerInfoCache {
+    [RCCommonFunctionality invalidateCustomerInfoCache];
 }
 
 - (void)presentCodeRedemptionSheet {
@@ -369,14 +368,14 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
-- (void (^)(NSDictionary *, RCErrorContainer *))getPurchaserInfoCompletionBlockFor:(NSString *)method {
+- (void (^)(NSDictionary *, RCErrorContainer *))getCustomerInfoCompletionBlockFor:(NSString *)method {
     return ^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
 
         if (error) {
             response[@"error"] = error.info;
         } else {
-            response[@"purchaserInfo"] = responseDictionary;
+            response[@"customerInfo"] = responseDictionary;
         }
         [self sendJSONObject:response toMethod:method];
     };
@@ -389,7 +388,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         if (error) {
             response[@"error"] = error.info;
         } else {
-            response[@"purchaserInfo"] = responseDictionary[@"purchaserInfo"];
+            response[@"customerInfo"] = responseDictionary[@"customerInfo"];
             response[@"created"] = responseDictionary[@"created"];
         }
         [self sendJSONObject:response toMethod:method];
@@ -508,8 +507,8 @@ void _RCSetSimulatesAskToBuyInSandbox(const BOOL enabled) {
     [_RCUnityHelperShared() setSimulatesAskToBuyInSandbox:enabled];
 }
 
-void _RCGetPurchaserInfo() {
-    [_RCUnityHelperShared() getPurchaserInfo];
+void _RCGetCustomerInfo() {
+    [_RCUnityHelperShared() getCustomerInfo];
 }
 
 char * _RCGetAppUserID() {
@@ -536,8 +535,8 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
     [_RCUnityHelperShared() checkTrialOrIntroductoryPriceEligibility:productsRequest[@"productIdentifiers"]];
 }
 
-void _RCInvalidatePurchaserInfoCache() {
-    [_RCUnityHelperShared() invalidatePurchaserInfoCache];
+void _RCInvalidateCustomerInfoCache() {
+    [_RCUnityHelperShared() invalidateCustomerInfoCache];
 }
 
 void _RCPresentCodeRedemptionSheet() {
