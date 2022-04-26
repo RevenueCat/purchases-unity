@@ -251,8 +251,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 
-- (void)paymentDiscountForProductIdentifier:productIdentifier
-                                   discount:discountIdentifier {
+- (void)paymentDiscountForProductIdentifier:(NSString *)productIdentifier
+                                   discount:(NSString *)discountIdentifier {
     [RCCommonFunctionality paymentDiscountForProductIdentifier:productIdentifier
                                                       discount:discountIdentifier
                                                completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
@@ -260,7 +260,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-#pragma mark - Subcriber Attributes
+#pragma mark - Susbcriber Attributes
 
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
     [RCCommonFunctionality setAttributes:attributes];
