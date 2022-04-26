@@ -166,18 +166,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality logOutWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:LOG_OUT]];
 }
 
-- (void)createAlias:(NSString *)newAppUserID {
-    [RCCommonFunctionality createAlias:newAppUserID completionBlock:[self getCustomerInfoCompletionBlockFor:CREATE_ALIAS]];
-}
-
-- (void)identify:(NSString *)appUserID {
-    [RCCommonFunctionality identify:appUserID completionBlock:[self getCustomerInfoCompletionBlockFor:IDENTIFY]];
-}
-
-- (void)reset {
-    [RCCommonFunctionality resetWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESET]];
-}
-
 - (void)setAllowSharingStoreAccount:(BOOL)allow {
     [RCCommonFunctionality setAllowSharingStoreAccount:allow];
 }
