@@ -13,7 +13,7 @@
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const CREATE_ALIAS = @"_createAlias";
 static NSString *const RECEIVE_PURCHASER_INFO = @"_receiveCustomerInfo";
-static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
+static NSString *const RESTORE_TRANSACTIONS = @"_restorePurchases";
 static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
 static NSString *const IDENTIFY = @"_identify";
@@ -128,8 +128,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)restoreTransactions {
-    [RCCommonFunctionality restoreTransactionsWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
+- (void)restorePurchases {
+    [RCCommonFunctionality restorePurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
 }
 
 - (void)syncPurchases {
@@ -452,7 +452,7 @@ void _RCPurchasePackage(const char *packageIdentifier, const char *offeringIdent
 }
 
 void _RCRestoreTransactions() {
-    [_RCUnityHelperShared() restoreTransactions];
+    [_RCUnityHelperShared() restorePurchases];
 }
 
 void _RCSyncPurchases() {
