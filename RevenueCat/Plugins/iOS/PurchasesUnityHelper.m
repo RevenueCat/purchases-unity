@@ -66,13 +66,13 @@ char *makeStringCopy(NSString *nstring) {
     self.products = nil;
     self.gameObject = nil;
 
-    [RCPurchases configureWithAPIKey:apiKey
-                           appUserID:appUserID
-                        observerMode:observerMode
-               userDefaultsSuiteName:userDefaultsSuiteName
-                      platformFlavor:self.platformFlavor
-               platformFlavorVersion:self.platformFlavorVersion
-                   dangerousSettings:nil];
+    RCPurchases *instance __unused = [RCPurchases configureWithAPIKey:apiKey
+                                                            appUserID:appUserID
+                                                         observerMode:observerMode
+                                                userDefaultsSuiteName:userDefaultsSuiteName
+                                                       platformFlavor:self.platformFlavor
+                                                platformFlavorVersion:self.platformFlavorVersion
+                                                    dangerousSettings:nil];
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -214,7 +214,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (BOOL)isAnonymous {
-    return @([RCCommonFunctionality isAnonymous]);
+    return RCCommonFunctionality.isAnonymous;
 }
 
 - (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers {
