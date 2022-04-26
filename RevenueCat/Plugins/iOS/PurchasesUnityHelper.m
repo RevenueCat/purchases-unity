@@ -251,9 +251,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 
-- (void)paymentDiscountForProductIdentifier:(NSString *)productIdentifier
-                                   discount:(NSString *)discountIdentifier {
-    [RCCommonFunctionality paymentDiscountForProductIdentifier:productIdentifier
+- (void)promotionalOfferForProductIdentifier:(NSString *)productIdentifier
+                                    discount:(NSString *)discountIdentifier {
+    [RCCommonFunctionality promotionalOfferForProductIdentifier:productIdentifier
                                                       discount:discountIdentifier
                                                completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         [self sendJSONObject:responseDictionary toMethod:GET_PAYMENT_DISCOUNT];
@@ -439,7 +439,7 @@ void _RCPurchasePackage(const char *packageIdentifier, const char *offeringIdent
                     signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
 }
 
-void _RCRestoreTransactions() {
+void _RCRestorePurchases() {
     [_RCUnityHelperShared() restorePurchases];
 }
 
@@ -458,18 +458,6 @@ void _RCLogIn(const char *appUserID) {
 
 void _RCLogOut() {
     [_RCUnityHelperShared() logOut];
-}
-
-void _RCCreateAlias(const char *newAppUserID) {
-    [_RCUnityHelperShared() createAlias:convertCString(newAppUserID)];
-}
-
-void _RCIdentify(const char *appUserID) {
-    [_RCUnityHelperShared() identify:convertCString(appUserID)];
-}
-
-void _RCReset() {
-    [_RCUnityHelperShared() reset];
 }
 
 void _RCSetFinishTransactions(const BOOL finishTransactions) {
@@ -631,8 +619,8 @@ void _RCCanMakePayments(const char *featuresJSON) {
 }
 
 
-void _RCGetPaymentDiscount(const char *productIdentifier, const char *discountIdentifier) {
-    [_RCUnityHelperShared() paymentDiscountForProductIdentifier:convertCString(productIdentifier)
-                                                       discount:convertCString(discountIdentifier)];
+void _RCGetPromotionalOffer(const char *productIdentifier, const char *discountIdentifier) {
+    [_RCUnityHelperShared() promotionalOfferForProductIdentifier:convertCString(productIdentifier)
+                                                        discount:convertCString(discountIdentifier)];
 }
 
