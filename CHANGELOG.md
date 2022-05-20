@@ -1,3 +1,8 @@
+## 3.5.3
+
+- Fixed a bug where [namespace Editor on iOS post install collided with UnityEditor.Editor](https://github.com/RevenueCat/purchases-unity/issues/98)
+    https://github.com/RevenueCat/purchases-unity/pull/99
+
 ## 3.5.2
 
 - Fixed a [crash when the deprecatedLegacyRevenueCatAPIKey hadn't been set when running on Android simulators](https://github.com/RevenueCat/purchases-unity/issues/89)
