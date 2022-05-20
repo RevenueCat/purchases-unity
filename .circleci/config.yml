@@ -192,6 +192,8 @@ jobs:
           root: .
           paths:
             - IntegrationTests/buildiOS
+      - store_artifacts:
+          path: IntegrationTests/buildiOS
 
   archive-ios:
     description: "Run iOS integration tests for Unity"
