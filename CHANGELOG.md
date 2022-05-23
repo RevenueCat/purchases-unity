@@ -1,7 +1,10 @@
 ## 3.5.3
 
+When installing this release, make sure to make a fresh installation by removing the RevenueCat folder before importing the package. That way obsolete files are deleted from your project.
+
 - Fixed a bug where [namespace Editor on iOS post install collided with UnityEditor.Editor](https://github.com/RevenueCat/purchases-unity/issues/98)
     https://github.com/RevenueCat/purchases-unity/pull/99
+- Renamed `Dummy.swift` to `PurchasesDummy.swift` to fix collisions with other plugins that also add a `Dummy.swift` file. https://github.com/RevenueCat/purchases-unity/pull/100
 
 ## 3.5.2
 
