@@ -26,7 +26,8 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(All)}: {All}, {nameof(Current)}: {Current}";
+            var currentString = Current != null ? $"{nameof(Current)}: {Current}" : "current: <null>"; 
+            return $"{nameof(All)}: {All}, {currentString}";
         }
     }
 }
