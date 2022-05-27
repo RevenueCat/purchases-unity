@@ -60,7 +60,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCRestorePurchases();
-    public void RestoreTransactions()
+    public void RestorePurchases()
     {
         _RCRestorePurchases();
     }

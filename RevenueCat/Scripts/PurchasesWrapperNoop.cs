@@ -32,7 +32,7 @@ public partial class Purchases
         {
         }
 
-        public void RestoreTransactions()
+        public void RestorePurchases()
         {
         }
 
