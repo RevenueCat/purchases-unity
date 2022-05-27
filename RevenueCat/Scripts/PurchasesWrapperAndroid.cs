@@ -72,21 +72,6 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("logOut");
     }
     
-    public void CreateAlias(string newAppUserId)
-    {
-        CallPurchases("createAlias", newAppUserId);
-    }
-
-    public void Identify(string appUserId)
-    {
-        CallPurchases("identify", appUserId);
-    }
-
-    public void Reset()
-    {
-        CallPurchases("reset");
-    }
-
     public void SetFinishTransactions(bool finishTransactions)
     {
         CallPurchases("setFinishTransactions", finishTransactions);

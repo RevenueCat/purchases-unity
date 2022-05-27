@@ -13,11 +13,8 @@ public interface IPurchasesWrapper
 	    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, 
 	    Purchases.PaymentDiscount discount = null);
     void RestoreTransactions();
-	void CreateAlias(string newAppUserId);
 	void LogIn(string appUserId);
 	void LogOut();
-	void Identify(string appUserId);
-	void Reset();
 	void SetFinishTransactions(bool finishTransactions);
     void SetAllowSharingStoreAccount(bool allow);
     void SetDebugLogsEnabled(bool enabled);
