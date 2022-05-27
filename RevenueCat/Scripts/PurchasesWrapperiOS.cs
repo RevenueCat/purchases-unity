@@ -92,22 +92,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCLogOut();
     }
-
-    public void CreateAlias(string newAppUserId)
-    {
-        // todo: no-op for now but this method should be removed
-    }
-
-    public void Identify(string appUserId)
-    {
-        // todo: no-op for now but this method should be removed
-    }
-
-    public void Reset()
-    {
-        // todo: no-op for now but this method should be removed
-    }
-
+    
     [DllImport("__Internal")]
     private static extern void _RCSetFinishTransactions(bool finishTransactions);
     public void SetFinishTransactions(bool finishTransactions)
