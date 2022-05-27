@@ -11,16 +11,16 @@ version: 2.1
 executors:
   unity:
     docker:
-      - image: gableroux/unity3d:2019.4.13f1
+      - image: unityci/editor:2021.3.3f1-base-1.0
         environment:
           TAR_OPTIONS: --no-same-owner
 
   unity-android:
     docker:
-      - image: gableroux/unity3d:2019.4.13f1-android
+      - image: unityci/editor:2021.3.3f1-android-1
   unity-ios:
     docker:
-      - image: gableroux/unity3d:2019.4.13f1-ios
+      - image: unityci/editor:2021.3.3f1-ios-1
 
 commands:
   import-package:
