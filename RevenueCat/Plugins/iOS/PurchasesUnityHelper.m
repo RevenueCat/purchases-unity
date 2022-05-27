@@ -20,7 +20,7 @@ static NSString *const IDENTIFY = @"_identify";
 static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
 static NSString *const GET_OFFERINGS = @"_getOfferings";
-static NSString *const GET_PURCHASER_INFO = @"_getCustomerInfo";
+static NSString *const GET_CUSTOMER_INFO = @"_getCustomerInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
 static NSString *const GET_PAYMENT_DISCOUNT = @"_getPaymentDiscount";
@@ -66,13 +66,13 @@ char *makeStringCopy(NSString *nstring) {
     self.products = nil;
     self.gameObject = nil;
 
-    RCPurchases *instance __unused = [RCPurchases configureWithAPIKey:apiKey
-                                                            appUserID:appUserID
-                                                         observerMode:observerMode
-                                                userDefaultsSuiteName:userDefaultsSuiteName
-                                                       platformFlavor:self.platformFlavor
-                                                platformFlavorVersion:self.platformFlavorVersion
-                                                    dangerousSettings:nil];
+    [RCPurchases configureWithAPIKey:apiKey
+                           appUserID:appUserID
+                        observerMode:observerMode
+               userDefaultsSuiteName:userDefaultsSuiteName
+                      platformFlavor:self.platformFlavor
+               platformFlavorVersion:self.platformFlavorVersion
+                   dangerousSettings:nil];
     
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -192,7 +192,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)getCustomerInfo {
-    [RCCommonFunctionality getCustomerInfoWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:GET_PURCHASER_INFO]];
+    [RCCommonFunctionality getCustomerInfoWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:GET_CUSTOMER_INFO]];
 }
 
 -  (void)setFinishTransactions:(BOOL)finishTransactions {
@@ -260,7 +260,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-#pragma mark - Susbcriber Attributes
+#pragma mark - Subscriber Attributes
 
 - (void)setAttributes:(NSDictionary<NSString *, NSString *> *)attributes {
     [RCCommonFunctionality setAttributes:attributes];
