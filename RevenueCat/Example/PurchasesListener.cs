@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
+public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 {
 
     public RectTransform parentPanel;
     public GameObject buttonPrefab;
-    public Text purchaserInfoLabel;
+    public Text customerInfoLabel;
 
     // Use this for initialization
     private void Start()
@@ -61,7 +61,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
     private void SwitchUser()
     {
         var purchases = GetComponent<Purchases>();
-        purchases.LogIn("newUser", (purchaserInfo, created, error) =>
+        purchases.LogIn("newUser", (customerInfo, created, error) =>
         {
             if (error != null)
             {
@@ -69,7 +69,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
             }
             else
             {
-                DisplayPurchaserInfo(purchaserInfo);
+                DisplayCustomerInfo(customerInfo);
             }
         });
     }
@@ -105,9 +105,9 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
         purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
         purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST, null);
 
-        purchases.GetPurchaserInfo((info, error) =>
+        purchases.GetCustomerInfo((info, error) =>
         {
-            Debug.Log("purchaser info " + info.ActiveSubscriptions);
+            Debug.Log("customer info " + info.ActiveSubscriptions);
             if (error != null)
             {
                 LogError(error);
@@ -131,7 +131,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
     private void ButtonClicked(Purchases.Package package)
     {
         var purchases = GetComponent<Purchases>();
-        purchases.PurchasePackage(package, (productIdentifier, purchaserInfo, userCancelled, error) =>
+        purchases.PurchasePackage(package, (productIdentifier, customerInfo, userCancelled, error) =>
         {
             if (!userCancelled)
             {
@@ -141,7 +141,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
                 }
                 else
                 {
-                    DisplayPurchaserInfo(purchaserInfo);
+                    DisplayCustomerInfo(customerInfo);
                 }
             }
             else
@@ -154,7 +154,7 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
     void RestoreClicked()
     {
         var purchases = GetComponent<Purchases>();
-        purchases.RestoreTransactions((purchaserInfo, error) =>
+        purchases.RestoreTransactions((customerInfo, error) =>
         {
             if (error != null)
             {
@@ -162,16 +162,16 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
             }
             else
             {
-                DisplayPurchaserInfo(purchaserInfo);
+                DisplayCustomerInfo(customerInfo);
             }
         });
     }
 
-    public override void PurchaserInfoReceived(Purchases.PurchaserInfo purchaserInfo)
+    public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
     {
-        Debug.Log(string.Format("purchaser info received {0}", purchaserInfo.ActiveSubscriptions));
+        Debug.Log(string.Format("customer info received {0}", customerInfo.ActiveSubscriptions));
 
-        DisplayPurchaserInfo(purchaserInfo);
+        DisplayCustomerInfo(customerInfo);
     }
 
     private void LogError(Purchases.Error error)
@@ -179,18 +179,18 @@ public class PurchasesListener : Purchases.UpdatedPurchaserInfoListener
         Debug.Log("Subtester: " + JsonUtility.ToJson(error));
     }
 
-    private void DisplayPurchaserInfo(Purchases.PurchaserInfo purchaserInfo)
+    private void DisplayCustomerInfo(Purchases.CustomerInfo customerInfo)
     {
         var text = "";
-        foreach (var entry in purchaserInfo.Entitlements.All)
+        foreach (var entry in customerInfo.Entitlements.All)
         {
             var entitlement = entry.Value;
             var active = entitlement.IsActive ? "subscribed" : "expired";
             text += entitlement.Identifier + " " + active + "\n";
         }
-        text += purchaserInfo.LatestExpirationDate;
+        text += customerInfo.LatestExpirationDate;
 
-        purchaserInfoLabel.text = text;
+        customerInfoLabel.text = text;
     }
 
 }

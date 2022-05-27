@@ -8,4 +8,4 @@ In order to use it:
 1. Select the PurchasesManager, and make sure that it has a PurchasesListener and Purchases object attached. If they're not attached, remove other objects from the PurchasesManager and add a PurchasesListener and Purchases object. 
 1. Set the RevenueCat API key in the Purchases object
 1. Set the appUserId if needed in the Purchases object
-1. Set the Parent Panel, Button Prefab and Purchaser Info Label objects in the PurchasesListener. 
+1. Set the Parent Panel, Button Prefab and Customer Info Label objects in the PurchasesListener. 

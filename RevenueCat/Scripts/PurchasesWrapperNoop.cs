@@ -65,7 +65,7 @@ public partial class Purchases
         {
         }
 
-        public void GetPurchaserInfo()
+        public void GetCustomerInfo()
         {
         }
 
@@ -90,7 +90,7 @@ public partial class Purchases
         {
         }
 
-        public void InvalidatePurchaserInfoCache()
+        public void InvalidateCustomerInfoCache()
         {
         }
 

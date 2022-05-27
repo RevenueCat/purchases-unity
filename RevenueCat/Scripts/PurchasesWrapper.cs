@@ -20,13 +20,13 @@ public interface IPurchasesWrapper
     void SetDebugLogsEnabled(bool enabled);
     void SetProxyURL(string proxyURL);
     string GetAppUserId();
-    void GetPurchaserInfo();
+    void GetCustomerInfo();
     void GetOfferings();
 	void SyncPurchases();
 	void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     bool IsAnonymous();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
-    void InvalidatePurchaserInfoCache();
+    void InvalidateCustomerInfoCache();
     void PresentCodeRedemptionSheet();
     void SetSimulatesAskToBuyInSandbox(bool enabled);
     void SetAttributes(string attributesJson);

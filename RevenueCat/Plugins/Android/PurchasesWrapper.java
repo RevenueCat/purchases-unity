@@ -5,7 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.revenuecat.purchases.PurchaserInfo;
+import com.revenuecat.purchases.CustomerInfo;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.PurchasesError;
 import com.revenuecat.purchases.PurchasesErrorCode;
@@ -16,9 +16,9 @@ import com.revenuecat.purchases.hybridcommon.OnResult;
 import com.revenuecat.purchases.hybridcommon.OnResultList;
 import com.revenuecat.purchases.hybridcommon.SubscriberAttributesKt;
 import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
-import com.revenuecat.purchases.hybridcommon.mappers.PurchaserInfoMapperKt;
+import com.revenuecat.purchases.hybridcommon.mappers.CustomerInfoMapperKt;
 import com.revenuecat.purchases.hybridcommon.OnResultAny;
-import com.revenuecat.purchases.interfaces.UpdatedPurchaserInfoListener;
+import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener;
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONArray;
@@ -31,10 +31,10 @@ import java.util.Map;
 
 public class PurchasesWrapper {
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
-    private static final String GET_PURCHASER_INFO = "_getPurchaserInfo";
+    private static final String GET_CUSTOMER_INFO = "_getCustomerInfo";
     private static final String MAKE_PURCHASE = "_makePurchase";
     private static final String CREATE_ALIAS = "_createAlias";
-    private static final String RECEIVE_PURCHASER_INFO = "_receivePurchaserInfo";
+    private static final String RECEIVE_CUSTOMER_INFO = "_receiveCustomerInfo";
     private static final String RESTORE_TRANSACTIONS = "_restoreTransactions";
     private static final String LOG_IN = "_logIn";
     private static final String LOG_OUT = "_logOut";
@@ -49,10 +49,10 @@ public class PurchasesWrapper {
     private static final String PLUGIN_VERSION = "3.5.3";
 
     private static String gameObject;
-    private static UpdatedPurchaserInfoListener listener = new UpdatedPurchaserInfoListener() {
+    private static UpdatedCustomerInfoListener listener = new UpdatedCustomerInfoListener() {
         @Override
-        public void onReceived(@NonNull PurchaserInfo purchaserInfo) {
-            sendPurchaserInfo(PurchaserInfoMapperKt.map(purchaserInfo), RECEIVE_PURCHASER_INFO);
+        public void onReceived(@NonNull CustomerInfo customerInfo) {
+            sendCustomerInfo(CustomerInfoMapperKt.map(customerInfo), RECEIVE_CUSTOMER_INFO);
         }
     };
 
@@ -64,7 +64,7 @@ public class PurchasesWrapper {
         gameObject = gameObject_;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, observerMode, platformInfo);
-        Purchases.getSharedInstance().setUpdatedPurchaserInfoListener(listener);
+        Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
     public static void getProducts(String jsonProducts, String type) {
@@ -167,7 +167,7 @@ public class PurchasesWrapper {
     }
 
     public static void restoreTransactions() {
-        CommonKt.restoreTransactions(getPurchaserInfoListener(RESTORE_TRANSACTIONS));
+        CommonKt.restoreTransactions(getCustomerInfoListener(RESTORE_TRANSACTIONS));
     }
 
 
@@ -176,19 +176,19 @@ public class PurchasesWrapper {
     }
 
     public static void logOut() {
-        CommonKt.logOut(getPurchaserInfoListener(LOG_OUT));
+        CommonKt.logOut(getCustomerInfoListener(LOG_OUT));
     }
 
     public static void createAlias(String newAppUserID) {
-        CommonKt.createAlias(newAppUserID, getPurchaserInfoListener(CREATE_ALIAS));
+        CommonKt.createAlias(newAppUserID, getCustomerInfoListener(CREATE_ALIAS));
     }
 
     public static void identify(String newAppUserID) {
-        CommonKt.identify(newAppUserID, getPurchaserInfoListener(IDENTIFY));
+        CommonKt.identify(newAppUserID, getCustomerInfoListener(IDENTIFY));
     }
 
     public static void reset() {
-        CommonKt.reset(getPurchaserInfoListener(RESET));
+        CommonKt.reset(getCustomerInfoListener(RESET));
     }
 
     public static void setAllowSharingStoreAccount(boolean allowSharingStoreAccount) {
@@ -227,8 +227,8 @@ public class PurchasesWrapper {
         return CommonKt.getAppUserID();
     }
 
-    public static void getPurchaserInfo() {
-        CommonKt.getPurchaserInfo(getPurchaserInfoListener(GET_PURCHASER_INFO));
+    public static void getCustomerInfo() {
+        CommonKt.getCustomerInfo(getCustomerInfoListener(GET_CUSTOMER_INFO));
     }
 
     public static void setFinishTransactions(boolean enabled) {
@@ -260,8 +260,8 @@ public class PurchasesWrapper {
         }
     }
 
-    public static void invalidatePurchaserInfoCache() {
-        CommonKt.invalidatePurchaserInfoCache();
+    public static void invalidateCustomerInfoCache() {
+        CommonKt.invalidateCustomerInfoCache();
     }
 
     public static void setAttributes(String jsonAttributes) {
@@ -397,10 +397,10 @@ public class PurchasesWrapper {
         sendJSONObject(jsonObject, method);
     }
 
-    private static void sendPurchaserInfo(Map<String, ?> map, String method) {
+    private static void sendCustomerInfo(Map<String, ?> map, String method) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(map));
+            jsonObject.put("customerInfo", MappersHelpersKt.convertToJson(map));
         } catch (JSONException e) {
             logJSONException(e);
         }
@@ -425,8 +425,8 @@ public class PurchasesWrapper {
             public void onReceived(Map<String, ?> map) {
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    Map<String, ?> purchaserInfoMap = (Map<String, ?>)map.get("purchaserInfo");
-                    jsonObject.put("purchaserInfo", MappersHelpersKt.convertToJson(purchaserInfoMap));
+                    Map<String, ?> customerInfoMap = (Map<String, ?>)map.get("customerInfo");
+                    jsonObject.put("customerInfo", MappersHelpersKt.convertToJson(customerInfoMap));
                     jsonObject.put("created", (Boolean)map.get("created"));
                 } catch (ClassCastException castException) {
                     Log.e("Purchases", "invalid casting Error: " + castException.getLocalizedMessage());
@@ -444,11 +444,11 @@ public class PurchasesWrapper {
     }
 
     @NonNull
-    private static OnResult getPurchaserInfoListener(final String method) {
+    private static OnResult getCustomerInfoListener(final String method) {
         return new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                sendPurchaserInfo(map, method);
+                sendCustomerInfo(map, method);
             }
 
             @Override
