@@ -4,7 +4,7 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
-    public class Product
+    public class StoreProduct
     {
         public string title;
         public string identifier;
@@ -24,7 +24,7 @@ public partial class Purchases
         /// <returns></returns>
         [CanBeNull] public Discount[] discounts;
             
-        public Product(JSONNode response)
+        public StoreProduct(JSONNode response)
         {
             title = response["title"];
             identifier = response["identifier"];
