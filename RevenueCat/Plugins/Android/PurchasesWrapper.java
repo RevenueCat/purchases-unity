@@ -154,20 +154,8 @@ public class PurchasesWrapper {
         purchasePackage(packageIdentifier, offeringIdentifier, null,  0);
     }
 
-    public static void addAttributionData(String dataJson, final int network, @Nullable String networkUserId) {
-        JSONObject data;
-        try {
-            data = new JSONObject(dataJson);
-        } catch (JSONException e) {
-            logJSONException(e);
-            return;
-        }
-
-        SubscriberAttributesKt.addAttributionData(data, network, networkUserId);
-    }
-
     public static void restorePurchases() {
-        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_TRANSACTIONS));
+        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_PURCHASES));
     }
 
     public static void logIn(String appUserId) {
@@ -176,18 +164,6 @@ public class PurchasesWrapper {
 
     public static void logOut() {
         CommonKt.logOut(getCustomerInfoListener(LOG_OUT));
-    }
-
-    public static void createAlias(String newAppUserID) {
-        CommonKt.createAlias(newAppUserID, getCustomerInfoListener(CREATE_ALIAS));
-    }
-
-    public static void identify(String newAppUserID) {
-        CommonKt.identify(newAppUserID, getCustomerInfoListener(IDENTIFY));
-    }
-
-    public static void reset() {
-        CommonKt.reset(getCustomerInfoListener(RESET));
     }
 
     public static void setAllowSharingStoreAccount(boolean allowSharingStoreAccount) {
