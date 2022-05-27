@@ -7,14 +7,14 @@ public partial class Purchases
     {
         public readonly string Identifier;
         public readonly string PackageType;
-        public readonly Product Product;
+        public readonly StoreProduct StoreProduct;
         public readonly string OfferingIdentifier;
 
         public Package(JSONNode response)
         {
             Identifier = response["identifier"];
             PackageType = response["packageType"];
-            Product = new Product(response["product"]);
+            StoreProduct = new StoreProduct(response["product"]);
             OfferingIdentifier = response["offeringIdentifier"];
         }
 
@@ -22,7 +22,7 @@ public partial class Purchases
         {
             return $"{nameof(Identifier)}: {Identifier}, " +
                    $"{nameof(PackageType)}: {PackageType}, " +
-                   $"{nameof(Product)}: {Product}, " +
+                   $"{nameof(StoreProduct)}: {StoreProduct}, " +
                    $"{nameof(OfferingIdentifier)}: {OfferingIdentifier}";
         }
     }

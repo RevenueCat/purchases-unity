@@ -167,9 +167,8 @@ public class PurchasesWrapper {
     }
 
     public static void restorePurchases() {
-        CommonKt.restoreTransactions(getCustomerInfoListener(RESTORE_TRANSACTIONS));
+        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_TRANSACTIONS));
     }
-
 
     public static void logIn(String appUserId) {
         CommonKt.logIn(appUserId, getLogInListener(LOG_IN));
