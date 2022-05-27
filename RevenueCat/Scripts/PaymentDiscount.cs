@@ -2,10 +2,10 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
-    public class PaymentDiscount
+    public class PromotionalOffer
     {
         /// <summary>
-        /// Identifier of the PaymentDiscount.
+        /// Identifier of the PromotionalOffer.
         /// </summary>
         public string identifier;
         
@@ -29,7 +29,7 @@ public partial class Purchases
         /// </summary>
         public long timestamp;
 
-        public PaymentDiscount(JSONNode response)
+        public PromotionalOffer(JSONNode response)
         {
             identifier = response["identifier"];
             keyIdentifier = response["keyIdentifier"];

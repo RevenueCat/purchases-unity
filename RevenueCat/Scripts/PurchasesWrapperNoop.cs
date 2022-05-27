@@ -22,13 +22,13 @@ public partial class Purchases
 
         public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            Purchases.PaymentDiscount discount = null)
+            Purchases.PromotionalOffer discount = null)
         {
         }
 
         public void PurchasePackage(Package packageToPurchase, string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            Purchases.PaymentDiscount discount = null)
+            Purchases.PromotionalOffer discount = null)
         {
         }
 
@@ -178,7 +178,7 @@ public partial class Purchases
         {
         }
         
-        public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
         {
         }
     }

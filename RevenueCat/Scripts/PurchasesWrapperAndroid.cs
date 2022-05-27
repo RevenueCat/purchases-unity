@@ -21,7 +21,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         if (oldSku == null)
         {
@@ -35,7 +35,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         if (oldSku == null)
         {
@@ -257,9 +257,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("canMakePayments", JsonUtility.ToJson(request));
     }
 
-    public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
     {
-        CallPurchases("getPaymentDiscount", productIdentifier, discountIdentifier);
+        CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier);
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

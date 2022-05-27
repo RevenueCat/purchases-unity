@@ -43,7 +43,7 @@ public class PurchasesWrapper {
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
-    private static final String GET_PAYMENT_DISCOUNT = "_getPaymentDiscount";
+    private static final String GET_PROMOTIONAL_OFFER = "_getPromotionalOffer";
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "3.5.3";
@@ -372,9 +372,9 @@ public class PurchasesWrapper {
         }
     }
 
-    public static void getPaymentDiscount(String productIdentifier, String discountIdentifier) {
-        ErrorContainer errorContainer = CommonKt.getPaymentDiscount();
-        sendError(errorContainer, GET_PAYMENT_DISCOUNT);
+    public static void getPromotionalOffer(String productIdentifier, String discountIdentifier) {
+        ErrorContainer errorContainer = CommonKt.getPromotionalOffer();
+        sendError(errorContainer, GET_PROMOTIONAL_OFFER);
     }
 
     private static void logJSONException(JSONException e) {

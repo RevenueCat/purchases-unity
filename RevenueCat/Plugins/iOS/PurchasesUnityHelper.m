@@ -20,7 +20,7 @@ static NSString *const GET_OFFERINGS = @"_getOfferings";
 static NSString *const GET_CUSTOMER_INFO = @"_getCustomerInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
-static NSString *const GET_PAYMENT_DISCOUNT = @"_getPaymentDiscount";
+static NSString *const GET_PROMOTIONAL_OFFER = @"_getPromotionalOffer";
 
 #pragma mark Utility Methods
 
@@ -253,7 +253,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality promotionalOfferForProductIdentifier:productIdentifier
                                                       discount:discountIdentifier
                                                completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
-        [self sendJSONObject:responseDictionary toMethod:GET_PAYMENT_DISCOUNT];
+        [self sendJSONObject:responseDictionary toMethod:GET_PROMOTIONAL_OFFER];
     }];
 }
 
