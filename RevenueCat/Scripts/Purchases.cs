@@ -169,12 +169,12 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackage(package, discount: discount);
     }
 
-    private CustomerInfoFunc RestoreTransactionsCallback { get; set; }
+    private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
-    public void RestoreTransactions(CustomerInfoFunc callback)
+    public void RestorePurchases(CustomerInfoFunc callback)
     {
-        RestoreTransactionsCallback = callback;
-        _wrapper.RestoreTransactions();
+        RestorePurchasesCallback = callback;
+        _wrapper.RestorePurchases();
     }
 
     [Obsolete("Deprecated, use set<NetworkId> methods instead.")]
@@ -593,11 +593,11 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _restoreTransactions(string customerInfoJson)
+    private void _restorePurchases(string customerInfoJson)
     {
-        Debug.Log("_restoreTransactions " + customerInfoJson);
-        ReceiveCustomerInfoMethod(customerInfoJson, RestoreTransactionsCallback);
-        RestoreTransactionsCallback = null;
+        Debug.Log("_restorePurchases " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, RestorePurchasesCallback);
+        RestorePurchasesCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local

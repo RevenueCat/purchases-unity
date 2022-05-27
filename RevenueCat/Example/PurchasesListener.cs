@@ -154,7 +154,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     void RestoreClicked()
     {
         var purchases = GetComponent<Purchases>();
-        purchases.RestoreTransactions((customerInfo, error) =>
+        purchases.RestorePurchases((customerInfo, error) =>
         {
             if (error != null)
             {

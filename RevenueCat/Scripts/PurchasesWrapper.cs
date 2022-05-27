@@ -12,7 +12,7 @@ public interface IPurchasesWrapper
     void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
 	    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, 
 	    Purchases.PaymentDiscount discount = null);
-    void RestoreTransactions();
+    void RestorePurchases();
 	void LogIn(string appUserId);
 	void LogOut();
 	void SetFinishTransactions(bool finishTransactions);

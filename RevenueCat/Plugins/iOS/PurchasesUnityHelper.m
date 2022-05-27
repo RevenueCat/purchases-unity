@@ -12,7 +12,7 @@
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const RECEIVE_CUSTOMER_INFO = @"_receiveCustomerInfo";
-static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
+static NSString *const RESTORE_PURCHASES = @"_restorePurchases";
 static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
@@ -126,7 +126,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)restorePurchases {
-    [RCCommonFunctionality restorePurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_TRANSACTIONS]];
+    [RCCommonFunctionality restorePurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_PURCHASES]];
 }
 
 - (void)syncPurchases {

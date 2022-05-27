@@ -52,9 +52,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName);
     }
 
-    public void RestoreTransactions()
+    public void RestorePurchases()
     {
-        CallPurchases("restoreTransactions");
+        CallPurchases("restorePurchases");
     }
 
     public void AddAttributionData(int network, string data, string networkUserId)
