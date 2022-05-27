@@ -30,7 +30,7 @@ public partial class Purchases
         public Dictionary<string, DateTime> AllPurchaseDates;
         [CanBeNull] public string OriginalApplicationVersion;
         [CanBeNull] public string ManagementURL;
-        public List<Transaction> NonSubscriptionTransactions;
+        public List<StoreTransaction> NonSubscriptionTransactions;
 
         public CustomerInfo(JSONNode response)
         {
@@ -78,10 +78,10 @@ public partial class Purchases
 
             OriginalApplicationVersion = response["originalApplicationVersion"];
             
-            NonSubscriptionTransactions = new List<Transaction>();
+            NonSubscriptionTransactions = new List<StoreTransaction>();
             foreach (JSONNode transactionResponse in response["nonSubscriptionTransactions"])
             {
-                NonSubscriptionTransactions.Add(new Transaction(transactionResponse));
+                NonSubscriptionTransactions.Add(new StoreTransaction(transactionResponse));
             }
         }
 

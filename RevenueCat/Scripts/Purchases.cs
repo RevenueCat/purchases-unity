@@ -8,7 +8,7 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public delegate void GetProductsFunc(List<Product> products, Error error);
+    public delegate void GetProductsFunc(List<StoreProduct> products, Error error);
 
     public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled, Error error);
 
@@ -510,14 +510,14 @@ public partial class Purchases : MonoBehaviour
      /// <summary>
      /// iOS only. Use this function to retrieve the Purchases.PaymentDiscount for a given Purchases.Package.
      /// </summary>
-     /// <param name="product">The Purchases.Product the user intends to purchase</param>
+     /// <param name="storeProduct">The Purchases.StoreProduct the user intends to purchase</param>
      /// <param name="discount">The Purchases.Discount to apply to the product.</param>
      /// <param name="callback">A callback receiving a Purchases.PaymentDiscount. Null is returned for Android and
      /// incompatible iOS versions.</param>
-     public void GetPaymentDiscount(Product product, Discount discount, GetPaymentDiscountFunc callback)
+     public void GetPaymentDiscount(StoreProduct storeProduct, Discount discount, GetPaymentDiscountFunc callback)
      {
         GetPaymentDiscountCallback = callback;
-         _wrapper.GetPaymentDiscount(product.identifier, discount.identifier);
+         _wrapper.GetPaymentDiscount(storeProduct.identifier, discount.identifier);
      }
      
     // ReSharper disable once UnusedMember.Local
@@ -535,10 +535,10 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var products = new List<Product>();
+            var products = new List<StoreProduct>();
             foreach (JSONNode productResponse in response["products"])
             {
-                var product = new Product(productResponse);
+                var product = new StoreProduct(productResponse);
                 products.Add(product);
             }
 
