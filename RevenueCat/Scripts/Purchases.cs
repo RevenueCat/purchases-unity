@@ -183,16 +183,6 @@ public partial class Purchases : MonoBehaviour
         _wrapper.AddAttributionData((int)network, dataJson, networkUserId);
     }
 
-    private PurchaserInfoFunc CreateAliasCallback { get; set; }
-
-    // ReSharper disable once UnusedMember.Global
-    [Obsolete("Deprecated, use LogIn instead.")]
-    public void CreateAlias(string newAppUserId, PurchaserInfoFunc callback)
-    {
-        CreateAliasCallback = callback;
-        _wrapper.CreateAlias(newAppUserId);
-    }
-
     private LogInFunc LogInCallback { get; set; }
 
     public void LogIn(string appUserId, LogInFunc callback)
@@ -209,26 +199,6 @@ public partial class Purchases : MonoBehaviour
         _wrapper.LogOut();
     }
     
-    private PurchaserInfoFunc IdentifyCallback { get; set; }
-
-    [Obsolete("Deprecated, use LogIn instead.")]
-    public void Identify(string appUserId, PurchaserInfoFunc callback)
-    {
-        IdentifyCallback = callback;
-        _wrapper.Identify(appUserId);
-    }
-
-    private PurchaserInfoFunc ResetCallback { get; set; }
-
-    // ReSharper disable once Unity.IncorrectMethodSignature
-    // ReSharper disable once UnusedMember.Global
-    [Obsolete("Deprecated, use LogOut instead.")]
-    public void Reset(PurchaserInfoFunc callback)
-    {
-        ResetCallback = callback;
-        _wrapper.Reset();
-    }
-
     // ReSharper disable once UnusedMember.Global
     public void SetFinishTransactions(bool finishTransactions)
     {
@@ -610,14 +580,6 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _createAlias(string purchaserInfoJson)
-    {
-        Debug.Log("_createAlias " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, CreateAliasCallback);
-        CreateAliasCallback = null;
-    }
-
-    // ReSharper disable once UnusedMember.Local
     private void _receivePurchaserInfo(string purchaserInfoJson)
     {
         Debug.Log("_receivePurchaserInfo " + purchaserInfoJson);
@@ -652,22 +614,6 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_logOut " + purchaserInfoJson);
         ReceivePurchaserInfoMethod(purchaserInfoJson, LogOutCallback);
         LogOutCallback = null;
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private void _identify(string purchaserInfoJson)
-    {
-        Debug.Log("_identify " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, IdentifyCallback);
-        IdentifyCallback = null;
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private void _reset(string purchaserInfoJson)
-    {
-        Debug.Log("_reset " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, ResetCallback);
-        ResetCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local 
