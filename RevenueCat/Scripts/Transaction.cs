@@ -5,7 +5,7 @@ using static RevenueCat.Utilities;
 
 public partial class Purchases
 {    
-    public class Transaction
+    public class StoreTransaction
     {
         /**
          * <summary>
@@ -26,7 +26,7 @@ public partial class Purchases
          */
         public DateTime PurchaseDate;
 
-        public Transaction(JSONNode response)
+        public StoreTransaction(JSONNode response)
         {
             RevenueCatId = response["revenueCatId"];
             ProductId = response["productId"];
