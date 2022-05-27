@@ -12,3 +12,4 @@ IntegrationTests/Assets/ExternalDependencyManager/
 IntegrationTests/ProjectSettings/AndroidResolverDependencies.xml
 Purchases.unitypackage
 IntegrationTests/buildiOS/
+**.log
