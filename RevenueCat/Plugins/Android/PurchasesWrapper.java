@@ -35,7 +35,7 @@ public class PurchasesWrapper {
     private static final String MAKE_PURCHASE = "_makePurchase";
     private static final String CREATE_ALIAS = "_createAlias";
     private static final String RECEIVE_CUSTOMER_INFO = "_receiveCustomerInfo";
-    private static final String RESTORE_TRANSACTIONS = "_restoreTransactions";
+    private static final String RESTORE_PURCHASES = "_restorePurchases";
     private static final String LOG_IN = "_logIn";
     private static final String LOG_OUT = "_logOut";
     private static final String IDENTIFY = "_identify";
@@ -166,7 +166,7 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.addAttributionData(data, network, networkUserId);
     }
 
-    public static void restoreTransactions() {
+    public static void restorePurchases() {
         CommonKt.restoreTransactions(getCustomerInfoListener(RESTORE_TRANSACTIONS));
     }
 
