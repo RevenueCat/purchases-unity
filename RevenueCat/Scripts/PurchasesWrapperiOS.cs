@@ -59,10 +59,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCRestoreTransactions();
+    private static extern void _RCRestorePurchases();
     public void RestoreTransactions()
     {
-        _RCRestoreTransactions();
+        _RCRestorePurchases();
     }
 
     [DllImport("__Internal")]
@@ -93,25 +93,19 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCLogOut();
     }
 
-    [DllImport("__Internal")]
-    private static extern void _RCCreateAlias(string newAppUserId);
     public void CreateAlias(string newAppUserId)
     {
-        _RCCreateAlias(newAppUserId);
+        // todo: no-op for now but this method should be removed
     }
 
-    [DllImport("__Internal")]
-    private static extern void _RCIdentify(string appUserId);
     public void Identify(string appUserId)
     {
-        _RCIdentify(appUserId);
+        // todo: no-op for now but this method should be removed
     }
 
-    [DllImport("__Internal")]
-    private static extern void _RCReset();
     public void Reset()
     {
-        _RCReset();
+        // todo: no-op for now but this method should be removed
     }
 
     [DllImport("__Internal")]
@@ -150,10 +144,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetPurchaserInfo();
+    private static extern void _RCGetCustomerInfo();
     public void GetPurchaserInfo()
     {
-        _RCGetPurchaserInfo();
+        _RCGetCustomerInfo();
     }
 
     [DllImport("__Internal")]
@@ -190,10 +184,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCInvalidatePurchaserInfoCache();
+    private static extern void _RCInvalidateCustomerInfoCache();
     public void InvalidatePurchaserInfoCache() 
     {
-        _RCInvalidatePurchaserInfoCache();
+        _RCInvalidateCustomerInfoCache();
     }
 
     [DllImport("__Internal")]
@@ -361,10 +355,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
     
     [DllImport("__Internal")]
-    private static extern void _RCGetPaymentDiscount(string productIdentifier, string discountIdentifier);
+    private static extern void _RCGetPromotionalOffer(string productIdentifier, string discountIdentifier);
     public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
     {
-        _RCGetPaymentDiscount(productIdentifier, discountIdentifier);
+        _RCGetPromotionalOffer(productIdentifier, discountIdentifier);
     }
     
 }

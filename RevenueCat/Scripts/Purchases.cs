@@ -601,7 +601,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["purchaserInfo"]);
+            var info = new PurchaserInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
             MakePurchaseCallback(productIdentifier, info, false, null);
         }
@@ -625,8 +625,8 @@ public partial class Purchases : MonoBehaviour
         if (listener == null) return;
 
         var response = JSON.Parse(purchaserInfoJson);
-        if (response["purchaserInfo"] == null) return;
-        var info = new PurchaserInfo(response["purchaserInfo"]);
+        if (response["customerInfo"] == null) return;
+        var info = new PurchaserInfo(response["customerInfo"]);
         listener.PurchaserInfoReceived(info);
     }
 
@@ -758,7 +758,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["purchaserInfo"]); 
+            var info = new PurchaserInfo(response["customerInfo"]); 
             callback(info, null);
         }
     }
@@ -775,7 +775,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["purchaserInfo"]); 
+            var info = new PurchaserInfo(response["customerInfo"]); 
             var created = response["created"];
             callback(info, created, null);
         }
