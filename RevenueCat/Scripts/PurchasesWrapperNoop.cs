@@ -44,18 +44,6 @@ public partial class Purchases
         {
         }
 
-        public void CreateAlias(string newAppUserId)
-        {
-        }
-
-        public void Identify(string appUserId)
-        {
-        }
-
-        public void Reset()
-        {
-        }
-
         public void SetFinishTransactions(bool finishTransactions)
         {
         }

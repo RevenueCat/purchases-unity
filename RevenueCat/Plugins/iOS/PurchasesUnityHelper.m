@@ -11,13 +11,10 @@
 @import RevenueCat;
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
-static NSString *const CREATE_ALIAS = @"_createAlias";
 static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
 static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
 static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
-static NSString *const IDENTIFY = @"_identify";
-static NSString *const RESET = @"_reset";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
 static NSString *const GET_OFFERINGS = @"_getOfferings";
 static NSString *const GET_CUSTOMER_INFO = @"_getCustomerInfo";
