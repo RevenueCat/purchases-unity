@@ -130,7 +130,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCGetCustomerInfo();
-    public void GetPurchaserInfo()
+    public void GetCustomerInfo()
     {
         _RCGetCustomerInfo();
     }
@@ -170,7 +170,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCInvalidateCustomerInfoCache();
-    public void InvalidatePurchaserInfoCache() 
+    public void InvalidateCustomerInfoCache() 
     {
         _RCInvalidateCustomerInfoCache();
     }

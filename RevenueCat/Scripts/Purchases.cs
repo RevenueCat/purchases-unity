@@ -10,11 +10,11 @@ public partial class Purchases : MonoBehaviour
 {
     public delegate void GetProductsFunc(List<Product> products, Error error);
 
-    public delegate void MakePurchaseFunc(string productIdentifier, PurchaserInfo purchaserInfo, bool userCancelled, Error error);
+    public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled, Error error);
 
-    public delegate void PurchaserInfoFunc(PurchaserInfo purchaserInfo, Error error);
+    public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
 
-    public delegate void LogInFunc(PurchaserInfo purchaserInfo, bool created, Error error);
+    public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
 
     public delegate void GetEntitlementsFunc(Dictionary<string, object> entitlements, Error error);
 
@@ -66,8 +66,8 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("List of product identifiers.")]
     public string[] productIdentifiers;
 
-    [Tooltip("A subclass of Purchases.UpdatedPurchaserInfoListener component. Use your custom subclass to define how to handle updated purchaser information.")]
-    public UpdatedPurchaserInfoListener listener;
+    [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component. Use your custom subclass to define how to handle updated customer information.")]
+    public UpdatedCustomerInfoListener listener;
 
     [Tooltip("An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
     public bool observerMode;
@@ -169,9 +169,9 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackage(package, discount: discount);
     }
 
-    private PurchaserInfoFunc RestoreTransactionsCallback { get; set; }
+    private CustomerInfoFunc RestoreTransactionsCallback { get; set; }
 
-    public void RestoreTransactions(PurchaserInfoFunc callback)
+    public void RestoreTransactions(CustomerInfoFunc callback)
     {
         RestoreTransactionsCallback = callback;
         _wrapper.RestoreTransactions();
@@ -191,9 +191,9 @@ public partial class Purchases : MonoBehaviour
         _wrapper.LogIn(appUserId);
     }    
     
-    private PurchaserInfoFunc LogOutCallback { get; set; }
+    private CustomerInfoFunc LogOutCallback { get; set; }
 
-    public void LogOut(PurchaserInfoFunc callback)
+    public void LogOut(CustomerInfoFunc callback)
     {
         LogOutCallback = callback;
         _wrapper.LogOut();
@@ -230,13 +230,13 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetDebugLogsEnabled(logsEnabled);
     }
     
-    private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }
+    private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
-    public void GetPurchaserInfo(PurchaserInfoFunc callback)
+    public void GetCustomerInfo(CustomerInfoFunc callback)
     {
-        GetPurchaserInfoCallback = callback;
-        _wrapper.GetPurchaserInfo();
+        GetCustomerInfoCallback = callback;
+        _wrapper.GetCustomerInfo();
     }
 
     private GetEntitlementsFunc GetEntitlementsCallback { get; set; }
@@ -272,9 +272,9 @@ public partial class Purchases : MonoBehaviour
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
     }
 
-    public void InvalidatePurchaserInfoCache()
+    public void InvalidateCustomerInfoCache()
     {
-        _wrapper.InvalidatePurchaserInfoCache();
+        _wrapper.InvalidateCustomerInfoCache();
     }
     
     public void PresentCodeRedemptionSheet()
@@ -548,11 +548,11 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _getPurchaserInfo(string purchaserInfoJson)
+    private void _getCustomerInfo(string customerInfoJson)
     {
-        Debug.Log("_getPurchaserInfo " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, GetPurchaserInfoCallback);
-        GetPurchaserInfoCallback = null;
+        Debug.Log("_getCustomerInfo " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, GetCustomerInfoCallback);
+        GetCustomerInfoCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -571,7 +571,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["customerInfo"]);
+            var info = new CustomerInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
             MakePurchaseCallback(productIdentifier, info, false, null);
         }
@@ -580,23 +580,23 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _receivePurchaserInfo(string purchaserInfoJson)
+    private void _receiveCustomerInfo(string customerInfoJson)
     {
-        Debug.Log("_receivePurchaserInfo " + purchaserInfoJson);
+        Debug.Log("_receiveCustomerInfo " + customerInfoJson);
 
         if (listener == null) return;
 
-        var response = JSON.Parse(purchaserInfoJson);
+        var response = JSON.Parse(customerInfoJson);
         if (response["customerInfo"] == null) return;
-        var info = new PurchaserInfo(response["customerInfo"]);
-        listener.PurchaserInfoReceived(info);
+        var info = new CustomerInfo(response["customerInfo"]);
+        listener.CustomerInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _restoreTransactions(string purchaserInfoJson)
+    private void _restoreTransactions(string customerInfoJson)
     {
-        Debug.Log("_restoreTransactions " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, RestoreTransactionsCallback);
+        Debug.Log("_restoreTransactions " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, RestoreTransactionsCallback);
         RestoreTransactionsCallback = null;
     }
 
@@ -609,10 +609,10 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _logOut(string purchaserInfoJson)
+    private void _logOut(string customerInfoJson)
     {
-        Debug.Log("_logOut " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, LogOutCallback);
+        Debug.Log("_logOut " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, LogOutCallback);
         LogOutCallback = null;
     }
 
@@ -692,7 +692,7 @@ public partial class Purchases : MonoBehaviour
         GetPaymentDiscountCallback = null;
     }
 
-    private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)
+    private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)
     {
         if (callback == null) return;
 
@@ -704,7 +704,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["customerInfo"]); 
+            var info = new CustomerInfo(response["customerInfo"]); 
             callback(info, null);
         }
     }
@@ -721,7 +721,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["customerInfo"]); 
+            var info = new CustomerInfo(response["customerInfo"]); 
             var created = response["created"];
             callback(info, created, null);
         }

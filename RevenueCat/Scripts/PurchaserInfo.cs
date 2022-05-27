@@ -8,7 +8,7 @@ using static RevenueCat.Utilities;
 public partial class Purchases
 {
     /*
-     * PurchaserInfo encapsulate the current status of subscriber. 
+     * CustomerInfo encapsulate the current status of subscriber. 
      * Use it to determine which entitlements to unlock, typically by checking 
      * ActiveSubscriptions or via LatestExpirationDate. 
      * 
@@ -16,7 +16,7 @@ public partial class Purchases
      * DateTime.UtcNow
      */
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public class PurchaserInfo
+    public class CustomerInfo
     {
         public EntitlementInfos Entitlements;
         public List<string> ActiveSubscriptions;
@@ -32,7 +32,7 @@ public partial class Purchases
         [CanBeNull] public string ManagementURL;
         public List<Transaction> NonSubscriptionTransactions;
 
-        public PurchaserInfo(JSONNode response)
+        public CustomerInfo(JSONNode response)
         {
             Entitlements = new EntitlementInfos(response["entitlements"]);
             ActiveSubscriptions = new List<string>();

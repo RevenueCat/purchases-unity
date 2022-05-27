@@ -97,9 +97,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         return CallPurchases<string>("getAppUserID");
     }
 
-    public void GetPurchaserInfo()
+    public void GetCustomerInfo()
     {
-        CallPurchases("getPurchaserInfo");
+        CallPurchases("getCustomerInfo");
     }
 
     public void GetOfferings()
@@ -131,9 +131,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
     }
 
-    public void InvalidatePurchaserInfoCache()
+    public void InvalidateCustomerInfoCache()
     {
-        CallPurchases("invalidatePurchaserInfoCache");
+        CallPurchases("invalidateCustomerInfoCache");
     }
 
     public void PresentCodeRedemptionSheet()

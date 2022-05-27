@@ -11,7 +11,7 @@
 @import RevenueCat;
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
-static NSString *const RECEIVE_PURCHASER_INFO = @"_receivePurchaserInfo";
+static NSString *const RECEIVE_CUSTOMER_INFO = @"_receiveCustomerInfo";
 static NSString *const RESTORE_TRANSACTIONS = @"_restoreTransactions";
 static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
@@ -203,7 +203,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedCustomerInfo:(RCCustomerInfo *)customerInfo {
     NSMutableDictionary *response = [NSMutableDictionary new];
     response[@"customerInfo"] = customerInfo.dictionary;
-    [self sendJSONObject:response toMethod:RECEIVE_PURCHASER_INFO];
+    [self sendJSONObject:response toMethod:RECEIVE_CUSTOMER_INFO];
 }
 
 - (char *)getAppUserID {
