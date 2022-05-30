@@ -39,7 +39,7 @@ commands:
       - run:
           name: Import package
           command: |
-            /opt/Unity/Editor/Unity \
+            /opt/unity/Editor/Unity \
               -projectPath IntegrationTests \
               -quit \
               -batchmode \
@@ -62,7 +62,7 @@ commands:
       - run: 
           name: Import Unity license file
           command: |
-            /opt/Unity/Editor/Unity -projectPath IntegrationTests \
+            /opt/unity/Editor/Unity -projectPath IntegrationTests \
             -quit \
             -batchmode \
             -nographics \
@@ -79,7 +79,7 @@ commands:
       - run:
           name: Build Unity project and export it
           command: |
-            /opt/Unity/Editor/Unity \
+            /opt/unity/Editor/Unity \
             -projectPath IntegrationTests \
             -quit \
             -batchmode \
@@ -101,7 +101,7 @@ commands:
       - run:
           name: Resolve project dependencies
           command: |
-            /opt/Unity/Editor/Unity \
+            /opt/unity/Editor/Unity \
               -projectPath IntegrationTests \
               -batchmode \
               -buildTarget << parameters.target >> \
@@ -141,7 +141,7 @@ jobs:
       - run:
           description: Creating Purchases.unitypackage, this may take a minute.
           command: |
-            ./scripts/create-unity-package.sh -u /opt/Unity/Editor/Unity
+            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity
 
       - persist_to_workspace:
           root: .
