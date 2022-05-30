@@ -34,7 +34,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
         if (discount != null)
@@ -48,7 +48,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
         if (discount != null)
@@ -341,7 +341,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     
     [DllImport("__Internal")]
     private static extern void _RCGetPromotionalOffer(string productIdentifier, string discountIdentifier);
-    public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
     {
         _RCGetPromotionalOffer(productIdentifier, discountIdentifier);
     }
