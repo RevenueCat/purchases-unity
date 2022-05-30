@@ -33,13 +33,10 @@ public class PurchasesWrapper {
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
     private static final String GET_CUSTOMER_INFO = "_getCustomerInfo";
     private static final String MAKE_PURCHASE = "_makePurchase";
-    private static final String CREATE_ALIAS = "_createAlias";
     private static final String RECEIVE_CUSTOMER_INFO = "_receiveCustomerInfo";
     private static final String RESTORE_PURCHASES = "_restorePurchases";
     private static final String LOG_IN = "_logIn";
     private static final String LOG_OUT = "_logOut";
-    private static final String IDENTIFY = "_identify";
-    private static final String RESET = "_reset";
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
