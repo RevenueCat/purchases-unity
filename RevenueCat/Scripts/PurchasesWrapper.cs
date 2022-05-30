@@ -8,10 +8,10 @@ public interface IPurchasesWrapper
 	void GetProducts(string[] productIdentifiers, string type = "subs");
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
 	    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, 
-	    Purchases.PaymentDiscount discount = null);
+	    Purchases.PromotionalOffer discount = null);
     void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
 	    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, 
-	    Purchases.PaymentDiscount discount = null);
+	    Purchases.PromotionalOffer discount = null);
     void RestorePurchases();
 	void LogIn(string appUserId);
 	void LogOut();
@@ -48,5 +48,5 @@ public interface IPurchasesWrapper
     void SetCreative(string creative);
     void CollectDeviceIdentifiers();
     void CanMakePayments(Purchases.BillingFeature[] features);
-    void GetPaymentDiscount(string productIdentifier, string discountIdentifier);
+    void GetPromotionalOffer(string productIdentifier, string discountIdentifier);
 }

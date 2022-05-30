@@ -34,13 +34,13 @@ public partial class Purchases : MonoBehaviour
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
     
     /// <summary>
-    /// Callback function containing the result of GetPaymentDiscount
-    /// <param name="paymentDiscount">A Purchases.PaymentDiscount. It will be Null if platform is Android or
+    /// Callback function containing the result of GetPromotionalOffer
+    /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
     /// the iOS version is not compatible with promotional offers</param>
     /// <param name="error">An Error object or null if successful.</param>
     /// 
     /// </summary>
-    public delegate void GetPaymentDiscountFunc(PaymentDiscount paymentDiscount, Error error);
+    public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     [FormerlySerializedAs("revenueCatAPIKey")]
     [ObsoleteAttribute("This property is obsolete. Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.", false)]
@@ -151,7 +151,7 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode);
     }
     
-    public void PurchaseDiscountedProduct(string productIdentifier, PaymentDiscount discount, MakePurchaseFunc callback)
+    public void PurchaseDiscountedProduct(string productIdentifier, PromotionalOffer discount, MakePurchaseFunc callback)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchaseProduct(productIdentifier, discount: discount);
@@ -163,7 +163,7 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackage(package, oldSku, prorationMode);
     }
 
-    public void PurchaseDiscountedPackage(Package package, PaymentDiscount discount, MakePurchaseFunc callback)
+    public void PurchaseDiscountedPackage(Package package, PromotionalOffer discount, MakePurchaseFunc callback)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackage(package, discount: discount);
@@ -505,19 +505,19 @@ public partial class Purchases : MonoBehaviour
         CanMakePayments(new BillingFeature[] { }, callback);
     }
      
-     private GetPaymentDiscountFunc GetPaymentDiscountCallback { get; set; }
+     private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
 
      /// <summary>
-     /// iOS only. Use this function to retrieve the Purchases.PaymentDiscount for a given Purchases.Package.
+     /// iOS only. Use this function to retrieve the Purchases.PromotionalOffer for a given Purchases.Package.
      /// </summary>
      /// <param name="storeProduct">The Purchases.StoreProduct the user intends to purchase</param>
      /// <param name="discount">The Purchases.Discount to apply to the product.</param>
-     /// <param name="callback">A callback receiving a Purchases.PaymentDiscount. Null is returned for Android and
+     /// <param name="callback">A callback receiving a Purchases.PromotionalOffer. Null is returned for Android and
      /// incompatible iOS versions.</param>
-     public void GetPaymentDiscount(StoreProduct storeProduct, Discount discount, GetPaymentDiscountFunc callback)
+     public void GetPromotionalOffer(StoreProduct storeProduct, Discount discount, GetPromotionalOfferFunc callback)
      {
-        GetPaymentDiscountCallback = callback;
-         _wrapper.GetPaymentDiscount(storeProduct.identifier, discount.identifier);
+        GetPromotionalOfferCallback = callback;
+         _wrapper.GetPromotionalOffer(storeProduct.identifier, discount.identifier);
      }
      
     // ReSharper disable once UnusedMember.Local
@@ -672,24 +672,24 @@ public partial class Purchases : MonoBehaviour
         CanMakePaymentsCallback = null;
     }
 
-    private void _getPaymentDiscount(string getPaymentDiscountJson)
+    private void _getPromotionalOffer(string getPromotionalOfferJson)
     {
-        Debug.Log("_getPaymentDiscount" + getPaymentDiscountJson);
+        Debug.Log("_getPromotionalOffer" + getPromotionalOfferJson);
 
-        if (GetPaymentDiscountCallback == null) return;
+        if (GetPromotionalOfferCallback == null) return;
         
-        var response = JSON.Parse(getPaymentDiscountJson);
+        var response = JSON.Parse(getPromotionalOfferJson);
 
         if (ResponseHasError(response))
         {
-            GetPaymentDiscountCallback(null, new Error(response["error"]));
+            GetPromotionalOfferCallback(null, new Error(response["error"]));
         }
         else
         {
-            var paymentDiscount = new PaymentDiscount(response);
-            GetPaymentDiscountCallback(paymentDiscount, null);
+            var promotionalOffer = new PromotionalOffer(response);
+            GetPromotionalOfferCallback(promotionalOffer, null);
         }
-        GetPaymentDiscountCallback = null;
+        GetPromotionalOfferCallback = null;
     }
 
     private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)
