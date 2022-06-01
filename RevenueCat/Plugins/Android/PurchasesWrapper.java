@@ -7,17 +7,15 @@ import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.CustomerInfo;
 import com.revenuecat.purchases.Purchases;
-import com.revenuecat.purchases.PurchasesError;
-import com.revenuecat.purchases.PurchasesErrorCode;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
 import com.revenuecat.purchases.hybridcommon.ErrorContainer;
 import com.revenuecat.purchases.hybridcommon.OnResult;
+import com.revenuecat.purchases.hybridcommon.OnResultAny;
 import com.revenuecat.purchases.hybridcommon.OnResultList;
 import com.revenuecat.purchases.hybridcommon.SubscriberAttributesKt;
-import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
 import com.revenuecat.purchases.hybridcommon.mappers.CustomerInfoMapperKt;
-import com.revenuecat.purchases.hybridcommon.OnResultAny;
+import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener;
 import com.unity3d.player.UnityPlayer;
 
@@ -33,13 +31,10 @@ public class PurchasesWrapper {
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
     private static final String GET_CUSTOMER_INFO = "_getCustomerInfo";
     private static final String MAKE_PURCHASE = "_makePurchase";
-    private static final String CREATE_ALIAS = "_createAlias";
     private static final String RECEIVE_CUSTOMER_INFO = "_receiveCustomerInfo";
     private static final String RESTORE_PURCHASES = "_restorePurchases";
     private static final String LOG_IN = "_logIn";
     private static final String LOG_OUT = "_logOut";
-    private static final String IDENTIFY = "_identify";
-    private static final String RESET = "_reset";
     private static final String GET_OFFERINGS = "_getOfferings";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
@@ -154,20 +149,8 @@ public class PurchasesWrapper {
         purchasePackage(packageIdentifier, offeringIdentifier, null,  0);
     }
 
-    public static void addAttributionData(String dataJson, final int network, @Nullable String networkUserId) {
-        JSONObject data;
-        try {
-            data = new JSONObject(dataJson);
-        } catch (JSONException e) {
-            logJSONException(e);
-            return;
-        }
-
-        SubscriberAttributesKt.addAttributionData(data, network, networkUserId);
-    }
-
     public static void restorePurchases() {
-        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_TRANSACTIONS));
+        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_PURCHASES));
     }
 
     public static void logIn(String appUserId) {
@@ -176,18 +159,6 @@ public class PurchasesWrapper {
 
     public static void logOut() {
         CommonKt.logOut(getCustomerInfoListener(LOG_OUT));
-    }
-
-    public static void createAlias(String newAppUserID) {
-        CommonKt.createAlias(newAppUserID, getCustomerInfoListener(CREATE_ALIAS));
-    }
-
-    public static void identify(String newAppUserID) {
-        CommonKt.identify(newAppUserID, getCustomerInfoListener(IDENTIFY));
-    }
-
-    public static void reset() {
-        CommonKt.reset(getCustomerInfoListener(RESET));
     }
 
     public static void setAllowSharingStoreAccount(boolean allowSharingStoreAccount) {
