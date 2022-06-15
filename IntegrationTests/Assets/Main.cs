@@ -9,7 +9,7 @@ public class Main : MonoBehaviour
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
         
-        purchases.GetCustomerInfo((info, error) =>
+        purchases.GetPurchaserInfo((info, error) =>
         {
             
         });
