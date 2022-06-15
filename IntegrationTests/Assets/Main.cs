@@ -19,7 +19,6 @@ public class Main : MonoBehaviour
     private void Start()
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.SetDebugLogsEnabled(true);
         purchases.deprecatedLegacyRevenueCatAPIKey = "abc";
         purchases.revenueCatAPIKeyApple = "def";
         purchases.revenueCatAPIKeyGoogle = "ghi";
@@ -112,15 +111,37 @@ public class Main : MonoBehaviour
             receivedError = error2;
         }, "type", "oldSku", Purchases.ProrationMode.Deferred);
 
-        purchases.GetCustomerInfo((info, error) =>
+        purchases.RestorePurchases((customerInfo, error) =>
+        {
+            receivedCustomerInfo = customerInfo;
+            receivedError = error;
+        });
+        
+        purchases.AddAttributionData("dataJson", Purchases.AttributionNetwork.BRANCH);
+        purchases.AddAttributionData("dataJson", Purchases.AttributionNetwork.BRANCH, "networkUserId");
+
+        bool receivedCreated = false;
+        purchases.LogIn("appuUerId", (info, created, error) =>
+        {
+            receivedCustomerInfo = info;
+            receivedCreated = created;
+            receivedError = error;
+        });
+        
+        purchases.LogOut((info, error) =>
         {
             receivedCustomerInfo = info;
             receivedError = error;
         });
         
-        purchases.RestorePurchases((customerInfo, error) =>
+        purchases.SetFinishTransactions(true);
+        purchases.SetAllowSharingStoreAccount(false);
+        string appUserId = purchases.GetAppUserId();
+        bool isAnonymous = purchases.IsAnonymous();
+        purchases.SetDebugLogsEnabled(true);
+        purchases.GetCustomerInfo((info, error) =>
         {
-            receivedCustomerInfo = customerInfo;
+            receivedCustomerInfo = info;
             receivedError = error;
         });
         
