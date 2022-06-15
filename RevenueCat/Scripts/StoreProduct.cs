@@ -32,12 +32,13 @@ public partial class Purchases
             price = response["price"];
             priceString = response["price_string"];
             currencyCode = response["currency_code"];
-            introPrice = response["intro_price"];
-            introPriceString = response["intro_price_string"];
-            introPricePeriod = response["intro_price_period"];
-            introPricePeriodUnit = response["intro_price_period_unit"];
-            introPricePeriodNumberOfUnits = response["intro_price_period_number_of_units"];
-            introPriceCycles = response["intro_price_cycles"];
+            var introPriceDict = response["intro_price"];
+            introPrice = introPriceDict["price"];
+            introPriceString = introPriceDict["introPriceString"];
+            introPricePeriod = introPriceDict["introPricePeriod"];
+            introPricePeriodUnit = introPriceDict["introPricePeriodUnit"];
+            introPricePeriodNumberOfUnits = introPriceDict["introPricePeriodNumberOfUnits"];
+            introPriceCycles = introPriceDict["introPriceCycles"];
             
             var discountsResponse = response["discounts"];
             if (discountsResponse == null)
