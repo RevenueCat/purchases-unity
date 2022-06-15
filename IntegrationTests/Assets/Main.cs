@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Purchasing;
 
 
 public class CustomListener : Purchases.UpdatedCustomerInfoListener
@@ -144,6 +143,50 @@ public class Main : MonoBehaviour
             receivedCustomerInfo = info;
             receivedError = error;
         });
+     
+        purchases.SyncPurchases();
+        purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
+        Dictionary<string, Purchases.IntroEligibility> receivedEligibilities;
+        purchases.CheckTrialOrIntroductoryPriceEligibility(new string[] { "a", "b"}, eligibilities =>
+            {
+                receivedEligibilities = eligibilities;
+            });
+        purchases.InvalidateCustomerInfoCache();
+        purchases.PresentCodeRedemptionSheet();
+        purchases.SetSimulatesAskToBuyInSandbox(true);
         
+        purchases.SetAttributes(new Dictionary<string, string>());
+        purchases.SetEmail("asdf");
+        purchases.SetPhoneNumber("asdga");
+        purchases.SetDisplayName("asdgas");
+        purchases.SetPushToken("asdgas");
+        purchases.SetAdjustID("asdgas");
+        purchases.SetAppsflyerID("asdgas");
+        purchases.SetFBAnonymousID("asdgas");
+        purchases.SetMparticleID("asdgas");
+        purchases.SetOnesignalID("asdgas");
+        purchases.SetAirshipChannelID("asdgas");
+        purchases.SetMediaSource("asdgas");
+        purchases.SetCampaign("asdgas");
+        purchases.SetAdGroup("asdgas");
+        purchases.SetAd("asdgas");
+        purchases.SetKeyword("asdgas");
+        purchases.SetCreative("asdgas");
+        purchases.CollectDeviceIdentifiers();
+        
+        bool receivedCanMakePayments = false;
+        
+        purchases.CanMakePayments((canMakePayments, error) =>
+        {
+            receivedCanMakePayments = canMakePayments;
+            receivedError = error;
+        });
+        
+        purchases.CanMakePayments(new Purchases.BillingFeature [] { Purchases.BillingFeature.Subscriptions },
+            (canMakePayments, error) =>
+            {
+                receivedCanMakePayments = canMakePayments;
+                receivedError = error;
+            });
     }
 }
