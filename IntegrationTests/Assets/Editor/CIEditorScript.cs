@@ -227,7 +227,9 @@ static class BuildCommand
 
         SetScriptingBackendFromEnv(buildTarget);
 
-        var buildReport = BuildPipeline.BuildPlayer(GetEnabledScenes(), fixedBuildPath, buildTarget, buildOptions);
+        // setting the scene manually because I was getting an error "can't build untitled scene." for iOS
+        string[] scenes = { "Assets/Main.unity" };
+        var buildReport = BuildPipeline.BuildPlayer(scenes, fixedBuildPath, buildTarget, buildOptions);
 
         if (buildReport.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             throw new Exception($"Build ended with {buildReport.summary.result} status");
