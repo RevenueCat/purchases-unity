@@ -59,7 +59,6 @@ commands:
       - run:
           name: Decode license in env variable
           command: echo $UNITY_LICENSE | base64 --decode >> Unity.x.ulf
-          # command: echo $BASE64_LICENSE_2021 >> Unity.x.ulf
       - run: 
           name: Import Unity license file
           command: |
