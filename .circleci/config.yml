@@ -58,7 +58,8 @@ commands:
     steps:
       - run:
           name: Decode license in env variable
-          command: echo $BASE64_LICENSE_2021 | base64 --decode >> Unity_v2017.x.ulf
+          # command: echo $BASE64_LICENSE_2021 | base64 --decode >> Unity_v2017.x.ulf
+          command: echo $BASE64_LICENSE_2021 >> Unity.x.ulf
       - run: 
           name: Import Unity license file
           command: |
@@ -68,7 +69,7 @@ commands:
             -nographics \
             -silent-crashes \
             -logFile \
-            -manualLicenseFile Unity_v2017.x.ulf || exit 0
+            -manualLicenseFile Unity.x.ulf || exit 0
   
   perform-build:
     description: "Builds Unity project"
