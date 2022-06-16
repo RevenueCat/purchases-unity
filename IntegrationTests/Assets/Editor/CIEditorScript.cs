@@ -130,13 +130,13 @@ static class BuildCommand
     
     public static void Resolve()
     {
-        Console.WriteLine(":::::::: AndroidSdkRoot " + Environment.GetEnvironmentVariable("ANDROID_HOME"));
-        Console.WriteLine(":::::::: JdkPath " + Environment.GetEnvironmentVariable("JAVA_HOME"));
+        Console.WriteLine(":::::::: AndroidSdkRoot " + Environment.GetEnvironmentVariable("ANDROID_HOME_GAME_CI"));
+        Console.WriteLine(":::::::: JdkPath " + Environment.GetEnvironmentVariable("JAVA_HOME_GAME_CI"));
         
         // I was facing this error
         // https://forum.unity.com/threads/unable-to-find-java-android-sdk-google-play-services-in-unity.694576/
-        EditorPrefs.SetString("AndroidSdkRoot", Environment.GetEnvironmentVariable("ANDROID_HOME"));
-        EditorPrefs.SetString("JdkPath", Environment.GetEnvironmentVariable("JAVA_HOME"));
+        EditorPrefs.SetString("AndroidSdkRoot", Environment.GetEnvironmentVariable("ANDROID_HOME_GAME_CI"));
+        EditorPrefs.SetString("JdkPath", Environment.GetEnvironmentVariable("JAVA_HOME_GAME_CI"));
         EditorPrefs.SetInt("JdkUseEmbedded", 0);
         
         Console.WriteLine(":: Resolving");
