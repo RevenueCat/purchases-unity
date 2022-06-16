@@ -47,7 +47,7 @@ fi
 echo "📦 Creating Purchases.unitypackage, this may take a minute."
 
 if [ ! -z "$CI" ] ; then 
-    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
+    $UNITY_BIN -gvh_disable \
     -nographics \
     -silent-crashes \
     -projectPath $PROJECT \

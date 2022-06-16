@@ -140,6 +140,7 @@ jobs:
       - activate-license
 
       - run:
+          name: Export Unity Package
           description: Creating Purchases.unitypackage, this may take a minute.
           command: |
             ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity
