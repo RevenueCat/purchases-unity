@@ -126,6 +126,46 @@ static class BuildCommand
 
         return BuildOptions.None;
     }
+    
+    public static void Resolve()
+    {
+        Console.WriteLine(":::::::: AndroidSdkRoot " + Environment.GetEnvironmentVariable("ANDROID_HOME"));
+        Console.WriteLine(":::::::: JdkPath " + Environment.GetEnvironmentVariable("JAVA_HOME"));
+        
+        // I was facing this error
+        // https://forum.unity.com/threads/unable-to-find-java-android-sdk-google-play-services-in-unity.694576/
+        EditorPrefs.SetString("AndroidSdkRoot", Environment.GetEnvironmentVariable("ANDROID_HOME"));
+        EditorPrefs.SetString("JdkPath", Environment.GetEnvironmentVariable("JAVA_HOME"));
+        EditorPrefs.SetInt("JdkUseEmbedded", 0);
+        
+        Console.WriteLine(":: Resolving");
+        
+        VersionHandler.UpdateCompleteMethods = new [] {
+            ":BuildCommand:ResolverEnabled"
+        };
+        VersionHandler.UpdateNow();
+    }
+    
+    public static void ResolverEnabled()
+    {
+        Console.WriteLine(":: ResolverEnabled");
+        VersionHandler.UpdateCompleteMethods = new string[0];
+        
+        var buildTarget = GetBuildTarget();
+        
+        var result = true;
+        if (buildTarget == BuildTarget.Android)
+        {
+            result = (bool) VersionHandler.InvokeStaticMethod(
+                VersionHandler.FindClass("Google.JarResolver",
+                    "GooglePlayServices.PlayServicesResolver"),
+                "ResolveSync", args: new object[] {true},
+                namedArgs: null);
+        }
+        
+        Console.WriteLine(":: ResolveSync Result " + result);
+        EditorApplication.Exit(result ? 0 : 1);
+    }
 
     // https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value
     static bool TryConvertToEnum<TEnum>(this string strEnumValue, out TEnum value)
