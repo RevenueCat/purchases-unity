@@ -8,18 +8,18 @@ namespace DefaultNamespace
         private void Start()
         {
             Purchases.EntitlementInfo entitlementInfo = new Purchases.EntitlementInfo(null);
-            string Identifier = entitlementInfo.Identifier;
-            bool IsActive = entitlementInfo.IsActive;
-            bool WillRenew = entitlementInfo.WillRenew;
-            string PeriodType = entitlementInfo.PeriodType;
-            DateTime LatestPurchaseDate = entitlementInfo.LatestPurchaseDate;
-            DateTime OriginalPurchaseDate = entitlementInfo.OriginalPurchaseDate;
-            DateTime? ExpirationDate = entitlementInfo.ExpirationDate;
-            string Store = entitlementInfo.Store;
-            string ProductIdentifier = entitlementInfo.ProductIdentifier;
-            bool IsSandbox = entitlementInfo.IsSandbox;
-            DateTime? UnsubscribeDetectedAt = entitlementInfo.UnsubscribeDetectedAt;
-            DateTime? BillingIssueDetectedAt = entitlementInfo.BillingIssueDetectedAt;
+            string identifier = entitlementInfo.Identifier;
+            bool isActive = entitlementInfo.IsActive;
+            bool willRenew = entitlementInfo.WillRenew;
+            string periodType = entitlementInfo.PeriodType;
+            DateTime latestPurchaseDate = entitlementInfo.LatestPurchaseDate;
+            DateTime originalPurchaseDate = entitlementInfo.OriginalPurchaseDate;
+            DateTime? expirationDate = entitlementInfo.ExpirationDate;
+            string store = entitlementInfo.Store;
+            string productIdentifier = entitlementInfo.ProductIdentifier;
+            bool isSandbox = entitlementInfo.IsSandbox;
+            DateTime? unsubscribeDetectedAt = entitlementInfo.UnsubscribeDetectedAt;
+            DateTime? billingIssueDetectedAt = entitlementInfo.BillingIssueDetectedAt;
         }
     }
 }
