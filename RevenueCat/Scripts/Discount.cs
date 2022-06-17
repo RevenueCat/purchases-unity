@@ -7,37 +7,37 @@ public partial class Purchases
         /// <summary>
         /// Identifier of the discount.
         /// </summary>
-        public string identifier;
+        public readonly string Identifier;
 
         /// <summary>
         /// Price in the local currency.
         /// </summary>
-        public float price;
+        public readonly float Price;
 
         /// <summary>
         /// Formatted price, including its currency sign, such as €3.99.
         /// </summary>
-        public string priceString;
+        public readonly string PriceString;
 
         /// <summary>
         /// Number of subscription billing periods for which the user will be given the discount, such as 3.
         /// </summary>
-        public int cycles;
+        public readonly int Cycles;
 
         /// <summary>
         /// Billing period of the discount, specified in ISO 8601 format.
         /// </summary>
-        public string period;
+        public readonly string Period;
 
         /// <summary>
         /// Unit for the billing period of the discount, can be DAY, WEEK, MONTH or YEAR.
         /// </summary>
-        public string periodUnit;
+        public readonly string PeriodUnit;
 
         /// <summary>
         /// Number of units for the billing period of the discount.
         /// </summary>
-        public int periodNumberOfUnits;
+        public readonly int PeriodNumberOfUnits;
 
         public Discount(JSONNode response)
         {
