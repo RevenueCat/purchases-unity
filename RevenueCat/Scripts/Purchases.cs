@@ -41,20 +41,16 @@ public partial class Purchases : MonoBehaviour
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/")]
-    // ReSharper disable once InconsistentNaming
     public string RevenueCatAPIKeyApple;
 
     [Tooltip("RevenueCat API Key specifically for Google Play. Get from https://app.revenuecat.com/")]
-    // ReSharper disable once InconsistentNaming
     public string RevenueCatAPIKeyGoogle;
 
     [Tooltip("RevenueCat API Key specifically for Amazon Appstore. Get from https://app.revenuecat.com/")]
-    // ReSharper disable once InconsistentNaming
     public string RevenueCatAPIKeyAmazon;
 
     [Tooltip("Enables Amazon Store support. Android only, on iOS it has no effect." +
              "If enabled, it will use the API key in RevenueCatAPIKeyAmazon.")]
-    // ReSharper disable once InconsistentNaming
     public bool UseAmazon = false;
 
     [Tooltip(
