@@ -39,7 +39,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         string discountTimestamp = null;
         if (discount != null)
         {
-            discountTimestamp = discount.timestamp.ToString();
+            discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchaseProduct(productIdentifier, discountTimestamp);
     }
@@ -53,7 +53,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         string discountTimestamp = null;
         if (discount != null)
         {
-            discountTimestamp = discount.timestamp.ToString();
+            discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
     }
