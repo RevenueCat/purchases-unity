@@ -36,7 +36,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 {
                     Debug.Log("Package " + package);
                     if (package == null) continue;
-                    var label = package.PackageType + " " + package.StoreProduct.priceString;
+                    var label = package.PackageType + " " + package.StoreProduct.PriceString;
                     CreateButton(label, () => ButtonClicked(package), 500 + yOffset);
                     yOffset += 70;
                 }
