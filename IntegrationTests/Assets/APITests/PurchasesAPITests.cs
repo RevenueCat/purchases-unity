@@ -15,8 +15,6 @@ public class PurchasesAPITests : MonoBehaviour
 {
     private void Start()
     {
-        // TODO: we still have a public method here called GetEntitlments, but it looks like that's 
-        // super old and should be removed
         Purchases purchases = GetComponent<Purchases>();
         purchases.deprecatedLegacyRevenueCatAPIKey = "abc";
         purchases.revenueCatAPIKeyApple = "def";

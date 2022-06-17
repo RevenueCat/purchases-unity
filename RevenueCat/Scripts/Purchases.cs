@@ -16,8 +16,6 @@ public partial class Purchases : MonoBehaviour
 
     public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
 
-    public delegate void GetEntitlementsFunc(Dictionary<string, object> entitlements, Error error);
-
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
@@ -237,14 +235,6 @@ public partial class Purchases : MonoBehaviour
     {
         GetCustomerInfoCallback = callback;
         _wrapper.GetCustomerInfo();
-    }
-
-    private GetEntitlementsFunc GetEntitlementsCallback { get; set; }
-
-    [ObsoleteAttribute("This method has been replaced with GetOfferings.")]
-    public void GetEntitlements(GetEntitlementsFunc callback)
-    {
-
     }
 
     private GetOfferingsFunc GetOfferingsCallback { get; set; }
@@ -631,7 +621,7 @@ public partial class Purchases : MonoBehaviour
             var offeringsResponse = response["offerings"];
             GetOfferingsCallback(new Offerings(offeringsResponse), null);
         }
-        GetEntitlementsCallback = null;
+        GetOfferingsCallback = null;
     }
     
     private void _checkTrialOrIntroductoryPriceEligibility(string json)
