@@ -18,6 +18,8 @@ public class PurchasesAPITests : MonoBehaviour
         Purchases purchases = GetComponent<Purchases>();
         purchases.RevenueCatAPIKeyApple = "def";
         purchases.RevenueCatAPIKeyGoogle = "ghi";
+        purchases.RevenueCatAPIKeyAmazon = "ghi";
+        purchases.UseAmazon = true;
         purchases.AppUserID = "abc";
         purchases.ProductIdentifiers = new[]
         {
