@@ -16,19 +16,19 @@ public class PurchasesAPITests : MonoBehaviour
     private void Start()
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.deprecatedLegacyRevenueCatAPIKey = "abc";
-        purchases.revenueCatAPIKeyApple = "def";
-        purchases.revenueCatAPIKeyGoogle = "ghi";
-        purchases.appUserID = "abc";
-        purchases.productIdentifiers = new[]
+        purchases.DeprecatedLegacyRevenueCatAPIKey = "abc";
+        purchases.RevenueCatAPIKeyApple = "def";
+        purchases.RevenueCatAPIKeyGoogle = "ghi";
+        purchases.AppUserID = "abc";
+        purchases.ProductIdentifiers = new[]
         {
             "a", "b", "c"
         };
 
-        purchases.listener = new CustomListener();
-        purchases.observerMode = true;
-        purchases.userDefaultsSuiteName = "suitename";
-        purchases.proxyURL = "https://proxy-url.revenuecat.com";
+        purchases.Listener = new CustomListener();
+        purchases.ObserverMode = true;
+        purchases.UserDefaultsSuiteName = "suitename";
+        purchases.ProxyURL = "https://proxy-url.revenuecat.com";
 
         Purchases.CustomerInfo receivedCustomerInfo;
         Purchases.Error receivedError;

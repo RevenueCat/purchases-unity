@@ -88,12 +88,12 @@ public partial class Purchases : MonoBehaviour
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
-        if (!string.IsNullOrEmpty(proxyURL))
+        if (!string.IsNullOrEmpty(ProxyURL))
         {
-            _wrapper.SetProxyURL(proxyURL);
+            _wrapper.SetProxyURL(ProxyURL);
         }
-        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
-        GetProducts(productIdentifiers, null);
+        Setup(string.IsNullOrEmpty(AppUserID) ? null : AppUserID);
+        GetProducts(ProductIdentifiers, null);
     }
 
     private void Setup(string newUserId)
@@ -102,15 +102,15 @@ public partial class Purchases : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.IPhonePlayer
             || Application.platform == RuntimePlatform.OSXPlayer)
-            apiKey = revenueCatAPIKeyApple;
+            apiKey = RevenueCatAPIKeyApple;
         else if (Application.platform == RuntimePlatform.Android
             || IsAndroidEmulator())
-            apiKey = revenueCatAPIKeyGoogle;
+            apiKey = RevenueCatAPIKeyGoogle;
 
         if (String.IsNullOrEmpty(apiKey))
-            apiKey = deprecatedLegacyRevenueCatAPIKey;
+            apiKey = DeprecatedLegacyRevenueCatAPIKey;
 
-        _wrapper.Setup(gameObject.name, apiKey, newUserId, observerMode, userDefaultsSuiteName);
+        _wrapper.Setup(gameObject.name, apiKey, newUserId, ObserverMode, UserDefaultsSuiteName);
     }
 
     private bool IsAndroidEmulator()
@@ -507,7 +507,7 @@ public partial class Purchases : MonoBehaviour
      public void GetPromotionalOffer(StoreProduct storeProduct, Discount discount, GetPromotionalOfferFunc callback)
      {
         GetPromotionalOfferCallback = callback;
-         _wrapper.GetPromotionalOffer(storeProduct.identifier, discount.identifier);
+         _wrapper.GetPromotionalOffer(storeProduct.Identifier, discount.Identifier);
      }
      
     // ReSharper disable once UnusedMember.Local
@@ -574,12 +574,12 @@ public partial class Purchases : MonoBehaviour
     {
         Debug.Log("_receiveCustomerInfo " + customerInfoJson);
 
-        if (listener == null) return;
+        if (Listener == null) return;
 
         var response = JSON.Parse(customerInfoJson);
         if (response["customerInfo"] == null) return;
         var info = new CustomerInfo(response["customerInfo"]);
-        listener.CustomerInfoReceived(info);
+        Listener.CustomerInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
