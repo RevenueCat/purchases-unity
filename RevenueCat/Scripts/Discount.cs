@@ -41,24 +41,24 @@ public partial class Purchases
 
         public Discount(JSONNode response)
         {
-            identifier = response["identifier"];
-            price = response["price"];
-            priceString = response["priceString"];
-            cycles = response["cycles"];
-            period = response["period"];
-            periodUnit = response["periodUnit"];
-            periodNumberOfUnits = response["periodNumberOfUnits"];
+            Identifier = response["identifier"];
+            Price = response["price"];
+            PriceString = response["priceString"];
+            Cycles = response["cycles"];
+            Period = response["period"];
+            PeriodUnit = response["periodUnit"];
+            PeriodNumberOfUnits = response["periodNumberOfUnits"];
         }
 
         public override string ToString()
         {
-            return $"{nameof(identifier)}: {identifier}, " +
-                   $"{nameof(price)}: {price}, " +
-                   $"{nameof(priceString)}: {priceString}, " +
-                   $"{nameof(cycles)}: {cycles}, " +
-                   $"{nameof(period)}: {period}, " +
-                   $"{nameof(periodUnit)}: {periodUnit}, " +
-                   $"{nameof(periodNumberOfUnits)}: {periodNumberOfUnits}";
+            return $"{nameof(Identifier)}: {Identifier}, " +
+                   $"{nameof(Price)}: {Price}, " +
+                   $"{nameof(PriceString)}: {PriceString}, " +
+                   $"{nameof(Cycles)}: {Cycles}, " +
+                   $"{nameof(Period)}: {Period}, " +
+                   $"{nameof(PeriodUnit)}: {PeriodUnit}, " +
+                   $"{nameof(PeriodNumberOfUnits)}: {PeriodNumberOfUnits}";
         }
     }
 }
