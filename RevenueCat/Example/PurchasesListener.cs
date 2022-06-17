@@ -103,8 +103,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             trackerToken = "trackerToken"
         };
         purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
-        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST, null);
-
+        purchases.SetAdjustID(null);
+        
         purchases.GetCustomerInfo((info, error) =>
         {
             Debug.Log("customer info " + info.ActiveSubscriptions);

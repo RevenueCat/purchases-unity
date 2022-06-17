@@ -1,3 +1,11 @@
+## 4.0.0
+### Removed APIs
+
+### Renamed APIs
+
+### New APIs
+
+
 ## 3.5.3
 
 When installing this release, make sure to make a fresh installation by removing the RevenueCat folder before importing the package. That way obsolete files are deleted from your project.
