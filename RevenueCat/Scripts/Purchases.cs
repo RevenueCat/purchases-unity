@@ -40,14 +40,6 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
-    [FormerlySerializedAs("revenueCatAPIKey")]
-    [ObsoleteAttribute("This property is obsolete. Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.", false)]
-    [Tooltip("(DEPRECATED) RevenueCat API Key. Get from https://app.revenuecat.com/. " +
-             "This property is obsolete. " +
-             "Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.")]
-    // ReSharper disable once InconsistentNaming
-    public string DeprecatedLegacyRevenueCatAPIKey;
-
     [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
     public string RevenueCatAPIKeyApple;

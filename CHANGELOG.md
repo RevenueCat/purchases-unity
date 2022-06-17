@@ -23,6 +23,7 @@ New types that wrap StoreKit's native types, and we cleaned up the naming of oth
 ### Removed APIs
 - `Identify` and `CreateAlias` have been removed in favor of `Reset`.
 - `GetEntitlements` has been removed in favor of `GetOfferings`.
+- `revenueCatAPIKey` has been removed in favor of `RevenueCatAPIKeyApple`, `RevenueCatAPIKeyGoogle` and `RevenueCatAPIKeyAmazon`.
 
 ### Renamed APIs
 
