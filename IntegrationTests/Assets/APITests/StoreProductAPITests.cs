@@ -7,21 +7,20 @@ namespace DefaultNamespace
     {
         private void Start()
         {
-            // todo: update to Uppercase + readonly
             Purchases.StoreProduct storeProduct = new Purchases.StoreProduct(null);
-            string title = storeProduct.title;
-            string identifier = storeProduct.identifier;
-            string description = storeProduct.description;
-            float price = storeProduct.price;
-            string priceString = storeProduct.priceString;
-            string currencyCode = storeProduct.currencyCode;
-            float introPrice = storeProduct.introPrice;
-            string introPriceString = storeProduct.introPriceString;
-            string introPricePeriod = storeProduct.introPricePeriod;
-            string introPricePeriodUnit = storeProduct.introPricePeriodUnit;
-            int introPricePeriodNumberOfUnits = storeProduct.introPricePeriodNumberOfUnits;
-            int introPriceCycles = storeProduct.introPriceCycles;
-            Purchases.Discount[] discounts = storeProduct.discounts;
+            string title = storeProduct.Title;
+            string identifier = storeProduct.Identifier;
+            string description = storeProduct.Description;
+            float price = storeProduct.Price;
+            string priceString = storeProduct.PriceString;
+            string currencyCode = storeProduct.CurrencyCode;
+            float introPrice = storeProduct.IntroPrice;
+            string introPriceString = storeProduct.IntroPriceString;
+            string introPricePeriod = storeProduct.IntroPricePeriod;
+            string introPricePeriodUnit = storeProduct.IntroPricePeriodUnit;
+            int introPricePeriodNumberOfUnits = storeProduct.IntroPricePeriodNumberOfUnits;
+            int introPriceCycles = storeProduct.IntroPriceCycles;
+            Purchases.Discount[] discounts = storeProduct.Discounts;
         }
     }
 }
