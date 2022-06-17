@@ -74,7 +74,7 @@ public class PurchasesAPITests : MonoBehaviour
 
             Purchases.StoreProduct storeProduct = storeProducts.First();
             Purchases.PromotionalOffer receivedPromoOffer;
-            purchases.GetPromotionalOffer(storeProduct, storeProduct.discounts.First(), (offer, error2) =>
+            purchases.GetPromotionalOffer(storeProduct, storeProduct.Discounts.First(), (offer, error2) =>
             {
                 receivedPromoOffer = offer;
                 receivedError = error2;

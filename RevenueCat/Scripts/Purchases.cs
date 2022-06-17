@@ -46,36 +46,36 @@ public partial class Purchases : MonoBehaviour
              "This property is obsolete. " +
              "Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.")]
     // ReSharper disable once InconsistentNaming
-    public string deprecatedLegacyRevenueCatAPIKey;
+    public string DeprecatedLegacyRevenueCatAPIKey;
 
     [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
-    public string revenueCatAPIKeyApple;
+    public string RevenueCatAPIKeyApple;
 
     [Tooltip("RevenueCat API Key specifically for Android. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
-    public string revenueCatAPIKeyGoogle;
+    public string RevenueCatAPIKeyGoogle;
 
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
     // ReSharper disable once InconsistentNaming
-    public string appUserID;
+    public string AppUserID;
 
     [Tooltip("List of product identifiers.")]
-    public string[] productIdentifiers;
+    public string[] ProductIdentifiers;
 
     [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component. Use your custom subclass to define how to handle updated customer information.")]
-    public UpdatedCustomerInfoListener listener;
+    public UpdatedCustomerInfoListener Listener;
 
     [Tooltip("An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
-    public bool observerMode;
+    public bool ObserverMode;
 
     [Tooltip("An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.")]
-    public string userDefaultsSuiteName;
+    public string UserDefaultsSuiteName;
 
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
-    public string proxyURL;
+    public string ProxyURL;
 
     private IPurchasesWrapper _wrapper;
 
