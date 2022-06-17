@@ -34,7 +34,10 @@ commands:
           name: Temporarily remove scripts
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
-            mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
+            mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/APITests
+            # rename all the .cs files in APITests to .cs.break
+            for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
+
 
       - run:
           name: Import package
@@ -52,6 +55,8 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
+            # rename all the .cs.break files in APITests to .cs
+            for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
 
   activate-license:
     description: "Activates Unity license"
