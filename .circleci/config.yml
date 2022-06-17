@@ -34,7 +34,7 @@ commands:
           name: Temporarily remove scripts
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
-            mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/APITests
+            mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/APITests/Main.cs.break
             # rename all the .cs files in APITests to .cs.break
             for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
 
