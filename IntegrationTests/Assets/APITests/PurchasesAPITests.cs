@@ -16,7 +16,6 @@ public class PurchasesAPITests : MonoBehaviour
     private void Start()
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.DeprecatedLegacyRevenueCatAPIKey = "abc";
         purchases.RevenueCatAPIKeyApple = "def";
         purchases.RevenueCatAPIKeyGoogle = "ghi";
         purchases.AppUserID = "abc";
