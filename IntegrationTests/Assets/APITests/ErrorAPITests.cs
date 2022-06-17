@@ -7,8 +7,6 @@ namespace DefaultNamespace
     {
         private void Start()
         {
-            // TODO: another place where properties are lowercase
-            // and readonly
             Purchases.Error error = new Purchases.Error(null);
             string message = error.Message;
             int code = error.Code;
