@@ -40,18 +40,32 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
+    [Tooltip("Activate if you plan to call Purchases.Setup programmatically.")]
+    public bool useRuntimeSetup;
+
     [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/")]
-    public string RevenueCatAPIKeyApple;
+    public string revenueCatAPIKeyApple;
 
     [Tooltip("RevenueCat API Key specifically for Google Play. Get from https://app.revenuecat.com/")]
-    public string RevenueCatAPIKeyGoogle;
+    public string revenueCatAPIKeyGoogle;
 
+    [Header("Alternative Stores")]
     [Tooltip("RevenueCat API Key specifically for Amazon Appstore. Get from https://app.revenuecat.com/")]
-    public string RevenueCatAPIKeyAmazon;
+    public string revenueCatAPIKeyAmazon;
 
     [Tooltip("Enables Amazon Store support. Android only, on iOS it has no effect." +
              "If enabled, it will use the API key in RevenueCatAPIKeyAmazon.")]
-    public bool UseAmazon = false;
+    public bool useAmazon;
+
+    [Header("Dangerous Settings")]
+    [Tooltip("Disable or enable automatically detecting current subscriptions." +  
+             "If this is disabled, RevenueCat won't check current purchases, and it will not sync any purchase automatically " +
+             "when the app starts. Call syncPurchases whenever a new purchase is detected so the receipt is sent to " +
+             "RevenueCat's backend. " +
+             "In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
+             "are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
+             "Auto syncing of purchases is enabled by default.")]
+    public bool autoSyncPurchases = true;
 
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
@@ -59,20 +73,20 @@ public partial class Purchases : MonoBehaviour
     public string AppUserID;
 
     [Tooltip("List of product identifiers.")]
-    public string[] ProductIdentifiers;
+    public string[] productIdentifiers;
 
     [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component. Use your custom subclass to define how to handle updated customer information.")]
-    public UpdatedCustomerInfoListener Listener;
+    public UpdatedCustomerInfoListener listener;
 
     [Tooltip("An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
-    public bool ObserverMode;
+    public bool observerMode;
 
     [Tooltip("An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.")]
-    public string UserDefaultsSuiteName;
+    public string userDefaultsSuiteName;
 
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
-    public string ProxyURL;
+    public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
 
@@ -85,12 +99,15 @@ public partial class Purchases : MonoBehaviour
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
-        if (!string.IsNullOrEmpty(ProxyURL))
+        if (!string.IsNullOrEmpty(proxyURL))
         {
-            _wrapper.SetProxyURL(ProxyURL);
+            _wrapper.SetProxyURL(proxyURL);
         }
+
+        if (useRuntimeSetup) return;
+
         Setup(string.IsNullOrEmpty(AppUserID) ? null : AppUserID);
-        GetProducts(ProductIdentifiers, null);
+        GetProducts(productIdentifiers, null);
     }
 
     private void Setup(string newUserId)
@@ -99,12 +116,20 @@ public partial class Purchases : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.IPhonePlayer
             || Application.platform == RuntimePlatform.OSXPlayer)
-            apiKey = RevenueCatAPIKeyApple;
+            apiKey = revenueCatAPIKeyApple;
         else if (Application.platform == RuntimePlatform.Android
             || IsAndroidEmulator())
-            apiKey = UseAmazon ? RevenueCatAPIKeyAmazon : RevenueCatAPIKeyGoogle;
+            apiKey = useAmazon ? revenueCatAPIKeyAmazon : revenueCatAPIKeyGoogle;
         
-        _wrapper.Setup(gameObject.name, apiKey, newUserId, ObserverMode, UserDefaultsSuiteName);
+        var dangerousSettings = new DangerousSettings(autoSyncPurchases);
+        var builder = PurchasesConfiguration.Builder.Init(apiKey)
+            .SetAppUserId(newUserId)
+            .SetObserverMode(observerMode)
+            .SetUserDefaultsSuiteName(userDefaultsSuiteName)
+            .SetUseAmazon(useAmazon)
+            .SetDangerousSettings(dangerousSettings);
+
+        Setup(builder.Build());
     }
 
     private bool IsAndroidEmulator()
@@ -568,12 +593,12 @@ public partial class Purchases : MonoBehaviour
     {
         Debug.Log("_receiveCustomerInfo " + customerInfoJson);
 
-        if (Listener == null) return;
+        if (listener == null) return;
 
         var response = JSON.Parse(customerInfoJson);
         if (response["customerInfo"] == null) return;
         var info = new CustomerInfo(response["customerInfo"]);
-        Listener.CustomerInfoReceived(info);
+        listener.CustomerInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
