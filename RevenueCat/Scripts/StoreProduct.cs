@@ -12,12 +12,8 @@ public partial class Purchases
         public readonly float Price;
         public readonly string PriceString;
         [CanBeNull] public readonly string CurrencyCode;
-        public readonly float IntroPrice;
-        public readonly string IntroPriceString;
-        public readonly string IntroPricePeriod;
-        public readonly string IntroPricePeriodUnit;
-        public readonly int IntroPricePeriodNumberOfUnits;
-        public readonly int IntroPriceCycles;
+        public IntroductoryPrice IntroductoryPrice;
+
         /// <summary>
         /// Collection of iOS promotional offers for a product. Null for Android.
         /// </summary>
@@ -32,14 +28,11 @@ public partial class Purchases
             Price = response["price"];
             PriceString = response["price_string"];
             CurrencyCode = response["currency_code"];
-            var introPriceDict = response["intro_price"];
-            IntroPrice = introPriceDict["price"];
-            IntroPriceString = introPriceDict["introPriceString"];
-            IntroPricePeriod = introPriceDict["introPricePeriod"];
-            IntroPricePeriodUnit = introPriceDict["introPricePeriodUnit"];
-            IntroPricePeriodNumberOfUnits = introPriceDict["introPricePeriodNumberOfUnits"];
-            IntroPriceCycles = introPriceDict["introPriceCycles"];
-            
+            var introPriceJsonNode = response["intro_price"];
+            if (introPriceJsonNode != null && !introPriceJsonNode.IsNull)
+            {
+                IntroductoryPrice = new IntroductoryPrice(introPriceJsonNode);
+            }
             var discountsResponse = response["discounts"];
             if (discountsResponse == null)
             {
@@ -62,12 +55,7 @@ public partial class Purchases
                    $"{nameof(Price)}: {Price}, " +
                    $"{nameof(PriceString)}: {PriceString}, " +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}, " +
-                   $"{nameof(IntroPrice)}: {IntroPrice}, " +
-                   $"{nameof(IntroPriceString)}: {IntroPriceString}, " +
-                   $"{nameof(IntroPricePeriod)}: {IntroPricePeriod}, " +
-                   $"{nameof(IntroPricePeriodUnit)}: {IntroPricePeriodUnit}, " +
-                   $"{nameof(IntroPricePeriodNumberOfUnits)}: {IntroPricePeriodNumberOfUnits}, " +
-                   $"{nameof(IntroPriceCycles)}: {IntroPriceCycles}, " +
+                   $"{IntroductoryPrice}, " +
                    $"{nameof(Discounts)}: {Discounts}";
         }
     }
