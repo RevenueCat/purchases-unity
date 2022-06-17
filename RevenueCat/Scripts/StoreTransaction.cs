@@ -12,19 +12,19 @@ public partial class Purchases
          * Id associated with the transaction in RevenueCat.
          * </summary>
          */
-        public string RevenueCatId;
+        public readonly string RevenueCatId;
         /**
          * <summary>
          * Product Id associated with the transaction.
          * </summary>
          */
-        public string ProductId;
+        public readonly string ProductId;
         /**
          * <summary>
          * Purchase date of the transaction in UTC, be sure to compare them with DateTime.UtcNow
          * </summary>
          */
-        public DateTime PurchaseDate;
+        public readonly DateTime PurchaseDate;
 
         public StoreTransaction(JSONNode response)
         {
