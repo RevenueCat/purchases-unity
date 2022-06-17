@@ -44,9 +44,18 @@ public partial class Purchases : MonoBehaviour
     // ReSharper disable once InconsistentNaming
     public string RevenueCatAPIKeyApple;
 
-    [Tooltip("RevenueCat API Key specifically for Android. Get from https://app.revenuecat.com/")]
+    [Tooltip("RevenueCat API Key specifically for Google Play. Get from https://app.revenuecat.com/")]
     // ReSharper disable once InconsistentNaming
     public string RevenueCatAPIKeyGoogle;
+
+    [Tooltip("RevenueCat API Key specifically for Amazon Appstore. Get from https://app.revenuecat.com/")]
+    // ReSharper disable once InconsistentNaming
+    public string RevenueCatAPIKeyAmazon;
+
+    [Tooltip("Enables Amazon Store support. Android only, on iOS it has no effect." +
+             "If enabled, it will use the API key in RevenueCatAPIKeyAmazon.")]
+    // ReSharper disable once InconsistentNaming
+    public bool UseAmazon = false;
 
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
@@ -97,11 +106,8 @@ public partial class Purchases : MonoBehaviour
             apiKey = RevenueCatAPIKeyApple;
         else if (Application.platform == RuntimePlatform.Android
             || IsAndroidEmulator())
-            apiKey = RevenueCatAPIKeyGoogle;
-
-        if (String.IsNullOrEmpty(apiKey))
-            apiKey = DeprecatedLegacyRevenueCatAPIKey;
-
+            apiKey = UseAmazon ? RevenueCatAPIKeyAmazon : RevenueCatAPIKeyGoogle;
+        
         _wrapper.Setup(gameObject.name, apiKey, newUserId, ObserverMode, UserDefaultsSuiteName);
     }
 
