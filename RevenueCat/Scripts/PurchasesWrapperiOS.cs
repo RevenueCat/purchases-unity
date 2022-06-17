@@ -2,12 +2,14 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-#if UNITY_IOS
+// #if UNITY_IOS
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
+
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
         _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName);
     }
@@ -70,6 +72,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void SyncPurchases()
     {
         _RCSyncPurchases();
+    }
+    
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+        string isoCurrencyCode, double price)
+    {
+        // No-Op
     }
 
     [DllImport("__Internal")]
@@ -347,4 +355,4 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
     
 }
-#endif
+// #endif
