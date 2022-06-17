@@ -1,10 +1,30 @@
 ## 4.0.0
+⚠️ ⚠️ Important ⚠️ ⚠️ Observer mode for Amazon is not supported yet.
+
 ### Removed APIs
+- `Identify` and `CreateAlias` have been removed in favor of `Reset`.
+- `GetEntitlements` has been removed in favor of `GetOfferings`.
 
 ### Renamed APIs
-
-### New APIs
-
+| 3.x | 4.0.0 |
+| :-: | :-: |
+| `PurchaserInfo` | `CustomerInfo` |
+| `Transaction` | `StoreTransaction` |
+| `Product` | `StoreProduct` |
+| `PaymentDiscount` | `PromotionalOffer` |
+| `Purchases.RestoreTransactions` | `Purchases.RestorePurchases` |
+| `Purchases.GetPaymentDiscount` | `Purchases.GetPromotionalOffer` |
+| `Purchases.UpdatedPurchaserInfoListener` | `Purchases.UpdatedCustomerInfoListener` |
+| `Purchases.deprecatedLegacyRevenueCatAPIKey` | `Purchases.DeprecatedLegacyRevenueCatAPIKey` |
+| `Purchases.revenueCatAPIKeyApple` | `Purchases.RevenueCatAPIKeyApple` |
+| `Purchases.revenueCatAPIKeyGoogle` | `Purchases.RevenueCatAPIKeyGoogle` |
+| `Purchases.appUserID` | `Purchases.AppUserID` |
+| `Purchases.productIdentifiers` | `Purchases.ProductIdentifiers` |
+| `Purchases.listener` | `Purchases.Listener` |
+| `Purchases.observerMode` | `Purchases.ObserverMode` |
+| `Purchases.userDefaultsSuiteName` | `Purchases.UserDefaultsSuiteName` |
+| `Purchases.proxyURL` | `Purchases.ProxyURL` |
+| `Purchases.InvalidatePurchaserInfoCache` | `Purchases.InvalidateCustomerInfoCache`
 
 ## 3.5.3
 
