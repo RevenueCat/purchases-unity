@@ -14,12 +14,12 @@ namespace DefaultNamespace
             float price = storeProduct.Price;
             string priceString = storeProduct.PriceString;
             string currencyCode = storeProduct.CurrencyCode;
-            float introPrice = storeProduct.IntroPrice;
-            string introPriceString = storeProduct.IntroPriceString;
-            string introPricePeriod = storeProduct.IntroPricePeriod;
-            string introPricePeriodUnit = storeProduct.IntroPricePeriodUnit;
-            int introPricePeriodNumberOfUnits = storeProduct.IntroPricePeriodNumberOfUnits;
-            int introPriceCycles = storeProduct.IntroPriceCycles;
+            float introPrice = storeProduct.IntroductoryPrice.Price;
+            string introPriceString = storeProduct.IntroductoryPrice.PriceString;
+            string introPricePeriod = storeProduct.IntroductoryPrice.Period;
+            string introPricePeriodUnit = storeProduct.IntroductoryPrice.Unit;
+            int introPricePeriodNumberOfUnits = storeProduct.IntroductoryPrice.NumberOfUnits;
+            int introPriceCycles = storeProduct.IntroductoryPrice.Cycles;
             Purchases.Discount[] discounts = storeProduct.Discounts;
         }
     }
