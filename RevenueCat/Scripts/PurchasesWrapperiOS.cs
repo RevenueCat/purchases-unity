@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-// #if UNITY_IOS
+#if UNITY_IOS
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
@@ -355,4 +355,4 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
     
 }
-// #endif
+#endif
