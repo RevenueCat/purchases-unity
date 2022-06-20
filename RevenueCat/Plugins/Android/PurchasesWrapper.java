@@ -62,10 +62,7 @@ public class PurchasesWrapper {
                              String dangerousSettingsJSON) {
         gameObject = gameObject_;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
-        Store store = Store.PLAY_STORE;
-        if (useAmazon) {
-            store = Store.AMAZON;
-        }
+        Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity,
                 apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings);
