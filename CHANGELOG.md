@@ -36,15 +36,6 @@ New types that wrap StoreKit's native types, and we cleaned up the naming of oth
 | `Purchases.RestoreTransactions` | `Purchases.RestorePurchases` |
 | `Purchases.GetPaymentDiscount` | `Purchases.GetPromotionalOffer` |
 | `Purchases.UpdatedPurchaserInfoListener` | `Purchases.UpdatedCustomerInfoListener` |
-| `Purchases.deprecatedLegacyRevenueCatAPIKey` | `Purchases.DeprecatedLegacyRevenueCatAPIKey` |
-| `Purchases.revenueCatAPIKeyApple` | `Purchases.RevenueCatAPIKeyApple` |
-| `Purchases.revenueCatAPIKeyGoogle` | `Purchases.RevenueCatAPIKeyGoogle` |
-| `Purchases.appUserID` | `Purchases.AppUserID` |
-| `Purchases.productIdentifiers` | `Purchases.ProductIdentifiers` |
-| `Purchases.listener` | `Purchases.Listener` |
-| `Purchases.observerMode` | `Purchases.ObserverMode` |
-| `Purchases.userDefaultsSuiteName` | `Purchases.UserDefaultsSuiteName` |
-| `Purchases.proxyURL` | `Purchases.ProxyURL` |
 | `Purchases.InvalidatePurchaserInfoCache` | `Purchases.InvalidateCustomerInfoCache`
 
 ## 3.5.3
