@@ -16,20 +16,20 @@ public class PurchasesAPITests : MonoBehaviour
     private void Start()
     {
         Purchases purchases = GetComponent<Purchases>();
-        purchases.RevenueCatAPIKeyApple = "def";
-        purchases.RevenueCatAPIKeyGoogle = "ghi";
-        purchases.RevenueCatAPIKeyAmazon = "ghi";
-        purchases.UseAmazon = true;
+        purchases.revenueCatAPIKeyApple = "def";
+        purchases.revenueCatAPIKeyGoogle = "ghi";
+        purchases.revenueCatAPIKeyAmazon = "ghi";
+        purchases.useAmazon = true;
         purchases.AppUserID = "abc";
-        purchases.ProductIdentifiers = new[]
+        purchases.productIdentifiers = new[]
         {
             "a", "b", "c"
         };
 
-        purchases.Listener = new CustomListener();
-        purchases.ObserverMode = true;
-        purchases.UserDefaultsSuiteName = "suitename";
-        purchases.ProxyURL = "https://proxy-url.revenuecat.com";
+        purchases.listener = new CustomListener();
+        purchases.observerMode = true;
+        purchases.userDefaultsSuiteName = "suitename";
+        purchases.proxyURL = "https://proxy-url.revenuecat.com";
 
         Purchases.CustomerInfo receivedCustomerInfo;
         Purchases.Error receivedError;
@@ -121,10 +121,7 @@ public class PurchasesAPITests : MonoBehaviour
             receivedCustomerInfo = customerInfo;
             receivedError = error;
         });
-
-        purchases.AddAttributionData("dataJson", Purchases.AttributionNetwork.BRANCH);
-        purchases.AddAttributionData("dataJson", Purchases.AttributionNetwork.BRANCH, "networkUserId");
-
+        
         bool receivedCreated = false;
         purchases.LogIn("appuUerId", (info, created, error) =>
         {
