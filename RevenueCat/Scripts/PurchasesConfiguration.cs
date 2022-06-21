@@ -75,5 +75,16 @@ public partial class Purchases
                 return this;
             }
         }
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(ApiKey)}: {ApiKey}\n" +
+                $"{nameof(AppUserId)}: {AppUserId}\n" +
+                $"{nameof(ObserverMode)}: {ObserverMode}\n" +
+                $"{nameof(UserDefaultsSuiteName)}: {UserDefaultsSuiteName}\n" +
+                $"{nameof(UseAmazon)}: {UseAmazon}\n" +
+                $"{nameof(DangerousSettings)}: {DangerousSettings}";
+        }
     }
 }
