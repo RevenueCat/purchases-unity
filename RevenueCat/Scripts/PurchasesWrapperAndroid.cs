@@ -60,11 +60,6 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("restorePurchases");
     }
 
-    public void AddAttributionData(int network, string data, string networkUserId)
-    {
-        CallPurchases("addAttributionData", data, network, networkUserId);
-    }
-
     public void LogIn(string appUserId)
     {
         CallPurchases("logIn", appUserId);

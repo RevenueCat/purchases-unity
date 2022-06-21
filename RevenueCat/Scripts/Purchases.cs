@@ -211,10 +211,7 @@ public partial class Purchases : MonoBehaviour
     }
 
     [Obsolete("Deprecated, use set<NetworkId> methods instead.", true)]
-    public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null)
-    {
-        _wrapper.AddAttributionData((int)network, dataJson, networkUserId);
-    }
+    public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null) { }
 
     private LogInFunc LogInCallback { get; set; }
 

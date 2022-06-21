@@ -6,7 +6,6 @@ public interface IPurchasesWrapper
     void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName,
         bool useAmazon, string dangerousSettingsJson);
 
-    void AddAttributionData(int network, string data, string networkUserId);
     void GetProducts(string[] productIdentifiers, string type = "subs");
 
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,

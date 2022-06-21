@@ -9,10 +9,6 @@ public partial class Purchases
         {
         }
 
-        public void AddAttributionData(int network, string data, string networkUserId)
-        {
-        }
-
         public void GetProducts(string[] productIdentifiers, string type = "subs")
         {
         }

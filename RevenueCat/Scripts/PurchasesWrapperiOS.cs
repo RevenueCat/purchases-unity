@@ -81,13 +81,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCAddAttributionData(int network, string data, string networkUserId);
-    public void AddAttributionData(int network, string data, string networkUserId)
-    {
-        _RCAddAttributionData(network, data, networkUserId);
-    }
-
-    [DllImport("__Internal")]
     private static extern void _RCLogIn(string appUserId);
     public void LogIn(string appUserId)
     {
