@@ -18,7 +18,7 @@ For more information around configuration please take a look at the [Amazon Apps
 This version of the SDK automatically StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1. 
 
 #### New types and cleaned up naming
-New types that wrap StoreKit's native types, and we cleaned up the naming of other types and methods for a more consistent experience. 
+New types that wrap native types from Apple, Google and Amazon, and we cleaned up the naming of other types and methods for a more consistent experience. 
 
 ### Removed APIs
 - `Identify` and `CreateAlias` have been removed in favor of `Reset`.
