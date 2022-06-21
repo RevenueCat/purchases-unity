@@ -23,6 +23,7 @@ New types that wrap native types from Apple, Google and Amazon, and we cleaned u
 ### Removed APIs
 - `Identify` and `CreateAlias` have been removed in favor of `Reset`.
 - `GetEntitlements` has been removed in favor of `GetOfferings`.
+- `AttributionKey` and `Purchases.AddAttributionData` have been removed in favor of `Set<NetworkID> methods`.
 - `revenueCatAPIKey` has been removed in favor of `revenueCatAPIKeyApple`, `revenueCatAPIKeyGoogle` and `revenueCatAPIKeyAmazon`.
 
 ### Renamed APIs
@@ -36,7 +37,18 @@ New types that wrap native types from Apple, Google and Amazon, and we cleaned u
 | `Purchases.RestoreTransactions` | `Purchases.RestorePurchases` |
 | `Purchases.GetPaymentDiscount` | `Purchases.GetPromotionalOffer` |
 | `Purchases.UpdatedPurchaserInfoListener` | `Purchases.UpdatedCustomerInfoListener` |
-| `Purchases.InvalidatePurchaserInfoCache` | `Purchases.InvalidateCustomerInfoCache`
+| `Discount.identifier` | `Discount.Identifier` |
+| `Discount.price` | `Discount.Price` |
+| `Discount.priceString` | `Discount.PriceString` |
+| `Discount.cycles` | `Discount.Cycles` |
+| `Discount.period` | `Discount.Period` |
+| `Discount.unit` | `Discount.Unit` |
+| `Discount.periodUnit` | `Discount.PeriodUnit` |
+| `Discount.periodNumberOfUnits` | `Discount.PeriodNumberOfUnits` |
+| `Error.message` | `Error.Message` |
+| `Error.code` | `Error.Code` |
+| `Error.underlyingErrorMessage` | `Error.UnderlyingErrorMessage` |
+| `Error.readableErrorCode` | `Error.ReadableErrorCode` |
 
 ## 3.5.3
 
