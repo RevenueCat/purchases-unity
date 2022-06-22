@@ -71,7 +71,7 @@ public partial class Purchases : MonoBehaviour
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
     // ReSharper disable once InconsistentNaming
-    public string AppUserID;
+    public string appUserID;
 
     [Tooltip("List of product identifiers.")]
     public string[] productIdentifiers;
@@ -111,7 +111,7 @@ public partial class Purchases : MonoBehaviour
 
         if (useRuntimeSetup) return;
 
-        Setup(string.IsNullOrEmpty(AppUserID) ? null : AppUserID);
+        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }
 

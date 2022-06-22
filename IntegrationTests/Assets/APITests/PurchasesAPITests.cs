@@ -20,7 +20,7 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.revenueCatAPIKeyGoogle = "ghi";
         purchases.revenueCatAPIKeyAmazon = "ghi";
         purchases.useAmazon = true;
-        purchases.AppUserID = "abc";
+        purchases.appUserID = "abc";
         purchases.productIdentifiers = new[]
         {
             "a", "b", "c"
