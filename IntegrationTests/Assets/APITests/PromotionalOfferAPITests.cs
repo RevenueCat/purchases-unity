@@ -7,13 +7,12 @@ namespace DefaultNamespace
     {
         private void Start()
         {
-            // TODO: update the properties to lowercase + readonly
             Purchases.PromotionalOffer promotionalOffer = new Purchases.PromotionalOffer(null);
-            string identifier = promotionalOffer.identifier;
-            string keyIdentifier = promotionalOffer.keyIdentifier;
-            string nonce = promotionalOffer.nonce;
-            string signature = promotionalOffer.signature;
-            long timestamp = promotionalOffer.timestamp;
+            string identifier = promotionalOffer.Identifier;
+            string keyIdentifier = promotionalOffer.KeyIdentifier;
+            string nonce = promotionalOffer.Nonce;
+            string signature = promotionalOffer.Signature;
+            long timestamp = promotionalOffer.Timestamp;
         }
     }
 }

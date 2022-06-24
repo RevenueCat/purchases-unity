@@ -9,25 +9,25 @@ public partial class Purchases
     [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Error
     {
-        public string message;
-        public int code;
-        public string underlyingErrorMessage;
-        public string readableErrorCode;
+        public readonly string Message;
+        public readonly int Code;
+        public readonly string UnderlyingErrorMessage;
+        public readonly string ReadableErrorCode;
 
         public Error(JSONNode response)
         {
-            message = response["message"];
-            code = (int) response["code"];
-            underlyingErrorMessage = response["underlyingErrorMessage"];
-            readableErrorCode = response["readableErrorCode"];
+            Message = response["message"];
+            Code = (int) response["code"];
+            UnderlyingErrorMessage = response["underlyingErrorMessage"];
+            ReadableErrorCode = response["readableErrorCode"];
         }
 
         public override string ToString()
         {
-            return $"{nameof(message)}: {message}, " +
-                   $"{nameof(code)}: {code}, " +
-                   $"{nameof(underlyingErrorMessage)}: {underlyingErrorMessage}, " +
-                   $"{nameof(readableErrorCode)}: {readableErrorCode}";
+            return $"{nameof(Message)}: {Message}, " +
+                   $"{nameof(Code)}: {Code}, " +
+                   $"{nameof(UnderlyingErrorMessage)}: {UnderlyingErrorMessage}, " +
+                   $"{nameof(ReadableErrorCode)}: {ReadableErrorCode}";
         }
     }
 }

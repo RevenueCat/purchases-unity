@@ -7,8 +7,6 @@ namespace DefaultNamespace
     {
         private void Start()
         {
-            // todo: update to read-only
-            // also, should we include the new properties?
             Purchases.StoreTransaction storeTransaction = new Purchases.StoreTransaction(null);
             string revenueCatId = storeTransaction.RevenueCatId;
             string productId = storeTransaction.ProductId;

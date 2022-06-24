@@ -15,12 +15,11 @@ public class PurchasesAPITests : MonoBehaviour
 {
     private void Start()
     {
-        // TODO: we still have a public method here called GetEntitlments, but it looks like that's 
-        // super old and should be removed
         Purchases purchases = GetComponent<Purchases>();
-        purchases.deprecatedLegacyRevenueCatAPIKey = "abc";
         purchases.revenueCatAPIKeyApple = "def";
         purchases.revenueCatAPIKeyGoogle = "ghi";
+        purchases.revenueCatAPIKeyAmazon = "ghi";
+        purchases.useAmazon = true;
         purchases.appUserID = "abc";
         purchases.productIdentifiers = new[]
         {
@@ -76,7 +75,7 @@ public class PurchasesAPITests : MonoBehaviour
 
             Purchases.StoreProduct storeProduct = storeProducts.First();
             Purchases.PromotionalOffer receivedPromoOffer;
-            purchases.GetPromotionalOffer(storeProduct, storeProduct.discounts.First(), (offer, error2) =>
+            purchases.GetPromotionalOffer(storeProduct, storeProduct.Discounts.First(), (offer, error2) =>
             {
                 receivedPromoOffer = offer;
                 receivedError = error2;
@@ -122,10 +121,7 @@ public class PurchasesAPITests : MonoBehaviour
             receivedCustomerInfo = customerInfo;
             receivedError = error;
         });
-
-        purchases.AddAttributionData("dataJson", Purchases.AttributionNetwork.BRANCH);
-        purchases.AddAttributionData("dataJson", Purchases.AttributionNetwork.BRANCH, "networkUserId");
-
+        
         bool receivedCreated = false;
         purchases.LogIn("appuUerId", (info, created, error) =>
         {

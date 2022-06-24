@@ -36,7 +36,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 {
                     Debug.Log("Package " + package);
                     if (package == null) continue;
-                    var label = package.PackageType + " " + package.StoreProduct.priceString;
+                    var label = package.PackageType + " " + package.StoreProduct.PriceString;
                     CreateButton(label, () => ButtonClicked(package), 500 + yOffset);
                     yOffset += 70;
                 }
@@ -103,8 +103,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             trackerToken = "trackerToken"
         };
         purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
-        purchases.AddAttributionData(JsonUtility.ToJson(data), Purchases.AttributionNetwork.ADJUST, null);
-
+        purchases.SetAdjustID(null);
+        
         purchases.GetCustomerInfo((info, error) =>
         {
             Debug.Log("customer info " + info.ActiveSubscriptions);

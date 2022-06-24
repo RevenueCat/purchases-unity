@@ -7,7 +7,9 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
+
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
         _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName);
     }
@@ -39,7 +41,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         string discountTimestamp = null;
         if (discount != null)
         {
-            discountTimestamp = discount.timestamp.ToString();
+            discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchaseProduct(productIdentifier, discountTimestamp);
     }
@@ -53,7 +55,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         string discountTimestamp = null;
         if (discount != null)
         {
-            discountTimestamp = discount.timestamp.ToString();
+            discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
     }
@@ -71,12 +73,11 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSyncPurchases();
     }
-
-    [DllImport("__Internal")]
-    private static extern void _RCAddAttributionData(int network, string data, string networkUserId);
-    public void AddAttributionData(int network, string data, string networkUserId)
+    
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+        string isoCurrencyCode, double price)
     {
-        _RCAddAttributionData(network, data, networkUserId);
+        // No-Op
     }
 
     [DllImport("__Internal")]

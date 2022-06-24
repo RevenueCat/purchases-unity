@@ -4,11 +4,8 @@ public partial class Purchases
 {
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
-        {
-        }
-
-        public void AddAttributionData(int network, string data, string networkUserId)
+        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
         {
         }
 
@@ -39,7 +36,7 @@ public partial class Purchases
         public void LogIn(string appUserId)
         {
         }
-        
+
         public void LogOut()
         {
         }
@@ -77,6 +74,11 @@ public partial class Purchases
         {
         }
 
+        public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+            string isoCurrencyCode, double price)
+        {
+        }
+
         public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
         {
         }
@@ -101,7 +103,7 @@ public partial class Purchases
         public void SetSimulatesAskToBuyInSandbox(bool enabled)
         {
         }
-        
+
         public void SetAttributes(string attributesJson)
         {
         }
@@ -173,11 +175,11 @@ public partial class Purchases
         public void CollectDeviceIdentifiers()
         {
         }
-        
+
         public void CanMakePayments(Purchases.BillingFeature[] features)
         {
         }
-        
+
         public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
         {
         }

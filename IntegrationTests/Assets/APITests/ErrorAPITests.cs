@@ -7,13 +7,11 @@ namespace DefaultNamespace
     {
         private void Start()
         {
-            // TODO: another place where properties are lowercase
-            // and readonly
             Purchases.Error error = new Purchases.Error(null);
-            string message = error.message;
-            int code = error.code;
-            string underlyingErrorMessage = error.underlyingErrorMessage;
-            string readableErrorCode = error.readableErrorCode;
+            string message = error.Message;
+            int code = error.Code;
+            string underlyingErrorMessage = error.UnderlyingErrorMessage;
+            string readableErrorCode = error.ReadableErrorCode;
         }
     }
 }
