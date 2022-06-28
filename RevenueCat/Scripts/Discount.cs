@@ -52,12 +52,12 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Identifier)}: {Identifier}, " +
-                   $"{nameof(Price)}: {Price}, " +
-                   $"{nameof(PriceString)}: {PriceString}, " +
-                   $"{nameof(Cycles)}: {Cycles}, " +
-                   $"{nameof(Period)}: {Period}, " +
-                   $"{nameof(PeriodUnit)}: {PeriodUnit}, " +
+            return $"{nameof(Identifier)}: {Identifier}\n" +
+                   $"{nameof(Price)}: {Price}\n" +
+                   $"{nameof(PriceString)}: {PriceString}\n" +
+                   $"{nameof(Cycles)}: {Cycles}\n" +
+                   $"{nameof(Period)}: {Period}\n" +
+                   $"{nameof(PeriodUnit)}: {PeriodUnit}\n" +
                    $"{nameof(PeriodNumberOfUnits)}: {PeriodNumberOfUnits}";
         }
     }

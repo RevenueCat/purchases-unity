@@ -40,10 +40,10 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Identifier)}: {Identifier}, " +
-                   $"{nameof(KeyIdentifier)}: {KeyIdentifier}, " +
-                   $"{nameof(Nonce)}: {Nonce}, " +
-                   $"{nameof(Signature)}: {Signature}, " +
+            return $"{nameof(Identifier)}: {Identifier}\n" +
+                   $"{nameof(KeyIdentifier)}: {KeyIdentifier}\n" +
+                   $"{nameof(Nonce)}: {Nonce}\n" +
+                   $"{nameof(Signature)}: {Signature}\n" +
                    $"{nameof(Timestamp)}: {Timestamp}";
         }
     }

@@ -66,15 +66,15 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Identifier)}: {Identifier}, " +
-                   $"{nameof(ServerDescription)}: {ServerDescription}, " +
-                   $"{nameof(AvailablePackages)}: {AvailablePackages}, " +
-                   $"{nameof(Lifetime)}: {Lifetime}, " +
-                   $"{nameof(Annual)}: {Annual}, " +
-                   $"{nameof(SixMonth)}: {SixMonth}, " +
-                   $"{nameof(ThreeMonth)}: {ThreeMonth}, " +
-                   $"{nameof(TwoMonth)}: {TwoMonth}, " +
-                   $"{nameof(Monthly)}: {Monthly}, " +
+            return $"{nameof(Identifier)}: {Identifier}\n" +
+                   $"{nameof(ServerDescription)}: {ServerDescription}\n" +
+                   $"{nameof(AvailablePackages)}: {AvailablePackages}\n" +
+                   $"{nameof(Lifetime)}: {Lifetime}\n" +
+                   $"{nameof(Annual)}: {Annual}\n" +
+                   $"{nameof(SixMonth)}: {SixMonth}\n" +
+                   $"{nameof(ThreeMonth)}: {ThreeMonth}\n" +
+                   $"{nameof(TwoMonth)}: {TwoMonth}\n" +
+                   $"{nameof(Monthly)}: {Monthly}\n" +
                    $"{nameof(Weekly)}: {Weekly}";
         }
     }

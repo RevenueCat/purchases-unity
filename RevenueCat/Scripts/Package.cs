@@ -20,9 +20,9 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Identifier)}: {Identifier}, " +
-                   $"{nameof(PackageType)}: {PackageType}, " +
-                   $"{nameof(StoreProduct)}: {StoreProduct}, " +
+            return $"{nameof(Identifier)}: {Identifier}\n" +
+                   $"{nameof(PackageType)}: {PackageType}\n" +
+                   $"{nameof(StoreProduct)}: {StoreProduct}\n" +
                    $"{nameof(OfferingIdentifier)}: {OfferingIdentifier}";
         }
     }

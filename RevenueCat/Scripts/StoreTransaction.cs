@@ -35,8 +35,8 @@ public partial class Purchases
         
         public override string ToString()
         {
-            return $"{nameof(RevenueCatId)}: {RevenueCatId}, " +
-                   $"{nameof(ProductId)}: {ProductId}, " +
+            return $"{nameof(RevenueCatId)}: {RevenueCatId}\n" +
+                   $"{nameof(ProductId)}: {ProductId}\n" +
                    $"{nameof(PurchaseDate)}: {PurchaseDate}";
         }
     }
