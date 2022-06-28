@@ -13,11 +13,12 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     // Use this for initialization
     private void Start()
     {
-        CreateButton("Restore Purchases", RestoreClicked, 100);
+        CreateButton("Get Customer Info", GetCustomerInfo, 100);
+        CreateButton("Restore Purchases", RestoreClicked, 200);
 
-        CreateButton("Switch Username", SwitchUser, 200);
+        CreateButton("Switch Username", SwitchUser, 300);
 
-        CreateButton("Do Other Stuff", DoOtherStuff, 300);
+        CreateButton("Do Other Stuff", DoOtherStuff, 400);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
@@ -151,6 +152,21 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         });
     }
 
+    void GetCustomerInfo()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetCustomerInfo((customerInfo, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                DisplayCustomerInfo(customerInfo);
+            }
+        });
+    }
     void RestoreClicked()
     {
         var purchases = GetComponent<Purchases>();
@@ -181,16 +197,16 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private void DisplayCustomerInfo(Purchases.CustomerInfo customerInfo)
     {
-        var text = "";
-        foreach (var entry in customerInfo.Entitlements.All)
-        {
-            var entitlement = entry.Value;
-            var active = entitlement.IsActive ? "subscribed" : "expired";
-            text += entitlement.Identifier + " " + active + "\n";
-        }
-        text += customerInfo.LatestExpirationDate;
+        // var text = "";
+        // foreach (var entry in customerInfo.Entitlements.All)
+        // {
+        //     var entitlement = entry.Value;
+        //     var active = entitlement.IsActive ? "subscribed" : "expired";
+        //     text += entitlement.Identifier + " " + active + "\n";
+        // }
+        // text += customerInfo.LatestExpirationDate;
 
-        customerInfoLabel.text = text;
+        customerInfoLabel.text = customerInfo.ToString();
     }
 
 }

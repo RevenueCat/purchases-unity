@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using RevenueCat.SimpleJSON;
 
 public partial class Purchases
@@ -25,7 +26,9 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(All)}: {All}, {nameof(Active)}: {Active}";
+            var allString = All.Select(i => $"{i.Key}: {i.Value}").ToList();
+            var activeString = Active.Select(i => $"{i.Key}: {i.Value}").ToList();
+            return $"{nameof(All)}: {allString}, {nameof(Active)}: {activeString}";
         }
     }
 }
