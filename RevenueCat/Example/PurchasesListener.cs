@@ -9,16 +9,23 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     public RectTransform parentPanel;
     public GameObject buttonPrefab;
     public Text customerInfoLabel;
+    private int minYOffestForButtons = 200; // values lower than these don't work great with devices
+                                            // with safe areas on iOS
+    private int minXOffsetForButtons = 350;
+    
+    private int xPaddingForButtons = 50;
+    private int yPaddingForButtons = 30;
+    
+    private int maxButtonsPerColumn = 7;
+    private int currentButtons = 0;
 
     // Use this for initialization
     private void Start()
     {
-        CreateButton("Get Customer Info", GetCustomerInfo, 100);
-        CreateButton("Restore Purchases", RestoreClicked, 200);
-
-        CreateButton("Switch Username", SwitchUser, 300);
-
-        CreateButton("Do Other Stuff", DoOtherStuff, 400);
+        CreateButton("Get Customer Info", GetCustomerInfo);
+        CreateButton("Restore Purchases", RestoreClicked);
+        CreateButton("Switch Username", SwitchUser);
+        CreateButton("Do Other Stuff", DoOtherStuff);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
@@ -38,18 +45,24 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     Debug.Log("Package " + package);
                     if (package == null) continue;
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
-                    CreateButton(label, () => ButtonClicked(package), 500 + yOffset);
-                    yOffset += 70;
+                    CreateButton(label, () => ButtonClicked(package));
+                    yOffset += yPaddingForButtons;
                 }
             }
         });
     }
 
-    private void CreateButton(string label, UnityAction action, float yPos)
+    private void CreateButton(string label, UnityAction action)
     {
         var button = Instantiate(buttonPrefab, parentPanel, false);
+        var buttonTransform = (RectTransform)buttonPrefab.transform;
+        var height = buttonTransform.rect.height;
+        var width = buttonTransform.rect.width;
 
-        button.transform.position = new Vector2(parentPanel.transform.position.x, yPos);
+        var xPos = (currentButtons / maxButtonsPerColumn) * (width + xPaddingForButtons) + minXOffsetForButtons;
+        var yPos = (currentButtons % maxButtonsPerColumn) * (height + yPaddingForButtons) + minYOffestForButtons;
+
+        button.transform.position = new Vector2(xPos, yPos);
 
         var tempButton = button.GetComponent<Button>();
 
@@ -57,6 +70,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         textComponent.text = label;
 
         tempButton.onClick.AddListener(action);
+        currentButtons++;
     }
 
     private void SwitchUser()
@@ -197,15 +211,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private void DisplayCustomerInfo(Purchases.CustomerInfo customerInfo)
     {
-        // var text = "";
-        // foreach (var entry in customerInfo.Entitlements.All)
-        // {
-        //     var entitlement = entry.Value;
-        //     var active = entitlement.IsActive ? "subscribed" : "expired";
-        //     text += entitlement.Identifier + " " + active + "\n";
-        // }
-        // text += customerInfo.LatestExpirationDate;
-
         customerInfoLabel.text = customerInfo.ToString();
     }
 
