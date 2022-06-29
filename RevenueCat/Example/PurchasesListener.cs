@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -35,6 +36,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Log in as random id", LogInAsRandomId);
         CreateButton("Log out", LogOut);
         CreateButton("Do Other Stuff", DoOtherStuff);
+        CreateButton("Check Intro Eligibility", CheckIntroEligibility);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
@@ -324,6 +326,39 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 infoLabel.text = customerInfo.ToString();
             }
         }); 
+    }
+
+    void CheckIntroEligibility()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                var products = offerings.All
+                    .Values
+                    .Select(offering => offering.AvailablePackages)
+                    .SelectMany(x => x)
+                    .ToList()
+                    .Select(package => package.StoreProduct.Identifier)
+                    .ToArray();
+                purchases.GetProducts(products, (storeProducts, innerError) =>
+                {
+                    if (innerError != null)
+                    {
+                        LogError(innerError);
+                    }
+                    else
+                    {
+                        var items = products.Select(arg => $"{arg.ToString()}");
+                        infoLabel.text = $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n"; }
+                });
+            }
+        });
     }
 
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
