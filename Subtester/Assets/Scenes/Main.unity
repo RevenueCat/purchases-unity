@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 53425792}
   - component: {fileID: 53425791}
   m_Layer: 5
-  m_Name: CustomerInfoLabel
+  m_Name: infoLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -276,7 +276,7 @@ MonoBehaviour:
   parentPanel: {fileID: 1575378375}
   buttonPrefab: {fileID: 1696602566380582, guid: 08be051e1286142ac9bb1c2a81c63bc3,
     type: 3}
-  customerInfoLabel: {fileID: 53425791}
+  infoLabel: {fileID: 53425791}
 --- !u!1 &876079978
 GameObject:
   m_ObjectHideFlags: 0

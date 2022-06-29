@@ -1,21 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 {
-
     public RectTransform parentPanel;
     public GameObject buttonPrefab;
-    public Text customerInfoLabel;
+    public Text infoLabel;
+
     private int minYOffestForButtons = 200; // values lower than these don't work great with devices
-                                            // with safe areas on iOS
+
+    // with safe areas on iOS
     private int minXOffsetForButtons = 350;
-    
+
     private int xPaddingForButtons = 50;
     private int yPaddingForButtons = 30;
-    
+
     private int maxButtonsPerColumn = 7;
     private int currentButtons = 0;
 
@@ -23,8 +25,15 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private void Start()
     {
         CreateButton("Get Customer Info", GetCustomerInfo);
-        CreateButton("Restore Purchases", RestoreClicked);
+        CreateButton("Get Offerings", GetOfferings);
+        CreateButton("Sync Purchases", SyncPurchases);
+        CreateButton("Restore Purchases", RestorePurchases);
         CreateButton("Switch Username", SwitchUser);
+        CreateButton("Can Make Payments", CanMakePayments);
+        CreateButton("Set Subs Attributes", SetSubscriberAttributes);
+        CreateButton("Log in as \"test\"", LogInAsTest);
+        CreateButton("Log in as random id", LogInAsRandomId);
+        CreateButton("Log out", LogOut);
         CreateButton("Do Other Stuff", DoOtherStuff);
 
         var purchases = GetComponent<Purchases>();
@@ -119,7 +128,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         };
         purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
         purchases.SetAdjustID(null);
-        
+
         purchases.GetCustomerInfo((info, error) =>
         {
             Debug.Log("customer info " + info.ActiveSubscriptions);
@@ -181,7 +190,24 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             }
         });
     }
-    void RestoreClicked()
+
+    void GetOfferings()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = offerings.ToString();
+            }
+        });
+    }
+
+    void RestorePurchases()
     {
         var purchases = GetComponent<Purchases>();
         purchases.RestorePurchases((customerInfo, error) =>
@@ -197,6 +223,99 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         });
     }
 
+    void SyncPurchases()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.SyncPurchases();
+        infoLabel.text = "Purchases sync started. Note: there's no callback for this method in Unity";
+    }
+
+    void CanMakePayments()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.CanMakePayments((canMakePayments, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = $"Can make payments: {canMakePayments}";
+            }
+        });
+    }
+
+    void SetSubscriberAttributes()
+    {
+        var purchases = GetComponent<Purchases>();
+        Int32 unixTimestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+        var timestampString = $"{unixTimestamp}";
+        purchases.SetAttributes(new Dictionary<string, string>
+        {
+            { "timestamp", timestampString },
+        });
+        purchases.SetEmail($"email_{timestampString}@revenuecat.com");
+        purchases.SetPhoneNumber($"{timestampString}");
+        purchases.SetDisplayName($"displayName_{timestampString}");
+        purchases.SetPushToken($"pushtoken_{timestampString}");
+        purchases.SetAdjustID($"adjustId_{timestampString}");
+        purchases.SetAppsflyerID($"appsflyerId_{timestampString}");
+        purchases.SetFBAnonymousID($"fbAnonymousId_{timestampString}");
+        purchases.SetMparticleID($"mparticleId_{timestampString}");
+        purchases.SetOnesignalID($"onesignalId_{timestampString}");
+        purchases.SetAirshipChannelID($"airshipChannelId_{timestampString}");
+        purchases.SetMediaSource($"mediaSource_{timestampString}");
+        purchases.SetCampaign($"campaign_{timestampString}");
+        purchases.SetAdGroup($"adgroup_{timestampString}");
+        purchases.SetAd($"ad_{timestampString}");
+        purchases.SetKeyword($"keyword_{timestampString}");
+        purchases.SetCreative($"creative_{timestampString}");
+        purchases.CollectDeviceIdentifiers();
+    }
+    
+    void LogInAsTest()
+    {
+        LogIn("test");
+    }
+    void LogInAsRandomId()
+    {
+        Guid appUserID = Guid.NewGuid();
+        LogIn(appUserID.ToString());
+    }
+
+    void LogIn(string appUserID)
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.LogIn(appUserID, (customerInfo, created, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = $"created: {created}\n customerInfo:\n{customerInfo.ToString()}";
+            }
+        }); 
+    }
+    void LogOut()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.LogOut((customerInfo, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = customerInfo.ToString();
+            }
+        }); 
+    }
+
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
     {
         Debug.Log(string.Format("customer info received {0}", customerInfo.ActiveSubscriptions));
@@ -207,11 +326,11 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private void LogError(Purchases.Error error)
     {
         Debug.Log("Subtester: " + JsonUtility.ToJson(error));
+        infoLabel.text = JsonUtility.ToJson(error);
     }
 
     private void DisplayCustomerInfo(Purchases.CustomerInfo customerInfo)
     {
-        customerInfoLabel.text = customerInfo.ToString();
+        infoLabel.text = customerInfo.ToString();
     }
-
 }
