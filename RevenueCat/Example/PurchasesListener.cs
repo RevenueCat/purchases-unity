@@ -10,15 +10,15 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     public GameObject buttonPrefab;
     public Text infoLabel;
 
-    private int minYOffestForButtons = 200; // values lower than these don't work great with devices
+    private int minYOffsetForButtons = 40; // values lower than these don't work great with devices
+                                           // with safe areas on iOS
+    
+    private int minXOffsetForButtons = 20;
 
-    // with safe areas on iOS
-    private int minXOffsetForButtons = 350;
+    private int xPaddingForButtons = 10;
+    private int yPaddingForButtons = 5;
 
-    private int xPaddingForButtons = 50;
-    private int yPaddingForButtons = 30;
-
-    private int maxButtonsPerColumn = 7;
+    private int maxButtonsPerRow = 2;
     private int currentButtons = 0;
 
     // Use this for initialization
@@ -64,15 +64,25 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private void CreateButton(string label, UnityAction action)
     {
         var button = Instantiate(buttonPrefab, parentPanel, false);
-        var buttonTransform = (RectTransform)buttonPrefab.transform;
-        var height = buttonTransform.rect.height;
-        var width = buttonTransform.rect.width;
+        var buttonTransform = (RectTransform)button.transform;
 
-        var xPos = (currentButtons / maxButtonsPerColumn) * (width + xPaddingForButtons) + minXOffsetForButtons;
-        var yPos = (currentButtons % maxButtonsPerColumn) * (height + yPaddingForButtons) + minYOffestForButtons;
+        var rect = buttonTransform.rect;
+        var height = rect.height;
+        var width = rect.width;
 
-        button.transform.position = new Vector2(xPos, yPos);
-
+        var yPos = -1 * ((currentButtons / maxButtonsPerRow) *
+            (height + yPaddingForButtons) + minYOffsetForButtons + (height / 2));
+        var xPos = (currentButtons % maxButtonsPerRow) * (width + xPaddingForButtons) 
+                   + minXOffsetForButtons + (width / 2);
+        
+        var newButtonTransform = (RectTransform)button.transform;
+        newButtonTransform.anchorMin = new Vector2(0, 1);
+        newButtonTransform.anchorMax = new Vector2(0, 1);
+        
+        newButtonTransform.anchoredPosition = new Vector2(xPos, yPos);
+        // button.transform.anchorMin = new Vector2(1, 0);
+        // button.transform.anchorMax = new Vector2(0, 1);
+        
         var tempButton = button.GetComponent<Button>();
 
         var textComponent = tempButton.GetComponentsInChildren<Text>()[0];
