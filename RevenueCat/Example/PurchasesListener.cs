@@ -81,18 +81,22 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var height = rect.height;
         var width = rect.width;
 
-        var yPos = -1 * ((currentButtons / maxButtonsPerRow) *
-            (height + yPaddingForButtons) + minYOffsetForButtons + (height / 2));
-        var xPos = (currentButtons % maxButtonsPerRow) * (width + xPaddingForButtons)
-                   + minXOffsetForButtons + (width / 2);
+        var yPos = -1 // unity counts from the bottom left, so negative values give you buttons that are
+                      // lower in the screen
+                   * (currentButtons / maxButtonsPerRow // how many buttons are on top of this one
+                          * (height + yPaddingForButtons) // distance from start of the first button to the start of the second 
+                          + minYOffsetForButtons // min distance to the top of the container
+                          + height / 2); // y position starts from the center 
+        var xPos = (currentButtons % maxButtonsPerRow) // 0 for first column, 1 for second column
+                   * (width + xPaddingForButtons) // distance from start of the first button to the start of the second
+                   + minXOffsetForButtons + (width / 2); // x position starts from the center
 
+        // anchors position calculation to make it easier to reason about
         var newButtonTransform = (RectTransform)button.transform;
-        newButtonTransform.anchorMin = new Vector2(0, 1);
+        newButtonTransform.anchorMin = new Vector2(0, 1); 
         newButtonTransform.anchorMax = new Vector2(0, 1);
 
         newButtonTransform.anchoredPosition = new Vector2(xPos, yPos);
-        // button.transform.anchorMin = new Vector2(1, 0);
-        // button.transform.anchorMax = new Vector2(0, 1);
 
         var tempButton = button.GetComponent<Button>();
 
@@ -317,16 +321,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 });
             }
         });
-    }
-
-    List<Purchases.Package> GetPackages(Purchases.Offerings offerings)
-    {
-        return // get all products from the offerings
-            offerings.All // unpack as dictionary
-                .Values // to list of values
-                .Select(offering => offering.AvailablePackages) // map to packages
-                .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
-                .ToList();
     }
 
     void GetPromotionalOffers()
@@ -582,4 +576,15 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         infoLabel.text = customerInfo.ToString();
     }
+    
+    List<Purchases.Package> GetPackages(Purchases.Offerings offerings)
+    {
+        return // get all products from the offerings
+            offerings.All // unpack as dictionary
+                .Values // to list of values
+                .Select(offering => offering.AvailablePackages) // map to packages
+                .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
+                .ToList();
+    }
+
 }
