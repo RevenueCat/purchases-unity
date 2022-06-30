@@ -239,6 +239,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.SetKeyword($"keyword_{timestampString}");
         purchases.SetCreative($"creative_{timestampString}");
         purchases.CollectDeviceIdentifiers();
+        infoLabel.text = "Subscriber attributes set!";
     }
 
     void LogInAsTest()
