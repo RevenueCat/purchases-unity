@@ -339,12 +339,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             }
             else
             {
-                var products = offerings.All
-                    .Values
-                    .Select(offering => offering.AvailablePackages)
-                    .SelectMany(x => x)
+                // get all products from the offerings
+                var products = offerings.All // unpack as dictionary
+                    .Values // to list of values
+                    .Select(offering => offering.AvailablePackages) // map to packages
+                    .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
                     .ToList()
-                    .Select(package => package.StoreProduct.Identifier)
+                    .Select(package => package.StoreProduct.Identifier) // map to product ids
                     .ToArray();
                 purchases.GetProducts(products, (storeProducts, innerError) =>
                 {
@@ -354,8 +355,12 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     }
                     else
                     {
-                        var items = products.Select(arg => $"{arg.ToString()}");
-                        infoLabel.text = $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n"; }
+                        purchases.CheckTrialOrIntroductoryPriceEligibility(products, eligibilitiesByProductId => 
+                        {
+                            var items = eligibilitiesByProductId.Select(kvp => string.Format($"{kvp.Key} : Id={kvp.Value.ToString()}"));
+                            infoLabel.text = $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n ";
+                        });
+                    }
                 });
             }
         });
