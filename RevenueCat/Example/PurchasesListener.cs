@@ -11,9 +11,11 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     public GameObject buttonPrefab;
     public Text infoLabel;
 
+    private bool simulatesAskToBuyInSandbox;
+
     private int minYOffsetForButtons = 40; // values lower than these don't work great with devices
-                                           // with safe areas on iOS
-    
+    // with safe areas on iOS
+
     private int minXOffsetForButtons = 20;
 
     private int xPaddingForButtons = 10;
@@ -29,14 +31,21 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Get Offerings", GetOfferings);
         CreateButton("Sync Purchases", SyncPurchases);
         CreateButton("Restore Purchases", RestorePurchases);
-        CreateButton("Switch Username", SwitchUser);
         CreateButton("Can Make Payments", CanMakePayments);
         CreateButton("Set Subs Attributes", SetSubscriberAttributes);
         CreateButton("Log in as \"test\"", LogInAsTest);
         CreateButton("Log in as random id", LogInAsRandomId);
         CreateButton("Log out", LogOut);
-        CreateButton("Do Other Stuff", DoOtherStuff);
         CreateButton("Check Intro Eligibility", CheckIntroEligibility);
+        CreateButton("Get Promo Offer", GetPromotionalOffers);
+        CreateButton("Buy package w/discount", BuyFirstPackageWithDiscount);
+        CreateButton("Buy product w/discount", BuyFirstProductWithDiscount);
+        CreateButton("Code redemption sheet", PresentCodeRedemptionSheet);
+        CreateButton("Invalidate customer info cache", InvalidateCustomerInfoCache);
+        CreateButton("Get all products", GetAllProducts);
+        CreateButton("Toggle simulatesAskToBuyInSandbox", ToggleSimulatesAskToBuyInSandbox);
+        CreateButton("Is Anonymous", IsAnonymous);
+        CreateButton("Get AppUserId", GetAppUserId);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
@@ -74,17 +83,17 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         var yPos = -1 * ((currentButtons / maxButtonsPerRow) *
             (height + yPaddingForButtons) + minYOffsetForButtons + (height / 2));
-        var xPos = (currentButtons % maxButtonsPerRow) * (width + xPaddingForButtons) 
+        var xPos = (currentButtons % maxButtonsPerRow) * (width + xPaddingForButtons)
                    + minXOffsetForButtons + (width / 2);
-        
+
         var newButtonTransform = (RectTransform)button.transform;
         newButtonTransform.anchorMin = new Vector2(0, 1);
         newButtonTransform.anchorMax = new Vector2(0, 1);
-        
+
         newButtonTransform.anchoredPosition = new Vector2(xPos, yPos);
         // button.transform.anchorMin = new Vector2(1, 0);
         // button.transform.anchorMax = new Vector2(0, 1);
-        
+
         var tempButton = button.GetComponent<Button>();
 
         var textComponent = tempButton.GetComponentsInChildren<Text>()[0];
@@ -92,22 +101,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         tempButton.onClick.AddListener(action);
         currentButtons++;
-    }
-
-    private void SwitchUser()
-    {
-        var purchases = GetComponent<Purchases>();
-        purchases.LogIn("newUser", (customerInfo, created, error) =>
-        {
-            if (error != null)
-            {
-                LogError(error);
-            }
-            else
-            {
-                DisplayCustomerInfo(customerInfo);
-            }
-        });
     }
 
     [Serializable]
@@ -124,45 +117,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         public string trackerToken;
     }
 
-    private void DoOtherStuff()
-    {
-        var purchases = GetComponent<Purchases>();
-        var data = new AdjustData
-        {
-            adid = "test",
-            network = "network",
-            adgroup = "adgroup",
-            campaign = "campaign",
-            creative = "creative",
-            clickLabel = "clickLabel",
-            trackerName = "trackerName",
-            trackerToken = "trackerToken"
-        };
-        purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
-        purchases.SetAdjustID(null);
-
-        purchases.GetCustomerInfo((info, error) =>
-        {
-            Debug.Log("customer info " + info.ActiveSubscriptions);
-            if (error != null)
-            {
-                LogError(error);
-            }
-        });
-        purchases.GetProducts(new[] { "onemonth_freetrial", "annual_freetrial" }, (products, error) =>
-        {
-            Debug.Log("getProducts " + products);
-            if (error != null)
-            {
-                LogError(error);
-            }
-        });
-
-        purchases.SyncPurchases();
-        purchases.SetFinishTransactions(false);
-        Debug.Log("user ID " + purchases.GetAppUserId());
-        Debug.Log("user is anonymous " + purchases.IsAnonymous());
-    }
 
     private void ButtonClicked(Purchases.Package package)
     {
@@ -286,11 +240,12 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.SetCreative($"creative_{timestampString}");
         purchases.CollectDeviceIdentifiers();
     }
-    
+
     void LogInAsTest()
     {
         LogIn("test");
     }
+
     void LogInAsRandomId()
     {
         Guid appUserID = Guid.NewGuid();
@@ -310,8 +265,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             {
                 infoLabel.text = $"created: {created}\n customerInfo:\n{customerInfo.ToString()}";
             }
-        }); 
+        });
     }
+
     void LogOut()
     {
         var purchases = GetComponent<Purchases>();
@@ -325,7 +281,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             {
                 infoLabel.text = customerInfo.ToString();
             }
-        }); 
+        });
     }
 
     void CheckIntroEligibility()
@@ -339,15 +295,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             }
             else
             {
-                // get all products from the offerings
-                var products = offerings.All // unpack as dictionary
-                    .Values // to list of values
-                    .Select(offering => offering.AvailablePackages) // map to packages
-                    .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
-                    .ToList()
+                var productIds = GetPackages(offerings)
                     .Select(package => package.StoreProduct.Identifier) // map to product ids
                     .ToArray();
-                purchases.GetProducts(products, (storeProducts, innerError) =>
+                purchases.GetProducts(productIds, (storeProducts, innerError) =>
                 {
                     if (innerError != null)
                     {
@@ -355,10 +306,11 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     }
                     else
                     {
-                        purchases.CheckTrialOrIntroductoryPriceEligibility(products, eligibilitiesByProductId => 
+                        purchases.CheckTrialOrIntroductoryPriceEligibility(productIds, eligibilitiesByProductId =>
                         {
-                            var items = eligibilitiesByProductId.Select(kvp => string.Format($"{kvp.Key} : Id={kvp.Value.ToString()}"));
-                            infoLabel.text = $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n ";
+                            var items = eligibilitiesByProductId.Select(kvp =>
+                                string.Format($"{kvp.Key} : Id={kvp.Value.ToString()}"));
+                            infoLabel.text = $"{{ \n {string.Join(Environment.NewLine, items)}\n }} \n ";
                         });
                     }
                 });
@@ -366,6 +318,252 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         });
     }
 
+    List<Purchases.Package> GetPackages(Purchases.Offerings offerings)
+    {
+        return // get all products from the offerings
+            offerings.All // unpack as dictionary
+                .Values // to list of values
+                .Select(offering => offering.AvailablePackages) // map to packages
+                .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
+                .ToList();
+    }
+
+    void GetPromotionalOffers()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                var products = GetPackages(offerings)
+                    .Select(package => package.StoreProduct) // map to product ids
+                    .Where(storeProduct => storeProduct.Discounts is { Length: > 1 }) // map to product ids
+                    .ToArray();
+
+                if (products.Length == 0)
+                {
+                    infoLabel.text = "No promotional offers available for any products";
+                    return;
+                }
+
+                infoLabel.text = "";
+                foreach (Purchases.StoreProduct storeProduct in products)
+                {
+                    purchases.GetPromotionalOffer(storeProduct, storeProduct.Discounts.First(),
+                        (promoOffer, innerError) =>
+                        {
+                            lock (this)
+                            {
+                                if (innerError != null)
+                                {
+                                    LogError(innerError);
+                                }
+                                else
+                                {
+                                    infoLabel.text += $"{promoOffer}\n-----\n";
+                                }
+                            }
+                        });
+                }
+            }
+        });
+    }
+
+    void BuyFirstProductWithDiscount()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                var products = GetPackages(offerings)
+                    .Select(package => package.StoreProduct) // map to product ids
+                    .Where(storeProduct => storeProduct.Discounts is { Length: > 1 }) // map to product ids
+                    .ToArray();
+
+                if (products.Length == 0)
+                {
+                    infoLabel.text = "No promotional offers available for any products";
+                    return;
+                }
+
+                infoLabel.text = "";
+                var storeProduct = products.First();
+                purchases.GetPromotionalOffer(storeProduct, storeProduct.Discounts.First(),
+                    (promoOffer, promoOfferError) =>
+                    {
+                        lock (this)
+                        {
+                            if (promoOfferError != null)
+                            {
+                                LogError(promoOfferError);
+                            }
+                            else
+                            {
+                                purchases.PurchaseDiscountedProduct(storeProduct.Identifier, promoOffer,
+                                    (identifier, customerInfo, cancelled, purchaseError) =>
+                                    {
+                                        if (purchaseError != null)
+                                        {
+                                            LogError(purchaseError);
+                                        }
+                                        else
+                                        {
+                                            if (cancelled)
+                                            {
+                                                infoLabel.text = "purchase cancelled!";
+                                            }
+                                            else
+                                            {
+                                                infoLabel.text +=
+                                                    $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                            }
+                                        }
+                                    });
+                            }
+                        }
+                    });
+            }
+        });
+    }
+
+    void BuyFirstPackageWithDiscount()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                var packages = GetPackages(offerings)
+                    .Where(package => package.StoreProduct.Discounts is { Length: > 1 }) // map to product ids
+                    .ToArray();
+
+                if (packages.Length == 0)
+                {
+                    infoLabel.text = "No promotional offers available for any products";
+                    return;
+                }
+
+                infoLabel.text = "";
+                var package = packages.First();
+                purchases.GetPromotionalOffer(package.StoreProduct, package.StoreProduct.Discounts.First(),
+                    (promoOffer, promoOfferError) =>
+                    {
+                        lock (this)
+                        {
+                            if (promoOfferError != null)
+                            {
+                                LogError(promoOfferError);
+                            }
+                            else
+                            {
+                                purchases.PurchaseDiscountedProduct(package.StoreProduct.Identifier, promoOffer,
+                                    (identifier, customerInfo, cancelled, purchaseError) =>
+                                    {
+                                        if (purchaseError != null)
+                                        {
+                                            LogError(purchaseError);
+                                        }
+                                        else
+                                        {
+                                            if (cancelled)
+                                            {
+                                                infoLabel.text = "purchase cancelled!";
+                                            }
+                                            else
+                                            {
+                                                infoLabel.text +=
+                                                    $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                            }
+                                        }
+                                    });
+                            }
+                        }
+                    });
+            }
+        });
+    }
+
+    void PresentCodeRedemptionSheet()
+    {
+        infoLabel.text = "Presenting code redemption sheet";
+        var purchases = GetComponent<Purchases>();
+        purchases.PresentCodeRedemptionSheet();
+    }
+
+    void InvalidateCustomerInfoCache()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.InvalidateCustomerInfoCache();
+        infoLabel.text = "customer info cache invalidated!";
+    }
+
+    void GetAllProducts()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                var productIds = GetPackages(offerings)
+                    .Select(package => package.StoreProduct.Identifier)
+                    .ToArray();
+                
+                // note: we're getting all offerings, then packages, then the products, then the product ids
+                // and then we're fetching the products from those ids. 
+                // you'd never do this in practice, but it serves as a way to test the relevant methods.
+                purchases.GetProducts(productIds, (products, innerError) =>
+                {
+                    if (innerError != null)
+                    {
+                        LogError(innerError);
+                    }
+                    else
+                    {
+                        var items = products.Select(arg => $"{arg.ToString()}");
+                        infoLabel.text = $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n";
+                    }
+                });
+            }
+        });
+    }
+
+    void ToggleSimulatesAskToBuyInSandbox()
+    {
+        simulatesAskToBuyInSandbox = !simulatesAskToBuyInSandbox;
+        var purchases = GetComponent<Purchases>();
+        purchases.SetSimulatesAskToBuyInSandbox(simulatesAskToBuyInSandbox);
+        infoLabel.text = $"simulatesAskToBuyInSandbox set to {simulatesAskToBuyInSandbox}";
+    }
+    
+    void IsAnonymous()
+    {
+        var purchases = GetComponent<Purchases>();
+        infoLabel.text = $"is anonymous: {purchases.IsAnonymous()}";
+    }
+    
+    void GetAppUserId()
+    {
+        var purchases = GetComponent<Purchases>();
+        infoLabel.text = $"appUserId {purchases.GetAppUserId()}";
+    }
+    
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
     {
         Debug.Log(string.Format("customer info received {0}", customerInfo.ActiveSubscriptions));
