@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using RevenueCat;
 using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
