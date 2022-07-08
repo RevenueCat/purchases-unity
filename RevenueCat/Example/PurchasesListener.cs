@@ -82,18 +82,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var width = rect.width;
 
         var yPos = -1 // unity counts from the bottom left, so negative values give you buttons that are
-                      // lower in the screen
+                   // lower in the screen
                    * (currentButtons / maxButtonsPerRow // how many buttons are on top of this one
-                          * (height + yPaddingForButtons) // distance from start of the first button to the start of the second 
-                          + minYOffsetForButtons // min distance to the top of the container
-                          + height / 2); // y position starts from the center 
+                      * (height +
+                         yPaddingForButtons) // distance from start of the first button to the start of the second 
+                      + minYOffsetForButtons // min distance to the top of the container
+                      + height / 2); // y position starts from the center 
         var xPos = (currentButtons % maxButtonsPerRow) // 0 for first column, 1 for second column
                    * (width + xPaddingForButtons) // distance from start of the first button to the start of the second
                    + minXOffsetForButtons + (width / 2); // x position starts from the center
 
         // anchors position calculation to make it easier to reason about
         var newButtonTransform = (RectTransform)button.transform;
-        newButtonTransform.anchorMin = new Vector2(0, 1); 
+        newButtonTransform.anchorMin = new Vector2(0, 1);
         newButtonTransform.anchorMax = new Vector2(0, 1);
 
         newButtonTransform.anchoredPosition = new Vector2(xPos, yPos);
@@ -408,19 +409,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                                     {
                                         if (purchaseError != null)
                                         {
-                                            LogError(purchaseError);
-                                        }
-                                        else
-                                        {
                                             if (cancelled)
                                             {
                                                 infoLabel.text = "purchase cancelled!";
                                             }
                                             else
                                             {
-                                                infoLabel.text +=
-                                                    $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                                LogError(purchaseError);
                                             }
+                                        }
+                                        else
+                                        {
+                                            infoLabel.text +=
+                                                $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
                                         }
                                     });
                             }
@@ -469,19 +470,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                                     {
                                         if (purchaseError != null)
                                         {
-                                            LogError(purchaseError);
-                                        }
-                                        else
-                                        {
                                             if (cancelled)
                                             {
                                                 infoLabel.text = "purchase cancelled!";
                                             }
                                             else
                                             {
-                                                infoLabel.text +=
-                                                    $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                                LogError(purchaseError);
                                             }
+                                        }
+                                        else
+                                        {
+                                            infoLabel.text +=
+                                                $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
                                         }
                                     });
                             }
@@ -519,7 +520,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 var productIds = GetPackages(offerings)
                     .Select(package => package.StoreProduct.Identifier)
                     .ToArray();
-                
+
                 // note: we're getting all offerings, then packages, then the products, then the product ids
                 // and then we're fetching the products from those ids. 
                 // you'd never do this in practice, but it serves as a way to test the relevant methods.
@@ -532,7 +533,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     else
                     {
                         var items = products.Select(arg => $"{arg.ToString()}");
-                        infoLabel.text = $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n";
+                        infoLabel.text = $"{{ \n {string.Join(Environment.NewLine, items)}\n }} \n";
                     }
                 });
             }
@@ -546,19 +547,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.SetSimulatesAskToBuyInSandbox(simulatesAskToBuyInSandbox);
         infoLabel.text = $"simulatesAskToBuyInSandbox set to {simulatesAskToBuyInSandbox}";
     }
-    
+
     void IsAnonymous()
     {
         var purchases = GetComponent<Purchases>();
         infoLabel.text = $"is anonymous: {purchases.IsAnonymous()}";
     }
-    
+
     void GetAppUserId()
     {
         var purchases = GetComponent<Purchases>();
         infoLabel.text = $"appUserId {purchases.GetAppUserId()}";
     }
-    
+
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
     {
         Debug.Log(string.Format("customer info received {0}", customerInfo.ActiveSubscriptions));
@@ -576,7 +577,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         infoLabel.text = customerInfo.ToString();
     }
-    
+
     List<Purchases.Package> GetPackages(Purchases.Offerings offerings)
     {
         return // get all products from the offerings
@@ -586,5 +587,4 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
                 .ToList();
     }
-
 }
