@@ -569,8 +569,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private void LogError(Purchases.Error error)
     {
-        Debug.Log("Subtester: " + JsonUtility.ToJson(error));
-        infoLabel.text = JsonUtility.ToJson(error);
+        Debug.Log("Subtester: " + error.ToString());
+        infoLabel.text = error.ToString();
     }
 
     private void DisplayCustomerInfo(Purchases.CustomerInfo customerInfo)
