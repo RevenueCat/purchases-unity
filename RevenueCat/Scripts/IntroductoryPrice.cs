@@ -23,11 +23,11 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Price)}: {Price}, " +
-                   $"{nameof(PriceString)}: {PriceString}, " +
-                   $"{nameof(Period)}: {Period}, " +
-                   $"{nameof(Unit)}: {Unit}, " +
-                   $"{nameof(NumberOfUnits)}: {NumberOfUnits}, " +
+            return $"{nameof(Price)}: {Price}\n" +
+                   $"{nameof(PriceString)}: {PriceString}\n" +
+                   $"{nameof(Period)}: {Period}\n" +
+                   $"{nameof(Unit)}: {Unit}\n" +
+                   $"{nameof(NumberOfUnits)}: {NumberOfUnits}\n" +
                    $"{nameof(Cycles)}: {Cycles}";
         }
     }

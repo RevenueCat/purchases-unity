@@ -49,13 +49,13 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Title)}: {Title}, " +
-                   $"{nameof(Identifier)}: {Identifier}, " +
-                   $"{nameof(Description)}: {Description}, " +
-                   $"{nameof(Price)}: {Price}, " +
-                   $"{nameof(PriceString)}: {PriceString}, " +
-                   $"{nameof(CurrencyCode)}: {CurrencyCode}, " +
-                   $"{IntroductoryPrice}, " +
+            return $"{nameof(Title)}: {Title}\n" +
+                   $"{nameof(Identifier)}: {Identifier}\n" +
+                   $"{nameof(Description)}: {Description}\n" +
+                   $"{nameof(Price)}: {Price}\n" +
+                   $"{nameof(PriceString)}: {PriceString}\n" +
+                   $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
+                   $"{IntroductoryPrice}\n" +
                    $"{nameof(Discounts)}: {Discounts}";
         }
     }

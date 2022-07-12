@@ -87,18 +87,18 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(Entitlements)}: {Entitlements}, " +
-                   $"{nameof(ActiveSubscriptions)}: {ActiveSubscriptions}, " +
-                   $"{nameof(AllPurchasedProductIdentifiers)}: {AllPurchasedProductIdentifiers}, " +
-                   $"{nameof(LatestExpirationDate)}: {LatestExpirationDate}, " +
-                   $"{nameof(FirstSeen)}: {FirstSeen}, " +
-                   $"{nameof(OriginalAppUserId)}: {OriginalAppUserId}, " +
-                   $"{nameof(RequestDate)}: {RequestDate}, " +
-                   $"{nameof(AllExpirationDates)}: {AllExpirationDates}, " +
-                   $"{nameof(AllPurchaseDates)}: {AllPurchaseDates}, " +
-                   $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}, " +
-                   $"{nameof(ManagementURL)}: {ManagementURL}, " +
-                   $"{nameof(NonSubscriptionTransactions)}: {NonSubscriptionTransactions}, " +
+            return $"{nameof(Entitlements)}: {Entitlements}\n" +
+                   $"{nameof(ActiveSubscriptions)}: {ListToString(ActiveSubscriptions)}\n" +
+                   $"{nameof(AllPurchasedProductIdentifiers)}: {ListToString(AllPurchasedProductIdentifiers)}\n" +
+                   $"{nameof(LatestExpirationDate)}: {LatestExpirationDate}\n" +
+                   $"{nameof(FirstSeen)}: {FirstSeen}\n" +
+                   $"{nameof(OriginalAppUserId)}: {OriginalAppUserId}\n" +
+                   $"{nameof(RequestDate)}: {RequestDate}\n" +
+                   $"{nameof(AllExpirationDates)}: {DictToString(AllExpirationDates)}\n" +
+                   $"{nameof(AllPurchaseDates)}: {DictToString(AllPurchaseDates)}\n" +
+                   $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}\n" +
+                   $"{nameof(ManagementURL)}: {ManagementURL}\n" +
+                   $"{nameof(NonSubscriptionTransactions)}: {ListToString(NonSubscriptionTransactions)}\n" +
                    $"{nameof(OriginalApplicationVersion)}: {OriginalApplicationVersion}";
         }
 
