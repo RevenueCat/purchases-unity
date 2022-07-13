@@ -15,13 +15,14 @@ You can enable Amazon Appstore support by configuring the SDK using the new `Rev
 For more information around configuration please take a look at the [Amazon Appstore section in our docs](https://docs.revenuecat.com/docs/amazon-platform-resources). The official [Amazon In-App Purchasing docs](https://developer.amazon.com/docs/in-app-purchasing/iap-overview.html) also contain very valuable information, especially around testing and best practices.
 
 #### StoreKit 2 support
-This version of the SDK automatically StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1. 
+This version of the SDK automatically uses StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1. 
 
 #### New types and cleaned up naming
 New types that wrap native types from Apple, Google and Amazon, and we cleaned up the naming of other types and methods for a more consistent experience. 
 
 ### Removed APIs
-- `Identify` and `CreateAlias` have been removed in favor of `Reset`.
+- `Identify` and `CreateAlias` have been removed in favor of `LogIn`.
+- `Reset` has been removed in favor of `LogOut`.
 - `GetEntitlements` has been removed in favor of `GetOfferings`.
 - `AttributionKey` and `Purchases.AddAttributionData` have been removed in favor of `Set<NetworkID> methods`.
 - `revenueCatAPIKey` has been removed in favor of `revenueCatAPIKeyApple`, `revenueCatAPIKeyGoogle` and `revenueCatAPIKeyAmazon`.
