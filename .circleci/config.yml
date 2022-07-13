@@ -242,17 +242,16 @@ workflows:
   version: 2
   build:
     jobs:
-      - export-package
-      # - export-package: *release-tags-and-branches
+      - export-package: *release-tags-and-branches
       - build-test-android:
-          # <<:  *release-tags-and-branches
+          <<:  *release-tags-and-branches
           requires:
             - export-package
       - build-test-ios:
-          # <<:  *release-tags-and-branches
+          <<:  *release-tags-and-branches
           requires:
             - export-package
       - archive-ios:
-          # <<:  *release-tags-and-branches
+          <<:  *release-tags-and-branches
           requires:
             - build-test-ios
