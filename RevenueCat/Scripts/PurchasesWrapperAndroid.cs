@@ -19,9 +19,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("getProducts", JsonUtility.ToJson(request), type);
     }
 
-    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
+    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         if (oldSku == null)
         {
@@ -29,13 +29,13 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
         else
         {
-            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int) prorationMode);
+            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode);
         }
     }
 
-    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
+    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         if (oldSku == null)
         {
@@ -43,23 +43,21 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
         else
         {
-            CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku, (int) prorationMode);
+            CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku,
+                (int)prorationMode);
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
-        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName);
+        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon,
+            dangerousSettingsJson);
     }
 
-    public void RestoreTransactions()
+    public void RestorePurchases()
     {
-        CallPurchases("restoreTransactions");
-    }
-
-    public void AddAttributionData(int network, string data, string networkUserId)
-    {
-        CallPurchases("addAttributionData", data, network, networkUserId);
+        CallPurchases("restorePurchases");
     }
 
     public void LogIn(string appUserId)
@@ -70,21 +68,6 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void LogOut()
     {
         CallPurchases("logOut");
-    }
-    
-    public void CreateAlias(string newAppUserId)
-    {
-        CallPurchases("createAlias", newAppUserId);
-    }
-
-    public void Identify(string appUserId)
-    {
-        CallPurchases("identify", appUserId);
-    }
-
-    public void Reset()
-    {
-        CallPurchases("reset");
     }
 
     public void SetFinishTransactions(bool finishTransactions)
@@ -101,7 +84,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setDebugLogsEnabled", enabled);
     }
-    
+
     public void SetProxyURL(string proxyURL)
     {
         CallPurchases("setProxyURL", proxyURL);
@@ -112,9 +95,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         return CallPurchases<string>("getAppUserID");
     }
 
-    public void GetPurchaserInfo()
+    public void GetCustomerInfo()
     {
-        CallPurchases("getPurchaserInfo");
+        CallPurchases("getCustomerInfo");
     }
 
     public void GetOfferings()
@@ -127,6 +110,12 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("syncPurchases");
     }
 
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
+        string isoCurrencyCode, double price)
+    {
+        CallPurchases("syncObserverModeAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
+    }
+    
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
         // NOOP
@@ -146,9 +135,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
     }
 
-    public void InvalidatePurchaserInfoCache()
+    public void InvalidateCustomerInfoCache()
     {
-        CallPurchases("invalidatePurchaserInfoCache");
+        CallPurchases("invalidateCustomerInfoCache");
     }
 
     public void PresentCodeRedemptionSheet()
@@ -257,10 +246,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         public int[] features;
     }
 
-    public void CanMakePayments(Purchases.BillingFeature[] features) 
+    public void CanMakePayments(Purchases.BillingFeature[] features)
     {
         int[] featuresAsInts = new int[features.Length];
-        for (int i = 0; i < features.Length; i++) {
+        for (int i = 0; i < features.Length; i++)
+        {
             Purchases.BillingFeature feature = features[i];
             featuresAsInts[i] = (int)feature;
         }
@@ -272,9 +262,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("canMakePayments", JsonUtility.ToJson(request));
     }
 
-    public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
     {
-        CallPurchases("getPaymentDiscount", productIdentifier, discountIdentifier);
+        CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier);
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";
@@ -286,7 +276,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             purchases.CallStatic(methodName, args);
         }
     }
-    
+
     private static ReturnType CallPurchases<ReturnType>(string methodName, params object[] args)
     {
         using (var purchases = new AndroidJavaClass(PurchasesWrapper))
@@ -294,6 +284,5 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             return purchases.CallStatic<ReturnType>(methodName, args);
         }
     }
-
 }
 #endif

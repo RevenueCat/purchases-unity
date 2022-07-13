@@ -11,16 +11,16 @@ version: 2.1
 executors:
   unity:
     docker:
-      - image: gableroux/unity3d:2019.4.13f1
+      - image: unityci/editor:2021.3.3f1-base-1.0
         environment:
           TAR_OPTIONS: --no-same-owner
 
   unity-android:
     docker:
-      - image: gableroux/unity3d:2019.4.13f1-android
+      - image: unityci/editor:2021.3.3f1-android-1
   unity-ios:
     docker:
-      - image: gableroux/unity3d:2019.4.13f1-ios
+      - image: unityci/editor:2021.3.3f1-ios-1
 
 commands:
   import-package:
@@ -35,11 +35,14 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
             mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
+            # rename all the .cs files in APITests to .cs.break
+            for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
+
 
       - run:
           name: Import package
           command: |
-            /opt/Unity/Editor/Unity \
+            /opt/unity/Editor/Unity \
               -projectPath IntegrationTests \
               -quit \
               -batchmode \
@@ -52,23 +55,25 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
+            # rename all the .cs.break files in APITests to .cs
+            for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
 
   activate-license:
     description: "Activates Unity license"
     steps:
       - run:
           name: Decode license in env variable
-          command: echo $BASE64_LICENSE | base64 --decode >> Unity_v2019.x.ulf
+          command: echo $UNITY_LICENSE | base64 --decode >> Unity.x.ulf
       - run: 
           name: Import Unity license file
           command: |
-            /opt/Unity/Editor/Unity -projectPath IntegrationTests \
+            /opt/unity/Editor/Unity -projectPath IntegrationTests \
             -quit \
             -batchmode \
             -nographics \
             -silent-crashes \
             -logFile \
-            -manualLicenseFile Unity_v2019.x.ulf || exit 0
+            -manualLicenseFile Unity.x.ulf || exit 0
   
   perform-build:
     description: "Builds Unity project"
@@ -79,7 +84,7 @@ commands:
       - run:
           name: Build Unity project and export it
           command: |
-            /opt/Unity/Editor/Unity \
+            /opt/unity/Editor/Unity \
             -projectPath IntegrationTests \
             -quit \
             -batchmode \
@@ -101,7 +106,7 @@ commands:
       - run:
           name: Resolve project dependencies
           command: |
-            /opt/Unity/Editor/Unity \
+            /opt/unity/Editor/Unity \
               -projectPath IntegrationTests \
               -batchmode \
               -buildTarget << parameters.target >> \
@@ -139,17 +144,21 @@ jobs:
       - activate-license
 
       - run:
+          name: Export Unity Package
           description: Creating Purchases.unitypackage, this may take a minute.
           command: |
-            ./scripts/create-unity-package.sh -u /opt/Unity/Editor/Unity
+            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity
 
       - persist_to_workspace:
           root: .
           paths: 
             - Purchases.unitypackage
+            - Purchases-UnityIAP.unitypackage
 
       - store_artifacts:
           path: Purchases.unitypackage
+      - store_artifacts:
+          path: Purchases-UnityIAP.unitypackage
 
   build-test-android:
     executor: unity-android
@@ -196,7 +205,7 @@ jobs:
   archive-ios:
     description: "Run iOS integration tests for Unity"
     macos:
-      xcode: 12.2.0
+      xcode: 13.4.1
     steps:
       - checkout
       - attach_workspace:

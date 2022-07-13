@@ -1,7 +1,12 @@
 fileFormatVersion: 2
-guid: de2750734217a45f8a6ea4499332589a
+guid: dd1ea73952dd4170a45cbaee53e1a921
+labels:
+- gvh
+- gvh_version-1.2.171
+- gvhp_exportpath-ExternalDependencyManager/Editor/Google.VersionHandler.dll.mdb
+timeCreated: 1538009133
+licenseType: Pro
 DefaultImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

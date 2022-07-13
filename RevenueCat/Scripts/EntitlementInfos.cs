@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RevenueCat.SimpleJSON;
+using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
@@ -25,7 +26,8 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(All)}: {All}, {nameof(Active)}: {Active}";
+            return $"{nameof(All)}:\n{DictToString(All)}\n" +
+                   $"{nameof(Active)}:\n{DictToString(Active)}";
         }
     }
 }

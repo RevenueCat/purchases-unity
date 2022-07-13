@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
@@ -63,17 +61,17 @@ public partial class Purchases
         public override string ToString()
         {
             return
-                $"{nameof(Identifier)}: {Identifier}, " +
-                $"{nameof(IsActive)}: {IsActive}, " +
-                $"{nameof(WillRenew)}: {WillRenew}, " +
-                $"{nameof(PeriodType)}: {PeriodType}, " +
-                $"{nameof(LatestPurchaseDate)}: {LatestPurchaseDate}, " +
-                $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}, " +
-                $"{nameof(ExpirationDate)}: {ExpirationDate}, " +
-                $"{nameof(Store)}: {Store}, " +
-                $"{nameof(ProductIdentifier)}: {ProductIdentifier}, " +
-                $"{nameof(IsSandbox)}: {IsSandbox}, " +
-                $"{nameof(UnsubscribeDetectedAt)}: {UnsubscribeDetectedAt}, " +
+                $"{nameof(Identifier)}: {Identifier}\n" +
+                $"{nameof(IsActive)}: {IsActive}\n" +
+                $"{nameof(WillRenew)}: {WillRenew}\n" +
+                $"{nameof(PeriodType)}: {PeriodType}\n" +
+                $"{nameof(LatestPurchaseDate)}: {LatestPurchaseDate}\n" +
+                $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}\n" +
+                $"{nameof(ExpirationDate)}: {ExpirationDate}\n" +
+                $"{nameof(Store)}: {Store}\n" +
+                $"{nameof(ProductIdentifier)}: {ProductIdentifier}\n" +
+                $"{nameof(IsSandbox)}: {IsSandbox}\n" +
+                $"{nameof(UnsubscribeDetectedAt)}: {UnsubscribeDetectedAt}\n" +
                 $"{nameof(BillingIssueDetectedAt)}: {BillingIssueDetectedAt}";
         }
     }

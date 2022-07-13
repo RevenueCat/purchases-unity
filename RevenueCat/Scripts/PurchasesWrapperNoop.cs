@@ -4,11 +4,8 @@ public partial class Purchases
 {
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
-        {
-        }
-
-        public void AddAttributionData(int network, string data, string networkUserId)
+        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
         {
         }
 
@@ -22,37 +19,25 @@ public partial class Purchases
 
         public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            Purchases.PaymentDiscount discount = null)
+            Purchases.PromotionalOffer discount = null)
         {
         }
 
         public void PurchasePackage(Package packageToPurchase, string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            Purchases.PaymentDiscount discount = null)
+            Purchases.PromotionalOffer discount = null)
         {
         }
 
-        public void RestoreTransactions()
+        public void RestorePurchases()
         {
         }
 
         public void LogIn(string appUserId)
         {
         }
-        
+
         public void LogOut()
-        {
-        }
-
-        public void CreateAlias(string newAppUserId)
-        {
-        }
-
-        public void Identify(string appUserId)
-        {
-        }
-
-        public void Reset()
         {
         }
 
@@ -77,7 +62,7 @@ public partial class Purchases
         {
         }
 
-        public void GetPurchaserInfo()
+        public void GetCustomerInfo()
         {
         }
 
@@ -86,6 +71,11 @@ public partial class Purchases
         }
 
         public void SyncPurchases()
+        {
+        }
+
+        public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+            string isoCurrencyCode, double price)
         {
         }
 
@@ -102,7 +92,7 @@ public partial class Purchases
         {
         }
 
-        public void InvalidatePurchaserInfoCache()
+        public void InvalidateCustomerInfoCache()
         {
         }
 
@@ -113,7 +103,7 @@ public partial class Purchases
         public void SetSimulatesAskToBuyInSandbox(bool enabled)
         {
         }
-        
+
         public void SetAttributes(string attributesJson)
         {
         }
@@ -185,12 +175,12 @@ public partial class Purchases
         public void CollectDeviceIdentifiers()
         {
         }
-        
+
         public void CanMakePayments(Purchases.BillingFeature[] features)
         {
         }
-        
-        public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+
+        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
         {
         }
     }

@@ -7,7 +7,9 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName)
+
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
         _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName);
     }
@@ -34,12 +36,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
         if (discount != null)
         {
-            discountTimestamp = discount.timestamp.ToString();
+            discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchaseProduct(productIdentifier, discountTimestamp);
     }
@@ -48,21 +50,21 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PaymentDiscount discount = null)
+        Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
         if (discount != null)
         {
-            discountTimestamp = discount.timestamp.ToString();
+            discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCRestoreTransactions();
-    public void RestoreTransactions()
+    private static extern void _RCRestorePurchases();
+    public void RestorePurchases()
     {
-        _RCRestoreTransactions();
+        _RCRestorePurchases();
     }
 
     [DllImport("__Internal")]
@@ -71,12 +73,11 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSyncPurchases();
     }
-
-    [DllImport("__Internal")]
-    private static extern void _RCAddAttributionData(int network, string data, string networkUserId);
-    public void AddAttributionData(int network, string data, string networkUserId)
+    
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+        string isoCurrencyCode, double price)
     {
-        _RCAddAttributionData(network, data, networkUserId);
+        // No-Op
     }
 
     [DllImport("__Internal")]
@@ -92,28 +93,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCLogOut();
     }
-
-    [DllImport("__Internal")]
-    private static extern void _RCCreateAlias(string newAppUserId);
-    public void CreateAlias(string newAppUserId)
-    {
-        _RCCreateAlias(newAppUserId);
-    }
-
-    [DllImport("__Internal")]
-    private static extern void _RCIdentify(string appUserId);
-    public void Identify(string appUserId)
-    {
-        _RCIdentify(appUserId);
-    }
-
-    [DllImport("__Internal")]
-    private static extern void _RCReset();
-    public void Reset()
-    {
-        _RCReset();
-    }
-
+    
     [DllImport("__Internal")]
     private static extern void _RCSetFinishTransactions(bool finishTransactions);
     public void SetFinishTransactions(bool finishTransactions)
@@ -150,10 +130,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetPurchaserInfo();
-    public void GetPurchaserInfo()
+    private static extern void _RCGetCustomerInfo();
+    public void GetCustomerInfo()
     {
-        _RCGetPurchaserInfo();
+        _RCGetCustomerInfo();
     }
 
     [DllImport("__Internal")]
@@ -190,10 +170,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCInvalidatePurchaserInfoCache();
-    public void InvalidatePurchaserInfoCache() 
+    private static extern void _RCInvalidateCustomerInfoCache();
+    public void InvalidateCustomerInfoCache() 
     {
-        _RCInvalidatePurchaserInfoCache();
+        _RCInvalidateCustomerInfoCache();
     }
 
     [DllImport("__Internal")]
@@ -361,10 +341,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
     
     [DllImport("__Internal")]
-    private static extern void _RCGetPaymentDiscount(string productIdentifier, string discountIdentifier);
-    public void GetPaymentDiscount(string productIdentifier, string discountIdentifier)
+    private static extern void _RCGetPromotionalOffer(string productIdentifier, string discountIdentifier);
+    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
     {
-        _RCGetPaymentDiscount(productIdentifier, discountIdentifier);
+        _RCGetPromotionalOffer(productIdentifier, discountIdentifier);
     }
     
 }

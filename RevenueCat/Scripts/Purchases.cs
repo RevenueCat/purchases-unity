@@ -8,20 +8,19 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public delegate void GetProductsFunc(List<Product> products, Error error);
+    public delegate void GetProductsFunc(List<StoreProduct> products, Error error);
 
-    public delegate void MakePurchaseFunc(string productIdentifier, PurchaserInfo purchaserInfo, bool userCancelled, Error error);
+    public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
+        Error error);
 
-    public delegate void PurchaserInfoFunc(PurchaserInfo purchaserInfo, Error error);
+    public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
 
-    public delegate void LogInFunc(PurchaserInfo purchaserInfo, bool created, Error error);
-
-    public delegate void GetEntitlementsFunc(Dictionary<string, object> entitlements, Error error);
+    public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
 
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
 
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
-    
+
     /// <summary>
     /// Callback function containing the result of CanMakePayments
     /// <param name="canMakePayments">A bool value indicating whether billing
@@ -32,31 +31,42 @@ public partial class Purchases : MonoBehaviour
     /// 
     /// </summary>
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
-    
+
     /// <summary>
-    /// Callback function containing the result of GetPaymentDiscount
-    /// <param name="paymentDiscount">A Purchases.PaymentDiscount. It will be Null if platform is Android or
+    /// Callback function containing the result of GetPromotionalOffer
+    /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
     /// the iOS version is not compatible with promotional offers</param>
     /// <param name="error">An Error object or null if successful.</param>
     /// 
     /// </summary>
-    public delegate void GetPaymentDiscountFunc(PaymentDiscount paymentDiscount, Error error);
+    public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
-    [FormerlySerializedAs("revenueCatAPIKey")]
-    [ObsoleteAttribute("This property is obsolete. Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.", false)]
-    [Tooltip("(DEPRECATED) RevenueCat API Key. Get from https://app.revenuecat.com/. " +
-             "This property is obsolete. " +
-             "Use revenueCatAPIKeyApple and revenueCatAPIKeyGoogle instead.")]
-    // ReSharper disable once InconsistentNaming
-    public string deprecatedLegacyRevenueCatAPIKey;
+    [Tooltip("Activate if you plan to call Purchases.Setup programmatically.")]
+    public bool useRuntimeSetup;
 
     [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/")]
-    // ReSharper disable once InconsistentNaming
     public string revenueCatAPIKeyApple;
 
-    [Tooltip("RevenueCat API Key specifically for Android. Get from https://app.revenuecat.com/")]
-    // ReSharper disable once InconsistentNaming
+    [Tooltip("RevenueCat API Key specifically for Google Play. Get from https://app.revenuecat.com/")]
     public string revenueCatAPIKeyGoogle;
+
+    [Header("Alternative Stores")]
+    [Tooltip("RevenueCat API Key specifically for Amazon Appstore. Get from https://app.revenuecat.com/")]
+    public string revenueCatAPIKeyAmazon;
+
+    [Tooltip("Enables Amazon Store support. Android only, on iOS it has no effect." +
+             "If enabled, it will use the API key in RevenueCatAPIKeyAmazon.")]
+    public bool useAmazon;
+
+    [Header("Dangerous Settings")]
+    [Tooltip("Disable or enable automatically detecting current subscriptions." +
+             "If this is disabled, RevenueCat won't check current purchases, and it will not sync any purchase automatically " +
+             "when the app starts. Call syncPurchases whenever a new purchase is detected so the receipt is sent to " +
+             "RevenueCat's backend. " +
+             "In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
+             "are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
+             "Auto syncing of purchases is enabled by default.")]
+    public bool autoSyncPurchases = true;
 
     [Tooltip(
         "App user id. Pass in your own ID if your app has accounts. If blank, RevenueCat will generate a user ID for you.")]
@@ -66,17 +76,21 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("List of product identifiers.")]
     public string[] productIdentifiers;
 
-    [Tooltip("A subclass of Purchases.UpdatedPurchaserInfoListener component. Use your custom subclass to define how to handle updated purchaser information.")]
-    public UpdatedPurchaserInfoListener listener;
+    [Tooltip(
+        "A subclass of Purchases.UpdatedCustomerInfoListener component. Use your custom subclass to define how to handle updated customer information.")]
+    public UpdatedCustomerInfoListener listener;
 
-    [Tooltip("An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
+    [Tooltip(
+        "An optional boolean. Set this to TRUE if you have your own IAP implementation and want to use only RevenueCat's backend. Default is FALSE.")]
     public bool observerMode;
 
-    [Tooltip("An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.")]
+    [Tooltip(
+        "An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. This might be handy if you are deleting all NSUserDefaults in your app and leaving RevenueCat in a bad state.")]
     public string userDefaultsSuiteName;
 
     [Header("Advanced")]
-    [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
+    [Tooltip(
+        "Set this property to your proxy URL before configuring Purchases *only* if you've received a proxy key value from your RevenueCat contact.")]
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
@@ -94,6 +108,9 @@ public partial class Purchases : MonoBehaviour
         {
             _wrapper.SetProxyURL(proxyURL);
         }
+
+        if (useRuntimeSetup) return;
+
         Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }
@@ -106,13 +123,26 @@ public partial class Purchases : MonoBehaviour
             || Application.platform == RuntimePlatform.OSXPlayer)
             apiKey = revenueCatAPIKeyApple;
         else if (Application.platform == RuntimePlatform.Android
-            || IsAndroidEmulator())
-            apiKey = revenueCatAPIKeyGoogle;
+                 || IsAndroidEmulator())
+            apiKey = useAmazon ? revenueCatAPIKeyAmazon : revenueCatAPIKeyGoogle;
 
-        if (String.IsNullOrEmpty(apiKey))
-            apiKey = deprecatedLegacyRevenueCatAPIKey;
+        var dangerousSettings = new DangerousSettings(autoSyncPurchases);
+        var builder = PurchasesConfiguration.Builder.Init(apiKey)
+            .SetAppUserId(newUserId)
+            .SetObserverMode(observerMode)
+            .SetUserDefaultsSuiteName(userDefaultsSuiteName)
+            .SetUseAmazon(useAmazon)
+            .SetDangerousSettings(dangerousSettings);
 
-        _wrapper.Setup(gameObject.name, apiKey, newUserId, observerMode, userDefaultsSuiteName);
+        Setup(builder.Build());
+    }
+
+    public void Setup(PurchasesConfiguration purchasesConfiguration)
+    {
+        var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
+        _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
+            purchasesConfiguration.ObserverMode, purchasesConfiguration.UserDefaultsSuiteName,
+            purchasesConfiguration.UseAmazon, dangerousSettings);
     }
 
     private bool IsAndroidEmulator()
@@ -145,53 +175,43 @@ public partial class Purchases : MonoBehaviour
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
     public void PurchaseProduct(string productIdentifier, MakePurchaseFunc callback,
-        string type = "subs", string oldSku = null, ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+        string type = "subs", string oldSku = null,
+        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode);
     }
-    
-    public void PurchaseDiscountedProduct(string productIdentifier, PaymentDiscount discount, MakePurchaseFunc callback)
+
+    public void PurchaseDiscountedProduct(string productIdentifier, PromotionalOffer discount,
+        MakePurchaseFunc callback)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchaseProduct(productIdentifier, discount: discount);
     }
 
-    public void PurchasePackage(Package package, MakePurchaseFunc callback, string oldSku = null, ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+    public void PurchasePackage(Package package, MakePurchaseFunc callback, string oldSku = null,
+        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackage(package, oldSku, prorationMode);
     }
 
-    public void PurchaseDiscountedPackage(Package package, PaymentDiscount discount, MakePurchaseFunc callback)
+    public void PurchaseDiscountedPackage(Package package, PromotionalOffer discount, MakePurchaseFunc callback)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackage(package, discount: discount);
     }
 
-    private PurchaserInfoFunc RestoreTransactionsCallback { get; set; }
+    private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
-    public void RestoreTransactions(PurchaserInfoFunc callback)
+    public void RestorePurchases(CustomerInfoFunc callback)
     {
-        RestoreTransactionsCallback = callback;
-        _wrapper.RestoreTransactions();
+        RestorePurchasesCallback = callback;
+        _wrapper.RestorePurchases();
     }
 
-    [Obsolete("Deprecated, use set<NetworkId> methods instead.")]
-    public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null)
-    {
-        _wrapper.AddAttributionData((int)network, dataJson, networkUserId);
-    }
-
-    private PurchaserInfoFunc CreateAliasCallback { get; set; }
-
-    // ReSharper disable once UnusedMember.Global
-    [Obsolete("Deprecated, use LogIn instead.")]
-    public void CreateAlias(string newAppUserId, PurchaserInfoFunc callback)
-    {
-        CreateAliasCallback = callback;
-        _wrapper.CreateAlias(newAppUserId);
-    }
+    [Obsolete("Deprecated, use set<NetworkId> methods instead.", true)]
+    public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null) { }
 
     private LogInFunc LogInCallback { get; set; }
 
@@ -199,34 +219,14 @@ public partial class Purchases : MonoBehaviour
     {
         LogInCallback = callback;
         _wrapper.LogIn(appUserId);
-    }    
-    
-    private PurchaserInfoFunc LogOutCallback { get; set; }
+    }
 
-    public void LogOut(PurchaserInfoFunc callback)
+    private CustomerInfoFunc LogOutCallback { get; set; }
+
+    public void LogOut(CustomerInfoFunc callback)
     {
         LogOutCallback = callback;
         _wrapper.LogOut();
-    }
-    
-    private PurchaserInfoFunc IdentifyCallback { get; set; }
-
-    [Obsolete("Deprecated, use LogIn instead.")]
-    public void Identify(string appUserId, PurchaserInfoFunc callback)
-    {
-        IdentifyCallback = callback;
-        _wrapper.Identify(appUserId);
-    }
-
-    private PurchaserInfoFunc ResetCallback { get; set; }
-
-    // ReSharper disable once Unity.IncorrectMethodSignature
-    // ReSharper disable once UnusedMember.Global
-    [Obsolete("Deprecated, use LogOut instead.")]
-    public void Reset(PurchaserInfoFunc callback)
-    {
-        ResetCallback = callback;
-        _wrapper.Reset();
     }
 
     // ReSharper disable once UnusedMember.Global
@@ -259,22 +259,14 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.SetDebugLogsEnabled(logsEnabled);
     }
-    
-    private PurchaserInfoFunc GetPurchaserInfoCallback { get; set; }
+
+    private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
-    public void GetPurchaserInfo(PurchaserInfoFunc callback)
+    public void GetCustomerInfo(CustomerInfoFunc callback)
     {
-        GetPurchaserInfoCallback = callback;
-        _wrapper.GetPurchaserInfo();
-    }
-
-    private GetEntitlementsFunc GetEntitlementsCallback { get; set; }
-
-    [ObsoleteAttribute("This method has been replaced with GetOfferings.")]
-    public void GetEntitlements(GetEntitlementsFunc callback)
-    {
-
+        GetCustomerInfoCallback = callback;
+        _wrapper.GetCustomerInfo();
     }
 
     private GetOfferingsFunc GetOfferingsCallback { get; set; }
@@ -290,23 +282,44 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SyncPurchases();
     }
 
+    /// <summary>
+    /// Android only. Noop in iOS.
+    /// 
+    /// This method will send a purchase to the RevenueCat backend. This function should only be called if you are
+    /// in Amazon observer mode or performing a client side migration of your current users to RevenueCat.
+    /// The receipt IDs are cached if successfully posted so they are not posted more than once.
+    /// </summary>
+    /// <param name="productID">Product ID associated to the purchase.</param>
+    /// <param name="receiptID"> ReceiptId that represents the Amazon purchase.</param>
+    /// <param name="amazonUserID">Amazon's userID.</param>
+    /// <param name="isoCurrencyCode">Product's currency code in ISO 4217 format.</param>
+    /// <param name="price">Product's price.</param>
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
+        string isoCurrencyCode, double price)
+    {
+        _wrapper.SyncObserverModeAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode, price);
+    }
+
     // ReSharper disable once UnusedMember.Global
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
         _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
+
     private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
-    public void CheckTrialOrIntroductoryPriceEligibility(string[] products, CheckTrialOrIntroductoryPriceEligibilityFunc callback)
+
+    public void CheckTrialOrIntroductoryPriceEligibility(string[] products,
+        CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
         CheckTrialOrIntroductoryPriceEligibilityCallback = callback;
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
     }
 
-    public void InvalidatePurchaserInfoCache()
+    public void InvalidateCustomerInfoCache()
     {
-        _wrapper.InvalidatePurchaserInfoCache();
+        _wrapper.InvalidateCustomerInfoCache();
     }
-    
+
     public void PresentCodeRedemptionSheet()
     {
         _wrapper.PresentCodeRedemptionSheet();
@@ -336,6 +349,7 @@ public partial class Purchases : MonoBehaviour
                 jsonObject[keyValuePair.Key] = keyValuePair.Value;
             }
         }
+
         _wrapper.SetAttributes(jsonObject.ToString());
     }
 
@@ -508,55 +522,56 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.CollectDeviceIdentifiers();
     }
-    
+
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
 
-     /// <summary>
-     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
-     /// and whether a list of specified feature types are supported.
-     ///
-     /// Note: BillingFeatures are only relevant to Google Play Android users.
-     /// For other stores and platforms, BillingFeatures won't be checked.
-     /// </summary>
-     /// <param name="features">An array of BillingFeatures to check for support.
-     /// If empty, no features will be checked.</param>
-     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
-     public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback) {
-         CanMakePaymentsCallback = callback;
-         _wrapper.CanMakePayments(features == null ? new BillingFeature[] { } : features);
-     }
-    
-     /// <summary>
-     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
-     /// </summary>
-     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
+    /// <summary>
+    /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
+    /// and whether a list of specified feature types are supported.
+    ///
+    /// Note: BillingFeatures are only relevant to Google Play Android users.
+    /// For other stores and platforms, BillingFeatures won't be checked.
+    /// </summary>
+    /// <param name="features">An array of BillingFeatures to check for support.
+    /// If empty, no features will be checked.</param>
+    /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
+    public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback)
+    {
+        CanMakePaymentsCallback = callback;
+        _wrapper.CanMakePayments(features == null ? new BillingFeature[] { } : features);
+    }
+
+    /// <summary>
+    /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
+    /// </summary>
+    /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
     public void CanMakePayments(CanMakePaymentsFunc callback)
     {
         CanMakePayments(new BillingFeature[] { }, callback);
     }
-     
-     private GetPaymentDiscountFunc GetPaymentDiscountCallback { get; set; }
 
-     /// <summary>
-     /// iOS only. Use this function to retrieve the Purchases.PaymentDiscount for a given Purchases.Package.
-     /// </summary>
-     /// <param name="product">The Purchases.Product the user intends to purchase</param>
-     /// <param name="discount">The Purchases.Discount to apply to the product.</param>
-     /// <param name="callback">A callback receiving a Purchases.PaymentDiscount. Null is returned for Android and
-     /// incompatible iOS versions.</param>
-     public void GetPaymentDiscount(Product product, Discount discount, GetPaymentDiscountFunc callback)
-     {
-        GetPaymentDiscountCallback = callback;
-         _wrapper.GetPaymentDiscount(product.identifier, discount.identifier);
-     }
-     
+    private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
+
+    /// <summary>
+    /// iOS only. Use this function to retrieve the Purchases.PromotionalOffer for a given Purchases.Package.
+    /// </summary>
+    /// <param name="storeProduct">The Purchases.StoreProduct the user intends to purchase</param>
+    /// <param name="discount">The Purchases.Discount to apply to the product.</param>
+    /// <param name="callback">A callback receiving a Purchases.PromotionalOffer. Null is returned for Android and
+    /// incompatible iOS versions.</param>
+    public void GetPromotionalOffer(StoreProduct storeProduct, Discount discount, GetPromotionalOfferFunc callback)
+    {
+        GetPromotionalOfferCallback = callback;
+        _wrapper.GetPromotionalOffer(storeProduct.Identifier, discount.Identifier);
+    }
+
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
     {
         Debug.Log("_receiveProducts " + productsJson);
 
         if (ProductsCallback == null) return;
-        
+
         var response = JSON.Parse(productsJson);
 
         if (ResponseHasError(response))
@@ -565,24 +580,25 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var products = new List<Product>();
+            var products = new List<StoreProduct>();
             foreach (JSONNode productResponse in response["products"])
             {
-                var product = new Product(productResponse);
+                var product = new StoreProduct(productResponse);
                 products.Add(product);
             }
 
             ProductsCallback(products, null);
         }
+
         ProductsCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _getPurchaserInfo(string purchaserInfoJson)
+    private void _getCustomerInfo(string customerInfoJson)
     {
-        Debug.Log("_getPurchaserInfo " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, GetPurchaserInfoCallback);
-        GetPurchaserInfoCallback = null;
+        Debug.Log("_getCustomerInfo " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, GetCustomerInfoCallback);
+        GetCustomerInfoCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -601,7 +617,7 @@ public partial class Purchases : MonoBehaviour
         }
         else
         {
-            var info = new PurchaserInfo(response["purchaserInfo"]);
+            var info = new CustomerInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
             MakePurchaseCallback(productIdentifier, info, false, null);
         }
@@ -610,32 +626,24 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _createAlias(string purchaserInfoJson)
+    private void _receiveCustomerInfo(string customerInfoJson)
     {
-        Debug.Log("_createAlias " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, CreateAliasCallback);
-        CreateAliasCallback = null;
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private void _receivePurchaserInfo(string purchaserInfoJson)
-    {
-        Debug.Log("_receivePurchaserInfo " + purchaserInfoJson);
+        Debug.Log("_receiveCustomerInfo " + customerInfoJson);
 
         if (listener == null) return;
 
-        var response = JSON.Parse(purchaserInfoJson);
-        if (response["purchaserInfo"] == null) return;
-        var info = new PurchaserInfo(response["purchaserInfo"]);
-        listener.PurchaserInfoReceived(info);
+        var response = JSON.Parse(customerInfoJson);
+        if (response["customerInfo"] == null) return;
+        var info = new CustomerInfo(response["customerInfo"]);
+        listener.CustomerInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _restoreTransactions(string purchaserInfoJson)
+    private void _restorePurchases(string customerInfoJson)
     {
-        Debug.Log("_restoreTransactions " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, RestoreTransactionsCallback);
-        RestoreTransactionsCallback = null;
+        Debug.Log("_restorePurchases " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, RestorePurchasesCallback);
+        RestorePurchasesCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -647,27 +655,11 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Local
-    private void _logOut(string purchaserInfoJson)
+    private void _logOut(string customerInfoJson)
     {
-        Debug.Log("_logOut " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, LogOutCallback);
+        Debug.Log("_logOut " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, LogOutCallback);
         LogOutCallback = null;
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private void _identify(string purchaserInfoJson)
-    {
-        Debug.Log("_identify " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, IdentifyCallback);
-        IdentifyCallback = null;
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private void _reset(string purchaserInfoJson)
-    {
-        Debug.Log("_reset " + purchaserInfoJson);
-        ReceivePurchaserInfoMethod(purchaserInfoJson, ResetCallback);
-        ResetCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local 
@@ -685,9 +677,10 @@ public partial class Purchases : MonoBehaviour
             var offeringsResponse = response["offerings"];
             GetOfferingsCallback(new Offerings(offeringsResponse), null);
         }
-        GetEntitlementsCallback = null;
+
+        GetOfferingsCallback = null;
     }
-    
+
     private void _checkTrialOrIntroductoryPriceEligibility(string json)
     {
         Debug.Log("_checkTrialOrIntroductoryPriceEligibility " + json);
@@ -700,7 +693,7 @@ public partial class Purchases : MonoBehaviour
         {
             dictionary[keyValuePair.Key] = new IntroEligibility(keyValuePair.Value);
         }
-        
+
         CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
 
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
@@ -711,7 +704,7 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_canMakePayments" + canMakePaymentsJson);
 
         if (CanMakePaymentsCallback == null) return;
-        
+
         var response = JSON.Parse(canMakePaymentsJson);
 
         if (ResponseHasError(response))
@@ -723,42 +716,44 @@ public partial class Purchases : MonoBehaviour
             var canMakePayments = response["canMakePayments"];
             CanMakePaymentsCallback(canMakePayments, null);
         }
+
         CanMakePaymentsCallback = null;
     }
 
-    private void _getPaymentDiscount(string getPaymentDiscountJson)
+    private void _getPromotionalOffer(string getPromotionalOfferJson)
     {
-        Debug.Log("_getPaymentDiscount" + getPaymentDiscountJson);
+        Debug.Log("_getPromotionalOffer" + getPromotionalOfferJson);
 
-        if (GetPaymentDiscountCallback == null) return;
-        
-        var response = JSON.Parse(getPaymentDiscountJson);
+        if (GetPromotionalOfferCallback == null) return;
+
+        var response = JSON.Parse(getPromotionalOfferJson);
 
         if (ResponseHasError(response))
         {
-            GetPaymentDiscountCallback(null, new Error(response["error"]));
+            GetPromotionalOfferCallback(null, new Error(response["error"]));
         }
         else
         {
-            var paymentDiscount = new PaymentDiscount(response);
-            GetPaymentDiscountCallback(paymentDiscount, null);
+            var promotionalOffer = new PromotionalOffer(response);
+            GetPromotionalOfferCallback(promotionalOffer, null);
         }
-        GetPaymentDiscountCallback = null;
+
+        GetPromotionalOfferCallback = null;
     }
 
-    private static void ReceivePurchaserInfoMethod(string arguments, PurchaserInfoFunc callback)
+    private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)
     {
         if (callback == null) return;
 
         var response = JSON.Parse(arguments);
-        
+
         if (ResponseHasError(response))
         {
             callback(null, new Error(response["error"]));
         }
         else
         {
-            var info = new PurchaserInfo(response["purchaserInfo"]); 
+            var info = new CustomerInfo(response["customerInfo"]);
             callback(info, null);
         }
     }
@@ -768,14 +763,14 @@ public partial class Purchases : MonoBehaviour
         if (callback == null) return;
 
         var response = JSON.Parse(arguments);
-        
+
         if (ResponseHasError(response))
         {
             callback(null, false, new Error(response["error"]));
         }
         else
         {
-            var info = new PurchaserInfo(response["purchaserInfo"]); 
+            var info = new CustomerInfo(response["customerInfo"]);
             var created = response["created"];
             callback(info, created, null);
         }
@@ -785,5 +780,4 @@ public partial class Purchases : MonoBehaviour
     {
         return response != null && response.HasKey("error") && response["error"] != null && !response["error"].IsNull;
     }
-
 }

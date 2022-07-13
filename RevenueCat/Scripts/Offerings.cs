@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
+using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
@@ -26,7 +27,8 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(All)}: {All}, {nameof(Current)}: {Current}";
+            var currentString = Current != null ? $"{nameof(Current)}: {Current}": "current: <null>"; 
+            return $"{currentString}\n{nameof(All)}: {DictToString(All)}";
         }
     }
 }
