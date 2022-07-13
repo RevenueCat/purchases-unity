@@ -9,6 +9,7 @@ done
 
 PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
+PACKAGE_UNITY_IAP="$PWD/Purchases-UnityIAP.unitypackage"
 FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
@@ -62,3 +63,31 @@ else
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
 fi 
+
+echo "Unity package created. Updating dependency for Unity IAP compatibility"
+
+export REGULAR_PACKAGE_NAME="com.revenuecat.purchases:purchases-hybrid-common:"
+export UNITY_IAP_PACKAGE_NAME="com.revenuecat.purchases:purchases-hybrid-common-unityiap:"
+
+sed -i -e "s/spec=\"$REGULAR_PACKAGE_NAME/spec=\"$UNITY_IAP_PACKAGE_NAME/" \
+./RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+
+echo "📦 Creating Purchases-UnityIAP.unitypackage, this may take a minute."
+
+if [ ! -z "$CI" ] ; then 
+    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
+    -nographics \
+    -silent-crashes \
+    -projectPath $PROJECT \
+    -force-free -quit -batchmode -logFile \
+    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
+    -exportPackage $FOLDERS_TO_EXPORT $PACKAGE_UNITY_IAP
+else
+    $UNITY_BIN -gvh_disable \
+    -nographics \
+    -projectPath $PROJECT \
+    -force-free -quit -batchmode -logFile exportlog.txt \
+    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
+    -exportPackage $FOLDERS_TO_EXPORT $PACKAGE_UNITY_IAP
+fi 
+
