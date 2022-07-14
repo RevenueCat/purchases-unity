@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dependencies>
     <androidPackages>
-        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[3.2.3]" />
+        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[3.2.4]" />
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
     </androidPackages>
     <iosPods>
-        <iosPod name="PurchasesHybridCommon" version="3.2.3" minTargetSdk="11.0"/>
+        <iosPod name="PurchasesHybridCommon" version="3.2.4" minTargetSdk="11.0"/>
     </iosPods>
 </dependencies>
