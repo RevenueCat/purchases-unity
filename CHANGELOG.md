@@ -1,5 +1,10 @@
-## 4.0.0
+## 4.0.0-rc.1
 ⚠️ ⚠️ Important ⚠️ ⚠️ Observer mode for Amazon is not supported yet.
+
+⚠️ ⚠️ Important ⚠️ ⚠️ In order to use Unity IAP in order with RevenueCat in Observer mode,
+you need to use the `Purchases-UnityIAP.unityPackage`.
+
+For Amazon installation instructions please follow take a look at the [Amazon instructions document](https://github.com/RevenueCat/purchases-unity/blob/4.0.0-rc.1/AMAZON-INSTRUCTIONS.md)
 
 ### Features
 

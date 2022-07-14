@@ -5,5 +5,5 @@
 1. Add an entry to CHANGELOG.md
 1. Make a PR, merge when approved
 1. Make a tag and push
-1. CircleCI will run a job `export-package` that will create a `Purchases.unitypackage` for you. Find the package in the artifacts section of the job
-1. Create a new release in github and upload `Purchases.unitypackage`.
+1. CircleCI will run a job `export-package` that will create a `Purchases.unitypackage` and `Purchases-UnityIAP.unitypackage` for you. Find the packages in the artifacts section of the job
+1. Create a new release in github and upload `Purchases.unitypackage` and `Purchases-UnityIAP.unitypackage`.
