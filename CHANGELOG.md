@@ -1,3 +1,11 @@
+## 4.0.0-rc.2
+
+### New changes since Release Candidate 1
+
+- Updated `purchases-hybrid-common` to 3.3.0 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/3.3.0)
+- Updated `purchases-android` to 5.3.0, which fixes a null pointer exception when calling configure from a thread in Android.  [Changelog here](https://github.com/RevenueCat/purchases-android/releases/tag/5.3.0)
+- Updated instructions for observer mode, which don't require excluding the billing client anymore.
+
 ## 4.0.0-rc.1
 ⚠️ ⚠️ Important ⚠️ ⚠️ Observer mode for Amazon is not supported yet.
 
