@@ -189,5 +189,15 @@ public class PurchasesAPITests : MonoBehaviour
                 receivedCanMakePayments = canMakePayments;
                 receivedError = error;
             });
+
+        Purchases.PurchasesConfiguration.Builder builder = Purchases.PurchasesConfiguration.Builder.Init("api_key");
+        Purchases.PurchasesConfiguration purchasesConfiguration =
+            builder.SetUserDefaultsSuiteName("user_default")
+            .SetDangerousSettings(new Purchases.DangerousSettings(false))
+            .SetObserverMode(true)
+            .SetUseAmazon(false)
+            .SetAppUserId(appUserId)
+            .Build();
+        purchases.Configure(purchasesConfiguration);
     }
 }

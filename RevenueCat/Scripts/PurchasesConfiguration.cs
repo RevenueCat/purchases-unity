@@ -1,5 +1,10 @@
 public partial class Purchases
 {
+    /// <summary>
+    /// Class used to configure the SDK programmatically.
+    /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
+    /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
+    /// </summary>
     public class PurchasesConfiguration
     {
         public readonly string ApiKey;
@@ -20,6 +25,12 @@ public partial class Purchases
             DangerousSettings = dangerousSettings;
         }
 
+        /// <summary>
+        /// Use this object to create a PurchasesConfiguration object that can be used to configure
+        /// the SDK programmatically. 
+        /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
+        /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
+        /// </summary>
         public class Builder
         {
             private readonly string _apiKey;
