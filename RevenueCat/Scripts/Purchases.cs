@@ -143,6 +143,7 @@ public partial class Purchases : MonoBehaviour
         Configure(purchasesConfiguration);
     }
     
+    // ReSharper disable once MemberCanBePrivate.Global
     public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
