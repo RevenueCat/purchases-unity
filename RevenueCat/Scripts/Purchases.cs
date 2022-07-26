@@ -44,63 +44,73 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("Activate if you plan to call Purchases.Configure or Purchases.Setup programmatically.")]
     public bool useRuntimeSetup;
 
-    [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/ " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+    [Tooltip("RevenueCat API Key specifically for Apple platforms.\nGet from https://app.revenuecat.com/ \n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public string revenueCatAPIKeyApple;
 
-    [Tooltip("RevenueCat API Key specifically for Google Play. Get from https://app.revenuecat.com/ " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+    [Tooltip("RevenueCat API Key specifically for Google Play.\nGet from https://app.revenuecat.com/ \n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public string revenueCatAPIKeyGoogle;
 
     [Header("Alternative Stores")]
-    [Tooltip("RevenueCat API Key specifically for Amazon Appstore. Get from https://app.revenuecat.com/ " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+    [Tooltip("RevenueCat API Key specifically for Amazon Appstore.\nGet from https://app.revenuecat.com/ \n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public string revenueCatAPIKeyAmazon;
 
-    [Tooltip("Enables Amazon Store support. Android only, on iOS it has no effect." +
-             "If enabled, it will use the API key in RevenueCatAPIKeyAmazon. " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+    [Tooltip("Enables Amazon Store support. Android only, on iOS it has no effect.\n" +
+             "If enabled, it will use the API key in RevenueCatAPIKeyAmazon.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public bool useAmazon;
 
     [Header("Dangerous Settings")]
-    [Tooltip("Disable or enable automatically detecting current subscriptions." +
+    [Tooltip("Disable or enable automatically detecting current subscriptions.\n" +
              "If this is disabled, RevenueCat won't check current purchases, and it will not sync any purchase automatically " +
-             "when the app starts. Call syncPurchases whenever a new purchase is detected so the receipt is sent to " +
-             "RevenueCat's backend. " +
+             "when the app starts.\nCall syncPurchases whenever a new purchase is detected so the receipt is sent to " +
+             "RevenueCat's backend.\n" +
              "In iOS, consumables disappear from the receipt after the transaction is finished, so make sure purchases " +
-             "are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase. " +
-             "Auto syncing of purchases is enabled by default. " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+             "are synced before finishing any consumable transaction, otherwise RevenueCat won't register the purchase.\n" +
+             "Auto syncing of purchases is enabled by default.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public bool autoSyncPurchases = true;
 
-    [Tooltip("App user id. Pass in your own ID if your app has accounts. " +
-             "If blank, RevenueCat will generate a user ID for you. " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+    [Tooltip("App user id. Pass in your own ID if your app has accounts.\n" +
+             "If blank, RevenueCat will generate a user ID for you.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     // ReSharper disable once InconsistentNaming
     public string appUserID;
 
     [Tooltip("List of product identifiers.")]
     public string[] productIdentifiers;
 
-    [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component. " +
+    [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component.\n" +
              "Use your custom subclass to define how to handle updated customer information.")]
     public UpdatedCustomerInfoListener listener;
 
     [Tooltip("An optional boolean. Set this to true if you have your own IAP implementation " +
-             "and want to use only RevenueCat's backend. Default is false. " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+             "and want to use only RevenueCat's backend.\nDefault is false.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public bool observerMode;
 
-    [Tooltip("An optional string. iOS only. Set this to use a specific NSUserDefaults suite for RevenueCat. " +
+    [Tooltip("An optional string. iOS only.\n" +
+             "Set this to use a specific NSUserDefaults suite for RevenueCat. " +
              "This might be handy if you are deleting all NSUserDefaults in your app " +
-             "and leaving RevenueCat in a bad state. " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+             "and leaving RevenueCat in a bad state.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public string userDefaultsSuiteName;
 
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received " +
-             "a proxy key value from your RevenueCat contact. " +
-             "Note: This value not be used if Purchases.useRuntimeSetup is true.")]
+             "a proxy key value from your RevenueCat contact.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
