@@ -199,5 +199,7 @@ public class PurchasesAPITests : MonoBehaviour
             .SetAppUserId(appUserId)
             .Build();
         purchases.Configure(purchasesConfiguration);
+
+        purchases.SyncObserverModeAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
     }
 }
