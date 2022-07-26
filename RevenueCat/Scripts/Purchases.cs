@@ -41,7 +41,7 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
-    [Tooltip("Activate if you plan to call Purchases.Setup programmatically.")]
+    [Tooltip("Activate if you plan to call Purchases.Configure or Purchases.Setup programmatically.")]
     public bool useRuntimeSetup;
 
     [Tooltip("RevenueCat API Key specifically for Apple platforms. Get from https://app.revenuecat.com/")]
@@ -111,11 +111,11 @@ public partial class Purchases : MonoBehaviour
 
         if (useRuntimeSetup) return;
 
-        Setup(string.IsNullOrEmpty(appUserID) ? null : appUserID);
+        Configure(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
     }
 
-    private void Setup(string newUserId)
+    private void Configure(string newUserId)
     {
         var apiKey = "";
 
@@ -134,10 +134,16 @@ public partial class Purchases : MonoBehaviour
             .SetUseAmazon(useAmazon)
             .SetDangerousSettings(dangerousSettings);
 
-        Setup(builder.Build());
+        Configure(builder.Build());
     }
 
+    [Obsolete("Deprecated, use Configure instead.", false)]
     public void Setup(PurchasesConfiguration purchasesConfiguration)
+    {
+        Configure(purchasesConfiguration);
+    }
+    
+    public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
