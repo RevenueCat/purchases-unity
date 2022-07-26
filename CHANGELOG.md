@@ -1,5 +1,6 @@
 ## 4.0.0-rc.3
 
+### New changes since Release Candidate 2
 - Deprecated `Purchases.Setup` in favor of `Purchases.Configure`.
 
 ## 4.0.0-rc.2
