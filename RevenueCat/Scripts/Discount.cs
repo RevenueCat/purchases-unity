@@ -2,6 +2,10 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// iOS only. Type that wraps StoreKit.Product.SubscriptionOffer and SKProductDiscount and provides access to their
+    /// properties. Information about a subscription offer that you configured in App Store Connect.
+    /// </summary>
     public class Discount
     {
         /// <summary>

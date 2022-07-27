@@ -4,6 +4,9 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// Type that abstracts products from App Store, Google Play and Amazon into a single interface.
+    /// </summary>
     public class StoreProduct
     {
         public readonly string Title;

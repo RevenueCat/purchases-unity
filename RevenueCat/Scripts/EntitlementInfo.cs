@@ -5,6 +5,10 @@ using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
+    
+    /// <summary>
+    /// The EntitlementInfo object gives you access to all of the information about the status of a user entitlement.
+    /// </summary>
     public class EntitlementInfo
     {
         public readonly string Identifier;

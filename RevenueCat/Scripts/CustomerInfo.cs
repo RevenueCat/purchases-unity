@@ -7,14 +7,17 @@ using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
-    /*
-     * CustomerInfo encapsulate the current status of subscriber. 
-     * Use it to determine which entitlements to unlock, typically by checking 
-     * ActiveSubscriptions or via LatestExpirationDate. 
-     * 
-     * Note: All DateTimes are in UTC, be sure to compare them with 
-     * DateTime.UtcNow
-     */
+    ///
+    /// <summary>
+    /// CustomerInfo encapsulates the current status of subscriber. 
+    /// Use it to determine which entitlements to unlock, typically by checking 
+    /// ActiveSubscriptions or via LatestExpirationDate.
+    /// </summary> 
+    /// 
+    /// <remarks>
+    /// All DateTimes are in UTC, be sure to compare them with <c>DateTime.UtcNow</c>
+    /// </remarks>
+    ///
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class CustomerInfo
     {

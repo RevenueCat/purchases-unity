@@ -4,6 +4,9 @@ using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// This class contains all the entitlements associated to the user.
+    /// </summary>
     public class EntitlementInfos
     {
         public readonly Dictionary<string, EntitlementInfo> All;

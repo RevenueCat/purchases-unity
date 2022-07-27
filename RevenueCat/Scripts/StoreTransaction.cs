@@ -5,6 +5,11 @@ using static RevenueCat.Utilities;
 
 public partial class Purchases
 {    
+    /// <summary>
+    /// Abstract class that provides access to properties of a transaction. StoreTransactions can represent
+    /// transactions from StoreKit 1, StoreKit 2 or transactions made from other places,
+    /// like Stripe, Google Play or Amazon Store.
+    /// </summary>
     public class StoreTransaction
     {
         /**

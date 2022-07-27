@@ -3,6 +3,10 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// Packages help abstract platform-specific products by grouping equivalent products across iOS, Android, and web.
+    /// A package is made up of three parts: identifier, packageType, and underlying StoreProduct.
+    /// </summary>
     public class Package
     {
         public readonly string Identifier;
