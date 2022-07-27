@@ -8,11 +8,6 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public delegate void GetProductsFunc(List<StoreProduct> products, Error error);
-
-    public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
-        Error error);
-
     public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
 
     public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
@@ -209,20 +204,85 @@ public partial class Purchases : MonoBehaviour
             return false;
         }
     }
+    
+    /// <summary>
+    /// Callback type for <see cref="Purchases.GetProducts"/>.
+    /// Includes a list of products or an error.
+    /// </summary>
+    public delegate void GetProductsFunc(List<StoreProduct> products, Error error);
 
     private GetProductsFunc ProductsCallback { get; set; }
 
-    // Optionally call this if you want to fetch more products,
-    // called automatically with pre-configured products
     // ReSharper disable once MemberCanBePrivate.Global
+    /// <summary>
+    /// Fetches the <c>StoreProducts</c> for your IAPs for given productIdentifiers.
+    /// This method is called automatically with products pre-configured through Unity IDE UI.
+    /// You can optionally call this if you want to fetch more products.
+    /// </summary>
+    /// <seealso cref="StoreProduct"/>
+    /// <param name="products">
+    /// A set of product identifiers for in-app purchases setup via AppStoreConnect.\n
+    /// This should be either hard coded in your application, from a file, or from a custom endpoint if \n
+    /// you want to be able to deploy new IAPs without an app update.
+    /// </param>
+    /// <param name="callback">
+    /// A <see cref="GetProductsFunc"/> callback that is called with the loaded products.\n
+    /// If the fetch fails for any reason it will return an empty array and an error.
+    /// </param>
+    /// <remarks>
+    /// completion may be called without StoreProducts that you are expecting.\n
+    /// This is usually caused by iTunesConnect configuration errors.\n
+    /// Ensure your IAPs have the “Ready to Submit” status in iTunesConnect.\n
+    /// Also ensure that you have an active developer program subscription and you have signed the\n
+    /// latest paid application agreements.\n
+    /// If you’re having trouble, <see href="https://rev.cat/how-to-configure-products"/>
+    /// </remarks>
     public void GetProducts(string[] products, GetProductsFunc callback, string type = "subs")
     {
         ProductsCallback = callback;
         _wrapper.GetProducts(products, type);
     }
 
+    /// <summary>
+    /// Callback type for methods that make purchases, like <see cref="Purchases.PurchaseProduct"/>,\n
+    /// <see cref="Purchases.PurchaseDiscountedProduct"/>, <see cref="Purchases.PurchasePackage"/> and \n
+    /// <see cref="Purchases.PurchaseDiscountedPackage"/>.
+    /// <param name="productIdentifier"> The product identifier for which the purchase was attempted.</param>
+    /// <param name="customerInfo"> The updated <see cref="CustomerInfo"/> object after the successful purchase.</param>
+    /// <param name="userCancelled"> A boolean that indicates whether the purchase was cancelled by the user.</param>
+    /// <param name="error"> An error, if one occurred. Null if the purchase was successful. </param>
+    /// 
+    /// </summary>
+    public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
+        Error error);
+    
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
+    ///
+    /// <summary>
+    /// Initiates a purchase of a <see cref="StoreProduct"/>.
+    /// </summary>
+    /// Use this function if you are not using the <see cref="Offerings"/> system to purchase a <see cref="StoreProduct"/>.
+    /// If you are using the <see cref="Offerings"/> system, use <see cref="PurchasePackage"/> instead.
+    ///
+    /// <remarks>
+    /// Call this method when a user has decided to purchase a product.
+    /// Only call this in direct response to user input.
+    /// </remarks>
+    ///
+    /// From here the SDK will handle the purchase with <c>StoreKit</c> and call the <c>PurchaseCompletedBlock</c>.
+    ///
+    /// <remarks>
+    /// Note: You do not need to finish the transaction yourself in the completion callback, RevenueCat will
+    /// handle this for you.
+    /// </remarks>
+    ///
+    /// <param name="productIdentifier"> The identifier of the <see cref="StoreProduct"/> the user intends to purchase.</param>
+    /// <param name="callback"> A <see cref="MakePurchaseCallback"/> completion block that is called when the purchase completes.</param>
+    /// <param name="type"> Android only. The type of product to purchase. </param>
+    /// <param name="oldSku"> Android only. Optional. The oldSku to upgrade from. </param>
+    /// <param name="prorationMode"> Android only. Optional. The <see cref="ProrationMode"/> to use when upgrading the given oldSku. </param>
+    ///
     public void PurchaseProduct(string productIdentifier, MakePurchaseFunc callback,
         string type = "subs", string oldSku = null,
         ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
