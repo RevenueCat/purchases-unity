@@ -8,8 +8,6 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
-
     public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
 
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
@@ -291,6 +289,29 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode);
     }
 
+    /// 
+    /// <summary>
+    /// iOS only. Initiates a purchase of a <see cref="StoreProduct"/> with a <see cref="PromotionalOffer"/>.
+    /// You can get a <c>PromotionalOffer</c> by calling <see cref="GetPromotionalOffer"/>.
+    /// </summary>
+    /// Use this function if you are not using the <see cref="Offerings"/> system to purchase a <see cref="StoreProduct"/>.
+    /// If you are using the <see cref="Offerings"/> system, use <see cref="PurchasePackage"/> instead.
+    /// 
+    /// <remarks>
+    /// Call this method when a user has decided to purchase a product.
+    /// Only call this in direct response to user input.
+    /// </remarks>
+    /// 
+    /// From here the SDK will handle the purchase with <c>StoreKit</c> and call the <c>PurchaseCompletedBlock</c>.
+    /// 
+    /// <remarks>
+    /// Note: You do not need to finish the transaction yourself in the completion callback, RevenueCat will
+    /// handle this for you.
+    /// </remarks>
+    /// 
+    /// <param name="productIdentifier"> The identifier of the <see cref="StoreProduct"/> the user intends to purchase.</param>
+    /// <param name="discount"> A <see cref="PromotionalOffer"/> to apply to the purchase.</param>
+    /// <param name="callback"> A <see cref="MakePurchaseCallback"/> completion block that is called when the purchase completes.</param>
     public void PurchaseDiscountedProduct(string productIdentifier, PromotionalOffer discount,
         MakePurchaseFunc callback)
     {
@@ -298,6 +319,28 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchaseProduct(productIdentifier, discount: discount);
     }
 
+    ///
+    /// <summary>
+    /// Initiates a purchase of a <see cref="Package"/>.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Call this method when a user has decided to purchase a product.
+    /// Only call this in direct response to user input.
+    /// </remarks>
+    ///
+    /// From here the SDK will handle the purchase with <c>StoreKit</c> and call the <c>PurchaseCompletedBlock</c>.
+    ///
+    /// <remarks>
+    /// Note: You do not need to finish the transaction yourself in the completion callback, RevenueCat will
+    /// handle this for you.
+    /// </remarks>
+    ///
+    /// <param name="package"> The <see cref="Package"/> the user intends to purchase.</param>
+    /// <param name="callback"> A <see cref="MakePurchaseCallback"/> completion block that is called when the purchase completes.</param>
+    /// <param name="oldSku"> Android only. Optional. The oldSku to upgrade from. </param>
+    /// <param name="prorationMode"> Android only. Optional. The <see cref="ProrationMode"/> to use when upgrading the given oldSku. </param>
+    ///
     public void PurchasePackage(Package package, MakePurchaseFunc callback, string oldSku = null,
         ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
     {
@@ -305,14 +348,60 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackage(package, oldSku, prorationMode);
     }
 
+    ///
+    /// <summary>
+    /// iOS only. Initiates a purchase of a <see cref="Package"/>.
+    /// You can get a <c>PromotionalOffer</c> by calling <see cref="GetPromotionalOffer"/>.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Call this method when a user has decided to purchase a product.
+    /// Only call this in direct response to user input.
+    /// </remarks>
+    ///
+    /// From here the SDK will handle the purchase with <c>StoreKit</c> and call the <c>PurchaseCompletedBlock</c>.
+    ///
+    /// <remarks>
+    /// Note: You do not need to finish the transaction yourself in the completion callback, RevenueCat will
+    /// handle this for you.
+    /// </remarks>
+    ///
+    /// <param name="package"> The <see cref="Package"/> the user intends to purchase.</param>
+    /// <param name="discount"> A <see cref="PromotionalOffer"/> to apply to the purchase.</param>
+    /// <param name="callback"> A <see cref="MakePurchaseCallback"/> completion block that is called when the purchase completes.</param>
+    ///
     public void PurchaseDiscountedPackage(Package package, PromotionalOffer discount, MakePurchaseFunc callback)
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackage(package, discount: discount);
     }
 
+    /// <summary>
+    /// Callback type for methods that return <see cref="CustomerInfo"/>.
+    /// Includes a <see cref="CustomerInfo"/> or an error.
+    /// </summary>
+    /// <param name="customerInfo"> A <see cref="CustomerInfo"/> if the request was successful, null otherwise. </param>
+    /// <param name="error"> An error if the request was not successful, null otherwise. </param>
+    public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
     private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
+    /// <summary>
+    /// 
+    /// This method will post all purchases associated with the current Store account to RevenueCat and become
+    /// associated with the current <c>appUserID</c>. If the receipt is being used by an existing user, the current
+    /// <c>appUserID</c> will be aliased together with the <c>appUserID</c> of the existing user.
+    ///  Going forward, either <c>appUserID</c> will be able to reference the same user.
+    /// </summary>
+    ///
+    /// You shouldn't use this method if you have your own account system. In that case "restoration" is provided
+    /// by your app passing the same <c>appUserID</c> used to purchase originally.
+    ///
+    /// - Note: This may force your users to enter their Store password so should only be performed on request of
+    /// the user. Typically with a button in settings or near your purchase UI. Use
+    /// <see cref="SyncPurchases"/> if you need to restore transactions programmatically.
+    ///
+    /// <param name="callback"> A <see cref="CustomerInfoFunc"/> which will contain a <see cref="CustomerInfo"/>
+    /// if restoration was successful, or an error otherwise. </param>
     public void RestorePurchases(CustomerInfoFunc callback)
     {
         RestorePurchasesCallback = callback;
