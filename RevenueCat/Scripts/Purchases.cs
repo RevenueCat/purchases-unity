@@ -8,10 +8,6 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public delegate void GetOfferingsFunc(Offerings offerings, Error error);
-
-    public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
-
     /// <summary>
     /// Callback function containing the result of CanMakePayments
     /// <param name="canMakePayments">A bool value indicating whether billing
@@ -153,7 +149,7 @@ public partial class Purchases : MonoBehaviour
     {
         Configure(purchasesConfiguration);
     }
-    
+
     // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
     /// Use this method to configure the SDK programmatically.
@@ -200,7 +196,7 @@ public partial class Purchases : MonoBehaviour
             return false;
         }
     }
-    
+
     /// <summary>
     /// Callback type for <see cref="Purchases.GetProducts"/>.
     /// Includes a list of products or an error.
@@ -251,7 +247,7 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
         Error error);
-    
+
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
     ///
@@ -381,6 +377,7 @@ public partial class Purchases : MonoBehaviour
     /// <param name="customerInfo"> A <see cref="CustomerInfo"/> if the request was successful, null otherwise. </param>
     /// <param name="error"> An error if the request was not successful, null otherwise. </param>
     public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
+
     private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
     /// <summary>
@@ -520,10 +517,10 @@ public partial class Purchases : MonoBehaviour
 
     // ReSharper disable once UnusedMember.Global
     /// <summary>
-    ///
     /// Enable debug logging. Useful for debugging issues with the lovely team @RevenueCat.
     /// </summary>
-    /// <param name="logsEnabled"></param>
+    /// 
+    /// <param name="logsEnabled"> Whether debug logs should be enabled.</param>
     public void SetDebugLogsEnabled(bool logsEnabled)
     {
         _wrapper.SetDebugLogsEnabled(logsEnabled);
@@ -546,12 +543,20 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetCustomerInfo();
     }
 
+    /// <summary>
+    /// Callback for <see cref="Purchases.GetOfferings"/>.
+    /// </summary>
+    /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void GetOfferingsFunc(Offerings offerings, Error error);
+
     private GetOfferingsFunc GetOfferingsCallback { get; set; }
 
-    
     ///
+    /// <summary>
     /// Fetch the configured <see cref="Offerings"/> for this user.
-    ///
+    /// </summary>
+    /// 
     /// <see cref="Offerings"/> allows you to configure your in-app products
     /// via RevenueCat and greatly simplifies management.
     ///
@@ -570,6 +575,25 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetOfferings();
     }
 
+    /// <summary>
+    /// This method will post all purchases associated with the current App Store account to RevenueCat and
+    /// become associated with the current <c>appUserID</c>.
+    /// </summary>
+    ///
+    /// If the receipt is being used by an existing user, the current <c>appUserID</c> will be aliased together with
+    /// the <c>appUserID</c> of the existing user.
+    /// Going forward, either <c>appUserID</c> will be able to reference the same user.
+    ///
+    /// <remarks>
+    /// Warning: This function should only be called if you're not calling any purchase method.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Note: This method will not trigger a login prompt from App Store. However, if the receipt currently
+    /// on the device does not contain subscriptions, but the user has made subscription purchases, this method
+    /// won't be able to restore them. Use <see cref="RestorePurchases"/> to cover those cases.
+    /// </remarks>
+    ///
     public void SyncPurchases()
     {
         _wrapper.SyncPurchases();
@@ -594,13 +618,48 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Enable automatic collection of Apple Search Ads attribution. Defaults to `false`. 
+    /// </summary>
+    /// <param name="enabled"> Whether to enable automatic collection of Apple Search Ads attribution.</param>
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
         _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
 
+    /// <summary>
+    /// iOS only. Callback for the <see cref="Purchases.CheckTrialOrIntroductoryPriceEligibility"/> method.  
+    /// </summary>
+    /// <param name="products"> A Dictionary mapping product identifiers to their eligibility status,
+    /// as <see cref="IntroEligibility"/> objects.</param>
+    public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
+
     private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
 
+    /// 
+    /// <summary>
+    /// iOS only. Computes whether or not a user is eligible for the introductory pricing period of a given product.
+    /// You should use this method to determine whether or not you show the user the normal product price or
+    /// the introductory price. This also applies to trials (trials are considered a type of introductory pricing).
+    /// <seealso href="https://docs.revenuecat.com/docs/ios-subscription-offers"/>.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Note: If you're looking to use Promotional Offers instead,
+    /// use <see cref="GetPromotionalOffer"/>.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Note: Subscription groups are automatically collected for determining eligibility. If RevenueCat can't
+    /// definitively compute the eligibility, most likely because of missing group information, it will return
+    /// <see cref="IntroEligibilityStatus.IntroEligibilityStatusUnknown"/>.
+    /// The best course of action on unknown status is to display the non-intro
+    /// pricing, to not create a misleading situation. To avoid this, make sure you are testing with the latest
+    /// version of iOS so that the subscription group can be collected by the SDK.
+    /// </remarks>
+    ///
+    /// <param name="products"> The <see cref="StoreProduct"/>  for which you want to compute eligibility.</param>
+    /// <param name="callback"> The <see cref="CheckTrialOrIntroductoryPriceEligibilityCallback"/> callback. </param>
     public void CheckTrialOrIntroductoryPriceEligibility(string[] products,
         CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
@@ -608,24 +667,43 @@ public partial class Purchases : MonoBehaviour
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
     }
 
+    ///
+    /// <summary>
+    /// Invalidates the cache for customer information.
+    /// </summary>
+    /// 
+    /// <remarks>Most apps will not need to use this method; invalidating the cache can leave your app in an invalid state.
+    /// Refer to https://docs.revenuecat.com/docs/purchaserinfo#section-get-user-information
+    /// for more information on using the cache properly.
+    /// </remarks>
+    ///
+    /// This is useful for cases where customer information might have been updated outside of the app, like if a
+    /// promotional subscription is granted through the RevenueCat dashboard.
+    ///
     public void InvalidateCustomerInfoCache()
     {
         _wrapper.InvalidateCustomerInfoCache();
     }
 
+    /// <summary>
+    /// iOS only. Displays a sheet that enables users to redeem subscription offer codes
+    /// that you generated in App Store Connect.
+    /// </summary>
     public void PresentCodeRedemptionSheet()
     {
         _wrapper.PresentCodeRedemptionSheet();
     }
 
-    /**
-      * iOS only.
-      * Set this property to true *only* when testing the ask-to-buy / SCA purchases flow.
-      * More information: http://errors.rev.cat/ask-to-buy
-      */
-    public void SetSimulatesAskToBuyInSandbox(bool enabled)
+    ///
+    /// <summary>
+    /// iOS only.
+    /// Set this property to true *only* when testing the ask-to-buy / SCA purchases flow.
+    /// <seealso href="http://errors.rev.cat/ask-to-buy"/> 
+    /// </summary>
+    /// <param name="askToBuyEnabled"> Whether to start simulating ask-to-buy flow in sandbox. </param>
+    public void SetSimulatesAskToBuyInSandbox(bool askToBuyEnabled)
     {
-        _wrapper.SetSimulatesAskToBuyInSandbox(enabled);
+        _wrapper.SetSimulatesAskToBuyInSandbox(askToBuyEnabled);
     }
 
     public void SetAttributes(Dictionary<string, string> attributes)
