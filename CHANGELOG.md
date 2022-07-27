@@ -1,7 +1,9 @@
 ## 4.0.0-rc.3
 
 ### New changes since Release Candidate 2
-- Deprecated `Purchases.Setup` in favor of `Purchases.Configure`.
+- Deprecated `Purchases.Setup` in favor of `Purchases.Configure`. https://github.com/RevenueCat/purchases-unity/pull/125
+- Added docstrings for most public entities. https://github.com/RevenueCat/purchases-unity/pull/131, https://github.com/RevenueCat/purchases-unity/pull/130, https://github.com/RevenueCat/purchases-unity/pull/128
+- Fixed a crash when a purchase is cancelled by the user. https://github.com/RevenueCat/purchases-unity/pull/129
 
 ## 4.0.0-rc.2
 
