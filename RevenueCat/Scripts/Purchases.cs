@@ -164,6 +164,28 @@ public partial class Purchases : MonoBehaviour
     }
     
     // ReSharper disable once MemberCanBePrivate.Global
+    /// <summary>
+    /// Use this method to configure the SDK programmatically.
+    /// To use this, you *must* check <c>useRuntimeSetup</c> in the Unity IDE UI. 
+    /// The values used through this setup will override values set through the Unity IDE UI.
+    /// <see cref="useRuntimeSetup"/>
+    /// To configure the SDK programmatically:
+    /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
+    /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
+    /// </summary>
+    ///
+    /// <example>
+    /// For example:
+    /// <code>
+    /// Purchases.PurchasesConfiguration.Builder builder = Purchases.PurchasesConfiguration.Builder.Init("api_key");
+    /// Purchases.PurchasesConfiguration purchasesConfiguration =
+    ///     builder
+    ///         .SetAppUserId(appUserId)
+    ///         .Build();
+    /// purchases.Configure(purchasesConfiguration);
+    /// </code>
+    /// </example>
+    /// 
     public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
