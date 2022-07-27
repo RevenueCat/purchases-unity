@@ -8,25 +8,6 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    /// <summary>
-    /// Callback function containing the result of CanMakePayments
-    /// <param name="canMakePayments">A bool value indicating whether billing
-    /// is supported for the current user (meaning IN-APP purchases are supported),
-    /// and, if provided, whether a list of specified BillingFeatures are supported.
-    /// This will be false if there is an error</param>
-    /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
-    public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
-
-    /// <summary>
-    /// Callback function containing the result of GetPromotionalOffer
-    /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
-    /// the iOS version is not compatible with promotional offers</param>
-    /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
-    public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     [Tooltip("Activate if you plan to call Purchases.Configure or Purchases.Setup programmatically.")]
     public bool useRuntimeSetup;
@@ -221,8 +202,9 @@ public partial class Purchases : MonoBehaviour
     /// A <see cref="GetProductsFunc"/> callback that is called with the loaded products.\n
     /// If the fetch fails for any reason it will return an empty array and an error.
     /// </param>
+    /// <param name="type"> Android only. The type of product to purchase. </param>
     /// <remarks>
-    /// completion may be called without StoreProducts that you are expecting.\n
+    /// completion may be called without <see cref="StoreProduct"/>s that you are expecting.\n
     /// This is usually caused by iTunesConnect configuration errors.\n
     /// Ensure your IAPs have the “Ready to Submit” status in iTunesConnect.\n
     /// Also ensure that you have an active developer program subscription and you have signed the\n
@@ -621,10 +603,10 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Enable automatic collection of Apple Search Ads attribution. Defaults to `false`. 
     /// </summary>
-    /// <param name="enabled"> Whether to enable automatic collection of Apple Search Ads attribution.</param>
-    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
+    /// <param name="searchAdsAttributionEnabled"> Whether to enable automatic collection of Apple Search Ads attribution.</param>
+    public void SetAutomaticAppleSearchAdsAttributionCollection(bool searchAdsAttributionEnabled)
     {
-        _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
+        _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(searchAdsAttributionEnabled);
     }
 
     /// <summary>
@@ -706,6 +688,18 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetSimulatesAskToBuyInSandbox(askToBuyEnabled);
     }
 
+    ///
+    /// <summary>
+    /// Subscriber attributes are useful for storing additional, structured information on a user.
+    /// Since attributes are writable using a public key they should not be used for
+    /// managing secure or sensitive information such as subscription status, coins, etc.
+    /// </summary>
+    /// 
+    /// <remarks>Key names starting with "$" are reserved names used by RevenueCat. For a full list of key
+    /// restrictions refer [to our guide](https://docs.revenuecat.com/docs/subscriber-attributes)
+    /// </remarks>
+    /// 
+    /// <param name="attributes"> Map of attributes by key. Set the value as an empty string to delete an attribute. </param>
     public void SetAttributes(Dictionary<string, string> attributes)
     {
         var jsonObject = new JSONObject();
@@ -724,21 +718,58 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetAttributes(jsonObject.ToString());
     }
 
+    ///
+    /// <summary>
+    /// Subscriber attribute associated with the email address for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="email"> The email to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetEmail(string email)
     {
         _wrapper.SetEmail(email);
     }
 
+    /// <summary>
+    /// Subscriber attribute associated with the phone number for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="phoneNumber"> The phone number to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetPhoneNumber(string phoneNumber)
     {
         _wrapper.SetPhoneNumber(phoneNumber);
     }
 
+    /// <summary>
+    /// Subscriber attribute associated with the display name for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="displayName"> The display name to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetDisplayName(string displayName)
     {
         _wrapper.SetDisplayName(displayName);
     }
 
+    /// <summary>
+    /// Subscriber attribute associated with the push token for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="token"> The push token to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetPushToken(string token)
     {
         _wrapper.SetPushToken(token);
@@ -893,6 +924,17 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.CollectDeviceIdentifiers();
     }
+    
+    /// <summary>
+    /// Callback function containing the result of CanMakePayments
+    /// <param name="canMakePayments">A bool value indicating whether billing
+    /// is supported for the current user (meaning IN-APP purchases are supported),
+    /// and, if provided, whether a list of specified BillingFeatures are supported.
+    /// This will be false if there is an error</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
+    public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
 
@@ -920,6 +962,15 @@ public partial class Purchases : MonoBehaviour
     {
         CanMakePayments(new BillingFeature[] { }, callback);
     }
+    
+    /// <summary>
+    /// Callback function containing the result of GetPromotionalOffer
+    /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
+    /// the iOS version is not compatible with promotional offers</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
+    public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
 
