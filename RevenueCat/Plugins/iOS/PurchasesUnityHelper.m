@@ -69,7 +69,7 @@ char *makeStringCopy(NSString *nstring) {
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
                platformFlavorVersion:self.platformFlavorVersion
-            usesStoreKit2IfAvailable:true
+            usesStoreKit2IfAvailable:false
                    dangerousSettings:nil];
     
     self.gameObject = gameObject;
