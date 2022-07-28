@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEngine.Purchasing;
 using UnityEngine.UI;
 
-public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
+public class PurchasesListener : Purchases.UpdatedCustomerInfoListener, IStoreListener
 {
     public RectTransform parentPanel;
     public GameObject buttonPrefab;
@@ -24,9 +26,33 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private int maxButtonsPerRow = 2;
     private int currentButtons = 0;
 
+    [System.Serializable]
+    public class OnPurchaseCompletedEvent : UnityEvent<Product>
+    {
+    };
+
+    [System.Serializable]
+    public class OnPurchaseFailedEvent : UnityEvent<Product, PurchaseFailureReason>
+    {
+    };
+
+    [Tooltip("Event fired after a successful purchase of this product")]
+    public OnPurchaseCompletedEvent onPurchaseComplete;
+
+    [Tooltip("Event fired after a failed purchase of this product")]
+    public OnPurchaseFailedEvent onPurchaseFailed;
+
     // Use this for initialization
     private void Start()
     {
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        builder.AddProduct("premium.subscription.weekly", ProductType.Subscription, new IDs
+        {
+            {"premium.subscription.weekly", AmazonApps.Name},
+        });
+        
+        UnityPurchasing.Initialize (this, builder);
+        
         CreateButton("Get Customer Info", GetCustomerInfo);
         CreateButton("Get Offerings", GetOfferings);
         CreateButton("Sync Purchases", SyncPurchases);
@@ -46,6 +72,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Toggle simulatesAskToBuyInSandbox", ToggleSimulatesAskToBuyInSandbox);
         CreateButton("Is Anonymous", IsAnonymous);
         CreateButton("Get AppUserId", GetAppUserId);
+        CreateButton("Observer mode purchase", ObserverModePurchase);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
@@ -565,6 +592,81 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         Debug.Log(string.Format("customer info received {0}", customerInfo.ActiveSubscriptions));
 
         DisplayCustomerInfo(customerInfo);
+    }
+
+    public void ObserverModePurchase()
+    {
+        controller.InitiatePurchase("premium.subscription.weekly");
+    }
+
+    private IExtensionProvider _storeExtensionProvider;
+    
+    private IStoreController controller;
+
+    /// <summary>
+    /// Called when Unity IAP is ready to make purchases.
+    /// </summary>
+    public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
+    {
+        const string message = "initializing extension provider successful";
+        Debug.Log(message);
+        infoLabel.text = message;
+        _storeExtensionProvider = extensions;
+        // extensions.GetExtension<IAppleExtensions> ().RefreshAppReceipt (result => {
+        //     if (result) {
+        //         // Refresh finished successfully.
+        //     } else {
+        //         // Refresh failed.
+        //     }
+        // });
+        this.controller = controller;
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error)
+    {
+        String message = string.Format($"initializing extension provider failed! Details: {error.ToString()}");
+        Debug.Log(message);
+        infoLabel.text = message;
+    }
+
+    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
+    {
+        Product product = e.purchasedProduct;
+        OnPurchaseCompleted(product);
+        return PurchaseProcessingResult.Complete;
+    }
+
+    public void OnPurchaseCompleted(Product product)
+    {
+        String message = "observer mode purchase success!";
+        Debug.Log(message);
+
+        infoLabel.text = message;
+
+        var purchases = GetComponent<Purchases>();
+        
+        var amazonExtensions = _storeExtensionProvider.GetExtension<IAmazonExtensions>();
+        var userId = amazonExtensions.amazonUserId;
+        purchases.SyncObserverModeAmazonPurchase(
+            product.definition.id,
+            product.transactionID,
+            userId,
+            product.metadata.isoCurrencyCode,
+            Decimal.ToDouble(product.metadata.localizedPrice)
+        );
+        
+        message = "observer mode purchase synced to RevenueCat's backend!";
+        Debug.Log(message);
+
+        infoLabel.text += "\n" + message;
+    }
+
+    public void OnPurchaseFailed(Product product, PurchaseFailureReason reason)
+    {
+        String message = String.Format($"observer mode purchase failed! Details: {reason.ToString()}");
+        Debug.Log(message);
+
+        infoLabel.text = message;
     }
 
     private void LogError(Purchases.Error error)
