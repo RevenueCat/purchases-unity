@@ -136,12 +136,18 @@ public partial class Purchases : MonoBehaviour
     /// Use this method to configure the SDK programmatically.
     /// To use this, you *must* check <c>useRuntimeSetup</c> in the Unity IDE UI. 
     /// The values used through this setup will override values set through the Unity IDE UI.
+    /// You should call this method as soon as possible in your app's lifecycle, and before any other calls to the SDK.
     /// <see cref="useRuntimeSetup"/>
     /// To configure the SDK programmatically:
     /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
     /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
     /// </summary>
     ///
+    /// <remarks>
+    /// You should call this method as early in your app's lifecycle as possible, to make sure that the SDK doesn't
+    /// miss events that happen in the purchasing queue.
+    /// </remarks>
+    /// 
     /// <example>
     /// For example:
     /// <code>
