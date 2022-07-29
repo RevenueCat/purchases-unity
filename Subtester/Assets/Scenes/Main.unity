@@ -939,7 +939,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a5f511b0d8142cba0aeb92d0b264c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  productId: premium.subscription.weekly
+  productId: 'premium.subscription.accel.14daytrial '
   buttonType: 0
   consumePurchase: 1
   onPurchaseComplete:

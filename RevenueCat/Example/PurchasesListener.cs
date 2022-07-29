@@ -45,10 +45,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener, IStoreLi
     // Use this for initialization
     private void Start()
     {
-        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-        builder.AddProduct("premium.subscription.weekly", ProductType.Subscription, new IDs
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance(AppStore.AmazonAppStore));
+        builder.AddProduct("premium.subscription.accel.14daytrial", ProductType.Subscription, new IDs
         {
-            {"premium.subscription.weekly", AmazonApps.Name},
+            {"premium.subscription.accel.14daytrial", AmazonApps.Name},
         });
         
         UnityPurchasing.Initialize (this, builder);
@@ -596,7 +596,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener, IStoreLi
 
     public void ObserverModePurchase()
     {
-        controller.InitiatePurchase("premium.subscription.weekly");
+        controller.InitiatePurchase("premium.subscription.accel.14daytrial");
     }
 
     private IExtensionProvider _storeExtensionProvider;
