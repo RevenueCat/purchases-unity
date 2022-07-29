@@ -641,7 +641,7 @@ public partial class Purchases : MonoBehaviour
     /// </remarks>
     ///
     /// <param name="products"> The <see cref="StoreProduct"/>  for which you want to compute eligibility.</param>
-    /// <param name="callback"> The <see cref="CheckTrialOrIntroductoryPriceEligibilityCallback"/> callback. </param>
+    /// <param name="callback"> The <see cref="CheckTrialOrIntroductoryPriceEligibilityFunc"/> callback. </param>
     public void CheckTrialOrIntroductoryPriceEligibility(string[] products,
         CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
