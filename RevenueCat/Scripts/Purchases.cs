@@ -373,9 +373,11 @@ public partial class Purchases : MonoBehaviour
     /// You shouldn't use this method if you have your own account system. In that case "restoration" is provided
     /// by your app passing the same <c>appUserID</c> used to purchase originally.
     ///
-    /// - Note: This may force your users to enter their Store password so should only be performed on request of
+    /// <remarks>- Note: This may force your users to enter their Store password so should only be performed on request of
     /// the user. Typically with a button in settings or near your purchase UI. Use
     /// <see cref="SyncPurchases"/> if you need to restore transactions programmatically.
+    /// </remarks>
+    /// <seealso href="https://docs.revenuecat.com/docs/restoring-purchases"/>
     ///
     /// <param name="callback"> A <see cref="CustomerInfoFunc"/> which will contain a <see cref="CustomerInfo"/>
     /// if restoration was successful, or an error otherwise. </param>
@@ -575,6 +577,7 @@ public partial class Purchases : MonoBehaviour
     /// on the device does not contain subscriptions, but the user has made subscription purchases, this method
     /// won't be able to restore them. Use <see cref="RestorePurchases"/> to cover those cases.
     /// </remarks>
+    /// <seealso href="https://docs.revenuecat.com/docs/restoring-purchases"/>
     ///
     public void SyncPurchases()
     {
