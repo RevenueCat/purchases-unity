@@ -8,31 +8,6 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases : MonoBehaviour
 {
-    public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
-
-    public delegate void GetOfferingsFunc(Offerings offerings, Error error);
-
-    public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
-
-    /// <summary>
-    /// Callback function containing the result of CanMakePayments
-    /// <param name="canMakePayments">A bool value indicating whether billing
-    /// is supported for the current user (meaning IN-APP purchases are supported),
-    /// and, if provided, whether a list of specified BillingFeatures are supported.
-    /// This will be false if there is an error</param>
-    /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
-    public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
-
-    /// <summary>
-    /// Callback function containing the result of GetPromotionalOffer
-    /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
-    /// the iOS version is not compatible with promotional offers</param>
-    /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
-    public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     [Tooltip("Activate if you plan to call Purchases.Configure or Purchases.Setup programmatically.")]
     public bool useRuntimeSetup;
@@ -155,7 +130,7 @@ public partial class Purchases : MonoBehaviour
     {
         Configure(purchasesConfiguration);
     }
-    
+
     // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
     /// Use this method to configure the SDK programmatically.
@@ -202,7 +177,7 @@ public partial class Purchases : MonoBehaviour
             return false;
         }
     }
-    
+
     /// <summary>
     /// Callback type for <see cref="Purchases.GetProducts"/>.
     /// Includes a list of products or an error.
@@ -227,8 +202,9 @@ public partial class Purchases : MonoBehaviour
     /// A <see cref="GetProductsFunc"/> callback that is called with the loaded products.\n
     /// If the fetch fails for any reason it will return an empty array and an error.
     /// </param>
+    /// <param name="type"> Android only. The type of product to purchase. </param>
     /// <remarks>
-    /// completion may be called without StoreProducts that you are expecting.\n
+    /// completion may be called without <see cref="StoreProduct"/>s that you are expecting.\n
     /// This is usually caused by iTunesConnect configuration errors.\n
     /// Ensure your IAPs have the “Ready to Submit” status in iTunesConnect.\n
     /// Also ensure that you have an active developer program subscription and you have signed the\n
@@ -253,7 +229,7 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
         Error error);
-    
+
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
     ///
@@ -383,6 +359,7 @@ public partial class Purchases : MonoBehaviour
     /// <param name="customerInfo"> A <see cref="CustomerInfo"/> if the request was successful, null otherwise. </param>
     /// <param name="error"> An error if the request was not successful, null otherwise. </param>
     public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
+
     private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
     /// <summary>
@@ -411,8 +388,41 @@ public partial class Purchases : MonoBehaviour
     [Obsolete("Deprecated, use set<NetworkId> methods instead.", true)]
     public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null) { }
 
+    /// <summary>
+    /// Callback function for <see cref="Purchases.LogIn"/>. 
+    /// </summary>
+    /// <param name="customerInfo"> The <see cref="CustomerInfo"/> of the user if the request was successful.
+    /// Null otherwise.</param>
+    /// <param name="created"> True if the user was registered in RevenueCat's database for the first time upon
+    /// making this call. False if a user with this <c>appUserID</c> already existed in RevenueCat's database for
+    /// this app.</param>
+    /// <param name="error"> If the request was unsuccessful, contains an error. Null otherwise. </param>
+    public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
+
     private LogInFunc LogInCallback { get; set; }
 
+    /// <summary>
+    /// This function will log in the current user with an <c>appUserID</c>.
+    /// </summary>
+    /// <param name="appUserId"> The <c>appUserID</c> that should be linked to the current user. </param>
+    /// <param name="callback">
+    /// The callback block will be called with the latest <see cref="CustomerInfo"/> and a <c>bool</c> specifying
+    /// whether the user was created for the first time in the RevenueCat backend.
+    /// </param>
+    ///
+    /// RevenueCat provides a source of truth for a subscriber's status across different platforms.
+    /// To do this, each subscriber has an App User ID that uniquely identifies them within your application.
+    /// User identity is one of the most important components of many mobile applications,
+    /// and it's extra important to make sure the subscription status RevenueCat is
+    /// tracking gets associated with the correct user.
+    /// The Purchases SDK allows you to specify your own user identifiers or use anonymous identifiers
+    /// generated by RevenueCat. Some apps will use a combination
+    /// of their own identifiers and RevenueCat anonymous Ids - that's okay!
+    /// 
+    /// <seealso href="https://docs.revenuecat.com/docs/user-ids"/>
+    /// <seealso cref="LogOut"/>
+    /// <seealso cref="IsAnonymous"/>
+    /// <seealso cref="appUserID"/>
     public void LogIn(string appUserId, LogInFunc callback)
     {
         LogInCallback = callback;
@@ -421,6 +431,23 @@ public partial class Purchases : MonoBehaviour
 
     private CustomerInfoFunc LogOutCallback { get; set; }
 
+
+    ///
+    /// <summary>
+    /// Logs out the <c>Purchases</c> client, clearing the saved <c>appUserID</c>.
+    /// </summary>
+    /// 
+    /// This will generate a random user id and save it in the cache.
+    /// If this method is called and the current user is anonymous, it will return an error.
+    ///
+    /// <param name="callback"> The <see cref="CustomerInfoFunc"/> callback will contain a CustomerInfo if the logOut
+    /// operation was successful, or an error otherwise.</param>
+    ///
+    /// <seealso href="https://docs.revenuecat.com/docs/user-ids"/>
+    /// <seealso cref="LogIn"/>
+    /// <seealso cref="IsAnonymous"/>
+    /// <seealso cref="appUserID"/>
+    ///
     public void LogOut(CustomerInfoFunc callback)
     {
         LogOutCallback = callback;
@@ -428,6 +455,16 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Whether transactions should be finished automatically. `true` by default.
+    /// </summary>
+    /// <remarks>
+    /// Warning: Setting this value to `false` will prevent the SDK from finishing transactions.
+    /// In this case, you *must* finish transactions in your app, otherwise they will remain in the queue and
+    /// will turn up every time the app is opened.
+    /// More information on finishing transactions manually [is available here](https://rev.cat/finish-transactions).
+    /// </remarks>
+    /// <param name="finishTransactions"> Whether transactions should be finished automatically. </param>
     public void SetFinishTransactions(bool finishTransactions)
     {
         _wrapper.SetFinishTransactions(finishTransactions);
@@ -441,18 +478,31 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// The <c>appUserID</c> used by <c>Purchases</c>.
+    /// If not passed on initialization this will be generated and cached by <c>Purchases</c>.
+    /// </summary>
+    /// <returns> The app user ID currently used by <c>Purchases</c>.</returns>
     public string GetAppUserId()
     {
         return _wrapper.GetAppUserId();
     }
 
     // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Returns <c>true</c> if the <c>appUserID</c> has been generated by RevenueCat, <c>false</c> otherwise.
+    /// </summary>
     public bool IsAnonymous()
     {
         return _wrapper.IsAnonymous();
     }
 
     // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Enable debug logging. Useful for debugging issues with the lovely team @RevenueCat.
+    /// </summary>
+    /// 
+    /// <param name="logsEnabled"> Whether debug logs should be enabled.</param>
     public void SetDebugLogsEnabled(bool logsEnabled)
     {
         _wrapper.SetDebugLogsEnabled(logsEnabled);
@@ -461,20 +511,71 @@ public partial class Purchases : MonoBehaviour
     private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Get latest available <see cref="CustomerInfo"/>.
+    /// </summary>
+    ///
+    /// <param name="callback"> A completion block called when customer info is available and not stale. 
+    /// Called immediately if <see cref="CustomerInfo"/> is cached. Customer info can be nil if an error occurred.
+    /// </param>
+    /// 
     public void GetCustomerInfo(CustomerInfoFunc callback)
     {
         GetCustomerInfoCallback = callback;
         _wrapper.GetCustomerInfo();
     }
 
+    /// <summary>
+    /// Callback for <see cref="Purchases.GetOfferings"/>.
+    /// </summary>
+    /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void GetOfferingsFunc(Offerings offerings, Error error);
+
     private GetOfferingsFunc GetOfferingsCallback { get; set; }
 
+    ///
+    /// <summary>
+    /// Fetch the configured <see cref="Offerings"/> for this user.
+    /// </summary>
+    /// 
+    /// <see cref="Offerings"/> allows you to configure your in-app products
+    /// via RevenueCat and greatly simplifies management.
+    ///
+    /// <see cref="Offerings"/> will be fetched and cached on instantiation so that, by the time they are needed,
+    /// your prices are loaded for your purchase flow. Time is money.
+    ///
+    /// <param name="callback"> A completion block called when offerings are available.
+    /// Called immediately if offerings are cached. <see cref="Offerings"/> will be null if an error occurred.
+    /// </param>
+    ///
+    /// <seealso href="https://docs.revenuecat.com/docs/displaying-products"/>
+    ///
     public void GetOfferings(GetOfferingsFunc callback)
     {
         GetOfferingsCallback = callback;
         _wrapper.GetOfferings();
     }
 
+    /// <summary>
+    /// This method will post all purchases associated with the current App Store account to RevenueCat and
+    /// become associated with the current <c>appUserID</c>.
+    /// </summary>
+    ///
+    /// If the receipt is being used by an existing user, the current <c>appUserID</c> will be aliased together with
+    /// the <c>appUserID</c> of the existing user.
+    /// Going forward, either <c>appUserID</c> will be able to reference the same user.
+    ///
+    /// <remarks>
+    /// Warning: This function should only be called if you're not calling any purchase method.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Note: This method will not trigger a login prompt from App Store. However, if the receipt currently
+    /// on the device does not contain subscriptions, but the user has made subscription purchases, this method
+    /// won't be able to restore them. Use <see cref="RestorePurchases"/> to cover those cases.
+    /// </remarks>
+    ///
     public void SyncPurchases()
     {
         _wrapper.SyncPurchases();
@@ -499,13 +600,48 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
-    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
+    /// <summary>
+    /// Enable automatic collection of Apple Search Ads attribution. Defaults to `false`. 
+    /// </summary>
+    /// <param name="searchAdsAttributionEnabled"> Whether to enable automatic collection of Apple Search Ads attribution.</param>
+    public void SetAutomaticAppleSearchAdsAttributionCollection(bool searchAdsAttributionEnabled)
     {
-        _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(enabled);
+        _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(searchAdsAttributionEnabled);
     }
+
+    /// <summary>
+    /// iOS only. Callback for the <see cref="Purchases.CheckTrialOrIntroductoryPriceEligibility"/> method.  
+    /// </summary>
+    /// <param name="products"> A Dictionary mapping product identifiers to their eligibility status,
+    /// as <see cref="IntroEligibility"/> objects.</param>
+    public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
     private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
 
+    /// 
+    /// <summary>
+    /// iOS only. Computes whether or not a user is eligible for the introductory pricing period of a given product.
+    /// You should use this method to determine whether or not you show the user the normal product price or
+    /// the introductory price. This also applies to trials (trials are considered a type of introductory pricing).
+    /// <seealso href="https://docs.revenuecat.com/docs/ios-subscription-offers"/>.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Note: If you're looking to use Promotional Offers instead,
+    /// use <see cref="GetPromotionalOffer"/>.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Note: Subscription groups are automatically collected for determining eligibility. If RevenueCat can't
+    /// definitively compute the eligibility, most likely because of missing group information, it will return
+    /// <see cref="IntroEligibilityStatus.IntroEligibilityStatusUnknown"/>.
+    /// The best course of action on unknown status is to display the non-intro
+    /// pricing, to not create a misleading situation. To avoid this, make sure you are testing with the latest
+    /// version of iOS so that the subscription group can be collected by the SDK.
+    /// </remarks>
+    ///
+    /// <param name="products"> The <see cref="StoreProduct"/>  for which you want to compute eligibility.</param>
+    /// <param name="callback"> The <see cref="CheckTrialOrIntroductoryPriceEligibilityFunc"/> callback. </param>
     public void CheckTrialOrIntroductoryPriceEligibility(string[] products,
         CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
@@ -513,26 +649,57 @@ public partial class Purchases : MonoBehaviour
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
     }
 
+    ///
+    /// <summary>
+    /// Invalidates the cache for customer information.
+    /// </summary>
+    /// 
+    /// <remarks>Most apps will not need to use this method; invalidating the cache can leave your app in an invalid state.
+    /// Refer to https://docs.revenuecat.com/docs/purchaserinfo#section-get-user-information
+    /// for more information on using the cache properly.
+    /// </remarks>
+    ///
+    /// This is useful for cases where customer information might have been updated outside of the app, like if a
+    /// promotional subscription is granted through the RevenueCat dashboard.
+    ///
     public void InvalidateCustomerInfoCache()
     {
         _wrapper.InvalidateCustomerInfoCache();
     }
 
+    /// <summary>
+    /// iOS only. Displays a sheet that enables users to redeem subscription offer codes
+    /// that you generated in App Store Connect.
+    /// </summary>
     public void PresentCodeRedemptionSheet()
     {
         _wrapper.PresentCodeRedemptionSheet();
     }
 
-    /**
-      * iOS only.
-      * Set this property to true *only* when testing the ask-to-buy / SCA purchases flow.
-      * More information: http://errors.rev.cat/ask-to-buy
-      */
-    public void SetSimulatesAskToBuyInSandbox(bool enabled)
+    ///
+    /// <summary>
+    /// iOS only.
+    /// Set this property to true *only* when testing the ask-to-buy / SCA purchases flow.
+    /// <seealso href="http://errors.rev.cat/ask-to-buy"/> 
+    /// </summary>
+    /// <param name="askToBuyEnabled"> Whether to start simulating ask-to-buy flow in sandbox. </param>
+    public void SetSimulatesAskToBuyInSandbox(bool askToBuyEnabled)
     {
-        _wrapper.SetSimulatesAskToBuyInSandbox(enabled);
+        _wrapper.SetSimulatesAskToBuyInSandbox(askToBuyEnabled);
     }
 
+    ///
+    /// <summary>
+    /// Subscriber attributes are useful for storing additional, structured information on a user.
+    /// Since attributes are writable using a public key they should not be used for
+    /// managing secure or sensitive information such as subscription status, coins, etc.
+    /// </summary>
+    /// 
+    /// <remarks>Key names starting with "$" are reserved names used by RevenueCat. For a full list of key
+    /// restrictions refer [to our guide](https://docs.revenuecat.com/docs/subscriber-attributes)
+    /// </remarks>
+    /// 
+    /// <param name="attributes"> Map of attributes by key. Set the value as an empty string to delete an attribute. </param>
     public void SetAttributes(Dictionary<string, string> attributes)
     {
         var jsonObject = new JSONObject();
@@ -551,21 +718,58 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetAttributes(jsonObject.ToString());
     }
 
+    ///
+    /// <summary>
+    /// Subscriber attribute associated with the email address for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="email"> The email to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetEmail(string email)
     {
         _wrapper.SetEmail(email);
     }
 
+    /// <summary>
+    /// Subscriber attribute associated with the phone number for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="phoneNumber"> The phone number to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetPhoneNumber(string phoneNumber)
     {
         _wrapper.SetPhoneNumber(phoneNumber);
     }
 
+    /// <summary>
+    /// Subscriber attribute associated with the display name for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="displayName"> The display name to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetDisplayName(string displayName)
     {
         _wrapper.SetDisplayName(displayName);
     }
 
+    /// <summary>
+    /// Subscriber attribute associated with the push token for the user.
+    /// </summary>
+    /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
+    ///
+    /// <param name="token"> The push token to set.
+    /// Passing empty String or null will delete the subscriber attribute.
+    /// </param>
+    ///
     public void SetPushToken(string token)
     {
         _wrapper.SetPushToken(token);
@@ -720,6 +924,17 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.CollectDeviceIdentifiers();
     }
+    
+    /// <summary>
+    /// Callback function containing the result of CanMakePayments
+    /// <param name="canMakePayments">A bool value indicating whether billing
+    /// is supported for the current user (meaning IN-APP purchases are supported),
+    /// and, if provided, whether a list of specified BillingFeatures are supported.
+    /// This will be false if there is an error</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
+    public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
 
@@ -747,6 +962,15 @@ public partial class Purchases : MonoBehaviour
     {
         CanMakePayments(new BillingFeature[] { }, callback);
     }
+    
+    /// <summary>
+    /// Callback function containing the result of GetPromotionalOffer
+    /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
+    /// the iOS version is not compatible with promotional offers</param>
+    /// <param name="error">An Error object or null if successful.</param>
+    /// 
+    /// </summary>
+    public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
 
