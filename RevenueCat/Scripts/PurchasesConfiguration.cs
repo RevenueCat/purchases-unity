@@ -5,6 +5,19 @@ public partial class Purchases
     /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
     /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
     /// </summary>
+    ///
+    /// <example>
+    /// For example:
+    /// <code>
+    /// Purchases.PurchasesConfiguration.Builder builder = Purchases.PurchasesConfiguration.Builder.Init("api_key");
+    /// Purchases.PurchasesConfiguration purchasesConfiguration =
+    ///     builder
+    ///         .SetAppUserId(appUserId)
+    ///         .Build();
+    /// purchases.Configure(purchasesConfiguration);
+    /// </code>
+    /// </example>
+    /// 
     public class PurchasesConfiguration
     {
         public readonly string ApiKey;
@@ -31,6 +44,19 @@ public partial class Purchases
         /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
         /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
         /// </summary>
+        /// 
+        /// <example>
+        /// For example:
+        /// <code>
+        /// Purchases.PurchasesConfiguration.Builder builder = Purchases.PurchasesConfiguration.Builder.Init("api_key");
+        /// Purchases.PurchasesConfiguration purchasesConfiguration =
+        ///     builder
+        ///         .SetAppUserId(appUserId)
+        ///         .Build();
+        /// purchases.Configure(purchasesConfiguration);
+        /// </code>
+        /// </example>
+        /// 
         public class Builder
         {
             private readonly string _apiKey;
