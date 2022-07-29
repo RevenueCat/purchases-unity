@@ -3,6 +3,9 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// Advanced settings. Use only after contacting RevenueCat support and making sure you understand them.
+    /// </summary>
     [Serializable]
     public class DangerousSettings
     {

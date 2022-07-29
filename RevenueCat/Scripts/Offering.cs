@@ -4,6 +4,10 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// An offering is a collection of <see cref="Package"/>, and they let you control which products
+    /// are shown to users without requiring an app update.
+    /// </summary>
     public class Offering
     {
         public readonly string Identifier;

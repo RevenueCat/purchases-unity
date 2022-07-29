@@ -2,6 +2,9 @@ using RevenueCat.SimpleJSON;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// Represents a <see cref="Discount"/> that has been validated and is ready to be used for a purchase.
+    /// </summary>
     public class PromotionalOffer
     {
         /// <summary>

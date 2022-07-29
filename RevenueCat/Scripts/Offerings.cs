@@ -5,6 +5,11 @@ using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
+    /// <summary>
+    /// This class contains all the offerings configured in RevenueCat dashboard.
+    /// Offerings let you control which products are shown to users without requiring an app update.
+    /// </summary>
+    ///  
     public class Offerings
     {
         public readonly Dictionary<string, Offering> All;
