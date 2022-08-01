@@ -136,12 +136,18 @@ public partial class Purchases : MonoBehaviour
     /// Use this method to configure the SDK programmatically.
     /// To use this, you *must* check <c>useRuntimeSetup</c> in the Unity IDE UI. 
     /// The values used through this setup will override values set through the Unity IDE UI.
+    /// You should call this method as soon as possible in your app's lifecycle, and before any other calls to the SDK.
     /// <see cref="useRuntimeSetup"/>
     /// To configure the SDK programmatically:
     /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
     /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
     /// </summary>
     ///
+    /// <remarks>
+    /// You should call this method as early in your app's lifecycle as possible, to make sure that the SDK doesn't
+    /// miss events that happen in the purchasing queue.
+    /// </remarks>
+    /// 
     /// <example>
     /// For example:
     /// <code>
@@ -221,12 +227,12 @@ public partial class Purchases : MonoBehaviour
     /// Callback type for methods that make purchases, like <see cref="Purchases.PurchaseProduct"/>,\n
     /// <see cref="Purchases.PurchaseDiscountedProduct"/>, <see cref="Purchases.PurchasePackage"/> and \n
     /// <see cref="Purchases.PurchaseDiscountedPackage"/>.
+    /// </summary>
+    /// 
     /// <param name="productIdentifier"> The product identifier for which the purchase was attempted.</param>
     /// <param name="customerInfo"> The updated <see cref="CustomerInfo"/> object after the successful purchase.</param>
     /// <param name="userCancelled"> A boolean that indicates whether the purchase was cancelled by the user.</param>
     /// <param name="error"> An error, if one occurred. Null if the purchase was successful. </param>
-    /// 
-    /// </summary>
     public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
         Error error);
 
@@ -373,9 +379,11 @@ public partial class Purchases : MonoBehaviour
     /// You shouldn't use this method if you have your own account system. In that case "restoration" is provided
     /// by your app passing the same <c>appUserID</c> used to purchase originally.
     ///
-    /// - Note: This may force your users to enter their Store password so should only be performed on request of
+    /// <remarks>- Note: This may force your users to enter their Store password so should only be performed on request of
     /// the user. Typically with a button in settings or near your purchase UI. Use
     /// <see cref="SyncPurchases"/> if you need to restore transactions programmatically.
+    /// </remarks>
+    /// <seealso href="https://docs.revenuecat.com/docs/restoring-purchases"/>
     ///
     /// <param name="callback"> A <see cref="CustomerInfoFunc"/> which will contain a <see cref="CustomerInfo"/>
     /// if restoration was successful, or an error otherwise. </param>
@@ -575,6 +583,7 @@ public partial class Purchases : MonoBehaviour
     /// on the device does not contain subscriptions, but the user has made subscription purchases, this method
     /// won't be able to restore them. Use <see cref="RestorePurchases"/> to cover those cases.
     /// </remarks>
+    /// <seealso href="https://docs.revenuecat.com/docs/restoring-purchases"/>
     ///
     public void SyncPurchases()
     {
@@ -927,13 +936,13 @@ public partial class Purchases : MonoBehaviour
     
     /// <summary>
     /// Callback function containing the result of CanMakePayments
+    /// </summary>
+    ///
     /// <param name="canMakePayments">A bool value indicating whether billing
     /// is supported for the current user (meaning IN-APP purchases are supported),
     /// and, if provided, whether a list of specified BillingFeatures are supported.
     /// This will be false if there is an error</param>
     /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
@@ -965,11 +974,11 @@ public partial class Purchases : MonoBehaviour
     
     /// <summary>
     /// Callback function containing the result of GetPromotionalOffer
+    /// </summary>
+    /// 
     /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
     /// the iOS version is not compatible with promotional offers</param>
     /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
