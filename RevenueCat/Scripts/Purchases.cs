@@ -227,12 +227,12 @@ public partial class Purchases : MonoBehaviour
     /// Callback type for methods that make purchases, like <see cref="Purchases.PurchaseProduct"/>,\n
     /// <see cref="Purchases.PurchaseDiscountedProduct"/>, <see cref="Purchases.PurchasePackage"/> and \n
     /// <see cref="Purchases.PurchaseDiscountedPackage"/>.
+    /// </summary>
+    /// 
     /// <param name="productIdentifier"> The product identifier for which the purchase was attempted.</param>
     /// <param name="customerInfo"> The updated <see cref="CustomerInfo"/> object after the successful purchase.</param>
     /// <param name="userCancelled"> A boolean that indicates whether the purchase was cancelled by the user.</param>
     /// <param name="error"> An error, if one occurred. Null if the purchase was successful. </param>
-    /// 
-    /// </summary>
     public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
         Error error);
 
@@ -936,13 +936,13 @@ public partial class Purchases : MonoBehaviour
     
     /// <summary>
     /// Callback function containing the result of CanMakePayments
+    /// </summary>
+    ///
     /// <param name="canMakePayments">A bool value indicating whether billing
     /// is supported for the current user (meaning IN-APP purchases are supported),
     /// and, if provided, whether a list of specified BillingFeatures are supported.
     /// This will be false if there is an error</param>
     /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
     private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
@@ -974,11 +974,11 @@ public partial class Purchases : MonoBehaviour
     
     /// <summary>
     /// Callback function containing the result of GetPromotionalOffer
+    /// </summary>
+    /// 
     /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
     /// the iOS version is not compatible with promotional offers</param>
     /// <param name="error">An Error object or null if successful.</param>
-    /// 
-    /// </summary>
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
     private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
