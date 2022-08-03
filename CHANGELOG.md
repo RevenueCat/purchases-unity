@@ -21,7 +21,7 @@ For more information around configuration please take a look at the [Amazon Apps
 ⚠️ ⚠️ Important ⚠️ ⚠️ In order to use Unity IAP in order with RevenueCat in Observer mode,
 you need to use the `Purchases-UnityIAP.unityPackage`.
 
-For Amazon installation instructions please follow take a look at the [Amazon instructions document](https://github.com/RevenueCat/purchases-unity/blob/4.0.0-rc.1/AMAZON-INSTRUCTIONS.md)
+For Amazon installation instructions please follow take a look at the [Amazon instructions document](https://github.com/RevenueCat/purchases-unity/blob/4.0.0/AMAZON-INSTRUCTIONS.md)
 
 #### StoreKit 2 support
 This version of the SDK automatically uses StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1. 
