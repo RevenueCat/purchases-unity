@@ -18,8 +18,8 @@ You can enable Amazon Appstore support by configuring the SDK using the new `Rev
 
 For more information around configuration please take a look at the [Amazon Appstore section in our docs](https://docs.revenuecat.com/docs/amazon-platform-resources). The official [Amazon In-App Purchasing docs](https://developer.amazon.com/docs/in-app-purchasing/iap-overview.html) also contain very valuable information, especially around testing and best practices.
 
-⚠️ ⚠️ Important ⚠️ ⚠️ In order to use Unity IAP in order with RevenueCat in Observer mode,
-you need to use the `Purchases-UnityIAP.unityPackage`.
+⚠️ ⚠️ Important ⚠️ ⚠️ In order to use Unity IAP < 4.4.0 with RevenueCat in Observer mode,
+you need to use the `Purchases-UnityIAP.unityPackage`. For Unity IAP >= 4.4.0, you can use the `Purchases.unitypackage` package.
 
 For Amazon installation instructions please follow take a look at the [Amazon instructions document](https://github.com/RevenueCat/purchases-unity/blob/4.0.0/AMAZON-INSTRUCTIONS.md)
 
