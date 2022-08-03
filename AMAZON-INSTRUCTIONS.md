@@ -18,12 +18,52 @@ This release adds pre-release support for Amazon store.
 
 If calling setup on runtime, you can select “Use Runtime Setup” and call setup this way.
 
-```
-       var builder = PurchasesConfiguration.Builder.Init("amazon_specific_api_key")
-            .SetUseAmazon(true);
-        purchases.Setup(builder.Build());
+```c#
+var builder = PurchasesConfiguration.Builder.Init("amazon_specific_api_key")
+    .SetUseAmazon(true);
+purchases.Setup(builder.Build());
 ```
 
-Due to some limitations, RevenueCat will only validate purchases made in production or in Live App Testing and won't validate purchases made with the Amazon App Tester. You can read more about the different testing environments in [our Amazon (Beta) docs](https://docs.revenuecat.com/docs/amazon-store-beta#sandbox-testing).
+- Due to technical limitations, RevenueCat will only validate purchases made in production or in Live App Testing and won't validate purchases made with the Amazon App Tester. You can read more about the different testing environments in [our Amazon (Beta) docs](https://docs.revenuecat.com/docs/amazon-store-beta#sandbox-testing).
 
-RevenueCat doesn't support Amazon in observer mode yet
+- Due to technical limitations with the Amazon SDK, `SyncPurchases` doesn't work when on Amazon observer mode. In order to sync purchases with RevenueCat you have to send the current active subscriptions when Unity IAP initializes and after every successful purchase. For example:
+
+ ```c#
+public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
+{
+    m_StoreController = controller;
+    storeExtensionProvider = extensions;
+    var purchases = GetComponent<Purchases>();
+    purchases.SetDebugLogsEnabled(true);
+    foreach (Product product in controller.products.all)
+    {
+        if (product.hasReceipt) {
+            var amazonExtensions = storeExtensionProvider.GetExtension<IAmazonExtensions>();
+            var userId = amazonExtensions.amazonUserId;
+            purchases.SyncObserverModeAmazonPurchase( 
+                product.definition.id,
+                product.transactionID,
+                userId,
+                product.metadata.isoCurrencyCode,
+                Decimal.ToDouble(product.metadata.localizedPrice)
+            );
+        }
+    }
+}
+
+public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
+{
+    var purchases = GetComponent<Purchases>();
+    
+    var amazonExtensions = storeExtensionProvider.GetExtension<IAmazonExtensions>();
+    var userId = amazonExtensions.amazonUserId;
+    purchases.SyncObserverModeAmazonPurchase(
+        e.purchasedProduct.definition.id,
+        e.purchasedProduct.transactionID,
+        userId,
+        e.purchasedProduct.metadata.isoCurrencyCode,
+        Decimal.ToDouble(e.purchasedProduct.metadata.localizedPrice)
+    );
+    return PurchaseProcessingResult.Complete;
+}
+ ```
