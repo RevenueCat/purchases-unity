@@ -67,7 +67,3 @@ public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     return PurchaseProcessingResult.Complete;
 }
  ```
-
- - Perform a Resolve using the editor option `Assets/External Dependency Manager/Android Resolver/Resolve` menu. This will add the right dependencies to the `mainTemplate.gradle`.
-
- - In observer mode, adding the Amazon in-app-purchasing library jar is not necessary since it will be added by Unity IAP when targeting the Amazon Store
