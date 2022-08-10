@@ -151,6 +151,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCEnableAdServicesAttributionTokenCollection();
+    public void EnableAdServicesAttributionTokenCollection()
+    {
+        _RCEnableAdServicesAttributionTokenCollection();
+    }
+
+    [DllImport("__Internal")]
     private static extern bool _RCIsAnonymous();
     public bool IsAnonymous()
     {

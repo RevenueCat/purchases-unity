@@ -83,6 +83,10 @@ public partial class Purchases
         {
         }
 
+        public void EnableAdServicesAttributionTokenCollection()
+        {
+        }
+
         public bool IsAnonymous()
         {
             return false;

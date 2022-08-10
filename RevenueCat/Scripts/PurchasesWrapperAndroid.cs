@@ -121,6 +121,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         // NOOP
     }
 
+    public void EnableAdServicesAttributionTokenCollection()
+    {
+        // NOOP
+    }
+
     public bool IsAnonymous()
     {
         return CallPurchases<bool>("isAnonymous");

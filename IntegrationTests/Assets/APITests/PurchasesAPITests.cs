@@ -149,6 +149,7 @@ public class PurchasesAPITests : MonoBehaviour
 
         purchases.SyncPurchases();
         purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
+        purchases.EnableAdServicesAttributionTokenCollection();
         Dictionary<string, Purchases.IntroEligibility> receivedEligibilities;
         purchases.CheckTrialOrIntroductoryPriceEligibility(new string[] { "a", "b" },
             eligibilities => { receivedEligibilities = eligibilities; });

@@ -152,7 +152,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
+    // TODO: Need to fix (this is no longer available in RCCommonFunctionality)
+    // [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
 #pragma clang diagnostic pop
 }
 
@@ -199,6 +200,14 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled {
     [RCCommonFunctionality setAutomaticAppleSearchAdsAttributionCollection:enabled];
+}
+
+- (void)enableAdServicesAttributionTokenCollection {
+    if (@available(iOS 14.3, macOS 11.1, macCatalyst 14.3, *)) {
+        [RCCommonFunctionality enableAdServicesAttributionTokenCollection];
+    } else {
+        NSLog(@"[Purchases] Warning: tried to enable AdServices attribution token collection, but it's only available on iOS 14.3 or greater or macOS 11.1 or greater.");
+    }
 }
 
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedCustomerInfo:(RCCustomerInfo *)customerInfo {
@@ -491,6 +500,10 @@ char * _RCGetAppUserID() {
 
 void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
     [_RCUnityHelperShared() setAutomaticAppleSearchAdsAttributionCollection:enabled];
+}
+
+void _RCEnableAdServicesAttributionTokenCollection() {
+    [_RCUnityHelperShared() enableAdServicesAttributionTokenCollection];
 }
 
 void _RCIsAnonymous() {
