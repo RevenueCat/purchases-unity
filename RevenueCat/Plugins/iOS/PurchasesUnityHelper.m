@@ -139,24 +139,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId {
-    NSError *error = nil;
-    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding]
-                                                         options:0
-                                                           error:&error];
-
-    if (error) {
-        NSLog(@"Error reading attribution data: %@", error.localizedDescription);
-        return;
-    }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // TODO: Need to fix (this is no longer available in RCCommonFunctionality)
-    // [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
-#pragma clang diagnostic pop
-}
-
 - (void)logInWithAppUserID:(NSString *)appUserID {
     [RCCommonFunctionality logInWithAppUserID:appUserID completionBlock:[self getLogInCompletionBlockForMethod:LOG_IN]];
 }
@@ -452,11 +434,6 @@ void _RCRestorePurchases() {
 
 void _RCSyncPurchases() {
     [_RCUnityHelperShared() syncPurchases];
-}
-
-void _RCAddAttributionData(const int network, const char *data, const char *networkUserId)
-{
-    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network networkUserId:convertCString(networkUserId)];
 }
 
 void _RCLogIn(const char *appUserID) {
