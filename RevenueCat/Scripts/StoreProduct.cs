@@ -29,9 +29,9 @@ public partial class Purchases
             Identifier = response["identifier"];
             Description = response["description"];
             Price = response["price"];
-            PriceString = response["price_string"];
-            CurrencyCode = response["currency_code"];
-            var introPriceJsonNode = response["intro_price"];
+            PriceString = response["priceString"];
+            CurrencyCode = response["currencyCode"];
+            var introPriceJsonNode = response["introPrice"];
             if (introPriceJsonNode != null && !introPriceJsonNode.IsNull)
             {
                 IntroductoryPrice = new IntroductoryPrice(introPriceJsonNode);
