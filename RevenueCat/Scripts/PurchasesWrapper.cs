@@ -32,6 +32,7 @@ public interface IPurchasesWrapper
         double price);
 
     void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
+    void EnableAdServicesAttributionTokenCollection();
     bool IsAnonymous();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidateCustomerInfoCache();

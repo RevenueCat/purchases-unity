@@ -49,6 +49,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
+        purchases.EnableAdServicesAttributionTokenCollection();
         purchases.GetOfferings((offerings, error) =>
         {
             if (error != null)

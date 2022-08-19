@@ -618,6 +618,15 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetAutomaticAppleSearchAdsAttributionCollection(searchAdsAttributionEnabled);
     }
 
+    // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Enable automatic collection of Apple Search Ads attribution using AdServices. Defaults to `false`. 
+    /// </summary>
+    public void EnableAdServicesAttributionTokenCollection()
+    {
+        _wrapper.EnableAdServicesAttributionTokenCollection();
+    }
+
     /// <summary>
     /// iOS only. Callback for the <see cref="Purchases.CheckTrialOrIntroductoryPriceEligibility"/> method.  
     /// </summary>

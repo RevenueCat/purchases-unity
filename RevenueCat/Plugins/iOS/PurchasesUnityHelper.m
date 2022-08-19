@@ -139,23 +139,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)addAttributionData:(NSString *)dataJSON network:(int)network networkUserId:(NSString * _Nullable)networkUserId {
-    NSError *error = nil;
-    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJSON dataUsingEncoding:NSUTF8StringEncoding]
-                                                         options:0
-                                                           error:&error];
-
-    if (error) {
-        NSLog(@"Error reading attribution data: %@", error.localizedDescription);
-        return;
-    }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [RCCommonFunctionality addAttributionData:data network:network networkUserId:networkUserId];
-#pragma clang diagnostic pop
-}
-
 - (void)logInWithAppUserID:(NSString *)appUserID {
     [RCCommonFunctionality logInWithAppUserID:appUserID completionBlock:[self getLogInCompletionBlockForMethod:LOG_IN]];
 }
@@ -199,6 +182,14 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled {
     [RCCommonFunctionality setAutomaticAppleSearchAdsAttributionCollection:enabled];
+}
+
+- (void)enableAdServicesAttributionTokenCollection {
+    if (@available(iOS 14.3, macOS 11.1, macCatalyst 14.3, *)) {
+        [RCCommonFunctionality enableAdServicesAttributionTokenCollection];
+    } else {
+        NSLog(@"[Purchases] Warning: tried to enable AdServices attribution token collection, but it's only available on iOS 14.3 or greater or macOS 11.1 or greater.");
+    }
 }
 
 - (void)purchases:(RCPurchases *)purchases didReceiveUpdatedCustomerInfo:(RCCustomerInfo *)customerInfo {
@@ -445,11 +436,6 @@ void _RCSyncPurchases() {
     [_RCUnityHelperShared() syncPurchases];
 }
 
-void _RCAddAttributionData(const int network, const char *data, const char *networkUserId)
-{
-    [_RCUnityHelperShared() addAttributionData:convertCString(data) network:network networkUserId:convertCString(networkUserId)];
-}
-
 void _RCLogIn(const char *appUserID) {
     [_RCUnityHelperShared() logInWithAppUserID:convertCString(appUserID)];
 }
@@ -491,6 +477,10 @@ char * _RCGetAppUserID() {
 
 void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
     [_RCUnityHelperShared() setAutomaticAppleSearchAdsAttributionCollection:enabled];
+}
+
+void _RCEnableAdServicesAttributionTokenCollection() {
+    [_RCUnityHelperShared() enableAdServicesAttributionTokenCollection];
 }
 
 void _RCIsAnonymous() {
