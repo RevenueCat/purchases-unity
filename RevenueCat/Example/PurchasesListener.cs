@@ -338,7 +338,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             {
                 var products = GetPackages(offerings)
                     .Select(package => package.StoreProduct) // map to product ids
-                    .Where(storeProduct => storeProduct.Discounts is { Length: > 1 }) // map to product ids
+                    .Where(storeProduct => storeProduct.Discounts != null && storeProduct.Discounts.Any()) // map to product ids
                     .ToArray();
 
                 if (products.Length == 0)
