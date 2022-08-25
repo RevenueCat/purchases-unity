@@ -14,3 +14,5 @@ IntegrationTests/ProjectSettings/AndroidResolverDependencies.xml
 Purchases.unitypackage
 IntegrationTests/buildiOS/
 **.log
+
+fastlane/report.xml
