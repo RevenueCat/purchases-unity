@@ -18,3 +18,7 @@ IntegrationTests/buildiOS/
 # fastlane
 fastlane/report.xml
 fastlane/.env
+
+# CircleCI folders
+vendor/
+.bundle/
