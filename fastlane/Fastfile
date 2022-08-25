@@ -26,16 +26,16 @@ end
 
 desc "Bump version, edit changelog, and create pull request"
 lane :bump do |options|
-  # bump_version_update_changelog_create_pr(
-  #   current_version: current_version_number,
-  #   changelog_latest_path: changelog_latest_path,
-  #   changelog_path: changelog_path,
-  #   files_to_update: files_with_version_number,
-  #   repo_name: repo_name,
-  #   github_rate_limit: options[:github_rate_limit],
-  #   editor: options[:editor],
-  #   next_version: options[:next_version]
-  # )
+  bump_version_update_changelog_create_pr(
+    current_version: current_version_number,
+    changelog_latest_path: changelog_latest_path,
+    changelog_path: changelog_path,
+    files_to_update: files_with_version_number,
+    repo_name: repo_name,
+    github_rate_limit: options[:github_rate_limit],
+    editor: options[:editor],
+    next_version: options[:next_version]
+  )
   update_versions_file
 end
 
@@ -60,6 +60,45 @@ lane :prepare_next_version do |options|
   )
 end
 
+desc "Update hybrid common pod and gradle"
+lane :update_hybrid_common_versions do |options|
+  if options[:dry_run]
+    dry_run = true
+  end
+  if options[:version]
+    new_version_number = options[:version]
+  else
+    UI.user_error!("Missing `version` argument")
+  end
+
+  previous_version_number = parse_previous_hybrid_version
+
+  # Add to options so if we're chaining lanes together, the other lanes get it
+  options[:previous_hybrid_version] = previous_version_number
+
+  UI.message("ℹ️  Current Purchases Hybrid Common version: #{previous_version_number}")
+  UI.message("ℹ️  Setting Purchases Hybrid Common version: #{new_version_number}")
+  files_to_update = [
+    'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
+    'Subtester/Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
+    'Subtester/ProjectSettings/AndroidResolverDependencies.xml'
+  ]
+
+  if dry_run
+    UI.message("ℹ️  Nothing more to do, dry_run: true")
+  else
+    replace_text_in_files(
+      previous_text: previous_version_number,
+      new_text: new_version_number,
+      paths_of_files_to_update: files_to_update
+    )
+  end
+end
+
+###############################################################################
+# Helper functions 🤜🤛                                                      #
+###############################################################################
+
 def update_versions_file
   versions_file_path = './VERSIONS.md'
   update_hybrids_versions_file(
@@ -67,15 +106,33 @@ def update_versions_file
     new_sdk_version: current_version_number,
     hybrid_common_version: parse_previous_hybrid_version
   )
-  File.open(versions_file_path, 'r+') do |file|
-    lines = file.each_line.to_a
-    previous_to_last_version_compatibility = lines[3].split('|')[-2].strip
-    last_version_line_columns = lines[2].split('|')
-    last_version_line_columns.insert(-2, " #{previous_to_last_version_compatibility} |")
-    lines[2] = last_version_line_columns.join
-    file.rewind
-    file.write(lines.join)
+  append_previous_version_compatibility_to_versions_file(versions_file_path)
+  commit_current_changes(commit_message: 'Update VERSIONS.md')
+  push_to_git_remote(set_upstream: true)
+end
+
+def append_previous_version_compatibility_to_versions_file(versions_file_path)
+  Dir.chdir(get_root_folder) do
+    File.open(versions_file_path, 'r+') do |file|
+      lines = file.each_line.to_a
+      previous_to_last_version_compatibility = lines[3].split('|')[-2].strip
+      lines[2] = lines[2].strip + " #{previous_to_last_version_compatibility} |\n"
+      file.rewind
+      file.write(lines.join)
+    end
   end
-  # commit_current_changes(commit_message: 'Update VERSIONS.md')
-  # push_to_git_remote(set_upstream: true)
+end
+
+def parse_previous_hybrid_version
+  Dir.chdir(get_root_folder) do
+    return (sh "cat RevenueCat/Plugins/Editor/RevenueCatDependencies.xml | grep '<iosPod name=\"PurchasesHybridCommon\" version=' | awk '{print($3)}'  | sed \"s/version=//g;s/\\\"//g\"").strip
+  end
+end
+
+def get_root_folder
+  return File.expand_path('../../', __FILE__)
+end
+
+def current_version_number
+  File.read("../.version")
 end

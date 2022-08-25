@@ -15,4 +15,6 @@ Purchases.unitypackage
 IntegrationTests/buildiOS/
 **.log
 
+# fastlane
 fastlane/report.xml
+fastlane/.env
