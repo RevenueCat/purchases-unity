@@ -46,10 +46,16 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Toggle simulatesAskToBuyInSandbox", ToggleSimulatesAskToBuyInSandbox);
         CreateButton("Is Anonymous", IsAnonymous);
         CreateButton("Get AppUserId", GetAppUserId);
+        CreatePurchasePackageButtons();
 
         var purchases = GetComponent<Purchases>();
         purchases.SetDebugLogsEnabled(true);
         purchases.EnableAdServicesAttributionTokenCollection();
+    }
+
+    private void CreatePurchasePackageButtons()
+    {
+        var purchases = GetComponent<Purchases>();
         purchases.GetOfferings((offerings, error) =>
         {
             if (error != null)
@@ -59,15 +65,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             else
             {
                 Debug.Log("offerings received " + offerings.ToString());
-                var yOffset = 0;
 
                 foreach (var package in offerings.Current.AvailablePackages)
                 {
                     Debug.Log("Package " + package);
                     if (package == null) continue;
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
-                    CreateButton(label, () => ButtonClicked(package));
-                    yOffset += yPaddingForButtons;
+                    CreateButton(label, () => PurchasePackageButtonClicked(package));
                 }
             }
         });
@@ -124,7 +128,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     }
 
 
-    private void ButtonClicked(Purchases.Package package)
+    private void PurchasePackageButtonClicked(Purchases.Package package)
     {
         var purchases = GetComponent<Purchases>();
         purchases.PurchasePackage(package, (productIdentifier, customerInfo, userCancelled, error) =>
@@ -338,7 +342,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             {
                 var products = GetPackages(offerings)
                     .Select(package => package.StoreProduct) // map to product ids
-                    .Where(storeProduct => storeProduct.Discounts is { Length: > 1 }) // map to product ids
+                    .Where(storeProduct => storeProduct.Discounts != null && storeProduct.Discounts.Any()) // map to product ids
                     .ToArray();
 
                 if (products.Length == 0)
