@@ -1,12 +1,15 @@
-release-tags-and-branches: &release-tags-and-branches
-  filters:
-    tags:
-      ignore: /^.*-SNAPSHOT/
-    branches:
-      only: /^release\/.*/
-
-
 version: 2.1
+
+aliases:
+  release-tags-and-branches: &release-tags-and-branches
+    filters:
+      tags:
+        ignore: /^.*-SNAPSHOT/
+      branches:
+        only: /^release\/.*/
+
+orbs:
+   revenuecat: revenuecat/sdks-common-config@1.1.0
 
 executors:
   unity:
@@ -255,3 +258,6 @@ workflows:
           <<:  *release-tags-and-branches
           requires:
             - build-test-ios
+  danger:
+    jobs:
+      - revenuecat/danger
