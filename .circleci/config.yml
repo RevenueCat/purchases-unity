@@ -1,6 +1,5 @@
 version: 2.1
 
-
 aliases:
   release-tags-and-branches: &release-tags-and-branches
     filters:
@@ -15,9 +14,6 @@ aliases:
         ignore: /^.*-SNAPSHOT/
       branches:
         ignore: /.*/
-
-orbs:
-   revenuecat: revenuecat/sdks-common-config@1.1.0
 
 orbs:
   revenuecat: revenuecat/sdks-common-config@2.0.0
