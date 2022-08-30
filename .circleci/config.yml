@@ -19,6 +19,9 @@ aliases:
 orbs:
    revenuecat: revenuecat/sdks-common-config@1.1.0
 
+orbs:
+  revenuecat: revenuecat/sdks-common-config@2.0.0
+
 executors:
   unity:
     docker:
@@ -146,35 +149,6 @@ commands:
           paths:
             - vendor/bundle
 
-  set_up_git_user:
-    description: Set git config parameters
-    steps:
-      - run: git config --global user.email "dev+ci@revenuecat.com"
-      - run: git config --global user.name "RevenueCat CI"
-
-  trust-github-key:
-    steps:
-      - run:
-          name: Trust GitHub key
-          command: |
-            for ip in $(dig @8.8.8.8 github.com +short); \
-            do ssh-keyscan github.com,$ip; \
-            ssh-keyscan $ip; \
-            done 2>/dev/null >> ~/.ssh/known_hosts
-
-  install-rubydocker-dependencies:
-    steps:
-      - restore_cache:
-          keys:
-            - v1-rubydocker-gem-cache-{{ checksum "Gemfile.lock" }}
-      - run:
-          name: Bundle install
-          command: bundle install --clean --path vendor/bundle
-      - save_cache:
-          key: v1-rubydocker-gem-cache-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
-
 jobs:
   export-package:
     executor: unity
@@ -284,9 +258,10 @@ jobs:
       - image: cimg/ruby:3.1.2
     steps:
       - checkout
-      - install-rubydocker-dependencies
-      - trust-github-key
-      - set_up_git_user
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - revenuecat/setup-git-credentials
       - run:
           name: Prepare next version
           command: bundle exec fastlane prepare_next_version
@@ -297,9 +272,10 @@ jobs:
       - image: cimg/ruby:3.1.2
     steps:
       - checkout
-      - install-rubydocker-dependencies
-      - trust-github-key
-      - set_up_git_user
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - revenuecat/setup-git-credentials
       - run:
           name: release
           command: bundle exec fastlane github_release
