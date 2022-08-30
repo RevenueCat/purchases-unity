@@ -1,5 +1,3 @@
-This release adds pre-release support for Amazon store. 
-
 ## Instructions
 - Download the `Purchases.unitypackage` (`Purchases-UnityIAP.unitypackage` if using in observer mode) in the release.
 - Open your Unity Project
