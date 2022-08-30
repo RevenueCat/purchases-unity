@@ -111,10 +111,17 @@ def update_versions_file
   push_to_git_remote(set_upstream: true)
 end
 
+# The update_hybrids_versions_file action updates the version file with the columns:
+# | Version | iOS version | Android version | Common version |
+# This function appends a new column to the above columns, so the result looks like this:
+# | Version | iOS version | Android version | Common version | Unity IAP compatibility  |
+# This picks the `Unity IAP compatibility`` value of the last version in the VERSIONS.md file
+# before the last row was added. If this changes, it needs to be updated manually.
 def append_previous_version_compatibility_to_versions_file(versions_file_path)
   Dir.chdir(get_root_folder) do
     File.open(versions_file_path, 'r+') do |file|
       lines = file.each_line.to_a
+      # This gets the row of the last version released, and gets the value of the last column
       previous_to_last_version_compatibility = lines[3].split('|')[-2].strip
       lines[2] = lines[2].strip + " #{previous_to_last_version_compatibility} |\n"
       file.rewind
