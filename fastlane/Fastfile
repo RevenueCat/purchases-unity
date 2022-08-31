@@ -114,14 +114,18 @@ end
 # The update_hybrids_versions_file action updates the version file with the columns:
 # | Version | iOS version | Android version | Common version |
 # This function appends a new column to the above columns, so the result looks like this:
-# | Version | iOS version | Android version | Common version | Unity IAP compatibility  |
+# | Version | iOS version | Android version | Common version | Unity IAP compatibility |
 # This picks the `Unity IAP compatibility`` value of the last version in the VERSIONS.md file
 # before the last row was added. If this changes, it needs to be updated manually.
 def append_previous_version_compatibility_to_versions_file(versions_file_path)
   Dir.chdir(get_root_folder) do
     File.open(versions_file_path, 'r+') do |file|
       lines = file.each_line.to_a
-      # This gets the row of the last version released, and gets the value of the last column
+      # This gets the row of the last version released, and gets the value of the last column. Example:
+      # | Version | iOS version | Android version | Common version | Unity IAP compatibility |
+      # |---------|-------------|-----------------|----------------|-------------------------|
+      # | 4.1.0   | 4.10.1      | 5.4.1           | 4.1.2          | Unity IAP 3.3.0+        |
+      # | 4.0.0   | 4.9.0       | 5.3.0           | 3.3.0          | Unity IAP 3.3.0+        |
       previous_to_last_version_compatibility = lines[3].split('|')[-2].strip
       lines[2] = lines[2].strip + " #{previous_to_last_version_compatibility} |\n"
       file.rewind
@@ -133,7 +137,9 @@ end
 def parse_previous_hybrid_version
   file_contents = File.read('../RevenueCat/Plugins/Editor/RevenueCatDependencies.xml')
   # This will parse the PHC version for iOS and android from within the RevenueCat/Plugins/Editor/RevenueCatDependencies.xml file
+  # iOS appears in the form: <iosPod name="PurchasesHybridCommon" version="4.1.2" minTargetSdk="11.0"/>
   ios_phc_version = file_contents.split("<iosPod name=\"PurchasesHybridCommon\" version=")[1].split()[0].tr('"', '')
+   # Android appears in the form: <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[4.1.2]" />
   android_phc_version = file_contents.split("<androidPackage spec=\"com.revenuecat.purchases:purchases-hybrid-common:[")[1].split(']')[0]
 
   UI.error("PHC version does not match between iOS and android in RevenueCat/Plugins/Editor/RevenueCatDependencies.xml. Please check those values") if ios_phc_version != android_phc_version
