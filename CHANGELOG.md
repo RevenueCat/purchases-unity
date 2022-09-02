@@ -1,6 +1,6 @@
 ## 4.2.0
 ### API Changes
-* `StoreTransaction`: `RevenueCatId` and `ProductId` have been deprecated in favor of `TransactionIdentifier` and `ProductIdentifier` respectively.
+* `StoreTransaction`: `RevenueCatId` and `ProductId` have been deprecated in favor of `TransactionIdentifier` and `ProductIdentifier` respectively. (#145) via Toni Rico (@tonidero)
 ### Bugfixes
 * Fix example compatibility with Unity 2020 (#139) via Andy Boedo (@aboedo)
 ### Other Changes
@@ -14,7 +14,7 @@ More information [in our docs](https://docs.revenuecat.com/docs/apple-search-ads
 
 ## 4.0.0
 
-RevenueCat Unity SDK v4 is here!! 
+RevenueCat Unity SDK v4 is here!!
 
 ![Dancing cats](https://media.giphy.com/media/lkbNG2zqzHZUA/giphy.gif)
 
@@ -38,10 +38,10 @@ you need to use the `Purchases-UnityIAP.unityPackage`. For Unity IAP >= 4.4.0, y
 For Amazon installation instructions please follow take a look at the [Amazon instructions document](https://github.com/RevenueCat/purchases-unity/blob/4.0.0/AMAZON-INSTRUCTIONS.md)
 
 #### StoreKit 2 support
-This version of the SDK automatically uses StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1. 
+This version of the SDK automatically uses StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1.
 
 #### New types and cleaned up naming
-New types that wrap native types from Apple, Google and Amazon, and we cleaned up the naming of other types and methods for a more consistent experience. 
+New types that wrap native types from Apple, Google and Amazon, and we cleaned up the naming of other types and methods for a more consistent experience.
 
 ### Removed APIs
 - `Identify` and `CreateAlias` have been removed in favor of `LogIn`.
@@ -111,10 +111,10 @@ You can enable Amazon Appstore support by configuring the SDK using the new `Rev
 For more information around configuration please take a look at the [Amazon Appstore section in our docs](https://docs.revenuecat.com/docs/amazon-platform-resources). The official [Amazon In-App Purchasing docs](https://developer.amazon.com/docs/in-app-purchasing/iap-overview.html) also contain very valuable information, especially around testing and best practices.
 
 #### StoreKit 2 support
-This version of the SDK automatically uses StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1. 
+This version of the SDK automatically uses StoreKit 2 APIs under the hood only for APIs that the RevenueCat team has determined work better than StoreKit 1.
 
 #### New types and cleaned up naming
-New types that wrap native types from Apple, Google and Amazon, and we cleaned up the naming of other types and methods for a more consistent experience. 
+New types that wrap native types from Apple, Google and Amazon, and we cleaned up the naming of other types and methods for a more consistent experience.
 
 ### Removed APIs
 - `Identify` and `CreateAlias` have been removed in favor of `LogIn`.
@@ -196,7 +196,7 @@ When installing this release, make sure to make a fresh installation by removing
 
 ## 3.4.1
 
-- Bumped purchases-android to 4.3.1 [Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.3.1), 
+- Bumped purchases-android to 4.3.1 [Changelog here](https://github.com/RevenueCat/purchases-android/releases/4.3.1),
 which fixes https://github.com/RevenueCat/purchases-unity/issues/61
 
 ## 3.4.0
@@ -208,13 +208,13 @@ which fixes https://github.com/RevenueCat/purchases-unity/issues/61
 
 ### Identity V3:
 
-In this version, we’ve redesigned the way that user identification works. 
+In this version, we’ve redesigned the way that user identification works.
 Detailed docs about the new system are available [here](https://docs.revenuecat.com/v3.2/docs/user-ids).
 
 #### New methods
-- Introduces `LogIn`, a new way of identifying users, which also returns whether a new user has been registered in the system. 
-`LogIn` uses a new backend endpoint. 
-- Introduces `LogOut`, a replacement for `Reset`. 
+- Introduces `LogIn`, a new way of identifying users, which also returns whether a new user has been registered in the system.
+`LogIn` uses a new backend endpoint.
+- Introduces `LogOut`, a replacement for `Reset`.
 
 #### Deprecations
 - deprecates `CreateAlias` in favor of `LogIn`.
@@ -245,7 +245,7 @@ Detailed docs about the new system are available [here](https://docs.revenuecat.
     https://github.com/RevenueCat/purchases-flutter/pull/171
 
 ## 3.1.0
-- iOS: 
+- iOS:
     - Added a new method `setSimulatesAskToBuyInSandbox`, that allows developers to test deferred purchases easily.
 - Bumped purchases-hybrid-common to 1.6.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/1.6.1)
 - Bumped purchases-ios to 3.10.6 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/3.10.6)
@@ -253,14 +253,14 @@ Detailed docs about the new system are available [here](https://docs.revenuecat.
     https://github.com/RevenueCat/purchases-unity/pull/43
 
 ## 3.0.1
-- Fixed a crash in iOS when parsing dates in milliseconds, as well as a bug in Android that caused dates that were reported as `milliseconds` to actually have values in seconds. 
+- Fixed a crash in iOS when parsing dates in milliseconds, as well as a bug in Android that caused dates that were reported as `milliseconds` to actually have values in seconds.
 https://github.com/RevenueCat/purchases-unity/pull/39
 - Bumped `purchases-hybrid-common` to 1.5.1 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/1.5.1)
 
 ## 3.0.0
 
 - removes deprecated `MakePurchase`, replaced by `PurchaseProduct`
-- iOS: 
+- iOS:
     - added new method, `syncPurchases`, that enables syncing the purchases in the local receipt with the backend without risking a password prompt. The method was already available on Android.
     - added a new method, `presentCodeRedemptionSheet`, for offer codes redemption.
     - fixed a bug where values for dates in milliseconds were actually in seconds (https://github.com/RevenueCat/purchases-hybrid-common/pull/62)
@@ -271,12 +271,12 @@ https://github.com/RevenueCat/purchases-unity/pull/39
 ## 2.3.1
 
 - Bumped common files to 1.4.5 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/1.4.4)
-- Bumped iOS to 3.7.5 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/tag/3.7.5) 
+- Bumped iOS to 3.7.5 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/tag/3.7.5)
 
 ## 2.3.0
 
 - Bumped common files to 1.4.4 [Changelog here](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/1.4.4)
-- Bumped iOS to 3.7.2 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/tag/3.7.2) 
+- Bumped iOS to 3.7.2 [Changelog here](https://github.com/RevenueCat/purchases-ios/releases/tag/3.7.2)
 - Bumped Android to 3.5.2 [Changelog here](https://github.com/RevenueCat/purchases-android/releases/tag/3.5.2)
 - Added a new property `NonSubscriptionTransactions` in `PurchaserInfo` to better manage non-subscriptions
 - Attribution V2:
@@ -385,7 +385,7 @@ for a user in RevenueCat. More info: https://docs.revenuecat.com/docs/user-attri
   - The .createAlias() method is no longer required, use .identify() instead
   - .identify() will create an alias if being called from an anonymous ID generated by RevenueCat
   - Added an isAnonymous property to Purchases.sharedInstance
-  - Improved offline use 
+  - Improved offline use
 
 ## 1.2.2
 
