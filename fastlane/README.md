@@ -37,6 +37,14 @@ Make github release
 
 Creates PR changing version to next minor adding a -SNAPSHOT suffix
 
+### release
+
+```sh
+[bundle exec] fastlane release
+```
+
+Creates GitHub release and publishes package
+
 ### update_hybrid_common_versions
 
 ```sh
