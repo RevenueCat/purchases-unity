@@ -51,7 +51,7 @@ public partial class Purchases
 
         public StoreTransaction(JSONNode response)
         {
-            TransactionIdentifier = response["transactionIdentifier"]
+            TransactionIdentifier = response["transactionIdentifier"];
             RevenueCatId = response["transactionIdentifier"];
             ProductIdentifier = response["productIdentifier"];
             ProductId = response["productIdentifier"];
