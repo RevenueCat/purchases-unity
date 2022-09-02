@@ -14,3 +14,11 @@ IntegrationTests/ProjectSettings/AndroidResolverDependencies.xml
 Purchases.unitypackage
 IntegrationTests/buildiOS/
 **.log
+
+# fastlane
+fastlane/report.xml
+fastlane/.env
+
+# CircleCI folders
+vendor/
+.bundle/

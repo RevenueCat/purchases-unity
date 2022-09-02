@@ -1,9 +1,11 @@
-1. Start a branch release/x.y.z
-1. Update to the latest SDK versions in RevenueCatDependencies.xml for Android and iOS
-1. Update the VERSION file, the platformFlavorVersion number in `PurchasesUnityHelper.m` and  the PLUGIN_VERSION number `PurchasesWrapper.java`
-1. Update the VERSIONS.md file.
-1. Add an entry to CHANGELOG.md
-1. Make a PR, merge when approved
-1. Make a tag and push
-1. CircleCI will run a job `export-package` that will create a `Purchases.unitypackage` and `Purchases-UnityIAP.unitypackage` for you. Find the packages in the artifacts section of the job
-1. Create a new release in github and upload `Purchases.unitypackage` and `Purchases-UnityIAP.unitypackage`.
+Automatic Releasing
+=========
+1. Create a `fastlane/.env` file with your GitHub API token (see `fastlane/.env.SAMPLE`). This will be used to create the PR, so you should use your own token so the PR gets assigned to you.
+2. Run `bundle exec fastlane bump`
+ 1. Confirm base branch is correct
+ 2. Input new version number
+ 3. Update CHANGELOG.latest.md to include the latest changes. Call out API changes (if any). You can use the existing CHANGELOG.md as a base for formatting. To compile the changelog, you can compare the changes between the base branch for the release (usually main) against the latest release, by checking https://github.com/revenuecat/purchases-unity/compare/<latest_release>...<base_branch>. For example, https://github.com/revenuecat/purchases-unity/compare/4.1.0...main.
+ 4. A new branch and PR will automatically be created
+3. Wait until PR is approved (don't merge yet) and pull branch from origin (to make sure you've got all the changes locally)
+4. Create a tag for the new release in the last commit of the branch and push the tag. The rest will be performed automatically by CircleCI. If the automation fails, you can run the `scripts/create-unity-package.sh` manually to create the packages and create a github release manually and add the resulting `unitypackage` files.
+5. After that, you can merge the release PR to main and merge the bump to the next snapshot version PR right after.

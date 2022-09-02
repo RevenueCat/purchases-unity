@@ -8,8 +8,15 @@ aliases:
       branches:
         only: /^release\/.*/
 
+  release-tags: &release-tags
+    filters:
+      tags:
+        ignore: /^.*-SNAPSHOT/
+      branches:
+        ignore: /.*/
+
 orbs:
-   revenuecat: revenuecat/sdks-common-config@1.1.0
+  revenuecat: revenuecat/sdks-common-config@2.0.0
 
 executors:
   unity:
@@ -30,7 +37,7 @@ commands:
     description: "Import Purchases.unitypackage"
     steps:
       # When importing the unity package in the following step, Unity tries to compile the project.
-      # The project is referencing Purchases, but the Purchases plugin hasn't been imported yet, so the 
+      # The project is referencing Purchases, but the Purchases plugin hasn't been imported yet, so the
       # compilation fails. Temporarily removing scripts that reference any dependency before importing the
       # package is a way to avoid the compilation issues.
       - run:
@@ -52,7 +59,7 @@ commands:
               -nographics \
               -logFile /dev/stdout \
               -importPackage ../Purchases.unitypackage
-      
+
       - run:
           name: Bring scripts back
           command: |
@@ -67,7 +74,7 @@ commands:
       - run:
           name: Decode license in env variable
           command: echo $UNITY_LICENSE | base64 --decode >> Unity.x.ulf
-      - run: 
+      - run:
           name: Import Unity license file
           command: |
             /opt/unity/Editor/Unity -projectPath IntegrationTests \
@@ -77,7 +84,7 @@ commands:
             -silent-crashes \
             -logFile \
             -manualLicenseFile Unity.x.ulf || exit 0
-  
+
   perform-build:
     description: "Builds Unity project"
     parameters:
@@ -99,7 +106,7 @@ commands:
             -executeMethod BuildCommand.PerformBuild \
             -nographics \
             -logFile /dev/stdout || exit 0
-  
+
   resolve-dependencies:
     description: "Resolve Dependencies"
     parameters:
@@ -118,7 +125,7 @@ commands:
               -executeMethod BuildCommand.Resolve \
               -nographics \
               -logFile /dev/stdout
-    
+
   install-gems:
     parameters:
       directory:
@@ -127,9 +134,9 @@ commands:
     steps:
        # Bundler
       - restore_cache:
-          keys: 
+          keys:
             - gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
-      - run: 
+      - run:
           name: Bundle install
           working_directory: << parameters.directory >>
           command: bundle install --clean --path vendor/bundle
@@ -137,7 +144,7 @@ commands:
           key: gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
           paths:
             - vendor/bundle
-  
+
 jobs:
   export-package:
     executor: unity
@@ -154,7 +161,7 @@ jobs:
 
       - persist_to_workspace:
           root: .
-          paths: 
+          paths:
             - Purchases.unitypackage
             - Purchases-UnityIAP.unitypackage
 
@@ -169,14 +176,14 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      
+
       - activate-license
 
       - import-package
 
       - resolve-dependencies:
           target: Android
-    
+
       - perform-build:
           target: Android
 
@@ -191,7 +198,7 @@ jobs:
           at: .
 
       - activate-license
-      
+
       - import-package
 
       - resolve-dependencies:
@@ -199,7 +206,7 @@ jobs:
 
       - perform-build:
           target: iOS
-      
+
       - persist_to_workspace:
           root: .
           paths:
@@ -213,7 +220,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      
+
       - install-gems:
           directory: IntegrationTests
 
@@ -224,7 +231,7 @@ jobs:
           name: Install Pods
           working_directory: IntegrationTests/buildiOS
           command: pod install --verbose
-      
+
       - save_cache:
           key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
           paths:
@@ -241,23 +248,63 @@ jobs:
           working_directory: IntegrationTests/buildiOS
           command: bundle exec fastlane archive workspace:"buildiOS/Unity-iPhone.xcworkspace"
 
+  prepare-next-version:
+    description: "Creates a PR with the new snapshot version"
+    docker:
+      - image: cimg/ruby:3.1.2
+    steps:
+      - checkout
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - revenuecat/setup-git-credentials
+      - run:
+          name: Prepare next version
+          command: bundle exec fastlane prepare_next_version
+
+  github-release:
+    description: "Creates a github release"
+    docker:
+      - image: cimg/ruby:3.1.2
+    steps:
+      - checkout
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - revenuecat/setup-git-credentials
+      - run:
+          name: release
+          command: bundle exec fastlane github_release
+
 workflows:
   version: 2
   build:
     jobs:
       - export-package: *release-tags-and-branches
       - build-test-android:
-          <<:  *release-tags-and-branches
+          <<: *release-tags-and-branches
           requires:
             - export-package
       - build-test-ios:
-          <<:  *release-tags-and-branches
+          <<: *release-tags-and-branches
           requires:
             - export-package
       - archive-ios:
-          <<:  *release-tags-and-branches
+          <<: *release-tags-and-branches
           requires:
             - build-test-ios
   danger:
     jobs:
       - revenuecat/danger
+
+  release:
+    jobs:
+      - export-package: *release-tags
+      - github-release:
+          <<: *release-tags
+          requires:
+            - export-package
+      - prepare-next-version:
+          <<: *release-tags
+          requires:
+            - github-release

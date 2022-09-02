@@ -1,0 +1,156 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+files_with_version_number = [
+  './.version',
+  './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m',
+  './RevenueCat/Plugins/Android/PurchasesWrapper.java'
+]
+repo_name = 'purchases-unity'
+changelog_latest_path = './CHANGELOG.latest.md'
+changelog_path = './CHANGELOG.md'
+
+before_all do
+  setup_circle_ci
+  update_fastlane
+end
+
+desc "Bump version, edit changelog, and create pull request"
+lane :bump do |options|
+  bump_version_update_changelog_create_pr(
+    current_version: current_version_number,
+    changelog_latest_path: changelog_latest_path,
+    changelog_path: changelog_path,
+    files_to_update: files_with_version_number,
+    repo_name: repo_name,
+    github_rate_limit: options[:github_rate_limit],
+    editor: options[:editor],
+    next_version: options[:next_version]
+  )
+  update_versions_file
+end
+
+desc "Make github release"
+lane :github_release do |options|
+  create_github_release(
+    version: options[:version],
+    repo_name: repo_name,
+    github_api_token: ENV["GITHUB_TOKEN"],
+    changelog_latest_path: changelog_latest_path,
+    upload_assets: ['Purchases.unitypackage', 'Purchases-UnityIAP.unitypackage']
+  )
+end
+
+desc "Creates PR changing version to next minor adding a -SNAPSHOT suffix"
+lane :prepare_next_version do |options|
+  create_next_snapshot_version(
+    current_version: current_version_number,
+    repo_name: repo_name,
+    github_pr_token: ENV["GITHUB_PULL_REQUEST_API_TOKEN"],
+    files_to_update: files_with_version_number
+  )
+end
+
+desc "Update hybrid common pod and gradle"
+lane :update_hybrid_common_versions do |options|
+  if options[:dry_run]
+    dry_run = true
+  end
+  if options[:version]
+    new_version_number = options[:version]
+  else
+    UI.user_error!("Missing `version` argument")
+  end
+
+  previous_version_number = parse_previous_hybrid_version
+
+  # Add to options so if we're chaining lanes together, the other lanes get it
+  options[:previous_hybrid_version] = previous_version_number
+
+  UI.message("ℹ️  Current Purchases Hybrid Common version: #{previous_version_number}")
+  UI.message("ℹ️  Setting Purchases Hybrid Common version: #{new_version_number}")
+  files_to_update = [
+    'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
+    'Subtester/Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
+    'Subtester/ProjectSettings/AndroidResolverDependencies.xml'
+  ]
+
+  if dry_run
+    UI.message("ℹ️  Nothing more to do, dry_run: true")
+  else
+    replace_text_in_files(
+      previous_text: previous_version_number,
+      new_text: new_version_number,
+      paths_of_files_to_update: files_to_update
+    )
+  end
+end
+
+###############################################################################
+# Helper functions 🤜🤛                                                      #
+###############################################################################
+
+def update_versions_file
+  versions_file_path = './VERSIONS.md'
+  update_hybrids_versions_file(
+    versions_file_path: versions_file_path,
+    new_sdk_version: current_version_number,
+    hybrid_common_version: parse_previous_hybrid_version
+  )
+  append_previous_version_compatibility_to_versions_file(versions_file_path)
+  commit_current_changes(commit_message: 'Update VERSIONS.md')
+  push_to_git_remote(set_upstream: true)
+end
+
+# The update_hybrids_versions_file action updates the version file with the columns:
+# | Version | iOS version | Android version | Common version |
+# This function appends a new column to the above columns, so the result looks like this:
+# | Version | iOS version | Android version | Common version | Unity IAP compatibility |
+# This picks the `Unity IAP compatibility`` value of the last version in the VERSIONS.md file
+# before the last row was added. If this changes, it needs to be updated manually.
+def append_previous_version_compatibility_to_versions_file(versions_file_path)
+  Dir.chdir(get_root_folder) do
+    File.open(versions_file_path, 'r+') do |file|
+      lines = file.each_line.to_a
+      # This gets the row of the last version released, and gets the value of the last column. Example:
+      # | Version | iOS version | Android version | Common version | Unity IAP compatibility |
+      # |---------|-------------|-----------------|----------------|-------------------------|
+      # | 4.1.0   | 4.10.1      | 5.4.1           | 4.1.2          | Unity IAP 3.3.0+        |
+      # | 4.0.0   | 4.9.0       | 5.3.0           | 3.3.0          | Unity IAP 3.3.0+        |
+      previous_to_last_version_compatibility = lines[3].split('|')[-2].strip
+      lines[2] = lines[2].strip + " #{previous_to_last_version_compatibility} |\n"
+      file.rewind
+      file.write(lines.join)
+    end
+  end
+end
+
+def parse_previous_hybrid_version
+  file_contents = File.read('../RevenueCat/Plugins/Editor/RevenueCatDependencies.xml')
+  # This will parse the PHC version for iOS and android from within the RevenueCat/Plugins/Editor/RevenueCatDependencies.xml file
+  # iOS appears in the form: <iosPod name="PurchasesHybridCommon" version="4.1.2" minTargetSdk="11.0"/>
+  ios_phc_version = file_contents.split("<iosPod name=\"PurchasesHybridCommon\" version=")[1].split()[0].tr('"', '')
+   # Android appears in the form: <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[4.1.2]" />
+  android_phc_version = file_contents.split("<androidPackage spec=\"com.revenuecat.purchases:purchases-hybrid-common:[")[1].split(']')[0]
+
+  UI.error("PHC version does not match between iOS and android in RevenueCat/Plugins/Editor/RevenueCatDependencies.xml. Please check those values") if ios_phc_version != android_phc_version
+
+  ios_phc_version
+end
+
+def get_root_folder
+  return File.expand_path('../../', __FILE__)
+end
+
+def current_version_number
+  File.read("../.version")
+end
