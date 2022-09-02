@@ -60,15 +60,6 @@ lane :prepare_next_version do |options|
   )
 end
 
-desc "Creates GitHub release and publishes package"
-lane :release do |options|
-  version_number = current_version_number
-  Dir.chdir(get_root_folder) do
-    sh('npm', 'publish')
-  end
-  github_release(version: version_number)
-end
-
 desc "Update hybrid common pod and gradle"
 lane :update_hybrid_common_versions do |options|
   if options[:dry_run]
