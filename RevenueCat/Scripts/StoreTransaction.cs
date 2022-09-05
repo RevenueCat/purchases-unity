@@ -4,7 +4,7 @@ using static RevenueCat.Utilities;
 
 
 public partial class Purchases
-{    
+{
     /// <summary>
     /// Abstract class that provides access to properties of a transaction. StoreTransactions can represent
     /// transactions from StoreKit 1, StoreKit 2 or transactions made from other places,
@@ -17,13 +17,31 @@ public partial class Purchases
          * Id associated with the transaction in RevenueCat.
          * </summary>
          */
+        [Obsolete("Deprecated, use TransactionIdentifier instead.", false)]
         public readonly string RevenueCatId;
+
+        /**
+         * <summary>
+         * Id associated with the transaction in RevenueCat.
+         * </summary>
+         */
+        public readonly string TransactionIdentifier;
+
         /**
          * <summary>
          * Product Id associated with the transaction.
          * </summary>
          */
+        [Obsolete("Deprecated, use ProductIdentifier instead.", false)]
         public readonly string ProductId;
+
+        /**
+         * <summary>
+         * Product Id associated with the transaction.
+         * </summary>
+         */
+        public readonly string ProductIdentifier;
+
         /**
          * <summary>
          * Purchase date of the transaction in UTC, be sure to compare them with DateTime.UtcNow
@@ -33,14 +51,18 @@ public partial class Purchases
 
         public StoreTransaction(JSONNode response)
         {
-            RevenueCatId = response["revenueCatId"];
-            ProductId = response["productId"];
+            TransactionIdentifier = response["transactionIdentifier"];
+            RevenueCatId = response["transactionIdentifier"];
+            ProductIdentifier = response["productIdentifier"];
+            ProductId = response["productIdentifier"];
             PurchaseDate = FromUnixTimeInMilliseconds(response["purchaseDateMillis"].AsLong);
-        } 
-        
+        }
+
         public override string ToString()
         {
-            return $"{nameof(RevenueCatId)}: {RevenueCatId}\n" +
+            return $"{nameof(TransactionIdentifier)}: {TransactionIdentifier}\n" +
+                   $"{nameof(RevenueCatId)}: {RevenueCatId}\n" +
+                   $"{nameof(ProductIdentifier)}: {ProductIdentifier}\n" +
                    $"{nameof(ProductId)}: {ProductId}\n" +
                    $"{nameof(PurchaseDate)}: {PurchaseDate}";
         }

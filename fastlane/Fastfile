@@ -80,7 +80,7 @@ lane :update_hybrid_common_versions do |options|
   UI.message("ℹ️  Setting Purchases Hybrid Common version: #{new_version_number}")
   files_to_update = [
     'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
-    'Subtester/Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
+    'Subtester/Assets/Plugins/Android/mainTemplate.gradle',
     'Subtester/ProjectSettings/AndroidResolverDependencies.xml'
   ]
 
