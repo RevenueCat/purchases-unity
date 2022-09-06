@@ -264,8 +264,8 @@ jobs:
 
   github-release:
     description: "Creates a github release"
-    docker:
-      - image: cimg/ruby:3.1.2
+    executor: unity
+
     steps:
       - checkout
       - revenuecat/install-gem-unix-dependencies:
@@ -293,6 +293,10 @@ workflows:
           <<: *release-tags-and-branches
           requires:
             - build-test-ios
+      - github-release:
+          <<: *release-tags-and-branches
+          requires:
+            - export-package
   danger:
     jobs:
       - revenuecat/danger

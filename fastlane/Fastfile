@@ -41,13 +41,14 @@ end
 
 desc "Make github release"
 lane :github_release do |options|
-  create_github_release(
-    version: current_version_number,
-    repo_name: repo_name,
-    github_api_token: ENV["GITHUB_TOKEN"],
-    changelog_latest_path: changelog_latest_path,
-    upload_assets: ['Purchases.unitypackage', 'Purchases-UnityIAP.unitypackage']
-  )
+  UI.user_error!("TESTING GITHUB RELEASE")
+  # create_github_release(
+  #   version: current_version_number,
+  #   repo_name: repo_name,
+  #   github_api_token: ENV["GITHUB_TOKEN"],
+  #   changelog_latest_path: changelog_latest_path,
+  #   upload_assets: ['Purchases.unitypackage', 'Purchases-UnityIAP.unitypackage']
+  # )
 end
 
 desc "Creates PR changing version to next minor adding a -SNAPSHOT suffix"
