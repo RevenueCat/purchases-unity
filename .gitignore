@@ -12,6 +12,7 @@ IntegrationTests/Assets/Plugins/
 IntegrationTests/Assets/ExternalDependencyManager/
 IntegrationTests/ProjectSettings/AndroidResolverDependencies.xml
 Purchases.unitypackage
+Purchases-UnityIAP.unitypackage
 IntegrationTests/buildiOS/
 **.log
 

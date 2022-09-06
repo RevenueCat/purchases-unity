@@ -42,7 +42,7 @@ end
 desc "Make github release"
 lane :github_release do |options|
   create_github_release(
-    version: options[:version],
+    version: current_version_number,
     repo_name: repo_name,
     github_api_token: ENV["GITHUB_TOKEN"],
     changelog_latest_path: changelog_latest_path,
