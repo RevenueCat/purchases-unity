@@ -264,10 +264,13 @@ jobs:
 
   github-release:
     description: "Creates a github release"
-    executor: unity
+    docker:
+      - image: cimg/ruby:3.1.2
 
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/trust-github-key
