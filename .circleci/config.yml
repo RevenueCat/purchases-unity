@@ -15,6 +15,13 @@ aliases:
       branches:
         ignore: /.*/
 
+  only-main-branch: &only-main-branch
+    filters:
+      tags:
+        ignore: /.*/
+      branches:
+        only: main
+
 orbs:
   revenuecat: revenuecat/sdks-common-config@2.0.0
 
@@ -306,7 +313,11 @@ workflows:
           <<: *release-tags
           requires:
             - export-package
+
+  snapshot-bump:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+    jobs:
       - prepare-next-version:
-          <<: *release-tags
-          requires:
-            - github-release
+          <<: *only-main-branch
