@@ -7,12 +7,14 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode,
-                                                 bool usesStoreKit2IfAvailable, string userDefaultsSuiteName);
+                                                 bool usesStoreKit2IfAvailable, string userDefaultsSuiteName,
+                                                 string dangerousSettingsJson);
 
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
-        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, userDefaultsSuiteName);
+        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable,
+            userDefaultsSuiteName, dangerousSettingsJson);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
