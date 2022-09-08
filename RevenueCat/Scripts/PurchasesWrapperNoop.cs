@@ -4,7 +4,7 @@ public partial class Purchases
 {
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
             string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
         {
         }
@@ -74,7 +74,7 @@ public partial class Purchases
         {
         }
 
-        public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+        public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
             string isoCurrencyCode, double price)
         {
         }

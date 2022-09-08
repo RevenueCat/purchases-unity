@@ -17,7 +17,7 @@ public partial class Purchases
     /// purchases.Configure(purchasesConfiguration);
     /// </code>
     /// </example>
-    /// 
+    ///
     public class PurchasesConfiguration
     {
         public readonly string ApiKey;
@@ -26,9 +26,10 @@ public partial class Purchases
         public readonly string UserDefaultsSuiteName;
         public readonly bool UseAmazon;
         public readonly DangerousSettings DangerousSettings;
+        public readonly bool UsesStoreKit2IfAvailable;
 
         private PurchasesConfiguration(string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName,
-            bool useAmazon, DangerousSettings dangerousSettings)
+            bool useAmazon, DangerousSettings dangerousSettings, bool usesStoreKit2IfAvailable)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -36,15 +37,16 @@ public partial class Purchases
             UserDefaultsSuiteName = userDefaultsSuiteName;
             UseAmazon = useAmazon;
             DangerousSettings = dangerousSettings;
+            UsesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
         }
 
         /// <summary>
         /// Use this object to create a PurchasesConfiguration object that can be used to configure
-        /// the SDK programmatically. 
+        /// the SDK programmatically.
         /// Create a configuration builder, set its properties, then call `Build` to obtain the configuration.
         /// Lastly, call Purchases.Configure and with the obtained PurchasesConfiguration object.
         /// </summary>
-        /// 
+        ///
         /// <example>
         /// For example:
         /// <code>
@@ -56,7 +58,7 @@ public partial class Purchases
         /// purchases.Configure(purchasesConfiguration);
         /// </code>
         /// </example>
-        /// 
+        ///
         public class Builder
         {
             private readonly string _apiKey;
@@ -65,6 +67,7 @@ public partial class Purchases
             private string _userDefaultsSuiteName;
             private bool _useAmazon;
             private DangerousSettings _dangerousSettings;
+            private bool _usesStoreKit2IfAvailable;
 
             private Builder(string apiKey)
             {
@@ -80,7 +83,7 @@ public partial class Purchases
             {
                 _dangerousSettings ??= new DangerousSettings(false);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName,
-                    _useAmazon, _dangerousSettings);
+                    _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -112,6 +115,12 @@ public partial class Purchases
                 _dangerousSettings = dangerousSettings;
                 return this;
             }
+
+            public Builder SetUsesStoreKit2IfAvailable(bool usesStoreKit2IfAvailable)
+            {
+                _usesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
+                return this;
+            }
         }
 
         public override string ToString()
@@ -122,7 +131,8 @@ public partial class Purchases
                 $"{nameof(ObserverMode)}: {ObserverMode}\n" +
                 $"{nameof(UserDefaultsSuiteName)}: {UserDefaultsSuiteName}\n" +
                 $"{nameof(UseAmazon)}: {UseAmazon}\n" +
-                $"{nameof(DangerousSettings)}: {DangerousSettings}";
+                $"{nameof(DangerousSettings)}: {DangerousSettings}" +
+                $"{nameof(UsesStoreKit2IfAvailable)}: {UsesStoreKit2IfAvailable}";
         }
     }
 }

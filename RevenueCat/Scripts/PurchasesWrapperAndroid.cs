@@ -48,7 +48,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
         CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon,
@@ -115,7 +115,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("syncObserverModeAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
-    
+
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
     {
         // NOOP

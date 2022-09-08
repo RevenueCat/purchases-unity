@@ -6,12 +6,13 @@ using UnityEngine;
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
-    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName);
+    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode,
+                                                 bool usesStoreKit2IfAvailable, string userDefaultsSuiteName);
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode,
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
-        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, userDefaultsSuiteName);
+        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, userDefaultsSuiteName);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -34,7 +35,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
-    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null, 
+    public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         Purchases.PromotionalOffer discount = null)
     {
@@ -48,7 +49,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
-    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null, 
+    public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         Purchases.PromotionalOffer discount = null)
     {
@@ -73,8 +74,8 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSyncPurchases();
     }
-    
-    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, 
+
+    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
         string isoCurrencyCode, double price)
     {
         // No-Op
@@ -93,7 +94,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCLogOut();
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetFinishTransactions(bool finishTransactions);
     public void SetFinishTransactions(bool finishTransactions)
@@ -178,25 +179,25 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
     [DllImport("__Internal")]
     private static extern void _RCInvalidateCustomerInfoCache();
-    public void InvalidateCustomerInfoCache() 
+    public void InvalidateCustomerInfoCache()
     {
         _RCInvalidateCustomerInfoCache();
     }
 
     [DllImport("__Internal")]
     private static extern void _RCPresentCodeRedemptionSheet();
-    public void PresentCodeRedemptionSheet() 
+    public void PresentCodeRedemptionSheet()
     {
         _RCPresentCodeRedemptionSheet();
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetSimulatesAskToBuyInSandbox(bool enabled);
     public void SetSimulatesAskToBuyInSandbox(bool enabled)
     {
         _RCSetSimulatesAskToBuyInSandbox(enabled);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetAttributes(string attributesJson);
     public void SetAttributes(string attributesJson)
@@ -315,7 +316,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSetCreative(creative);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCCollectDeviceIdentifiers();
     public void CollectDeviceIdentifiers()
@@ -328,7 +329,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         public int[] features;
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCCanMakePayments(string featuresJson);
     public void CanMakePayments(Purchases.BillingFeature[] features)
@@ -343,16 +344,16 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         {
             features = featuresAsInts
         };
-        
+
         _RCCanMakePayments(JsonUtility.ToJson(request));
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCGetPromotionalOffer(string productIdentifier, string discountIdentifier);
     public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
     {
         _RCGetPromotionalOffer(productIdentifier, discountIdentifier);
     }
-    
+
 }
 #endif
