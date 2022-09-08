@@ -70,7 +70,7 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
                                                                           options:0
                                                                             error:&error];
 
-    RCDangerousSettings *dangerousSettings = NULL;
+    RCDangerousSettings *dangerousSettings = nil;
 
     if (error) {
         NSLog(@"Error parsing dangerousSettings JSON: %@ %@", dangerousSettingsJson, error.localizedDescription);
