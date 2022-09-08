@@ -52,19 +52,23 @@ public partial class Purchases
         public StoreTransaction(JSONNode response)
         {
             TransactionIdentifier = response["transactionIdentifier"];
-            RevenueCatId = response["transactionIdentifier"];
             ProductIdentifier = response["productIdentifier"];
+            #pragma warning disable 618 // Disable Obsolete warning
+            RevenueCatId = response["transactionIdentifier"];
             ProductId = response["productIdentifier"];
+            #pragma warning restore 618
             PurchaseDate = FromUnixTimeInMilliseconds(response["purchaseDateMillis"].AsLong);
         }
 
         public override string ToString()
         {
+            #pragma warning disable 618 // Disable Obsolete warning
             return $"{nameof(TransactionIdentifier)}: {TransactionIdentifier}\n" +
                    $"{nameof(RevenueCatId)}: {RevenueCatId}\n" +
                    $"{nameof(ProductIdentifier)}: {ProductIdentifier}\n" +
                    $"{nameof(ProductId)}: {ProductId}\n" +
                    $"{nameof(PurchaseDate)}: {PurchaseDate}";
+            #pragma warning restore 618
         }
     }
 }

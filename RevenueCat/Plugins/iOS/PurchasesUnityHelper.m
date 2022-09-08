@@ -59,6 +59,7 @@ char *makeStringCopy(NSString *nstring) {
              appUserID:(nullable NSString *)appUserID
             gameObject:(NSString *)gameObject
           observerMode:(BOOL)observerMode
+usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName {
     self.products = nil;
     self.gameObject = nil;
@@ -69,9 +70,9 @@ char *makeStringCopy(NSString *nstring) {
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
                platformFlavorVersion:self.platformFlavorVersion
-            usesStoreKit2IfAvailable:false
+            usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                    dangerousSettings:nil];
-    
+
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
 }
@@ -133,7 +134,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)syncPurchases {
     // on Android, syncPurchases doesn't have a completion block. So instead of
     // calling getCustomerInfoCompletionBlockFor:SYNC_PURCHASES, we just
-    // print the response, to match Android behavior. 
+    // print the response, to match Android behavior.
     [RCCommonFunctionality syncPurchasesWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSLog(@"received syncPurchases response: \n customerInfo: %@ \n error:%@", responseDictionary, error);
     }];
@@ -159,7 +160,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         } else {
             response[@"offerings"] = responseDictionary;
         }
-        
+
         [self sendJSONObject:response toMethod:GET_OFFERINGS];
     }];
 }
@@ -231,11 +232,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)canMakePaymentsWithFeatures:(NSArray<NSNumber *> *)features {
     BOOL canMakePayments = [RCCommonFunctionality canMakePaymentsWithFeatures:features];
-    
+
     NSDictionary *response = @{
         @"canMakePayments": @(canMakePayments)
     };
-    
+
     [self sendJSONObject:response toMethod:CAN_MAKE_PAYMENTS];
 }
 
@@ -372,11 +373,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     };
 }
 
-- (NSString *)platformFlavor { 
+- (NSString *)platformFlavor {
     return @"unity";
 }
 
-- (NSString *)platformFlavorVersion { 
+- (NSString *)platformFlavorVersion {
     return @"4.3.0-SNAPSHOT";
 }
 
@@ -397,11 +398,13 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *apiKey,
                        const char *appUserID,
                        const BOOL observerMode,
+                       const BOOL usesStoreKit2IfAvailable,
                        const char *userDefaultsSuiteName) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
                               observerMode:observerMode
+                  usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)];
 }
 
@@ -513,12 +516,12 @@ void _RCSetAttributes(const char* attributesJSON) {
     NSDictionary *attributes = [NSJSONSerialization JSONObjectWithData:attributesAsData
                                                                options:0
                                                                  error:&error];
-    
+
     if (error) {
         NSLog(@"Error parsing attributes JSON: %s %@", attributesJSON, error.localizedDescription);
         return;
     }
-    
+
     [_RCUnityHelperShared() setAttributes:attributes];
 }
 
@@ -592,7 +595,7 @@ void _RCCollectDeviceIdentifiers() {
 
 void _RCCanMakePayments(const char *featuresJSON) {
     NSError *error = nil;
-    
+
     NSData *data = [convertCString(featuresJSON) dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *canMakePaymentsRequest = [NSJSONSerialization JSONObjectWithData:data
                                                                            options:0

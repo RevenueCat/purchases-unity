@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public interface IPurchasesWrapper
 {
-    void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName,
-        bool useAmazon, string dangerousSettingsJson);
+    void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson);
 
     void GetProducts(string[] productIdentifiers, string type = "subs");
 

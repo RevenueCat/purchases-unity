@@ -66,6 +66,12 @@ public partial class Purchases : MonoBehaviour
              "it through PurchasesConfiguration instead")]
     public bool observerMode;
 
+    [Tooltip("Enables StoreKit2 support. iOS only, on Android it has no effect.\n" +
+             "If enabled, it will use the StoreKit 2 API to handle purchases in iOS.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
+    public bool usesStoreKit2IfAvailable;
+
     [Tooltip("An optional string. iOS only.\n" +
              "Set this to use a specific NSUserDefaults suite for RevenueCat. " +
              "This might be handy if you are deleting all NSUserDefaults in your app " +
@@ -120,7 +126,8 @@ public partial class Purchases : MonoBehaviour
             .SetObserverMode(observerMode)
             .SetUserDefaultsSuiteName(userDefaultsSuiteName)
             .SetUseAmazon(useAmazon)
-            .SetDangerousSettings(dangerousSettings);
+            .SetDangerousSettings(dangerousSettings)
+            .SetUsesStoreKit2IfAvailable(usesStoreKit2IfAvailable);
 
         Configure(builder.Build());
     }
@@ -134,7 +141,7 @@ public partial class Purchases : MonoBehaviour
     // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
     /// Use this method to configure the SDK programmatically.
-    /// To use this, you *must* check <c>useRuntimeSetup</c> in the Unity IDE UI. 
+    /// To use this, you *must* check <c>useRuntimeSetup</c> in the Unity IDE UI.
     /// The values used through this setup will override values set through the Unity IDE UI.
     /// You should call this method as soon as possible in your app's lifecycle, and before any other calls to the SDK.
     /// <see cref="useRuntimeSetup"/>
@@ -147,7 +154,7 @@ public partial class Purchases : MonoBehaviour
     /// You should call this method as early in your app's lifecycle as possible, to make sure that the SDK doesn't
     /// miss events that happen in the purchasing queue.
     /// </remarks>
-    /// 
+    ///
     /// <example>
     /// For example:
     /// <code>
@@ -159,12 +166,12 @@ public partial class Purchases : MonoBehaviour
     /// purchases.Configure(purchasesConfiguration);
     /// </code>
     /// </example>
-    /// 
+    ///
     public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
-            purchasesConfiguration.ObserverMode, purchasesConfiguration.UserDefaultsSuiteName,
+            purchasesConfiguration.ObserverMode, purchasesConfiguration.UsesStoreKit2IfAvailable, purchasesConfiguration.UserDefaultsSuiteName,
             purchasesConfiguration.UseAmazon, dangerousSettings);
     }
 
@@ -228,7 +235,7 @@ public partial class Purchases : MonoBehaviour
     /// <see cref="Purchases.PurchaseDiscountedProduct"/>, <see cref="Purchases.PurchasePackage"/> and \n
     /// <see cref="Purchases.PurchaseDiscountedPackage"/>.
     /// </summary>
-    /// 
+    ///
     /// <param name="productIdentifier"> The product identifier for which the purchase was attempted.</param>
     /// <param name="customerInfo"> The updated <see cref="CustomerInfo"/> object after the successful purchase.</param>
     /// <param name="userCancelled"> A boolean that indicates whether the purchase was cancelled by the user.</param>
@@ -271,26 +278,26 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode);
     }
 
-    /// 
+    ///
     /// <summary>
     /// iOS only. Initiates a purchase of a <see cref="StoreProduct"/> with a <see cref="PromotionalOffer"/>.
     /// You can get a <c>PromotionalOffer</c> by calling <see cref="GetPromotionalOffer"/>.
     /// </summary>
     /// Use this function if you are not using the <see cref="Offerings"/> system to purchase a <see cref="StoreProduct"/>.
     /// If you are using the <see cref="Offerings"/> system, use <see cref="PurchasePackage"/> instead.
-    /// 
+    ///
     /// <remarks>
     /// Call this method when a user has decided to purchase a product.
     /// Only call this in direct response to user input.
     /// </remarks>
-    /// 
+    ///
     /// From here the SDK will handle the purchase with <c>StoreKit</c> and call the <c>PurchaseCompletedBlock</c>.
-    /// 
+    ///
     /// <remarks>
     /// Note: You do not need to finish the transaction yourself in the completion callback, RevenueCat will
     /// handle this for you.
     /// </remarks>
-    /// 
+    ///
     /// <param name="productIdentifier"> The identifier of the <see cref="StoreProduct"/> the user intends to purchase.</param>
     /// <param name="discount"> A <see cref="PromotionalOffer"/> to apply to the purchase.</param>
     /// <param name="callback"> A <see cref="MakePurchaseCallback"/> completion block that is called when the purchase completes.</param>
@@ -369,7 +376,7 @@ public partial class Purchases : MonoBehaviour
     private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// This method will post all purchases associated with the current Store account to RevenueCat and become
     /// associated with the current <c>appUserID</c>. If the receipt is being used by an existing user, the current
     /// <c>appUserID</c> will be aliased together with the <c>appUserID</c> of the existing user.
@@ -397,7 +404,7 @@ public partial class Purchases : MonoBehaviour
     public void AddAttributionData(string dataJson, AttributionNetwork network, string networkUserId = null) { }
 
     /// <summary>
-    /// Callback function for <see cref="Purchases.LogIn"/>. 
+    /// Callback function for <see cref="Purchases.LogIn"/>.
     /// </summary>
     /// <param name="customerInfo"> The <see cref="CustomerInfo"/> of the user if the request was successful.
     /// Null otherwise.</param>
@@ -426,7 +433,7 @@ public partial class Purchases : MonoBehaviour
     /// The Purchases SDK allows you to specify your own user identifiers or use anonymous identifiers
     /// generated by RevenueCat. Some apps will use a combination
     /// of their own identifiers and RevenueCat anonymous Ids - that's okay!
-    /// 
+    ///
     /// <seealso href="https://docs.revenuecat.com/docs/user-ids"/>
     /// <seealso cref="LogOut"/>
     /// <seealso cref="IsAnonymous"/>
@@ -444,7 +451,7 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Logs out the <c>Purchases</c> client, clearing the saved <c>appUserID</c>.
     /// </summary>
-    /// 
+    ///
     /// This will generate a random user id and save it in the cache.
     /// If this method is called and the current user is anonymous, it will return an error.
     ///
@@ -509,7 +516,7 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Enable debug logging. Useful for debugging issues with the lovely team @RevenueCat.
     /// </summary>
-    /// 
+    ///
     /// <param name="logsEnabled"> Whether debug logs should be enabled.</param>
     public void SetDebugLogsEnabled(bool logsEnabled)
     {
@@ -523,10 +530,10 @@ public partial class Purchases : MonoBehaviour
     /// Get latest available <see cref="CustomerInfo"/>.
     /// </summary>
     ///
-    /// <param name="callback"> A completion block called when customer info is available and not stale. 
+    /// <param name="callback"> A completion block called when customer info is available and not stale.
     /// Called immediately if <see cref="CustomerInfo"/> is cached. Customer info can be nil if an error occurred.
     /// </param>
-    /// 
+    ///
     public void GetCustomerInfo(CustomerInfoFunc callback)
     {
         GetCustomerInfoCallback = callback;
@@ -546,7 +553,7 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Fetch the configured <see cref="Offerings"/> for this user.
     /// </summary>
-    /// 
+    ///
     /// <see cref="Offerings"/> allows you to configure your in-app products
     /// via RevenueCat and greatly simplifies management.
     ///
@@ -592,7 +599,7 @@ public partial class Purchases : MonoBehaviour
 
     /// <summary>
     /// Android only. Noop in iOS.
-    /// 
+    ///
     /// This method will send a purchase to the RevenueCat backend. This function should only be called if you are
     /// in Amazon observer mode or performing a client side migration of your current users to RevenueCat.
     /// The receipt IDs are cached if successfully posted so they are not posted more than once.
@@ -610,7 +617,7 @@ public partial class Purchases : MonoBehaviour
 
     // ReSharper disable once UnusedMember.Global
     /// <summary>
-    /// Enable automatic collection of Apple Search Ads attribution. Defaults to `false`. 
+    /// Enable automatic collection of Apple Search Ads attribution. Defaults to `false`.
     /// </summary>
     /// <param name="searchAdsAttributionEnabled"> Whether to enable automatic collection of Apple Search Ads attribution.</param>
     public void SetAutomaticAppleSearchAdsAttributionCollection(bool searchAdsAttributionEnabled)
@@ -620,7 +627,7 @@ public partial class Purchases : MonoBehaviour
 
     // ReSharper disable once UnusedMember.Global
     /// <summary>
-    /// Enable automatic collection of Apple Search Ads attribution using AdServices. Defaults to `false`. 
+    /// Enable automatic collection of Apple Search Ads attribution using AdServices. Defaults to `false`.
     /// </summary>
     public void EnableAdServicesAttributionTokenCollection()
     {
@@ -628,7 +635,7 @@ public partial class Purchases : MonoBehaviour
     }
 
     /// <summary>
-    /// iOS only. Callback for the <see cref="Purchases.CheckTrialOrIntroductoryPriceEligibility"/> method.  
+    /// iOS only. Callback for the <see cref="Purchases.CheckTrialOrIntroductoryPriceEligibility"/> method.
     /// </summary>
     /// <param name="products"> A Dictionary mapping product identifiers to their eligibility status,
     /// as <see cref="IntroEligibility"/> objects.</param>
@@ -636,7 +643,7 @@ public partial class Purchases : MonoBehaviour
 
     private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
 
-    /// 
+    ///
     /// <summary>
     /// iOS only. Computes whether or not a user is eligible for the introductory pricing period of a given product.
     /// You should use this method to determine whether or not you show the user the normal product price or
@@ -671,7 +678,7 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Invalidates the cache for customer information.
     /// </summary>
-    /// 
+    ///
     /// <remarks>Most apps will not need to use this method; invalidating the cache can leave your app in an invalid state.
     /// Refer to https://docs.revenuecat.com/docs/purchaserinfo#section-get-user-information
     /// for more information on using the cache properly.
@@ -698,7 +705,7 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// iOS only.
     /// Set this property to true *only* when testing the ask-to-buy / SCA purchases flow.
-    /// <seealso href="http://errors.rev.cat/ask-to-buy"/> 
+    /// <seealso href="http://errors.rev.cat/ask-to-buy"/>
     /// </summary>
     /// <param name="askToBuyEnabled"> Whether to start simulating ask-to-buy flow in sandbox. </param>
     public void SetSimulatesAskToBuyInSandbox(bool askToBuyEnabled)
@@ -712,11 +719,11 @@ public partial class Purchases : MonoBehaviour
     /// Since attributes are writable using a public key they should not be used for
     /// managing secure or sensitive information such as subscription status, coins, etc.
     /// </summary>
-    /// 
+    ///
     /// <remarks>Key names starting with "$" are reserved names used by RevenueCat. For a full list of key
     /// restrictions refer [to our guide](https://docs.revenuecat.com/docs/subscriber-attributes)
     /// </remarks>
-    /// 
+    ///
     /// <param name="attributes"> Map of attributes by key. Set the value as an empty string to delete an attribute. </param>
     public void SetAttributes(Dictionary<string, string> attributes)
     {
@@ -942,7 +949,7 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.CollectDeviceIdentifiers();
     }
-    
+
     /// <summary>
     /// Callback function containing the result of CanMakePayments
     /// </summary>
@@ -980,11 +987,11 @@ public partial class Purchases : MonoBehaviour
     {
         CanMakePayments(new BillingFeature[] { }, callback);
     }
-    
+
     /// <summary>
     /// Callback function containing the result of GetPromotionalOffer
     /// </summary>
-    /// 
+    ///
     /// <param name="promotionalOffer">A Purchases.PromotionalOffer. It will be Null if platform is Android or
     /// the iOS version is not compatible with promotional offers</param>
     /// <param name="error">An Error object or null if successful.</param>
@@ -1102,7 +1109,7 @@ public partial class Purchases : MonoBehaviour
         LogOutCallback = null;
     }
 
-    // ReSharper disable once UnusedMember.Local 
+    // ReSharper disable once UnusedMember.Local
     private void _getOfferings(string offeringsJson)
     {
         Debug.Log("_getOfferings " + offeringsJson);
