@@ -121,7 +121,7 @@ public class PurchasesAPITests : MonoBehaviour
             receivedCustomerInfo = customerInfo;
             receivedError = error;
         });
-        
+
         bool receivedCreated = false;
         purchases.LogIn("appuUerId", (info, created, error) =>
         {
@@ -198,6 +198,7 @@ public class PurchasesAPITests : MonoBehaviour
             .SetObserverMode(true)
             .SetUseAmazon(false)
             .SetAppUserId(appUserId)
+            .SetUsesStoreKit2IfAvailable(false)
             .Build();
         purchases.Configure(purchasesConfiguration);
 
