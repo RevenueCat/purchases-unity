@@ -1,3 +1,9 @@
+## 4.3.0
+### New Features
+* Support for `usesStoreKit2IfAvailable` config option (#151) via Toni Rico (@tonidero)
+### Bugfixes
+* Fix support for DangerousSettings in iOS (#152) via Toni Rico (@tonidero)
+
 ## 4.2.0
 ### ⚠️ Important: If you're using RevenueCat along with Unity IAP side-by-side ⚠️
 Starting with this version you need to use Unity IAP 4.4.0+ if you are using Unity IAP together with RevenueCat in your project. You can update from Unity Package Manager.
