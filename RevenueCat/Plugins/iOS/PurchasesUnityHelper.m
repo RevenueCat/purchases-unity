@@ -60,9 +60,24 @@ char *makeStringCopy(NSString *nstring) {
             gameObject:(NSString *)gameObject
           observerMode:(BOOL)observerMode
 usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
- userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName {
+ userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
+ dangerousSettingsJson:(NSString *)dangerousSettingsJson {
     self.products = nil;
     self.gameObject = nil;
+
+    NSError *error = nil;
+    NSDictionary *dangerousSettingsDict = [NSJSONSerialization JSONObjectWithData:[dangerousSettingsJson dataUsingEncoding:NSUTF8StringEncoding]
+                                                                          options:0
+                                                                            error:&error];
+
+    RCDangerousSettings *dangerousSettings = nil;
+
+    if (error) {
+        NSLog(@"Error parsing dangerousSettings JSON: %@ %@", dangerousSettingsJson, error.localizedDescription);
+    } else {
+        BOOL autoSyncPurchases = dangerousSettingsDict[@"AutoSyncPurchases"];
+        dangerousSettings = [[RCDangerousSettings alloc] initWithAutoSyncPurchases:autoSyncPurchases];
+    }
 
     [RCPurchases configureWithAPIKey:apiKey
                            appUserID:appUserID
@@ -71,7 +86,7 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
                       platformFlavor:self.platformFlavor
                platformFlavorVersion:self.platformFlavorVersion
             usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
-                   dangerousSettings:nil];
+                   dangerousSettings:dangerousSettings];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -399,13 +414,15 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *appUserID,
                        const BOOL observerMode,
                        const BOOL usesStoreKit2IfAvailable,
-                       const char *userDefaultsSuiteName) {
+                       const char *userDefaultsSuiteName,
+                       const char *dangerousSettingsJson) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
                               observerMode:observerMode
                   usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
-                     userDefaultsSuiteName:convertCString(userDefaultsSuiteName)];
+                     userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
+                     dangerousSettingsJson:convertCString(dangerousSettingsJson)];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
