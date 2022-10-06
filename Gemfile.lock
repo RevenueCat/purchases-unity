@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/RevenueCat/fastlane-plugin-revenuecat_internal
-  revision: 853cb3dd0a153dfdd747d661387602abef0f7623
+  revision: 7080bf23518eea5b53c88d9ccc5cde6ef7bfba07
   specs:
     fastlane-plugin-revenuecat_internal (0.1.0)
 
@@ -253,6 +253,7 @@ GEM
       xcpretty (~> 0.2, >= 0.0.7)
 
 PLATFORMS
+  arm64-darwin-21
   x86_64-darwin-21
   x86_64-linux
 
@@ -262,4 +263,4 @@ DEPENDENCIES
   fastlane-plugin-revenuecat_internal!
 
 BUNDLED WITH
-   2.3.7
+   2.3.20
