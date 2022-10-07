@@ -213,13 +213,14 @@ jobs:
 
       - perform-build:
           target: iOS
+          
+      - store_artifacts:
+          path: IntegrationTests/buildiOS
 
       - persist_to_workspace:
           root: .
           paths:
             - IntegrationTests/buildiOS
-      - store_artifacts:
-          path: IntegrationTests/buildiOS
 
   archive-ios:
     description: "Run iOS integration tests for Unity"
