@@ -39,6 +39,25 @@ lane :bump do |options|
   update_versions_file
 end
 
+desc "Automatically bumps version, edit changelog, and create pull request"
+lane :automatic_bump do |options|
+  next_version, type_of_bump = determine_next_version_using_labels(
+    repo_name: repo_name,
+    github_rate_limit: options[:github_rate_limit]
+  )
+  options[:next_version] = next_version
+  options[:automatic_release] = true
+  if type_of_bump == :skip
+    UI.message('Skipping automatic bump since the next version doesn\'t include public facing changes')
+    next
+  end
+  if type_of_bump == :major
+    UI.message('Skipping automatic bump since the next version is a major release')
+    next
+  end
+  bump(options)
+end
+
 desc "Make github release"
 lane :github_release do |options|
   create_github_release(
@@ -60,8 +79,8 @@ lane :prepare_next_version do |options|
   )
 end
 
-desc "Update hybrid common pod and gradle"
-lane :update_hybrid_common_versions do |options|
+desc "Update hybrid common pod and gradle and pushes changes to a new branch if open_pr option is true"
+lane :update_hybrid_common do |options|
   if options[:dry_run]
     dry_run = true
   end
@@ -71,12 +90,9 @@ lane :update_hybrid_common_versions do |options|
     UI.user_error!("Missing `version` argument")
   end
 
-  previous_version_number = parse_previous_hybrid_version
+  current_phc_version = get_phc_version
 
-  # Add to options so if we're chaining lanes together, the other lanes get it
-  options[:previous_hybrid_version] = previous_version_number
-
-  UI.message("ℹ️  Current Purchases Hybrid Common version: #{previous_version_number}")
+  UI.message("ℹ️  Current Purchases Hybrid Common version: #{current_phc_version}")
   UI.message("ℹ️  Setting Purchases Hybrid Common version: #{new_version_number}")
   files_to_update = [
     'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
@@ -86,13 +102,26 @@ lane :update_hybrid_common_versions do |options|
 
   if dry_run
     UI.message("ℹ️  Nothing more to do, dry_run: true")
-  else
-    replace_text_in_files(
-      previous_text: previous_version_number,
-      new_text: new_version_number,
-      paths_of_files_to_update: files_to_update
-    )
+    next
   end
+
+  bump_phc_version(
+    repo_name: repo_name,
+    files_to_update: files_to_update,
+    current_version: current_phc_version,
+    next_version: new_version_number,
+    open_pr: options[:open_pr] || false,
+    automatic_release: options[:automatic_release] || false
+  )
+end
+
+desc "Tag current branch with current version number"
+lane :tag_current_branch do |options|
+  version_number = current_version_number
+  check_no_git_tag_exists(version_number)
+
+  add_git_tag(tag: version_number)
+  push_git_tags(tag: version_number)
 end
 
 ###############################################################################
@@ -104,7 +133,7 @@ def update_versions_file
   update_hybrids_versions_file(
     versions_file_path: versions_file_path,
     new_sdk_version: current_version_number,
-    hybrid_common_version: parse_previous_hybrid_version
+    hybrid_common_version: get_phc_version
   )
   append_previous_version_compatibility_to_versions_file(versions_file_path)
   commit_current_changes(commit_message: 'Update VERSIONS.md')
@@ -134,7 +163,7 @@ def append_previous_version_compatibility_to_versions_file(versions_file_path)
   end
 end
 
-def parse_previous_hybrid_version
+def get_phc_version
   file_contents = File.read('../RevenueCat/Plugins/Editor/RevenueCatDependencies.xml')
   # This will parse the PHC version for iOS and android from within the RevenueCat/Plugins/Editor/RevenueCatDependencies.xml file
   # iOS appears in the form: <iosPod name="PurchasesHybridCommon" version="4.1.2" minTargetSdk="11.0"/>
