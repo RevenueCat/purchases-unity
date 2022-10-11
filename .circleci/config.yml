@@ -30,7 +30,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@dev:c68d6e3f0adf942ecb6dbd492d5350bf42cf05be
+  revenuecat: revenuecat/sdks-common-config@2.2.0
 
 executors:
   unity:
@@ -229,7 +229,7 @@ jobs:
           at: .
 
       - revenuecat/install-gem-mac-dependencies:
-          directory: IntegrationTests
+          working_directory: IntegrationTests
           cache-version: v1
 
       - restore_cache:
