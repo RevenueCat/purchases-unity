@@ -1,4 +1,5 @@
-### New Features
-* Support for `usesStoreKit2IfAvailable` config option (#151) via Toni Rico (@tonidero)
 ### Bugfixes
-* Fix support for DangerousSettings in iOS (#152) via Toni Rico (@tonidero)
+* Update receivedUpdatedCustomerInfo delegate (#158) via Cesar de la Vega (@vegaro)
+### Other Changes
+* Update fastlane plugin (#156) via Cesar de la Vega (@vegaro)
+* Add new SetUsesStoreKit2IfAvailable api to api tests (#154) via Toni Rico (@tonidero)
