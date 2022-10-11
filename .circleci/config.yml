@@ -14,6 +14,13 @@ aliases:
         ignore: /^.*-SNAPSHOT/
       branches:
         ignore: /.*/
+  
+  release-branches: &release-branches
+    filters:
+      tags:
+        ignore: /.*/
+      branches:
+        only: /^release\/.*/
 
   only-main-branch: &only-main-branch
     filters:
@@ -23,7 +30,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@2.0.0
+  revenuecat: revenuecat/sdks-common-config@2.2.0
 
 executors:
   unity:
@@ -38,6 +45,18 @@ executors:
   unity-ios:
     docker:
       - image: unityci/editor:2021.3.3f1-ios-1
+
+parameters:
+   action:
+     type: enum
+     enum: [build, upgrade-hybrid-common, bump]
+     default: build
+   version:
+     type: string
+     default: ''
+   automatic:
+     type: boolean
+     default: false
 
 commands:
   import-package:
@@ -133,25 +152,6 @@ commands:
               -nographics \
               -logFile /dev/stdout
 
-  install-gems:
-    parameters:
-      directory:
-        type: string
-        default: .
-    steps:
-       # Bundler
-      - restore_cache:
-          keys:
-            - gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
-      - run:
-          name: Bundle install
-          working_directory: << parameters.directory >>
-          command: bundle install --clean --path vendor/bundle
-      - save_cache:
-          key: gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
-          paths:
-            - vendor/bundle
-
 jobs:
   export-package:
     executor: unity
@@ -228,8 +228,9 @@ jobs:
       - attach_workspace:
           at: .
 
-      - install-gems:
-          directory: IntegrationTests
+      - revenuecat/install-gem-mac-dependencies:
+          working_directory: IntegrationTests
+          cache-version: v1
 
       - restore_cache:
           key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
@@ -285,9 +286,30 @@ jobs:
           name: release
           command: bundle exec fastlane github_release
 
+  update-hybrid-common-versions:
+    description: "Creates a PR updating purchases-hybrid-common to latest release"
+    docker:
+      - image: cimg/ruby:3.1.2
+    steps:
+      - checkout
+      - revenuecat/install-gem-mac-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - revenuecat/setup-git-credentials
+      - run:
+          name: Updating to next version of phc
+          command: |
+            bundle exec fastlane update_hybrid_common \
+            version:<< pipeline.parameters.version >> \
+            open_pr:true \
+            automatic_release:<< pipeline.parameters.automatic >>
+
 workflows:
   version: 2
   build:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - export-package: *release-tags-and-branches
       - build-test-android:
@@ -303,11 +325,24 @@ workflows:
           requires:
             - build-test-ios
   danger:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - revenuecat/danger
 
-  release:
+  deploy:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
+      - hold:
+          type: approval
+          <<: *release-branches
+      - revenuecat/tag-current-branch:
+          requires:
+            - hold
+          <<: *release-branches
       - export-package: *release-tags
       - github-release:
           <<: *release-tags
@@ -321,3 +356,23 @@ workflows:
     jobs:
       - prepare-next-version:
           <<: *only-main-branch
+
+  weekly-run-workflow:
+    when:
+      and:
+        - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ "release-train", << pipeline.schedule.name >> ]
+    jobs:
+      - revenuecat/automatic-bump
+
+  manual-trigger-bump:
+    when:
+      equal: [ bump, << pipeline.parameters.action >> ]
+    jobs:
+      - revenuecat/automatic-bump
+
+  update-hybrid-common-versions:
+    when:
+      equal: [ upgrade-hybrid-common, << pipeline.parameters.action >> ]
+    jobs:
+      - update-hybrid-common-versions

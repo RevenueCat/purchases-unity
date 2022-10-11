@@ -6,6 +6,7 @@ Automatic Releasing
  2. Input new version number
  3. Update CHANGELOG.latest.md to include the latest changes. Call out API changes (if any). You can use the existing CHANGELOG.md as a base for formatting. To compile the changelog, you can compare the changes between the base branch for the release (usually main) against the latest release, by checking https://github.com/revenuecat/purchases-unity/compare/<latest_release>...<base_branch>. For example, https://github.com/revenuecat/purchases-unity/compare/4.1.0...main.
  4. A new branch and PR will automatically be created
-3. Wait until PR is approved (don't merge yet) and pull branch from origin (to make sure you've got all the changes locally)
-4. Create a tag for the new release in the last commit of the branch and push the tag. The rest will be performed automatically by CircleCI. If the automation fails, you can run the `scripts/create-unity-package.sh` manually to create the packages and create a github release manually and add the resulting `unitypackage` files.
-5. After that, you can merge the release PR to main and merge the bump to the next snapshot version PR right after.
+3. Wait until PR is approved (don't merge yet)
+4. When the PR is approved, approve the hold job created in CircleCI. CircleCI will create a tag for the version. Alternatively, you can tag the last commit in the release branch and push it to the repository.
+5. The rest will be performed automatically by CircleCI. If the automation fails, you can run the `scripts/create-unity-package.sh` manually to create the packages and create a github release manually and add the resulting `unitypackage` files.
+6. After that, you can merge the release PR to main and merge the bump to the next snapshot version PR right after.
