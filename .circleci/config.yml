@@ -215,8 +215,8 @@ jobs:
           target: iOS
 
       - run:
-        name: Compress Artifacts
-        command: tar -cvzf buildiOS.tar IntegrationTests/buildiOS
+          name: Compress Artifacts
+          command: tar -cvzf buildiOS.tar IntegrationTests/buildiOS
 
       - store_artifacts:
           path: buildiOS.tar
