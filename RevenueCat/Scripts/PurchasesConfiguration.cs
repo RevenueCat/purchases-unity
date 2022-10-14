@@ -81,7 +81,7 @@ public partial class Purchases
 
             public PurchasesConfiguration Build()
             {
-                _dangerousSettings ??= new DangerousSettings(false);
+                _dangerousSettings = _dangerousSettings ?? new DangerousSettings(false);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable);
             }
