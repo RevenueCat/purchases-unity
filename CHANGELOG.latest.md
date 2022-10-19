@@ -1,5 +1,5 @@
 ### Bugfixes
-* Update receivedUpdatedCustomerInfo delegate (#158) via Cesar de la Vega (@vegaro)
+* fix compatibility issues with C# 7.3 (#162) via Andy Boedo (@aboedo)
 ### Other Changes
-* Update fastlane plugin (#156) via Cesar de la Vega (@vegaro)
-* Add new SetUsesStoreKit2IfAvailable api to api tests (#154) via Toni Rico (@tonidero)
+* [AUTOMATIC] Updates purchases-hybrid-common to 4.3.2 (#163) via RevenueCat Git Bot (@RCGitBot)
+* Release trains (#159) via Cesar de la Vega (@vegaro)
