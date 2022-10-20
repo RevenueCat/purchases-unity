@@ -1,4 +1,4 @@
-## 4.3.2
+## 4.4.0
 ### Bugfixes
 * fix compatibility issues with C# 7.3 (#162) via Andy Boedo (@aboedo)
 ### Other Changes
