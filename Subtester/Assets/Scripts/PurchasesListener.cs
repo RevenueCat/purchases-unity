@@ -90,9 +90,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                    // lower in the screen
                    * (currentButtons / maxButtonsPerRow // how many buttons are on top of this one
                       * (height +
-                         yPaddingForButtons) // distance from start of the first button to the start of the second 
+                         yPaddingForButtons) // distance from start of the first button to the start of the second
                       + minYOffsetForButtons // min distance to the top of the container
-                      + height / 2); // y position starts from the center 
+                      + height / 2); // y position starts from the center
         var xPos = (currentButtons % maxButtonsPerRow) // 0 for first column, 1 for second column
                    * (width + xPaddingForButtons) // distance from start of the first button to the start of the second
                    + minXOffsetForButtons + (width / 2); // x position starts from the center
@@ -527,7 +527,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     .ToArray();
 
                 // note: we're getting all offerings, then packages, then the products, then the product ids
-                // and then we're fetching the products from those ids. 
+                // and then we're fetching the products from those ids.
                 // you'd never do this in practice, but it serves as a way to test the relevant methods.
                 purchases.GetProducts(productIds, (products, innerError) =>
                 {
@@ -589,7 +589,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             offerings.All // unpack as dictionary
                 .Values // to list of values
                 .Select(offering => offering.AvailablePackages) // map to packages
-                .SelectMany(x => x) // transform the list of lists of packages into a list of packages 
+                .SelectMany(x => x) // transform the list of lists of packages into a list of packages
                 .ToList();
     }
 }

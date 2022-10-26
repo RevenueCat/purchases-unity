@@ -1,0 +1,14 @@
+{
+  "name": "com.revenuecat.purchases-unity",
+  "version": "4.5.0-SNAPSHOT",
+  "displayName": "RevenueCat SDK for Unity",
+  "description": "This package provides the SDK to integrat RevenueCat's services into your Android/iOS applications.",
+  "documentationUrl": "https://www.revenuecat.com/docs",
+  "changelogUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/LICENSE",
+  "author": {
+    "name": "RevenueCat",
+    "email": "support@revenuecat.com",
+    "url": "https://www.revenuecat.com"
+  }
+}
