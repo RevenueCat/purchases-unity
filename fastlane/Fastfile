@@ -34,7 +34,8 @@ lane :bump do |options|
     repo_name: repo_name,
     github_rate_limit: options[:github_rate_limit],
     editor: options[:editor],
-    next_version: options[:next_version]
+    next_version: options[:next_version],
+    automatic_release: options[:automatic_release]
   )
   update_versions_file
 end
