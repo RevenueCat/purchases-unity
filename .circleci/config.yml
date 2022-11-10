@@ -7,7 +7,7 @@ aliases:
         ignore: /^.*-SNAPSHOT/
       branches:
         ignore: /.*/
-  
+
   release-branches: &release-branches
     filters:
       tags:
@@ -334,6 +334,9 @@ workflows:
           requires:
             - hold
           <<: *release-branches
+      - export-package:
+          <<: *release-tags
+          name: 'post-release-export-package'
       - github-release:
           <<: *release-tags
           requires:
