@@ -336,7 +336,7 @@ workflows:
           <<: *release-branches
       - export-package:
           <<: *release-tags
-          name: 'post-release-export-package'
+          name: 'post-tag-export-package'
       - github-release:
           <<: *release-tags
           requires:
