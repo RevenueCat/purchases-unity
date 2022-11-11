@@ -1,3 +1,9 @@
+## 4.5.1
+### Other Changes
+* Fix github release workflow (#177) via Toni Rico (@tonidero)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.4.1 (#178) via RevenueCat Git Bot (@RCGitBot)
+* Update Fastlane plugin (#173) via Cesar de la Vega (@vegaro)
+
 ## 4.5.0
 ### Other Changes
 * [AUTOMATIC] Updates purchases-hybrid-common to 4.4.0 (#172) via RevenueCat Git Bot (@RCGitBot)
