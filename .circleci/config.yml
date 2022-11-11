@@ -7,7 +7,7 @@ aliases:
         ignore: /^.*-SNAPSHOT/
       branches:
         ignore: /.*/
-  
+
   release-branches: &release-branches
     filters:
       tags:
@@ -334,10 +334,7 @@ workflows:
           requires:
             - hold
           <<: *release-branches
-      - github-release:
-          <<: *release-tags
-          requires:
-            - export-package
+      - github-release: *release-tags
 
   snapshot-bump:
     when:
