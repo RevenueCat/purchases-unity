@@ -334,13 +334,7 @@ workflows:
           requires:
             - hold
           <<: *release-branches
-      - export-package:
-          <<: *release-tags
-          name: 'post-tag-export-package'
-      - github-release:
-          <<: *release-tags
-          requires:
-            - export-package
+      - github-release: *release-tags
 
   snapshot-bump:
     when:
