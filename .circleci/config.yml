@@ -306,7 +306,7 @@ workflows:
     jobs:
       - revenuecat/danger
 
-  deploy:
+  deploy-check:
     when:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
@@ -335,6 +335,17 @@ workflows:
             - hold
           <<: *release-branches
       - github-release: *release-tags
+
+  deploy:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+    jobs:
+      - export-package: *release-tags
+      - github-release:
+          requires:
+            - export-package
+          <<: *release-tags
 
   snapshot-bump:
     when:
