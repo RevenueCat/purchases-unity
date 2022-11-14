@@ -334,7 +334,6 @@ workflows:
           requires:
             - hold
           <<: *release-branches
-      - github-release: *release-tags
 
   deploy:
     when:
