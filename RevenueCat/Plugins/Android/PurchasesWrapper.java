@@ -43,7 +43,7 @@ public class PurchasesWrapper {
     private static final String GET_PROMOTIONAL_OFFER = "_getPromotionalOffer";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "4.6.0-SNAPSHOT";
+    private static final String PLUGIN_VERSION = "4.5.2";
 
     private static String gameObject;
     private static UpdatedCustomerInfoListener listener = new UpdatedCustomerInfoListener() {

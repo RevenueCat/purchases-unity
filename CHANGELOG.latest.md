@@ -1,4 +1,3 @@
 ### Other Changes
-* Fix github release workflow (#177) via Toni Rico (@tonidero)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.4.1 (#178) via RevenueCat Git Bot (@RCGitBot)
-* Update Fastlane plugin (#173) via Cesar de la Vega (@vegaro)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.4.3 (#183) via RevenueCat Git Bot (@RCGitBot)
+* Fix CircleCI deployment workflow (#180) via Toni Rico (@tonidero)
