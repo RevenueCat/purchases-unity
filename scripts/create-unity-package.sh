@@ -10,17 +10,23 @@ done
 PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
 PACKAGE_UNITY_IAP="$PWD/Purchases-UnityIAP.unitypackage"
-FOLDERS_TO_EXPORT=$(cd $PROJECT; find ../RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
+
+SYMBOLIC_LINK_PATH="$PROJECT/Assets/RevenueCat"
+ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
+
+FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
 if ! [ -d "$PROJECT" ]; then
     echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
+    rm $SYMBOLIC_LINK_PATH
     exit 1
 fi
 
 if [ -z "$UNITY_BIN" ]; then
     echo "😞 Unity not passed as parameter!"
     echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/2019.3.10f1/Unity.app/Contents/MacOS/Unity"
+    rm $SYMBOLIC_LINK_PATH
     exit 1
 fi
 
@@ -91,3 +97,4 @@ else
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE_UNITY_IAP
 fi
 
+rm $SYMBOLIC_LINK_PATH
