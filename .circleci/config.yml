@@ -52,40 +52,40 @@ parameters:
      default: false
 
 commands:
-  # import-package:
-  #   description: "Import Purchases.unitypackage"
-  #   steps:
-  #     # When importing the unity package in the following step, Unity tries to compile the project.
-  #     # The project is referencing Purchases, but the Purchases plugin hasn't been imported yet, so the
-  #     # compilation fails. Temporarily removing scripts that reference any dependency before importing the
-  #     # package is a way to avoid the compilation issues.
-  #     - run:
-  #         name: Temporarily remove scripts
-  #         command: |
-  #           mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
-  #           mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
-  #           # rename all the .cs files in APITests to .cs.break
-  #           for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
+  import-package:
+    description: "Import Purchases.unitypackage"
+    steps:
+      # When importing the unity package in the following step, Unity tries to compile the project.
+      # The project is referencing Purchases, but the Purchases plugin hasn't been imported yet, so the
+      # compilation fails. Temporarily removing scripts that reference any dependency before importing the
+      # package is a way to avoid the compilation issues.
+      - run:
+          name: Temporarily remove scripts
+          command: |
+            mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
+            mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
+            # rename all the .cs files in APITests to .cs.break
+            for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
 
 
-  #     - run:
-  #         name: Import package
-  #         command: |
-  #           /opt/unity/Editor/Unity \
-  #             -projectPath IntegrationTests \
-  #             -quit \
-  #             -batchmode \
-  #             -nographics \
-  #             -logFile /dev/stdout \
-  #             -importPackage ../Purchases.unitypackage
+      - run:
+          name: Import package
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath IntegrationTests \
+              -quit \
+              -batchmode \
+              -nographics \
+              -logFile /dev/stdout \
+              -importPackage ../Purchases.unitypackage
 
-  #     - run:
-  #         name: Bring scripts back
-  #         command: |
-  #           mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
-  #           mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
-  #           # rename all the .cs.break files in APITests to .cs
-  #           for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
+      - run:
+          name: Bring scripts back
+          command: |
+            mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
+            mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
+            # rename all the .cs.break files in APITests to .cs
+            for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
 
   activate-license:
     description: "Activates Unity license"
@@ -179,7 +179,7 @@ jobs:
 
       - activate-license
 
-      # - import-package
+      - import-package
 
       - resolve-dependencies:
           target: Android
@@ -199,7 +199,7 @@ jobs:
 
       - activate-license
 
-      # - import-package
+      - import-package
 
       - resolve-dependencies:
           target: iOS
