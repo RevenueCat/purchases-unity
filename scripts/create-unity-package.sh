@@ -10,7 +10,7 @@ done
 PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
 PACKAGE_UNITY_IAP="$PWD/Purchases-UnityIAP.unitypackage"
-FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
+FOLDERS_TO_EXPORT=$(cd $PROJECT; find ../RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
 if ! [ -d "$PROJECT" ]; then
@@ -47,7 +47,7 @@ fi
 
 echo "📦 Creating Purchases.unitypackage, this may take a minute."
 
-if [ ! -z "$CI" ] ; then 
+if [ ! -z "$CI" ] ; then
     xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
     -nographics \
     -silent-crashes \
@@ -62,7 +62,7 @@ else
     -force-free -quit -batchmode -logFile exportlog.txt \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
-fi 
+fi
 
 echo "Unity package created. Updating dependency for Unity IAP compatibility"
 
@@ -74,7 +74,7 @@ sed -i -e "s/spec=\"$REGULAR_PACKAGE_NAME/spec=\"$UNITY_IAP_PACKAGE_NAME/" \
 
 echo "📦 Creating Purchases-UnityIAP.unitypackage, this may take a minute."
 
-if [ ! -z "$CI" ] ; then 
+if [ ! -z "$CI" ] ; then
     xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
     -nographics \
     -silent-crashes \
@@ -89,5 +89,5 @@ else
     -force-free -quit -batchmode -logFile exportlog.txt \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE_UNITY_IAP
-fi 
+fi
 
