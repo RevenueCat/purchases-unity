@@ -20,5 +20,8 @@
     "Apple",
     "Android"
   ],
-  "repoUrl": "https://github.com/RevenueCat/purchases-unity"
+  "repoUrl": "https://github.com/RevenueCat/purchases-unity",
+  "dependencies": {
+    "com.google.external-dependency-manager" : "1.2.172"
+  }
 }
