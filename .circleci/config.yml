@@ -376,18 +376,33 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package
-      - build-subtester-android
-      - build-subtester-ios
+      - export-package: *release-branches
+      - build-subtester-android: *release-branches
+      - build-subtester-ios: *release-branches
       - build-integration-tests-android:
+          <<: *release-branches
           requires:
             - export-package
       - build-integration-tests-ios:
+          <<: *release-branches
           requires:
             - export-package
       - archive-ios:
+          <<: *release-branches
           requires:
             - build-integration-tests-ios
+      - hold:
+          type: approval
+          requires:
+            - build-integration-tests-android
+            - build-subtester-android
+            - build-subtester-ios
+            - archive-ios
+          <<: *release-branches
+      - revenuecat/tag-current-branch:
+          requires:
+            - hold
+          <<: *release-branches
 
   deploy:
     when:
