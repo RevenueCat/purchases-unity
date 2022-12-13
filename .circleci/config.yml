@@ -149,14 +149,16 @@ commands:
               -nographics \
               -logFile /dev/stdout
 
-  copy-api-tests-to-subtester:
+  copy-api-tests-and-utils-to-subtester:
     description: "Copy APITests from IntegrationTests to Subtester"
     steps:
       - run:
           name: "Copy APITests from IntegrationTests to Subtester"
           command: |
             mkdir Subtester/Assets/APITests
+            mkdir Subtester/Assets/Editor
             cp -r IntegrationTests/Assets/APITests/*.cs Subtester/Assets/APITests/
+            cp IntegrationTests/Assets/Editor/CIEditorScript.cs Subtester/Assets/Editor/CIEditorScript.cs
 
 jobs:
   export-package:
@@ -190,7 +192,7 @@ jobs:
       - attach_workspace:
           at: .
 
-      - copy-api-tests-to-subtester
+      - copy-api-tests-and-utils-to-subtester
 
       - activate-license
 
@@ -212,7 +214,7 @@ jobs:
       - attach_workspace:
           at: .
 
-      - copy-api-tests-to-subtester
+      - copy-api-tests-and-utils-to-subtester
 
       - activate-license
 
