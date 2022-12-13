@@ -194,8 +194,6 @@ jobs:
 
       - activate-license
 
-      - import-package
-
       - resolve-dependencies:
           project: Subtester
           target: Android
@@ -217,8 +215,6 @@ jobs:
       - copy-api-tests-to-subtester
 
       - activate-license
-
-      - import-package
 
       - resolve-dependencies:
           project: Subtester
