@@ -311,16 +311,29 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package
+      - export-package: *release-branches
       - build-test-android:
+          <<: *release-branches
           requires:
             - export-package
       - build-test-ios:
+          <<: *release-branches
           requires:
             - export-package
       - archive-ios:
+          <<: *release-branches
           requires:
             - build-test-ios
+      - hold:
+          type: approval
+          requires:
+            - build-test-android
+            - archive-ios
+          <<: *release-branches
+      - revenuecat/tag-current-branch:
+          requires:
+            - hold
+          <<: *release-branches
 
   deploy:
     when:
