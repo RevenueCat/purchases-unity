@@ -107,6 +107,8 @@ commands:
   perform-build:
     description: "Builds Unity project"
     parameters:
+      project:
+        type: string
       target:
         type: string
     steps:
@@ -114,7 +116,7 @@ commands:
           name: Build Unity project and export it
           command: |
             /opt/unity/Editor/Unity \
-            -projectPath IntegrationTests \
+            -projectPath << parameters.project >> \
             -quit \
             -batchmode \
             -buildTarget << parameters.target >> \
@@ -129,6 +131,8 @@ commands:
   resolve-dependencies:
     description: "Resolve Dependencies"
     parameters:
+      project:
+        type: string
       target:
         type: string
     steps:
@@ -136,7 +140,7 @@ commands:
           name: Resolve project dependencies
           command: |
             /opt/unity/Editor/Unity \
-              -projectPath IntegrationTests \
+              -projectPath << parameters.project >> \
               -batchmode \
               -buildTarget << parameters.target >> \
               -customBuildTarget << parameters.target >> \
@@ -170,7 +174,7 @@ jobs:
       - store_artifacts:
           path: Purchases-UnityIAP.unitypackage
 
-  build-test-android:
+  build-subtester-android:
     executor: unity-android
     steps:
       - checkout
@@ -182,15 +186,17 @@ jobs:
       - import-package
 
       - resolve-dependencies:
+          project: Subtester
           target: Android
 
       - perform-build:
+          project: Subtester
           target: Android
 
       - store_artifacts:
-          path: IntegrationTests/buildAndroid.apk
+          path: Subtester/buildAndroid.apk
 
-  build-test-ios:
+  build-subtester-ios:
     executor: unity-ios
     steps:
       - checkout
@@ -202,9 +208,57 @@ jobs:
       - import-package
 
       - resolve-dependencies:
+          project: Subtester
           target: iOS
 
       - perform-build:
+          project: Subtester
+          target: iOS
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - Subtester/buildiOS
+
+  build-integration-tests-android:
+    executor: unity-android
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - activate-license
+
+      - import-package
+
+      - resolve-dependencies:
+          project: IntegrationTests
+          target: Android
+
+      - perform-build:
+          project: IntegrationTests
+          target: Android
+
+      - store_artifacts:
+          path: IntegrationTests/buildAndroid.apk
+
+  build-integration-tests-ios:
+    executor: unity-ios
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - activate-license
+
+      - import-package
+
+      - resolve-dependencies:
+          project: IntegrationTests
+          target: iOS
+
+      - perform-build:
+          project: IntegrationTests
           target: iOS
 
       - persist_to_workspace:
@@ -312,22 +366,32 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - export-package: *release-branches
-      - build-test-android:
+      - build-subtester-android:
           <<: *release-branches
           requires:
             - export-package
-      - build-test-ios:
+      - build-subtester-ios:
+          <<: *release-branches
+          requires:
+            - export-package
+      - build-integration-tests-android:
+          <<: *release-branches
+          requires:
+            - export-package
+      - build-integration-tests-ios:
           <<: *release-branches
           requires:
             - export-package
       - archive-ios:
           <<: *release-branches
           requires:
-            - build-test-ios
+            - build-integration-tests-ios
       - hold:
           type: approval
           requires:
-            - build-test-android
+            - build-integration-tests-android
+            - build-subtester-android
+            - build-subtester-ios
             - archive-ios
           <<: *release-branches
       - revenuecat/tag-current-branch:
