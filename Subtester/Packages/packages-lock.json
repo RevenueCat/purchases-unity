@@ -1,19 +1,10 @@
 {
   "dependencies": {
-    "com.google.external-dependency-manager": {
-      "version": "1.2.172",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://package.openupm.com"
-    },
     "com.revenuecat.purchases-unity": {
       "version": "file:../../RevenueCat",
       "depth": 0,
       "source": "local",
-      "dependencies": {
-        "com.google.external-dependency-manager": "1.2.172"
-      }
+      "dependencies": {}
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
