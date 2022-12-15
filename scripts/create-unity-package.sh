@@ -11,12 +11,17 @@ PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
 PACKAGE_UNITY_IAP="$PWD/Purchases-UnityIAP.unitypackage"
 
-# To export a .unitypackage, we need to have the SDK files inside the Subtester project
+# Subtester uses the purchases-unity SDK as a package, but we use it to export a .unitypackage.
+# Unity won't export files from package dependencies so we need to add the SDK files inside the Subtester/Assets folder,
 # Additionally, we need to remove the UPM dependency from the manifest to export it,
 # otherwise it will cause issues due to duplicated symbols.
 SYMBOLIC_LINK_PATH="$PROJECT/Assets/RevenueCat"
 MANIFEST_JSON_PATH="$PROJECT/Packages/manifest.json"
+# Here we are adding a symbolic link in the Subtester/Assets project to the RevenueCat scripts so they are exported
+# as part of the .unitypackage
 ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
+# This removes the purchases-unity package dependency from the Subtester project to export it, otherwise it
+# will fail due to duplicated files with the package dependency.
 awk '!/com.revenuecat.purchases-unity/' $MANIFEST_JSON_PATH > temp && mv temp $MANIFEST_JSON_PATH
 
 FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
