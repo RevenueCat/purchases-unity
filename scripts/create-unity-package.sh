@@ -23,6 +23,9 @@ ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
 # This removes the purchases-unity package dependency from the Subtester project to export it, otherwise it
 # will fail due to duplicated files with the package dependency.
 awk '!/com.revenuecat.purchases-unity/' $MANIFEST_JSON_PATH > temp && mv temp $MANIFEST_JSON_PATH
+# This removes the purchases-unity package dependency from the Subtester project to export it, otherwise it
+# will fail due to duplicated files with the package dependency.
+awk '!/com.google.external-dependency-manager/' $MANIFEST_JSON_PATH > temp && mv temp $MANIFEST_JSON_PATH
 
 FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"

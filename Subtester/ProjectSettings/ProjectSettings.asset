@@ -156,7 +156,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.revenuecat.purchases_sample
-    iPhone: com.revenuecat.sampleapp
+    iPhone: com.revenuecat.purchases-sample
   buildNumber:
     Standalone: 0
     iPhone: 0
