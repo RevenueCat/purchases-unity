@@ -13,7 +13,8 @@
 files_with_version_number = [
   './.version',
   './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m',
-  './RevenueCat/Plugins/Android/PurchasesWrapper.java'
+  './RevenueCat/Plugins/Android/PurchasesWrapper.java',
+  './RevenueCat/package.json'
 ]
 repo_name = 'purchases-unity'
 changelog_latest_path = './CHANGELOG.latest.md'

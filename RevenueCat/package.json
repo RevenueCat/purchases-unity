@@ -1,0 +1,26 @@
+{
+  "name": "com.revenuecat.purchases-unity",
+  "version": "4.7.0-SNAPSHOT",
+  "displayName": "RevenueCat SDK for Unity",
+  "description": "Unity in-app purchases and subscriptions made easy. Supports iOS and Android.",
+  "documentationUrl": "https://www.revenuecat.com/docs",
+  "changelogUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/LICENSE",
+  "author": {
+    "name": "RevenueCat",
+    "email": "support@revenuecat.com",
+    "url": "https://www.revenuecat.com"
+  },
+  "keywords": [
+    "unity",
+    "in-app purchase",
+    "subscriptions",
+    "iap",
+    "iOS",
+    "Apple",
+    "Android"
+  ],
+  "repoUrl": "https://github.com/RevenueCat/purchases-unity",
+  "dependencies": {
+  }
+}
