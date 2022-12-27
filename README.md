@@ -24,7 +24,7 @@ This version of the SDK doesn't have support for Amazon Store. If you would like
 📮 | Great support - [Help Center](https://revenuecat.zendesk.com) 
 
 ## Getting Started
-There are 2 supported mechanisms to use `purchases-unity`:
+There are 2 supported mechanisms to install `purchases-unity`:
 - You can add `purchases-unity` using Unity Package Manager (UPM) through OpenUPM. First, you will need to add [External Dependencies Manager for Unity (EDM4U)](https://github.com/googlesamples/unity-jar-resolver) in your project if you haven't already. To do that:
    - Download the `external-dependency-manager-latest.unitypackage` from the root of the https://github.com/googlesamples/unity-jar-resolver repo.
    - Import that `unitypackage` to your project.
