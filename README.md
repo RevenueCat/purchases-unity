@@ -24,16 +24,18 @@ This version of the SDK doesn't have support for Amazon Store. If you would like
 📮 | Great support - [Help Center](https://revenuecat.zendesk.com) 
 
 ## Getting Started
-There are 2 supported mechanisms to install `purchases-unity`:
-- You can add `purchases-unity` using Unity Package Manager (UPM) through OpenUPM. First, you will need to add [External Dependencies Manager for Unity (EDM4U)](https://github.com/googlesamples/unity-jar-resolver) in your project if you haven't already. To do that:
-   - Download the `external-dependency-manager-latest.unitypackage` from the root of the https://github.com/googlesamples/unity-jar-resolver repo.
-   - Import that `unitypackage` to your project.
+For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/docs/unity). There are 2 supported mechanisms to install `purchases-unity`:
 
-   After that you can install OpenUPM-CLI following the instructions [here](https://openupm.com/docs/getting-started.html). Once OpenUPM is installed, you can execute `openupm add com.revenuecat.purchases-unity` in your project root folder which will add the package dependency and the OpenUPM registry to your project. Note that this system will not currently work if you're using Unity IAP directly. If you are using it, use the second approach instead.
-   
-- Alternatively, you can download and import our own `Purchases.unitypackage` from our [releases github page](https://github.com/RevenueCat/purchases-unity/releases). Note that if you are using this plugin alongside Unity IAP, you need to use `Purchases-UnityIAP.unitypackage`.
+### Unity Package Manager (UPM)
+You can install `purchases-unity` using Unity Package Manager (UPM) through OpenUPM. Note that this system will not currently work if you're using Unity IAP directly. If you are using it, use the .unitypackage instead. Follow these steps:
+1. Add [External Dependencies Manager for Unity (EDM4U)](https://github.com/googlesamples/unity-jar-resolver) in your project if you haven't already. To do that:
+   - Download the `external-dependency-manager-latest.unitypackage` file from the root of the https://github.com/googlesamples/unity-jar-resolver repo.
+   - [Import](https://docs.unity3d.com/Manual/AssetPackagesImport.html) the downloaded `unitypackage` to your project.
+2. After that you can install OpenUPM-CLI following the instructions [here](https://openupm.com/docs/getting-started.html) if you haven't already. 
+3. Once OpenUPM is installed, you can execute `openupm add com.revenuecat.purchases-unity` in your project root folder which will add the package dependency and the OpenUPM registry to your project and you should be ready to go!
 
-For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/docs/unity).
+### Import .unitypackage file into your project assets
+You can download and import our own `Purchases.unitypackage` from our [releases github page](https://github.com/RevenueCat/purchases-unity/releases). Note that if you are using this plugin alongside Unity IAP, you need to use `Purchases-UnityIAP.unitypackage`.
 
 ## Dependencies and Unity IAP
 We use StoreKit for iOS and BillingClient for Android. This plugin also depends on [purchases-ios](https://github.com/RevenueCat/purchases-ios), [purchases-android](https://github.com/RevenueCat/purchases-android) and [purchases-hybrid-common](https://github.com/RevenueCat/purchases-hybrid-common). 
