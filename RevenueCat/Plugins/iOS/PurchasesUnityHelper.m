@@ -582,6 +582,18 @@ void _RCSetAirshipChannelID(const char *airshipChannelID) {
     [_RCUnityHelperShared() setAirshipChannelID:convertCString(airshipChannelID)];
 }
 
+void _RCSetCleverTapID(const char *cleverTapID) {
+    [_RCUnityHelperShared() setCleverTapID:convertCString(cleverTapID)];
+}
+
+void _RCSetMixpanelDistinctID(const char *mixpanelDistinctID) {
+    [_RCUnityHelperShared() setMixpanelDistinctID:convertCString(mixpanelDistinctID)];
+}
+
+void _RCSetFirebaseAppInstanceID(const char *firebaseAppInstanceID) {
+    [_RCUnityHelperShared() setFirebaseAppInstanceID:convertCString(firebaseAppInstanceID)];
+}
+
 void _RCSetMediaSource(const char *mediaSource) {
     [_RCUnityHelperShared() setMediaSource:convertCString(mediaSource)];
 }

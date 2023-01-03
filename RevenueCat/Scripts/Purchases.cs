@@ -874,6 +874,42 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
+     * Subscriber attribute associated with the CleverTap ID for the user.
+     * Required for the RevenueCat CleverTap integration.
+     * </summary>
+     * <param name="cleverTapID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetCleverTapID(string cleverTapID)
+    {
+        _wrapper.SetCleverTapID(cleverTapID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the Mixpanel Distinct ID for the user.
+     * Optional for the RevenueCat Mixpanel integration.
+     * </summary>
+     * <param name="mixpanelDistinctID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetMixpanelDistinctID(string mixpanelDistinctID)
+    {
+        _wrapper.SetMixpanelDistinctID(mixpanelDistinctID);
+    }
+
+    /**
+     * <summary>
+     * Subscriber attribute associated with the Firebase App Instance ID for the user.
+     * Required for the RevenueCat Firebase integration.
+     * </summary>
+     * <param name="firebaseAppInstanceID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
+    {
+        _wrapper.SetFirebaseAppInstanceID(firebaseAppInstanceID);
+    }
+    
+    /**
+     * <summary>
      * Subscriber attribute associated with the install media source for the user
      * </summary>
      * <param name="mediaSource">Empty String or null will delete the subscriber attribute.</param>

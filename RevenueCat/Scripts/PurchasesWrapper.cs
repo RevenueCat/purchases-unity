@@ -49,6 +49,9 @@ public interface IPurchasesWrapper
     void SetMparticleID(string mparticleID);
     void SetOnesignalID(string onesignalID);
     void SetAirshipChannelID(string airshipChannelID);
+    void SetCleverTapID(string cleverTapID);
+    void SetMixpanelDistinctID(string mixpanelDistinctID);
+    void SetFirebaseAppInstanceID(string firebaseAppInstanceID);
     void SetMediaSource(string mediaSource);
     void SetCampaign(string campaign);
     void SetAdGroup(string adGroup);

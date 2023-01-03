@@ -209,7 +209,22 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setAirshipChannelID", airshipChannelID);
     }
-
+    
+    public void SetCleverTapID(string cleverTapID)
+    {
+        CallPurchases("setCleverTapID", cleverTapID);
+    }
+    
+    public void SetMixpanelDistinctID(string mixpanelDistinctID)
+    {
+        CallPurchases("setMixpanelDistinctID", mixpanelDistinctID);
+    }
+    
+    public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
+    {
+        CallPurchases("setFirebaseAppInstanceID", firebaseAppInstanceID);
+    }
+    
     public void SetMediaSource(string mediaSource)
     {
         CallPurchases("setMediaSource", mediaSource);
