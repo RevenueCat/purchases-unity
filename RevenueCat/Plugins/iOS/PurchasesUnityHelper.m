@@ -317,6 +317,18 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setAirshipChannelID:airshipChannelID];
 }
 
+- (void)setCleverTapID:(nullable NSString *)cleverTapID {
+    [RCCommonFunctionality setCleverTapID:cleverTapID];
+}
+
+- (void)setMixpanelDistinctID:(nullable NSString *)mixpanelDistinctID {
+    [RCCommonFunctionality setAirshipChannelID:mixpanelDistinctID];
+}
+
+- (void)setFirebaseAppInstanceID:(nullable NSString *)firebaseAppInstanceID {
+    [RCCommonFunctionality setFirebaseAppInstanceID:firebaseAppInstanceID];
+}
+
 #pragma mark Campaign parameters
 
 - (void)setMediaSource:(nullable NSString *)mediaSource {
