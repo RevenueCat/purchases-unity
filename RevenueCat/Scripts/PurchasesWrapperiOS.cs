@@ -276,6 +276,27 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSetAirshipChannelID(airshipChannelID);
     }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCSetCleverTapID(string cleverTapID);
+    public void SetCleverTapID(string cleverTapID)
+    {
+        _RCSetCleverTapID(cleverTapID);
+    }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCSetMixpanelDistinctID(string mixpanelDistinctID);
+    public void SetMixpanelDistinctID(string mixpanelDistinctID)
+    {
+        _RCSetMixpanelDistinctID(mixpanelDistinctID);
+    }
+    
+    [DllImport("__Internal")]
+    private static extern void _RCSetFirebaseAppInstanceID(string firebaseAppInstanceID);
+    public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
+    {
+        _RCSetFirebaseAppInstanceID(firebaseAppInstanceID);
+    }
 
     [DllImport("__Internal")]
     private static extern void _RCSetMediaSource(string mediaSource);

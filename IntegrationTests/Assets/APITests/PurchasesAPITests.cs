@@ -168,6 +168,9 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.SetMparticleID("asdgas");
         purchases.SetOnesignalID("asdgas");
         purchases.SetAirshipChannelID("asdgas");
+        purchases.SetCleverTapID("asdgas");
+        purchases.SetMixpanelDistinctID("asdgas");
+        purchases.SetFirebaseAppInstanceID("asdgas");
         purchases.SetMediaSource("asdgas");
         purchases.SetCampaign("asdgas");
         purchases.SetAdGroup("asdgas");

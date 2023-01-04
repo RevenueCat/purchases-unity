@@ -301,6 +301,18 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.setAirshipChannelID(airshipChannelID);
     }
 
+    public static void setCleverTapID(String cleverTapID) {
+        SubscriberAttributesKt.setCleverTapID(cleverTapID);
+    }
+    
+    public static void setMixpanelDistinctID(String mixpanelDistinctID) {
+        SubscriberAttributesKt.setMixpanelDistinctID(mixpanelDistinctID);
+    }
+    
+    public static void setFirebaseAppInstanceID(String firebaseAppInstanceID) {
+        SubscriberAttributesKt.setFirebaseAppInstanceID(firebaseAppInstanceID);
+    }
+
     public static void setMediaSource(String mediaSource) {
         SubscriberAttributesKt.setMediaSource(mediaSource);
     }

@@ -745,7 +745,7 @@ public partial class Purchases : MonoBehaviour
 
     ///
     /// <summary>
-    /// Subscriber attribute associated with the email address for the user.
+    /// Sets the subscriber attribute associated with the email address for the user.
     /// </summary>
     /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
     ///
@@ -759,7 +759,7 @@ public partial class Purchases : MonoBehaviour
     }
 
     /// <summary>
-    /// Subscriber attribute associated with the phone number for the user.
+    /// Sets the subscriber attribute associated with the phone number for the user.
     /// </summary>
     /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
     ///
@@ -773,7 +773,7 @@ public partial class Purchases : MonoBehaviour
     }
 
     /// <summary>
-    /// Subscriber attribute associated with the display name for the user.
+    /// Sets the subscriber attribute associated with the display name for the user.
     /// </summary>
     /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
     ///
@@ -787,7 +787,7 @@ public partial class Purchases : MonoBehaviour
     }
 
     /// <summary>
-    /// Subscriber attribute associated with the push token for the user.
+    /// Sets the subscriber attribute associated with the push token for the user.
     /// </summary>
     /// <seealso href="https://docs.revenuecat.com/docs/subscriber-attributes"/>
     ///
@@ -802,7 +802,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the Adjust Id for the user.
+     * Sets the subscriber attribute associated with the Adjust Id for the user.
      * Required for the RevenueCat Adjust integration
      * </summary>
      * <param name="adjustID">Empty String or null will delete the subscriber attribute.</param>
@@ -814,7 +814,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the Appsflyer Id for the user
+     * Sets the subscriber attribute associated with the Appsflyer Id for the user
      * Required for the RevenueCat Appsflyer integration
      * </summary>
      * <param name="appsflyerID">Empty String or null will delete the subscriber attribute.</param>
@@ -826,7 +826,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the Facebook SDK Anonymous Id for the user
+     * Sets the subscriber attribute associated with the Facebook SDK Anonymous Id for the user
      * Required for the RevenueCat Facebook integration
      * </summary>
      * <param name="fbAnonymousID">Empty String or null will delete the subscriber attribute.</param>
@@ -838,7 +838,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the mParticle Id for the user
+     * Sets the subscriber attribute associated with the mParticle Id for the user
      * Required for the RevenueCat mParticle integration
      * </summary>
      * <param name="mparticleID">Empty String or null will delete the subscriber attribute.</param>
@@ -850,7 +850,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the OneSignal Player Id for the user
+     * Sets the subscriber attribute associated with the OneSignal Player Id for the user
      * Required for the RevenueCat OneSignal integration
      * </summary>
      * <param name="onesignalID">Empty String or null will delete the subscriber attribute.</param>
@@ -862,7 +862,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the Airship Channel Id for the user
+     * Sets the subscriber attribute associated with the Airship Channel Id for the user
      * Required for the RevenueCat Airship integration
      * </summary>
      * <param name="airshipChannelID">Empty String or null will delete the subscriber attribute.</param>
@@ -874,7 +874,43 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the install media source for the user
+     * Sets the subscriber attribute associated with the CleverTap ID for the user.
+     * Required for the RevenueCat CleverTap integration.
+     * </summary>
+     * <param name="cleverTapID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetCleverTapID(string cleverTapID)
+    {
+        _wrapper.SetCleverTapID(cleverTapID);
+    }
+
+    /**
+     * <summary>
+     * Sets the subscriber attribute associated with the Mixpanel Distinct ID for the user.
+     * Optional for the RevenueCat Mixpanel integration.
+     * </summary>
+     * <param name="mixpanelDistinctID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetMixpanelDistinctID(string mixpanelDistinctID)
+    {
+        _wrapper.SetMixpanelDistinctID(mixpanelDistinctID);
+    }
+
+    /**
+     * <summary>
+     * Sets the subscriber attribute associated with the Firebase App Instance ID for the user.
+     * Required for the RevenueCat Firebase integration.
+     * </summary>
+     * <param name="firebaseAppInstanceID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
+    {
+        _wrapper.SetFirebaseAppInstanceID(firebaseAppInstanceID);
+    }
+    
+    /**
+     * <summary>
+     * Sets the subscriber attribute associated with the install media source for the user
      * </summary>
      * <param name="mediaSource">Empty String or null will delete the subscriber attribute.</param>
      */
@@ -885,7 +921,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the install campaign for the user
+     * Sets the subscriber attribute associated with the install campaign for the user
      * </summary>
      * <param name="campaign">Empty String or null will delete the subscriber attribute.</param>
      */
@@ -896,7 +932,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the install ad group for the user
+     * Sets the subscriber attribute associated with the install ad group for the user
      * </summary>
      * <param name="adGroup">Empty String or null will delete the subscriber attribute.</param>
      */
@@ -907,7 +943,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the install ad for the user
+     * Sets the subscriber attribute associated with the install ad for the user
      * </summary>
      * <param name="ad">Empty String or null will delete the subscriber attribute.</param>
      */
@@ -918,7 +954,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the install keyword for the user
+     * Sets the subscriber attribute associated with the install keyword for the user
      * </summary>
      * <param name="keyword">Empty String or null will delete the subscriber attribute.</param>
      */
@@ -929,7 +965,7 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
-     * Subscriber attribute associated with the install creative for the user
+     * Sets the subscriber attribute associated with the install creative for the user
      * </summary>
      * <param name="creative">Empty String or null will delete the subscriber attribute.</param>
      */

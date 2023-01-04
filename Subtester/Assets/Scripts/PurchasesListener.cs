@@ -242,6 +242,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.SetMparticleID($"mparticleId_{timestampString}");
         purchases.SetOnesignalID($"onesignalId_{timestampString}");
         purchases.SetAirshipChannelID($"airshipChannelId_{timestampString}");
+        purchases.SetCleverTapID($"cleverTapID_{timestampString}");
+        purchases.SetMixpanelDistinctID($"mixpanelDistinctID_{timestampString}");
+        purchases.SetFirebaseAppInstanceID($"firebaseAppInstanceID_{timestampString}");
         purchases.SetMediaSource($"mediaSource_{timestampString}");
         purchases.SetCampaign($"campaign_{timestampString}");
         purchases.SetAdGroup($"adgroup_{timestampString}");

@@ -152,6 +152,18 @@ public partial class Purchases
         {
         }
 
+        public void SetCleverTapID(string cleverTapID)
+        {
+        }
+        
+        public void SetMixpanelDistinctID(string mixpanelDistinctID)
+        {
+        }
+        
+        public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
+        {
+        }
+
         public void SetMediaSource(string mediaSource)
         {
         }
