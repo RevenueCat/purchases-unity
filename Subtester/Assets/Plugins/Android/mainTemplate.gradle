@@ -75,5 +75,5 @@ android {
 // that does exist here.
 // More info: https://forum.unity.com/threads/native-sources-inside-package-not-found-after-exporting-project-to-android.1355321/
 android.sourceSets.main.java.srcDirs += [
-    '**DIR_UNITYPROJECT**/../RevenueCat/Plugins/Android/PurchasesWrapper.java'
+    '**DIR_UNITYPROJECT**/../RevenueCat/Plugins/Android/'
 ]
