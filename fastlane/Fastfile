@@ -19,6 +19,7 @@ files_with_version_number = [
 repo_name = 'purchases-unity'
 changelog_latest_path = './CHANGELOG.latest.md'
 changelog_path = './CHANGELOG.md'
+versions_path = './VERSIONS.md'
 
 before_all do
   setup_circle_ci
@@ -36,7 +37,9 @@ lane :bump do |options|
     github_rate_limit: options[:github_rate_limit],
     editor: options[:editor],
     next_version: options[:next_version],
-    automatic_release: options[:automatic_release]
+    automatic_release: options[:automatic_release],
+    hybrid_common_version: get_phc_version,
+    versions_file_path: versions_path
   )
   update_versions_file
 end
