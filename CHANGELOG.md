@@ -1,6 +1,6 @@
 ## 4.7.0
 ### New Features
-* Feature parity: subscriber attributes (#209) via Andy Boedo (@aboedo)
+* Added SetCleverTapID, SetMixpanelDistinctID and SetFirebaseAppInstanceID (#209) via Andy Boedo (@aboedo)
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.7.0 (#211) via RevenueCat Git Bot (@RCGitBot)
   * [iOS 4.16.0](https://github.com/RevenueCat/purchases-ios/releases/tag/4.16.0)
