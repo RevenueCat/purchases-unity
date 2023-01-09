@@ -3,7 +3,7 @@
 * Feature parity: subscriber attributes (#209) via Andy Boedo (@aboedo)
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.7.0 (#211) via RevenueCat Git Bot (@RCGitBot)
-  * (iOS 4.16.0)[https://github.com/RevenueCat/purchases-ios/releases/tag/4.16.0]
+  * [iOS 4.16.0](https://github.com/RevenueCat/purchases-ios/releases/tag/4.16.0)
 ### Other Changes
 * Adds missing params for better changelogs when bumping (#214) via Cesar de la Vega (@vegaro)
 * Update fastlane plugin (#213) via Cesar de la Vega (@vegaro)
