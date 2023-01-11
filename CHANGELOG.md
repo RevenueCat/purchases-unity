@@ -1,3 +1,9 @@
+## 4.8.0
+### Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.8.0 (#217) via RevenueCat Git Bot (@RCGitBot)
+### Other Changes
+* Update Gemfile.lock (#218) via Cesar de la Vega (@vegaro)
+
 ## 4.7.0
 ### New Features
 * Added SetCleverTapID, SetMixpanelDistinctID and SetFirebaseAppInstanceID (#209) via Andy Boedo (@aboedo)
