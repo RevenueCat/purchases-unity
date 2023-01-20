@@ -70,7 +70,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 {
                     Debug.Log("Package " + package);
                     if (package == null) continue;
-                    var label = package.PackageType + " " + package.StoreProduct.PriceString;
+                    var label = package.PackageType + " " + package.StoreProduct.PriceString + "\n" + package.StoreProduct.SubscriptionPeriod;
                     CreateButton(label, () => PurchasePackageButtonClicked(package));
                 }
             }
