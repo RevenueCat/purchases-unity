@@ -21,6 +21,7 @@ namespace DefaultNamespace
             int introPricePeriodNumberOfUnits = storeProduct.IntroductoryPrice.NumberOfUnits;
             int introPriceCycles = storeProduct.IntroductoryPrice.Cycles;
             Purchases.Discount[] discounts = storeProduct.Discounts;
+            string subscriptionPeriod = storeProduct.SubscriptionPeriod;
         }
     }
 }

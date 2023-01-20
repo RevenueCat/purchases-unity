@@ -22,6 +22,16 @@ public partial class Purchases
         /// </summary>
         /// <returns></returns>
         [CanBeNull] public readonly Discount[] Discounts;
+        
+        /// <summary>
+        /// Subscription period, specified in ISO 8601 format. For example,
+        /// P1W equates to one week, P1M equates to one month,
+        /// P3M equates to three months, P6M equates to six months,
+        /// and P1Y equates to one year.
+        /// Note: Not available for Amazon.
+        /// </summary>
+        /// <returns></returns>
+        [CanBeNull] public readonly string SubscriptionPeriod;
             
         public StoreProduct(JSONNode response)
         {
@@ -31,6 +41,7 @@ public partial class Purchases
             Price = response["price"];
             PriceString = response["priceString"];
             CurrencyCode = response["currencyCode"];
+            SubscriptionPeriod = response["subscriptionPeriod"];
             var introPriceJsonNode = response["introPrice"];
             if (introPriceJsonNode != null && !introPriceJsonNode.IsNull)
             {
@@ -59,7 +70,8 @@ public partial class Purchases
                    $"{nameof(PriceString)}: {PriceString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
                    $"{IntroductoryPrice}\n" +
-                   $"{nameof(Discounts)}: {Discounts}";
+                   $"{nameof(Discounts)}: {Discounts}\n" +
+                   $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}";
         }
     }
 }
