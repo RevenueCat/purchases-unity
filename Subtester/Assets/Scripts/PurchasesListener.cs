@@ -49,7 +49,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreatePurchasePackageButtons();
 
         var purchases = GetComponent<Purchases>();
-        purchases.SetDebugLogsEnabled(true);
+        purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.EnableAdServicesAttributionTokenCollection();
     }
 

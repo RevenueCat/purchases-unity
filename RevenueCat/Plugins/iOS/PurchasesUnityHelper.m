@@ -184,6 +184,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setDebugLogsEnabled:enabled];
 }
 
+- (void)setLogLevel:(NSString *)level {
+    [RCCommonFunctionality setLogLevel:level];
+}
+
 - (void)setProxyURLString:(nullable NSString *)proxyURLString {
     [RCCommonFunctionality setProxyURLString:proxyURLString];
 }
@@ -489,6 +493,10 @@ void _RCGetOfferings() {
 
 void _RCSetDebugLogsEnabled(const BOOL enabled) {
     [_RCUnityHelperShared() setDebugLogsEnabled:enabled];
+}
+
+void _RCSetLogLevel(const char *level) {
+    [_RCUnityHelperShared() setLogLevel:convertCString(level)];
 }
 
 void _RCSetProxyURLString(const char *proxyURLString) {
