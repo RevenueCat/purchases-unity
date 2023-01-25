@@ -5,6 +5,7 @@ org.eclipse.buildship.core.prefs
 .classpath
 Android/.idea/*
 .vscode
+.vsconfig
 Subtester/Assets/Plugins/Android/*.aar
 exportlog.txt
 IntegrationTests/Assets/RevenueCat/
