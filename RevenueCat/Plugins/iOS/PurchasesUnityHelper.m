@@ -405,7 +405,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"4.10.0-SNAPSHOT";
+    return @"4.10.0";
 }
 
 @end
