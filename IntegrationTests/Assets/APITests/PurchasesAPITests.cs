@@ -137,10 +137,15 @@ public class PurchasesAPITests : MonoBehaviour
         });
 
         purchases.SetFinishTransactions(true);
+        #pragma warning disable CS0618 // Type or member is obsolete
         purchases.SetAllowSharingStoreAccount(false);
+        #pragma warning restore CS0618 // Type or member is obsolete
         string appUserId = purchases.GetAppUserId();
         bool isAnonymous = purchases.IsAnonymous();
+        #pragma warning disable CS0618 // Type or member is obsolete
         purchases.SetDebugLogsEnabled(true);
+        #pragma warning restore CS0618 // Type or member is obsolete
+        purchases.SetLogLevel(Purchases.LogLevel.Debug);
         purchases.GetCustomerInfo((info, error) =>
         {
             receivedCustomerInfo = info;
