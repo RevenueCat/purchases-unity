@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using static Purchases;
 
 public partial class Purchases
 {
@@ -16,7 +15,7 @@ public partial class Purchases
         [Description("INFO")]
         Info,
         [Description("WARN")]
-        Warning,
+        Warn,
         [Description("ERROR")]
         Error
     }
@@ -24,7 +23,7 @@ public partial class Purchases
 
 public static class Extensions
 {
-    public static string Name(this LogLevel level)
+    public static string Name(this Purchases.LogLevel level)
     {
         var type = level.GetType();
         var memInfo = type.GetMember(level.ToString());
