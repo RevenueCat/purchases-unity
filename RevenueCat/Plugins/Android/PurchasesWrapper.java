@@ -203,6 +203,10 @@ public class PurchasesWrapper {
                 amazonUserID, isoCurrencyCode, price);
     }
 
+    public static void setLogLevel(String level) {
+        CommonKt.setLogLevel(level);
+    }
+
     public static void setDebugLogsEnabled(boolean enabled) {
         CommonKt.setDebugLogsEnabled(enabled);
     }
