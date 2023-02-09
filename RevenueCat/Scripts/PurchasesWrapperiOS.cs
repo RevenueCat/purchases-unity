@@ -119,6 +119,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSetLogLevel(string level);
+    public void SetLogLevel(Purchases.LogLevel level)
+    {
+        _RCSetLogLevel(level.Name());
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetProxyURLString(string proxyURL);
     public void SetProxyURL(string proxyURL)
     {

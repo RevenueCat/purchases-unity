@@ -58,6 +58,10 @@ public partial class Purchases
         {
         }
 
+        public void SetLogLevel(LogLevel level)
+        {
+        }
+
         public void SetProxyURL(string proxyURL)
         {
         }

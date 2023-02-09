@@ -518,9 +518,19 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     ///
     /// <param name="logsEnabled"> Whether debug logs should be enabled.</param>
+    [Obsolete("Deprecated, use logLevel instead.")]
     public void SetDebugLogsEnabled(bool logsEnabled)
     {
         _wrapper.SetDebugLogsEnabled(logsEnabled);
+    }
+
+    // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Configure log level. Useful for debugging issues with the lovely team @RevenueCat.
+    /// </summary>
+    public void SetLogLevel(LogLevel level)
+    {
+        _wrapper.SetLogLevel(level);
     }
 
     private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
