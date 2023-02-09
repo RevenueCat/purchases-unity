@@ -84,6 +84,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setDebugLogsEnabled", enabled);
     }
+    
+    public void SetLogLevel(Purchases.LogLevel level)
+    {
+        CallPurchases("setLogLevel", level.Name());
+    }
 
     public void SetProxyURL(string proxyURL)
     {
