@@ -21,6 +21,7 @@ static NSString *const GET_CUSTOMER_INFO = @"_getCustomerInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
 static NSString *const GET_PROMOTIONAL_OFFER = @"_getPromotionalOffer";
+static NSString *const HANDLE_LOG = @"_handleLog";
 
 #pragma mark Utility Methods
 
@@ -186,6 +187,12 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)setLogLevel:(NSString *)level {
     [RCCommonFunctionality setLogLevel:level];
+}
+
+- (void)setLogHandler {
+    [RCCommonFunctionality setLogHanderOnLogReceived:^(NSDictionary<NSString *,NSString *> * _Nonnull logDetails) {
+        [self sendJSONObject:logDetails toMethod:HANDLE_LOG];
+    }];
 }
 
 - (void)setProxyURLString:(nullable NSString *)proxyURLString {
@@ -365,14 +372,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     NSError *error = nil;
     NSData *responseJSONData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
 
-    if (error) {
-        NSLog(@"Error serializing products: %@", error.localizedDescription);
-        return;
-    }
-
     if (responseJSONData) {
         NSString *json = [[NSString alloc] initWithData:responseJSONData encoding:NSUTF8StringEncoding];
-        NSLog(@"json = %@", json);
         UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, json.UTF8String);
     }
 }
@@ -497,6 +498,10 @@ void _RCSetDebugLogsEnabled(const BOOL enabled) {
 
 void _RCSetLogLevel(const char *level) {
     [_RCUnityHelperShared() setLogLevel:convertCString(level)];
+}
+
+void _RCSetLogHandler() {
+    [_RCUnityHelperShared() setLogHandler];
 }
 
 void _RCSetProxyURLString(const char *proxyURLString) {

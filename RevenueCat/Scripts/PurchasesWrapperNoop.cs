@@ -62,6 +62,10 @@ public partial class Purchases
         {
         }
 
+        public void SetLogHandler()
+        {
+        }
+
         public void SetProxyURL(string proxyURL)
         {
         }
