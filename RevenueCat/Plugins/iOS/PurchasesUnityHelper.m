@@ -372,6 +372,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     NSError *error = nil;
     NSData *responseJSONData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
 
+    if (error) {
+        NSLog(@"Error serializing response: %@", error.localizedDescription);
+        return;
+    }
+    
     if (responseJSONData) {
         NSString *json = [[NSString alloc] initWithData:responseJSONData encoding:NSUTF8StringEncoding];
         UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, json.UTF8String);
