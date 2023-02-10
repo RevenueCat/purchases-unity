@@ -47,7 +47,7 @@ public class PurchasesWrapper {
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "4.11.0-SNAPSHOT";
 
-    static String gameObject;
+    private static String gameObject;
 
     private static UpdatedCustomerInfoListener listener = new UpdatedCustomerInfoListener() {
         @Override
