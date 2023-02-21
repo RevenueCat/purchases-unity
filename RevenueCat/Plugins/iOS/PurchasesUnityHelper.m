@@ -265,7 +265,15 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality promotionalOfferForProductIdentifier:productIdentifier
                                                       discount:discountIdentifier
                                                completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
-        [self sendJSONObject:responseDictionary toMethod:GET_PROMOTIONAL_OFFER];
+        NSMutableDictionary *response;
+        if (error) {
+            response = [NSMutableDictionary new];
+            response[@"error"] = error.info;
+
+        } else {
+            response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
+        }
+        [self sendJSONObject:response toMethod:GET_PROMOTIONAL_OFFER];
     }];
 }
 
