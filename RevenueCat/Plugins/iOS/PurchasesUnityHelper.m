@@ -265,15 +265,18 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality promotionalOfferForProductIdentifier:productIdentifier
                                                        discount:discountIdentifier
                                                 completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        if (error == nil && responseDictionary == nil) {
+            NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are null"}];
+            error = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
+
         NSDictionary *response = (error)
         ? @{
             @"error": error.info
         }
         : responseDictionary;
-
-        if (response == nil) {
-            response = @{};
-        }
 
         [self sendJSONObject:response toMethod:GET_PROMOTIONAL_OFFER];
     }];
