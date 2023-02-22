@@ -1,9 +1,10 @@
 ### New Features
-* Added `Purchases.SetLogLevel` (#226) via NachoSoto (@NachoSoto)
+* Adds Purchases.SetLogHandler (#237) via Cesar de la Vega (@vegaro)
+### Bugfixes
+* Fix for `NSInvalidArgumentException` in `GetPromotionalOffer` (#245) via Cesar de la Vega (@vegaro)
 ### Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.13.1 (#240) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 5.7.1](https://github.com/RevenueCat/purchases-android/releases/tag/5.7.1)
-  * [iOS 4.17.5](https://github.com/RevenueCat/purchases-ios/releases/tag/4.17.5)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.13.0 (#239) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 5.7.1](https://github.com/RevenueCat/purchases-android/releases/tag/5.7.1)
-  * [iOS 4.17.5](https://github.com/RevenueCat/purchases-ios/releases/tag/4.17.5)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.13.3 (#247) via RevenueCat Git Bot (@RCGitBot)
+  * [iOS 4.17.6](https://github.com/RevenueCat/purchases-ios/releases/tag/4.17.6)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.13.2 (#244) via RevenueCat Git Bot (@RCGitBot)
+  * [iOS 4.17.6](https://github.com/RevenueCat/purchases-ios/releases/tag/4.17.6)
+* Bump fastlane from 2.211.0 to 2.212.0 (#243) via dependabot[bot] (@dependabot[bot])
