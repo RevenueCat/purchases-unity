@@ -263,13 +263,18 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)promotionalOfferForProductIdentifier:(NSString *)productIdentifier
                                     discount:(NSString *)discountIdentifier {
     [RCCommonFunctionality promotionalOfferForProductIdentifier:productIdentifier
-                                                      discount:discountIdentifier
-                                               completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+                                                       discount:discountIdentifier
+                                                completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSDictionary *response = (error)
         ? @{
             @"error": error.info
         }
         : responseDictionary;
+
+        if (response == nil) {
+            response = @{};
+        }
+
         [self sendJSONObject:response toMethod:GET_PROMOTIONAL_OFFER];
     }];
 }
