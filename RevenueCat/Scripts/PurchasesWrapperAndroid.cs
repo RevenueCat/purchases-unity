@@ -90,6 +90,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("setLogLevel", level.Name());
     }
 
+    public void SetLogHandler()
+    {
+        CallPurchases("setLogHandler");
+    }
+
     public void SetProxyURL(string proxyURL)
     {
         CallPurchases("setProxyURL", proxyURL);

@@ -533,6 +533,30 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetLogLevel(level);
     }
 
+    /// <summary>
+    /// Callback type for SetLogHandler.
+    /// </summary>
+    /// <param name="logLevel"> Log's <see cref="LogLevel"/>. </param>
+    /// <param name="message"> The log's message. </param>
+    public delegate void LogHandlerFunc(LogLevel logLevel, string message);
+
+    private LogHandlerFunc LogHandler { get; set; }
+
+    // ReSharper disable once UnusedMember.Global
+    /// <summary>
+    /// Set a custom log handler for redirecting logs to your own logging system.
+    /// By default, this sends info, warning, and error messages.
+    /// If you wish to receive Debug level messages, see <see cref="SetLogLevel"/>.
+    /// </summary>
+    /// <param name="logHandler"> It will get called for each log event. Use this function to redirect the log
+    /// to your own logging system. Configure your own log handler. Useful for debugging issues
+    /// with the lovely team @RevenueCat.</param>
+    public void SetLogHandler(LogHandlerFunc logHandler)
+    {
+        LogHandler = logHandler;
+        _wrapper.SetLogHandler();
+    }
+
     private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
@@ -917,7 +941,7 @@ public partial class Purchases : MonoBehaviour
     {
         _wrapper.SetFirebaseAppInstanceID(firebaseAppInstanceID);
     }
-    
+
     /**
      * <summary>
      * Sets the subscriber attribute associated with the install media source for the user
@@ -1130,6 +1154,23 @@ public partial class Purchases : MonoBehaviour
         var info = new CustomerInfo(response["customerInfo"]);
         listener.CustomerInfoReceived(info);
     }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _handleLog(string logDetailsJson)
+    {
+        if (listener == null) return;
+
+        var response = JSON.Parse(logDetailsJson);
+        var logLevelInResponse = response["logLevel"];
+        if (logLevelInResponse == null) return;
+        var messageInResponse = response["message"];
+        if (messageInResponse == null) return;
+        
+        var logLevel = Extensions.ParseLogLevelByName(logLevelInResponse);
+
+        LogHandler(logLevel, messageInResponse);
+    }
+
 
     // ReSharper disable once UnusedMember.Local
     private void _restorePurchases(string customerInfoJson)

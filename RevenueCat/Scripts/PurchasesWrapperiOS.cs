@@ -126,6 +126,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSetLogHandler();
+    public void SetLogHandler()
+    {
+        _RCSetLogHandler();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetProxyURLString(string proxyURL);
     public void SetProxyURL(string proxyURL)
     {

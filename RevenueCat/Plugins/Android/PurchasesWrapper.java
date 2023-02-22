@@ -42,10 +42,13 @@ public class PurchasesWrapper {
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
     private static final String GET_PROMOTIONAL_OFFER = "_getPromotionalOffer";
 
+    private static final String HANDLE_LOG = "_handleLog";
+
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "4.12.0-SNAPSHOT";
 
     private static String gameObject;
+
     private static UpdatedCustomerInfoListener listener = new UpdatedCustomerInfoListener() {
         @Override
         public void onReceived(@NonNull CustomerInfo customerInfo) {
@@ -55,12 +58,12 @@ public class PurchasesWrapper {
 
     public static void setup(String apiKey,
                              String appUserId,
-                             String gameObject_,
+                             String gameObject,
                              boolean observerMode,
                              String userDefaultsSuiteName,
                              boolean useAmazon,
                              String dangerousSettingsJSON) {
-        gameObject = gameObject_;
+        PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
@@ -207,6 +210,20 @@ public class PurchasesWrapper {
         CommonKt.setLogLevel(level);
     }
 
+    public static void setLogHandler() {
+        CommonKt.setLogHandlerWithOnResult(new OnResult() {
+            @Override
+            public void onReceived(@NonNull Map<String, ?> map) {
+                sendJSONObject(MappersHelpersKt.convertToJson(map), HANDLE_LOG);
+            }
+
+            @Override
+            public void onError(@NonNull ErrorContainer errorContainer) {
+                // Intentionally left blank since it will never be called
+            }
+        });
+    }
+
     public static void setDebugLogsEnabled(boolean enabled) {
         CommonKt.setDebugLogsEnabled(enabled);
     }
@@ -308,11 +325,11 @@ public class PurchasesWrapper {
     public static void setCleverTapID(String cleverTapID) {
         SubscriberAttributesKt.setCleverTapID(cleverTapID);
     }
-    
+
     public static void setMixpanelDistinctID(String mixpanelDistinctID) {
         SubscriberAttributesKt.setMixpanelDistinctID(mixpanelDistinctID);
     }
-    
+
     public static void setFirebaseAppInstanceID(String firebaseAppInstanceID) {
         SubscriberAttributesKt.setFirebaseAppInstanceID(firebaseAppInstanceID);
     }
@@ -344,7 +361,7 @@ public class PurchasesWrapper {
     public static void collectDeviceIdentifiers() {
         SubscriberAttributesKt.collectDeviceIdentifiers();
     }
-    
+
     public static void canMakePayments(String featuresJson) {
         try {
             JSONObject request = new JSONObject(featuresJson);
@@ -366,7 +383,7 @@ public class PurchasesWrapper {
                    }
                    sendJSONObject(object, CAN_MAKE_PAYMENTS);
                }
-   
+
                @Override
                public void onError(ErrorContainer errorContainer) {
                    sendError(errorContainer, CAN_MAKE_PAYMENTS);
@@ -386,8 +403,7 @@ public class PurchasesWrapper {
         Log.e("Purchases", "JSON Error: " + e.getLocalizedMessage());
     }
 
-    private static void sendJSONObject(JSONObject object, String method) {
-        Log.e("Purchases", object.toString());
+    static void sendJSONObject(JSONObject object, String method) {
         UnityPlayer.UnitySendMessage(gameObject, method, object.toString());
     }
 

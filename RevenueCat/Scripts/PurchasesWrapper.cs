@@ -23,6 +23,7 @@ public interface IPurchasesWrapper
     void SetAllowSharingStoreAccount(bool allow);
     void SetDebugLogsEnabled(bool enabled);
     void SetLogLevel(Purchases.LogLevel level);
+    void SetLogHandler();
     void SetProxyURL(string proxyURL);
     string GetAppUserId();
     void GetCustomerInfo();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class CustomListener : Purchases.UpdatedCustomerInfoListener
@@ -39,6 +40,8 @@ public class PurchasesAPITests : MonoBehaviour
         Purchases.Offering receivedOffering;
         String receivedProductIdentifier;
         bool receivedUserCancelled;
+        Purchases.LogLevel receivedLogLevel;
+        String receivedMessage;
 
         List<Purchases.StoreProduct> receivedProducts = new List<Purchases.StoreProduct>();
 
@@ -146,6 +149,11 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.SetDebugLogsEnabled(true);
         #pragma warning restore CS0618 // Type or member is obsolete
         purchases.SetLogLevel(Purchases.LogLevel.Debug);
+        purchases.SetLogHandler((level, message) =>
+        {
+            receivedLogLevel = level;
+            receivedMessage = message;
+        });
         purchases.GetCustomerInfo((info, error) =>
         {
             receivedCustomerInfo = info;
