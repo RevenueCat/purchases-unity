@@ -15,6 +15,15 @@ aliases:
       branches:
         only: /^release\/.*/
 
+  release-branches-and-main: &release-branches-and-main
+    filters:
+      tags:
+        ignore: /.*/
+      branches:
+        only:
+          - /^release\/.*/
+          - main
+
   only-main-branch: &only-main-branch
     filters:
       tags:
@@ -380,11 +389,11 @@ workflows:
       - build-subtester-android: *release-branches
       - build-subtester-ios: *release-branches
       - build-integration-tests-android:
-          <<: *release-branches
+          <<: *release-branches-and-main
           requires:
             - export-package
       - build-integration-tests-ios:
-          <<: *release-branches
+          <<: *release-branches-and-main
           requires:
             - export-package
       - archive-ios:
