@@ -66,12 +66,6 @@ public partial class Purchases : MonoBehaviour
              "it through PurchasesConfiguration instead")]
     public bool observerMode;
 
-    [Tooltip("Enables StoreKit2 support. iOS only, on Android it has no effect.\n" +
-             "If enabled, it will use the StoreKit 2 API to handle purchases in iOS.\n" +
-             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
-             "it through PurchasesConfiguration instead")]
-    public bool usesStoreKit2IfAvailable;
-
     [Tooltip("An optional string. iOS only.\n" +
              "Set this to use a specific NSUserDefaults suite for RevenueCat. " +
              "This might be handy if you are deleting all NSUserDefaults in your app " +
@@ -86,6 +80,23 @@ public partial class Purchases : MonoBehaviour
              "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
              "it through PurchasesConfiguration instead")]
     public string proxyURL;
+    
+    [Header("⚠️ Deprecated")]
+    [Tooltip("⚠️ RevenueCat currently uses StoreKit 1 for purchases, as its stability in production " +
+             "scenarios has proven to be more performant than StoreKit 2.\n" +
+             "We're collecting more data on the best approach, but StoreKit 1 vs StoreKit 2 is \n" +
+             "an implementation detail that you shouldn't need to care about.\n" +
+             "We recommend not using this parameter, letting RevenueCat decide for " +
+             "you which StoreKit implementation to use.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
+             "it through PurchasesConfiguration instead")]
+    [Obsolete("RevenueCat currently uses StoreKit 1 for purchases, as its stability in production " +
+              "scenarios has proven to be more performant than StoreKit 2.\n" +
+              "We're collecting more data on the best approach, but StoreKit 1 vs StoreKit 2 is \n" +
+              "an implementation detail that you shouldn't need to care about.\n" +
+              "We recommend not using this parameter, letting RevenueCat decide for " +
+              "you which StoreKit implementation to use.", false)]
+    public bool usesStoreKit2IfAvailable;
 
     private IPurchasesWrapper _wrapper;
 
