@@ -15,6 +15,7 @@ namespace DefaultNamespace
                 case Purchases.ProrationMode.ImmediateWithTimeProration:
                 case Purchases.ProrationMode.ImmediateAndChargeProratedPrice:
                 case Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy:
+                case Purchases.ProrationMode.ImmediateAndChargeFullPrice:
                     break;
             }
         }
