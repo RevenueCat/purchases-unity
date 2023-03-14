@@ -1,3 +1,5 @@
+using System;
+
 public partial class Purchases
 {
     /// <summary>
@@ -116,6 +118,12 @@ public partial class Purchases
                 return this;
             }
 
+            [Obsolete("RevenueCat currently uses StoreKit 1 for purchases, as its stability in production " +
+                      "scenarios has proven to be more performant than StoreKit 2.\n" +
+                      "We're collecting more data on the best approach, but StoreKit 1 vs StoreKit 2 is \n" +
+                      "an implementation detail that you shouldn't need to care about.\n" +
+                      "We recommend not using this parameter, letting RevenueCat decide for " +
+                      "you which StoreKit implementation to use.", false)]
             public Builder SetUsesStoreKit2IfAvailable(bool usesStoreKit2IfAvailable)
             {
                 _usesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
