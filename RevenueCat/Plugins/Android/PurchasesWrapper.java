@@ -45,7 +45,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "4.13.0";
+    private static final String PLUGIN_VERSION = "4.14.0-SNAPSHOT";
 
     private static String gameObject;
 
