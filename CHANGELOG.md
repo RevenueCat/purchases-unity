@@ -1,3 +1,8 @@
+## 4.13.1
+### Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.14.1 (#263) via RevenueCat Git Bot (@RCGitBot)
+  * [iOS 4.17.8](https://github.com/RevenueCat/purchases-ios/releases/tag/4.17.8)
+
 ## 4.13.0
 ### New Features
 * add `ImmediateAndChargeFullPrice` proration mode (#258) via Andy Boedo (@aboedo)
