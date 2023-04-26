@@ -1,3 +1,7 @@
+## 4.13.4
+### Dependency Updates
+* Bump danger from 9.2.0 to 9.3.0 (#275) via dependabot[bot] (@dependabot[bot])
+
 ## 4.13.3
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.14.3 (#272) via RevenueCat Git Bot (@RCGitBot)
