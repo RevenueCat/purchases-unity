@@ -11,7 +11,7 @@
 #
 
 files_with_version_number = {
-    './.version' => ['{x]'],
+    './.version' => ['{x}'],
     './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m' => ['return @"{x}"'],
     './RevenueCat/Plugins/Android/PurchasesWrapper.java' => ['PLUGIN_VERSION = "{x}"'],
     './RevenueCat/package.json' => ['"version": "{x}"']
