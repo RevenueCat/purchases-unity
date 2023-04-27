@@ -10,12 +10,21 @@
 #     https://docs.fastlane.tools/plugins/available-plugins
 #
 
-files_with_version_number = [
-  './.version',
-  './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m',
-  './RevenueCat/Plugins/Android/PurchasesWrapper.java',
-  './RevenueCat/package.json'
-]
+files_with_version_number = {
+    './.version' => ['{x}'],
+    './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m' => ['return @"{x}"'],
+    './RevenueCat/Plugins/Android/PurchasesWrapper.java' => ['PLUGIN_VERSION = "{x}"'],
+    './RevenueCat/package.json' => ['"version": "{x}"']
+}
+ANDROID_PHC_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common:[{x}]'
+files_to_update_phc_version = {
+    'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml' => [
+        ANDROID_PHC_DEPENDENCY_PATTERN,
+        'name="PurchasesHybridCommon" version="{x}"'
+    ],
+    'Subtester/Assets/Plugins/Android/mainTemplate.gradle' => [ANDROID_PHC_DEPENDENCY_PATTERN],
+    'Subtester/ProjectSettings/AndroidResolverDependencies.xml' => [ANDROID_PHC_DEPENDENCY_PATTERN],
+}
 repo_name = 'purchases-unity'
 changelog_latest_path = './CHANGELOG.latest.md'
 changelog_path = './CHANGELOG.md'
@@ -99,11 +108,6 @@ lane :update_hybrid_common do |options|
 
   UI.message("ℹ️  Current Purchases Hybrid Common version: #{current_phc_version}")
   UI.message("ℹ️  Setting Purchases Hybrid Common version: #{new_version_number}")
-  files_to_update = [
-    'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml',
-    'Subtester/Assets/Plugins/Android/mainTemplate.gradle',
-    'Subtester/ProjectSettings/AndroidResolverDependencies.xml'
-  ]
 
   if dry_run
     UI.message("ℹ️  Nothing more to do, dry_run: true")
@@ -112,7 +116,7 @@ lane :update_hybrid_common do |options|
 
   bump_phc_version(
     repo_name: repo_name,
-    files_to_update: files_to_update,
+    files_to_update: files_to_update_phc_version,
     current_version: current_phc_version,
     next_version: new_version_number,
     open_pr: options[:open_pr] || false,
