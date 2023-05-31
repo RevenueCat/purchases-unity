@@ -1,3 +1,7 @@
+## 4.15.1
+### Dependency Updates
+* Bump fastlane from 2.212.2 to 2.213.0 (#285) via dependabot[bot] (@dependabot[bot])
+
 ## 4.15.0
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.16.0 (#282) via RevenueCat Git Bot (@RCGitBot)
