@@ -380,6 +380,21 @@ workflows:
     jobs:
       - revenuecat/danger
 
+  test:
+    jobs:
+      - export-package
+      - build-subtester-android
+      - build-subtester-ios
+      - build-integration-tests-android:
+          requires:
+            - export-package
+      - build-integration-tests-ios:
+          requires:
+            - export-package
+      - archive-ios:
+          requires:
+            - build-integration-tests-ios
+
   deploy-check:
     when:
       not:
