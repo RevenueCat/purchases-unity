@@ -49,18 +49,21 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     }
 
 
-    public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
-        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        string offerIdentifier = null)
+    public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
     {
-        // if (oldSku == null)
-        // {
-        //     CallPurchases("purchaseSubscriptionOption", productIdentifier, optionIdentifier);
-        // }
-        // else
-        // {
-            CallPurchases("purchaseSubscriptionOption", productIdentifier, optionIdentifier, oldSku, (int)prorationMode, false, offerIdentifier);
-        // }
+        
+        if (googleProductChangeInfo == null)
+        {
+            CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.ID, 
+                null, null, googleIsPersonalizedPrice, subscriptionOption.PresentedOfferingIdentifier);
+        }
+        else
+        {
+            CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.ID,
+                googleProductChangeInfo.OldProductIdentifier, googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice, 
+                subscriptionOption.PresentedOfferingIdentifier);
+        }
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,

@@ -29,9 +29,8 @@ public partial class Purchases
         {
         }
 
-        public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
-            Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            string offerIdentifier = null)
+        public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+            Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
         {
         }
 

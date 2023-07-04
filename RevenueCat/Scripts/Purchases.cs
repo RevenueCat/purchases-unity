@@ -80,7 +80,7 @@ public partial class Purchases : MonoBehaviour
              "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
              "it through PurchasesConfiguration instead")]
     public string proxyURL;
-    
+
     [Header("⚠️ Deprecated")]
     [Tooltip("⚠️ RevenueCat currently uses StoreKit 1 for purchases, as its stability in production " +
              "scenarios has proven to be more performant than StoreKit 2.\n" +
@@ -376,12 +376,11 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackage(package, discount: discount);
     }
 
-    public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, MakePurchaseFunc callback,
-        string oldSku = null,
-        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, string offerIdentifier = null)
+    public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption, MakePurchaseFunc callback,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
     {
         MakePurchaseCallback = callback;
-        _wrapper.PurchaseSubscriptionOption(productIdentifier, optionIdentifier, oldSku, prorationMode, offerIdentifier);
+        _wrapper.PurchaseSubscriptionOption(subscriptionOption, googleProductChangeInfo, googleIsPersonalizedPrice);
     }
 
     /// <summary>
@@ -1184,7 +1183,7 @@ public partial class Purchases : MonoBehaviour
         if (logLevelInResponse == null) return;
         var messageInResponse = response["message"];
         if (messageInResponse == null) return;
-        
+
         var logLevel = Extensions.ParseLogLevelByName(logLevelInResponse);
 
         LogHandler(logLevel, messageInResponse);

@@ -63,9 +63,8 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
     }
 
-    public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
-    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-    string offerIdentifier = null)
+    public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
     {
     }
 
@@ -296,21 +295,21 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSetAirshipChannelID(airshipChannelID);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetCleverTapID(string cleverTapID);
     public void SetCleverTapID(string cleverTapID)
     {
         _RCSetCleverTapID(cleverTapID);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetMixpanelDistinctID(string mixpanelDistinctID);
     public void SetMixpanelDistinctID(string mixpanelDistinctID)
     {
         _RCSetMixpanelDistinctID(mixpanelDistinctID);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetFirebaseAppInstanceID(string firebaseAppInstanceID);
     public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)

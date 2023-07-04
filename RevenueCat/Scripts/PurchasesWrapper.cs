@@ -16,9 +16,8 @@ public interface IPurchasesWrapper
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         Purchases.PromotionalOffer discount = null);
 
-    void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
-        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        string offerIdentifier = null);
+    void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false);
 
     void RestorePurchases();
     void LogIn(string appUserId);
