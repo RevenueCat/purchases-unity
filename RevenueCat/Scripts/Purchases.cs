@@ -376,6 +376,14 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackage(package, discount: discount);
     }
 
+    public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, MakePurchaseFunc callback,
+        string oldSku = null,
+        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy, string offerIdentifier = null)
+    {
+        MakePurchaseCallback = callback;
+        _wrapper.PurchaseSubscriptionOption(productIdentifier, optionIdentifier, oldSku, prorationMode, offerIdentifier);
+    }
+
     /// <summary>
     /// Callback type for methods that return <see cref="CustomerInfo"/>.
     /// Includes a <see cref="CustomerInfo"/> or an error.

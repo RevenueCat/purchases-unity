@@ -29,6 +29,12 @@ public partial class Purchases
         {
         }
 
+        public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
+            Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            string offerIdentifier = null)
+        {
+        }
+
         public void RestorePurchases()
         {
         }
@@ -163,11 +169,11 @@ public partial class Purchases
         public void SetCleverTapID(string cleverTapID)
         {
         }
-        
+
         public void SetMixpanelDistinctID(string mixpanelDistinctID)
         {
         }
-        
+
         public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
         {
         }

@@ -48,6 +48,21 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
+
+    public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
+        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        string offerIdentifier = null)
+    {
+        // if (oldSku == null)
+        // {
+        //     CallPurchases("purchaseSubscriptionOption", productIdentifier, optionIdentifier);
+        // }
+        // else
+        // {
+            CallPurchases("purchaseSubscriptionOption", productIdentifier, optionIdentifier, oldSku, (int)prorationMode, false, offerIdentifier);
+        // }
+    }
+
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
     {
@@ -84,7 +99,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setDebugLogsEnabled", enabled);
     }
-    
+
     public void SetLogLevel(Purchases.LogLevel level)
     {
         CallPurchases("setLogLevel", level.Name());
@@ -219,22 +234,22 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         CallPurchases("setAirshipChannelID", airshipChannelID);
     }
-    
+
     public void SetCleverTapID(string cleverTapID)
     {
         CallPurchases("setCleverTapID", cleverTapID);
     }
-    
+
     public void SetMixpanelDistinctID(string mixpanelDistinctID)
     {
         CallPurchases("setMixpanelDistinctID", mixpanelDistinctID);
     }
-    
+
     public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
     {
         CallPurchases("setFirebaseAppInstanceID", firebaseAppInstanceID);
     }
-    
+
     public void SetMediaSource(string mediaSource)
     {
         CallPurchases("setMediaSource", mediaSource);
