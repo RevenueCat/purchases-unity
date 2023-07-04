@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
+using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
@@ -13,6 +14,7 @@ public partial class Purchases
         public readonly string Identifier;
         public readonly string ServerDescription;
         public readonly List<Package> AvailablePackages;
+        [CanBeNull] public readonly Dictionary<string, object> Metadata;
         [CanBeNull] public readonly Package Lifetime;
         [CanBeNull] public readonly Package Annual;
         [CanBeNull] public readonly Package SixMonth;
@@ -20,7 +22,7 @@ public partial class Purchases
         [CanBeNull] public readonly Package TwoMonth;
         [CanBeNull] public readonly Package Monthly;
         [CanBeNull] public readonly Package Weekly;
-
+        
         public Offering(JSONNode response)
         {
             Identifier = response["identifier"];
@@ -61,10 +63,16 @@ public partial class Purchases
             {
                 Monthly = new Package(response["monthly"]);
             }
-
             if (response["weekly"] != null && !response["weekly"].IsNull)
             {
                 Weekly = new Package(response["weekly"]);
+            }
+            Metadata = new Dictionary<string, object>();
+            if (response["metadata"] != null && !response["metadata"].IsNull)
+            {
+                foreach(var metadataEntry in response["metadata"]) {
+                    Metadata.Add(metadataEntry.Key, metadataEntry.Value);
+                }
             }
         }
 
@@ -73,6 +81,7 @@ public partial class Purchases
             return $"{nameof(Identifier)}: {Identifier}\n" +
                    $"{nameof(ServerDescription)}: {ServerDescription}\n" +
                    $"{nameof(AvailablePackages)}: {AvailablePackages}\n" +
+                   $"{nameof(Metadata)}: {DictToString(Metadata)}\n" +
                    $"{nameof(Lifetime)}: {Lifetime}\n" +
                    $"{nameof(Annual)}: {Annual}\n" +
                    $"{nameof(SixMonth)}: {SixMonth}\n" +
