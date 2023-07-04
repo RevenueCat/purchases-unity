@@ -63,6 +63,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
     }
 
+    public void PurchaseSubscriptionOption(string productIdentifier, string optionIdentifier, string oldSku = null,
+    Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+    string offerIdentifier = null)
+    {
+    }
+
     [DllImport("__Internal")]
     private static extern void _RCRestorePurchases();
     public void RestorePurchases()
