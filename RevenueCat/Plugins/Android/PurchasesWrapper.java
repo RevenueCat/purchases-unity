@@ -107,13 +107,19 @@ public class PurchasesWrapper {
     public static void purchaseProduct(final String productIdentifier,
                                        final String type,
                                        @Nullable final String oldSKU,
-                                       final int prorationMode) {
+                                       final int prorationMode,
+                                       final boolean isPersonalized,
+                                       @Nullable final String presentedOfferingIdentifier
+                                       ) {
         CommonKt.purchaseProduct(
                 UnityPlayer.currentActivity,
                 productIdentifier,
-                oldSKU,
-                prorationMode,
                 type,
+                null,
+                oldSKU,
+                prorationMode == 0 ? null : prorationMode,
+                isPersonalized,
+                presentedOfferingIdentifier,
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
@@ -128,19 +134,23 @@ public class PurchasesWrapper {
     }
 
     public static void purchaseProduct(String productIdentifier, String type) {
-        purchaseProduct(productIdentifier, type, null,  0);
+        purchaseProduct(productIdentifier, type, null,  0, false, null);
     }
 
     public static void purchasePackage(String packageIdentifier,
                                        String offeringIdentifier,
                                        @Nullable final String oldSKU,
-                                       final int prorationMode) {
+                                       final int prorationMode,
+                                       final boolean isPersonalized,
+                                       @Nullable final String presentedOfferingIdentifier
+                                       ) {
         CommonKt.purchasePackage(
                 UnityPlayer.currentActivity,
                 packageIdentifier,
                 offeringIdentifier,
                 oldSKU,
-                prorationMode,
+                prorationMode == 0 ? null : prorationMode,
+                isPersonalized,
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
@@ -156,7 +166,35 @@ public class PurchasesWrapper {
 
     public static void purchasePackage(String packageIdentifier,
                                        String offeringIdentifier) {
-        purchasePackage(packageIdentifier, offeringIdentifier, null,  0);
+        purchasePackage(packageIdentifier, offeringIdentifier, null,  0, false, null);
+    }
+
+    public static void purchaseSubscriptionOption(final String productIdentifer,
+                                           final String optionIdentifier,
+                                           @Nullable final String oldSKU,
+                                           final int prorationMode,
+                                           final boolean isPersonalized,
+                                           @Nullable final String offerIdentifier
+                                           ) {
+        CommonKt.purchaseSubscriptionOption(
+            UnityPlayer.currentActivity,
+            productIdentifer,
+            optionIdentifier,
+            oldSKU,
+            prorationMode == 0 ? null : prorationMode,
+            isPersonalized,
+            offerIdentifier,
+            new OnResult() {
+                    @Override
+                    public void onReceived(Map<String, ?> map) {
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                    }
+
+                    @Override
+                    public void onError(ErrorContainer errorContainer) {
+                        sendErrorPurchase(errorContainer);
+                    }
+            });
     }
 
     public static void restorePurchases() {
