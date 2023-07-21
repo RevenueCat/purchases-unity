@@ -1,3 +1,7 @@
+## 5.0.0-alpha.1
+### Other Changes
+* Add support for Billing Client 5 for Android (#293) via Mark Villacampa (@MarkVillacampa)
+
 ## 4.16.0
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 4.18.0 (#288) via RevenueCat Git Bot (@RCGitBot)
