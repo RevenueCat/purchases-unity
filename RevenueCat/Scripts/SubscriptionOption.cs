@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
@@ -156,7 +157,14 @@ public partial class Purchases
             public PricingPhase(JSONNode response)
             {
                 BillingPeriod = new Period(response["billingPeriod"]);
-                // RecurrenceMode = response["recurrenceMode"];
+                if (!Enum.TryParse(response["recurrenceMode"].Value, out RecurrenceMode))
+                {
+                    RecurrenceMode = RecurrenceMode.UNKNOWN;
+                }
+                if (!Enum.TryParse(response["offerPaymentMode"].Value, out OfferPaymentMode))
+                {
+                    OfferPaymentMode = OfferPaymentMode.UNKNOWN;
+                }
                 BillingCycleCount = response["billingCycleCount"];
                 Price = new Price(response["price"]);
             }
@@ -189,7 +197,10 @@ public partial class Purchases
 
             public Period(JSONNode response)
             {
-                Unit = PeriodUnit.PeriodUnitDay; //response["unit"]
+                if (!Enum.TryParse(response["unit"].Value, out Unit))
+                {
+                    Unit = PeriodUnit.UNKNOWN;
+                }
                 Value = (int) response["value"];
                 ISO8601 = response["iso8601"];
             }
@@ -203,15 +214,15 @@ public partial class Purchases
         }
 
         public enum PeriodUnit {
-            PeriodUnitDay = 0,
+            DAY = 0,
 
-            PeriodUnitWeek = 1,
+            WEEK = 1,
 
-            PeriodUnitMonth = 2,
+            MONTH = 2,
 
-            PeriodUnitYear = 3,
+            YEAR = 3,
 
-            PeriodUnitUnknown = 4
+            UNKNOWN = 4
         }
 
         /**
@@ -221,15 +232,16 @@ public partial class Purchases
             /**
             * Pricing phase repeats infinitely until cancellation
             */
-            RecurrenceModeInfiniteRecurring = 1,
+            INFINITE_RECURRING = 1,
             /**
             * Pricing phase repeats for a fixed number of billing periods
             */
-            RecurrenceModeFiniteRecurring = 2,
+            FINITE_RECURRING = 2,
             /**
             * Pricing phase does not repeat
             */
-            RecurrenceModeNonRecurring = 3,
+            NON_RECURRING = 3,
+            UNKNOWN = 4,
         }
 
         /**
@@ -239,15 +251,16 @@ public partial class Purchases
             /**
             * Subscribers don't pay until the specified period ends
             */
-            OfferPaymentModeFreeTrial = 0,
+            FREE_TRIAL = 0,
             /**
             * Subscribers pay up front for a specified period
             */
-            OfferPaymentModeSinglePayment = 1,
+            SINGLE_PAYMENT = 1,
             /**
             * Subscribers pay a discounted amount for a specified number of periods
             */
-            OfferPaymentModeDiscountedRecurringPayment = 2
+            DISCOUNTED_RECURRING_PAYMENT = 2,
+            UNKNOWN = 3,
         }
 
         /**
