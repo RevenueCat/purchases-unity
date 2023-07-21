@@ -71,7 +71,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     Debug.Log("Package " + package);
                     if (package == null) continue;
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
-                    CreateButton(label, () => PurchasePackageButtonClicked(package));
+                    CreateButton("Buy as Package: " + label, () => PurchasePackageButtonClicked(package));
+                    CreateButton("Buy as SubscriptionOption: " + label, () => PurchaseSubscriptionOptionButtonClicked(package));
                 }
             }
         });
@@ -149,6 +150,29 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 Debug.Log("Subtester: User cancelled, don't show an error");
             }
         });
+    }
+    
+    private void PurchaseSubscriptionOptionButtonClicked(Purchases.Package package)
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.PurchaseSubscriptionOption(package.StoreProduct.DefaultOption, (productIdentifier, customerInfo, userCancelled, error) =>
+        {
+            if (!userCancelled)
+            {
+                if (error != null)
+                {
+                    LogError(error);
+                }
+                else
+                {
+                    DisplayCustomerInfo(customerInfo);
+                }
+            }
+            else
+            {
+                Debug.Log("Subtester: User cancelled, don't show an error");
+            }
+        }, null, false);
     }
 
     void GetCustomerInfo()
