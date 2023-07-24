@@ -54,6 +54,14 @@
       "scopes": [
         "com.google"
       ]
+    },
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.openupm",
+        "com.revenuecat.purchases-unity"
+      ]
     }
   ]
 }
