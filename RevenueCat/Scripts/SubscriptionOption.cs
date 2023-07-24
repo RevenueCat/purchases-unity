@@ -116,6 +116,7 @@ public partial class Purchases
             return $"{nameof(ID)}: {ID}\n" +
                    $"{nameof(StoreProductId)}: {StoreProductId}\n" +
                    $"{nameof(ProductId)}: {ProductId}\n" +
+                   $"{nameof(PricingPhases)}: {PricingPhases}\n" +
                    $"{nameof(Tags)}: {Tags}\n" +
                    $"{nameof(IsBasePlan)}: {IsBasePlan}\n" +
                    $"{nameof(BillingPeriod)}: {BillingPeriod}\n" +

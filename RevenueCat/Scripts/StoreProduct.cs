@@ -98,6 +98,9 @@ public partial class Purchases
                    $"{nameof(PriceString)}: {PriceString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
 				   $"{nameof(ProductCategory)}: {ProductCategory}\n" +
+                   $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
+                   $"{DefaultOption}\n" +
+                   $"{SubscriptionOptions}\n" +
                    $"{IntroductoryPrice}\n" +
                    $"{nameof(Discounts)}: {Discounts}\n" +
                    $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}";
