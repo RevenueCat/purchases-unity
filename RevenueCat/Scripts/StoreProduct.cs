@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
@@ -16,7 +17,7 @@ public partial class Purchases
         public readonly string PriceString;
         [CanBeNull] public readonly string CurrencyCode;
         public IntroductoryPrice IntroductoryPrice;
-        [CanBeNull] public readonly string ProductCategory;
+        [CanBeNull] public readonly ProductCategory ProductCategory;
         [CanBeNull] public readonly SubscriptionOption DefaultOption;
         [CanBeNull] public readonly SubscriptionOption[] SubscriptionOptions;
         [CanBeNull] public readonly string PresentedOfferingIdentifier;
@@ -52,7 +53,10 @@ public partial class Purchases
                 IntroductoryPrice = new IntroductoryPrice(introPriceJsonNode);
             }
             PresentedOfferingIdentifier = response["presentedOfferingIdentifier"];
-            ProductCategory = response["productCategory"];
+            if (!Enum.TryParse(response["productCategory"].Value, out ProductCategory))
+            {
+                ProductCategory = ProductCategory.UNKNOWN;
+            }
             var defaultOptionJsonNode = response["defaultOption"];
             if (defaultOptionJsonNode != null && !defaultOptionJsonNode.IsNull)
             {
@@ -93,6 +97,7 @@ public partial class Purchases
                    $"{nameof(Price)}: {Price}\n" +
                    $"{nameof(PriceString)}: {PriceString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
+				   $"{nameof(ProductCategory)}: {ProductCategory}\n" +
                    $"{IntroductoryPrice}\n" +
                    $"{nameof(Discounts)}: {Discounts}\n" +
                    $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}";
