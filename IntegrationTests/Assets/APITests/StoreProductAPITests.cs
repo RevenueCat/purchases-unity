@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace DefaultNamespace
@@ -19,7 +20,11 @@ namespace DefaultNamespace
             string introPricePeriod = storeProduct.IntroductoryPrice.Period;
             string introPricePeriodUnit = storeProduct.IntroductoryPrice.Unit;
             int introPricePeriodNumberOfUnits = storeProduct.IntroductoryPrice.NumberOfUnits;
-            int introPriceCycles = storeProduct.IntroductoryPrice.Cycles;
+            int introPriceCycles = storeProduct.IntroductoryPrice.Cycles; 
+            Purchases.ProductCategory ProductCategory = storeProduct.ProductCategory;
+            Purchases.SubscriptionOption DefaultOption = storeProduct.DefaultOption;
+            Purchases.SubscriptionOption SubscriptionOption = storeProduct.SubscriptionOptions.First();
+            string PresentedOfferingIdentifier = storeProduct.PresentedOfferingIdentifier;
             Purchases.Discount[] discounts = storeProduct.Discounts;
             string subscriptionPeriod = storeProduct.SubscriptionPeriod;
         }
