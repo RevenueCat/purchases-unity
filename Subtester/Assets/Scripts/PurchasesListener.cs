@@ -92,8 +92,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                             } else {
                                 parts.Add("ITS SO NULL");
                             }
+                            // var info = subscriptionOption.ProductId + " " + subscriptionOption.ID;
                             var info = String.Join(" -> ", parts.ToArray());
-                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(package.StoreProduct.DefaultOption));
+                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
                         }
                     }
                 }
