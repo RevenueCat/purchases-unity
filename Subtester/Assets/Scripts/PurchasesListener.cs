@@ -72,7 +72,11 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     if (package == null) continue;
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
                     CreateButton("Buy as Package: " + label, () => PurchasePackageButtonClicked(package));
-                    CreateButton("Buy as SubsOpt: " + label, () => PurchaseSubscriptionOptionButtonClicked(package));
+                    if (package.StoreProduct.ProductCategory == Purchases.ProductCategory.SUBSCRIPTION)
+                    {
+                        CreateButton("Buy as SubsOpt: " + label,
+                            () => PurchaseSubscriptionOptionButtonClicked(package));
+                    }
                 }
             }
         });
