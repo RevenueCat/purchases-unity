@@ -197,7 +197,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null;
         if (prorationMode != Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy && currentProductId != "") {
-            Debug.Log("Making a product change from " + currentProductId + " to " + package.StoreProduct.DefaultOption.ProductId + " using ProrationMode " + prorationMode);
             googleProductChangeInfo = new Purchases.GoogleProductChangeInfo(currentProductId, prorationMode);
         }
         var purchases = GetComponent<Purchases>();
