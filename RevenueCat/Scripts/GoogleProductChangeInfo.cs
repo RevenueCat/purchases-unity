@@ -14,6 +14,12 @@ public partial class Purchases
         /**
         * The ProrationMode to use when upgrading the given oldProductIdentifier.
         */
-        [CanBeNull] public readonly ProrationMode ProrationMode;
+        public readonly ProrationMode ProrationMode;
+
+        public GoogleProductChangeInfo(string OldProductIdentifier, ProrationMode ProrationMode)
+        {
+            this.OldProductIdentifier = OldProductIdentifier;
+            this.ProrationMode = ProrationMode;
+        }
     }
 }

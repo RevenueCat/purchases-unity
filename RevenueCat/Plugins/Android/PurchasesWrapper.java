@@ -172,7 +172,7 @@ public class PurchasesWrapper {
     public static void purchaseSubscriptionOption(final String productIdentifer,
                                            final String optionIdentifier,
                                            @Nullable final String oldSKU,
-                                           @Nullable final Integer prorationMode,
+                                           final int prorationMode,
                                            final boolean isPersonalized,
                                            @Nullable final String offerIdentifier
                                            ) {
@@ -181,7 +181,7 @@ public class PurchasesWrapper {
             productIdentifer,
             optionIdentifier,
             oldSKU,
-            (prorationMode == null || prorationMode == 0) ? null : prorationMode,
+            (prorationMode == 0) ? null : prorationMode,
             isPersonalized,
             offerIdentifier,
             new OnResult() {

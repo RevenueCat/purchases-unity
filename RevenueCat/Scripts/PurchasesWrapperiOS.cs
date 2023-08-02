@@ -39,6 +39,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
         Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
@@ -53,7 +54,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PromotionalOffer discount = null)
+        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
         if (discount != null)

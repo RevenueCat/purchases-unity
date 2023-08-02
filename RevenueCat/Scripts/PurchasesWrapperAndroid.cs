@@ -21,6 +21,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
         Purchases.PromotionalOffer discount = null)
     {
         if (oldSku == null)
@@ -29,13 +30,13 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
         else
         {
-            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode);
+            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode, googleIsPersonalizedPrice, presentedOfferingIdentifier);
         }
     }
 
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PromotionalOffer discount = null)
+        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
     {
         if (oldSku == null)
         {
@@ -44,7 +45,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         else
         {
             CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku,
-                (int)prorationMode);
+                (int)prorationMode, googleIsPersonalizedPrice, packageToPurchase.OfferingIdentifier);
         }
     }
 
@@ -56,12 +57,12 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         if (googleProductChangeInfo == null)
         {
             CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.ID, 
-                null, null, googleIsPersonalizedPrice, subscriptionOption.PresentedOfferingIdentifier);
+                null, 0, googleIsPersonalizedPrice, subscriptionOption.PresentedOfferingIdentifier);
         }
         else
         {
             CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.ID,
-                googleProductChangeInfo.OldProductIdentifier, googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice, 
+                googleProductChangeInfo.OldProductIdentifier, (int)googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice, 
                 subscriptionOption.PresentedOfferingIdentifier);
         }
     }
