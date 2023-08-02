@@ -93,6 +93,18 @@ public partial class Purchases
             IsBasePlan = response["isBasePlan"];
             BillingPeriod = new Period(response["billingPeriod"]);
             IsPrepaid = response["isPrepaid"];
+
+            var pricingPhasesNode = response["pricingPhases"];
+            var pricingPhasesTemporaryList = new List<PricingPhase>(); 
+            if (pricingPhasesNode != null && !pricingPhasesNode.IsNull) {
+                foreach (var phase in pricingPhasesNode)
+                {
+                    pricingPhasesTemporaryList.Add(new PricingPhase(phase));
+                }
+                PricingPhases = pricingPhasesTemporaryList.ToArray();
+            }
+
+
             var fullPricePhaseNode = response["fullPricePhase"];
             if (fullPricePhaseNode != null && !fullPricePhaseNode.IsNull)
             {

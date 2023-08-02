@@ -89,10 +89,30 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     if (package == null) continue;
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
                     CreateButton("Buy as Package: " + label, () => PurchasePackageButtonClicked(package));
-                    if (package.StoreProduct.ProductCategory == Purchases.ProductCategory.SUBSCRIPTION)
-                    {
-                        CreateButton("Buy as SubsOpt: " + label,
-                            () => PurchaseSubscriptionOptionButtonClicked(package));
+
+                    // CreateButton("Buy as SubsOpt: " + label,  () => PurchaseSubscriptionOptionButtonClicked(package));
+                    var options = package.StoreProduct.SubscriptionOptions;
+                    if (options is not null) {
+                        foreach (var subscriptionOption in options) {
+                            List<string> parts = new List<string>();
+                            var label2 = package.PackageType;
+
+                            var phases = subscriptionOption.PricingPhases;
+                            if (phases is not null) {
+                                foreach (var pricingPhase in phases) {
+                                    var period = pricingPhase.BillingPeriod;
+                                    var price = pricingPhase.Price;
+                                    if (period is not null && price is not null) {
+                                        parts.Add(price.Formatted + " for " + period.ISO8601);
+                                    }
+                                }
+                            } else {
+                                parts.Add("ITS SO NULL");
+                            }
+                            // var info = subscriptionOption.ProductId + " " + subscriptionOption.ID;
+                            var info = String.Join(" -> ", parts.ToArray());
+                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
+                        }
                     }
                 }
             }
@@ -173,7 +193,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }, currentProductId, prorationMode);
     }
     
-    private void PurchaseSubscriptionOptionButtonClicked(Purchases.Package package)
+    private void PurchaseSubscriptionOptionButtonClicked(Purchases.SubscriptionOption subscriptionOption)
     {
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null;
         if (prorationMode != Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy && currentProductId != "") {
@@ -181,7 +201,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             googleProductChangeInfo = new Purchases.GoogleProductChangeInfo(currentProductId, prorationMode);
         }
         var purchases = GetComponent<Purchases>();
-        purchases.PurchaseSubscriptionOption(package.StoreProduct.DefaultOption, (productIdentifier, customerInfo, userCancelled, error) =>
+        purchases.PurchaseSubscriptionOption(subscriptionOption, (productIdentifier, customerInfo, userCancelled, error) =>
         {
             if (!userCancelled)
             {
