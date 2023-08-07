@@ -80,7 +80,7 @@ public partial class Purchases
 
         public SubscriptionOption(JSONNode response)
         {
-            ID = response["id"];
+            Id = response["id"];
             StoreProductId = response["storeProductId"];
             ProductId = response["productId"];
             var tagsResponse = response["tags"];
@@ -125,7 +125,7 @@ public partial class Purchases
 
         public override string ToString()
         {
-            return $"{nameof(ID)}: {ID}\n" +
+            return $"{nameof(Id)}: {Id}\n" +
                    $"{nameof(StoreProductId)}: {StoreProductId}\n" +
                    $"{nameof(ProductId)}: {ProductId}\n" +
                    $"{nameof(PricingPhases)}: {PricingPhases}\n" +
