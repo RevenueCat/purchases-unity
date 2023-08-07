@@ -14,7 +14,7 @@ public partial class Purchases
          * If this SubscriptionOption represents a base plan, this will be the basePlanId.
          * If it represents an offer, it will be {basePlanId}:{offerId}
          */
-        public readonly string ID;
+        public readonly string Id;
 
         /**
          * Identifier of the StoreProduct associated with this SubscriptionOption

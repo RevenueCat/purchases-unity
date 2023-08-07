@@ -35,7 +35,7 @@ For more control, purchase subscription options with the new `purchaseSubscripti
 
 `StoreProduct` now has a few new properties use for Google Play Android:
 - `defaultOption`
-  - A subscription option that will automatically be applie when purchasing a `Package` or `StoreProduct`
+  - A subscription option that will automatically be applied when purchasing a `Package` or `StoreProduct`
 - `subscriptionOptions`
   - A list of subscription options (could be null)
 
