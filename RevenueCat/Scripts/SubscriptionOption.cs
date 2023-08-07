@@ -84,7 +84,7 @@ public partial class Purchases
             StoreProductId = response["storeProductId"];
             ProductId = response["productId"];
             var tagsResponse = response["tags"];
-            var tagsTemporaryList = new List<string>(); 
+            var tagsTemporaryList = new List<string>();
             foreach (var tag in tagsResponse)
             {
                 tagsTemporaryList.Add(tag.Value);
@@ -95,7 +95,7 @@ public partial class Purchases
             IsPrepaid = response["isPrepaid"];
 
             var pricingPhasesNode = response["pricingPhases"];
-            var pricingPhasesTemporaryList = new List<PricingPhase>(); 
+            var pricingPhasesTemporaryList = new List<PricingPhase>();
             if (pricingPhasesNode != null && !pricingPhasesNode.IsNull) {
                 foreach (var phase in pricingPhasesNode)
                 {
@@ -192,6 +192,9 @@ public partial class Purchases
             }
         }
 
+        /**
+        * The number of period units: day, week, month, year, unknown
+        */
         public class Period
         {
             public readonly PeriodUnit Unit;
@@ -287,7 +290,7 @@ public partial class Purchases
 
             /**
             * Price in micro-units, where 1,000,000 micro-units equal one unit of the currency.
-            * 
+            *
             * For example, if price is "€7.99", price_amount_micros is 7,990,000. This value represents
             * the localized, rounded price for a particular currency.
             */
@@ -295,7 +298,7 @@ public partial class Purchases
 
             /**
             * Returns ISO 4217 currency code for price and original price.
-            * 
+            *
             * For example, if price is specified in British pounds sterling, price_currency_code is "GBP".
             * If currency code cannot be determined, currency symbol is returned.
             */

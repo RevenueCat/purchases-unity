@@ -8,7 +8,7 @@ public partial class Purchases
     public class GoogleProductChangeInfo
     {
         /**
-        * The old product identifier to upgrade from.
+        * The old product identifier to change from.
         */
         public readonly string OldProductIdentifier;
         /**

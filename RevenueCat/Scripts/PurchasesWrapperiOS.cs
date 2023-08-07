@@ -67,6 +67,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
     {
+        // No-Op
     }
 
     [DllImport("__Internal")]

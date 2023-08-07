@@ -9,7 +9,7 @@ namespace DefaultNamespace
         private void Start()
         {
             Purchases.SubscriptionOption subscriptionOption = new Purchases.SubscriptionOption(null);
-            string ID = subscriptionOption.ID;
+            string ID = subscriptionOption.Id;
             string StoreProductId = subscriptionOption.StoreProductId;
             string ProductId = subscriptionOption.ProductId;
             Purchases.SubscriptionOption.PricingPhase pricingPhase = subscriptionOption.PricingPhases[0];

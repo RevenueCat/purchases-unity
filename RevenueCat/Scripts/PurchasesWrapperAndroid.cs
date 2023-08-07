@@ -56,13 +56,13 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         
         if (googleProductChangeInfo == null)
         {
-            CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.ID, 
+            CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.Id,
                 null, 0, googleIsPersonalizedPrice, subscriptionOption.PresentedOfferingIdentifier);
         }
         else
         {
-            CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.ID,
-                googleProductChangeInfo.OldProductIdentifier, (int)googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice, 
+            CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.Id,
+                googleProductChangeInfo.OldProductIdentifier, (int)googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice,
                 subscriptionOption.PresentedOfferingIdentifier);
         }
     }

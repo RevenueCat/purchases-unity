@@ -57,7 +57,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.EnableAdServicesAttributionTokenCollection();
     }
-    
+
     private void CreateProrationModeButtons()
     {
         foreach (Purchases.ProrationMode mode in Enum.GetValues(typeof(Purchases.ProrationMode)))
@@ -90,7 +90,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
                     CreateButton("Buy as Package: " + label, () => PurchasePackageButtonClicked(package));
 
-                    // CreateButton("Buy as SubsOpt: " + label,  () => PurchaseSubscriptionOptionButtonClicked(package));
                     var options = package.StoreProduct.SubscriptionOptions;
                     if (options is not null) {
                         foreach (var subscriptionOption in options) {
@@ -109,7 +108,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                             } else {
                                 parts.Add("ITS SO NULL");
                             }
-                            // var info = subscriptionOption.ProductId + " " + subscriptionOption.ID;
                             var info = String.Join(" -> ", parts.ToArray());
                             CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
                         }
@@ -192,7 +190,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             }
         }, currentProductId, prorationMode);
     }
-    
+
     private void PurchaseSubscriptionOptionButtonClicked(Purchases.SubscriptionOption subscriptionOption)
     {
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null;

@@ -109,8 +109,7 @@ public class PurchasesWrapper {
                                        @Nullable final String oldSKU,
                                        final int prorationMode,
                                        final boolean isPersonalized,
-                                       @Nullable final String presentedOfferingIdentifier
-                                       ) {
+                                       @Nullable final String presentedOfferingIdentifier) {
         CommonKt.purchaseProduct(
                 UnityPlayer.currentActivity,
                 productIdentifier,
