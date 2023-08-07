@@ -1,4 +1,3 @@
-## 5.0.0
 **RevenueCat Purchases Unity v5** is here!! 😻
 
 This latest release updates the Android SDK dependency from v5 to [v6](https://github.com/RevenueCat/purchases-android/releases/tag/6.0.0) to use BillingClient 5. This version of BillingClient brings an entire new subscription model which has resulted in large changes across the entire SDK.
