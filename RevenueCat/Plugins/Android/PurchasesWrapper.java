@@ -164,7 +164,7 @@ public class PurchasesWrapper {
 
     public static void purchasePackage(String packageIdentifier,
                                        String offeringIdentifier) {
-        purchasePackage(packageIdentifier, offeringIdentifier, null,  0, false, null);
+        purchasePackage(packageIdentifier, offeringIdentifier, null,  0, false);
     }
 
     public static void purchaseSubscriptionOption(final String productIdentifer,
