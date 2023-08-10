@@ -23,7 +23,7 @@ namespace RevenueCat
 
         internal static String DictToString<T>(Dictionary<string, T> dictionary)
         {
-            var items = dictionary.Select(kvp => string.Format($"{kvp.Key} : Id={kvp.Value.ToString()}"));
+            var items = dictionary.Select(kvp => $"{kvp.Key} : Id={kvp.Value.ToString()}");
             return $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n ";
         }
     

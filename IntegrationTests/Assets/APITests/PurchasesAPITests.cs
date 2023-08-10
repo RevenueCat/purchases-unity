@@ -76,6 +76,15 @@ public class PurchasesAPITests : MonoBehaviour
             }, "oldSku", Purchases.ProrationMode.Deferred);
 
             Purchases.StoreProduct storeProduct = storeProducts.First();
+            Purchases.SubscriptionOption subscriptionOption = storeProduct.DefaultOption;
+            purchases.PurchaseSubscriptionOption(subscriptionOption, (productIdentifier, customerInfo, userCancelled, error) =>
+            {
+                receivedProductIdentifier = productIdentifier;
+                receivedCustomerInfo = customerInfo;
+                receivedUserCancelled = userCancelled;
+                receivedError = error;
+            }, null, false);
+            
             Purchases.PromotionalOffer receivedPromoOffer;
             purchases.GetPromotionalOffer(storeProduct, storeProduct.Discounts.First(), (offer, error2) =>
             {

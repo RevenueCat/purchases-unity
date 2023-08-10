@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
@@ -16,6 +17,10 @@ public partial class Purchases
         public readonly string PriceString;
         [CanBeNull] public readonly string CurrencyCode;
         public IntroductoryPrice IntroductoryPrice;
+        [CanBeNull] public readonly ProductCategory ProductCategory;
+        [CanBeNull] public readonly SubscriptionOption DefaultOption;
+        [CanBeNull] public readonly SubscriptionOption[] SubscriptionOptions;
+        [CanBeNull] public readonly string PresentedOfferingIdentifier;
 
         /// <summary>
         /// Collection of iOS promotional offers for a product. Null for Android.
@@ -47,6 +52,29 @@ public partial class Purchases
             {
                 IntroductoryPrice = new IntroductoryPrice(introPriceJsonNode);
             }
+            PresentedOfferingIdentifier = response["presentedOfferingIdentifier"];
+            if (!Enum.TryParse(response["productCategory"].Value, out ProductCategory))
+            {
+                ProductCategory = ProductCategory.UNKNOWN;
+            }
+            var defaultOptionJsonNode = response["defaultOption"];
+            if (defaultOptionJsonNode != null && !defaultOptionJsonNode.IsNull)
+            {
+                DefaultOption = new SubscriptionOption(defaultOptionJsonNode);
+            }
+            var subscriptionOptionsResponse = response["subscriptionOptions"];
+            if (subscriptionOptionsResponse == null)
+            {
+                SubscriptionOptions = null;
+                return;
+            }
+            var subscriptionOptionsTemporaryList = new List<SubscriptionOption>();
+            foreach (var subscriptionOptionResponse in subscriptionOptionsResponse)
+            {
+                subscriptionOptionsTemporaryList.Add(new SubscriptionOption(subscriptionOptionResponse));
+            }
+            SubscriptionOptions = subscriptionOptionsTemporaryList.ToArray();
+
             var discountsResponse = response["discounts"];
             if (discountsResponse == null)
             {
@@ -69,6 +97,10 @@ public partial class Purchases
                    $"{nameof(Price)}: {Price}\n" +
                    $"{nameof(PriceString)}: {PriceString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
+				   $"{nameof(ProductCategory)}: {ProductCategory}\n" +
+                   $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
+                   $"{DefaultOption}\n" +
+                   $"{SubscriptionOptions}\n" +
                    $"{IntroductoryPrice}\n" +
                    $"{nameof(Discounts)}: {Discounts}\n" +
                    $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}";

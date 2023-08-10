@@ -385,19 +385,16 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package: *release-branches
-      - build-subtester-android: *release-branches
-      - build-subtester-ios: *release-branches
+      - export-package
+      - build-subtester-android
+      - build-subtester-ios
       - build-integration-tests-android:
-          <<: *release-branches-and-main
           requires:
             - export-package
       - build-integration-tests-ios:
-          <<: *release-branches-and-main
           requires:
             - export-package
       - archive-ios:
-          <<: *release-branches
           requires:
             - build-integration-tests-ios
       - hold:

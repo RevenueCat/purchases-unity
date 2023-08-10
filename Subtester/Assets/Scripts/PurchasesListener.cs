@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -24,6 +25,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private int maxButtonsPerRow = 2;
     private int currentButtons = 0;
 
+    private Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy;
+    private string currentProductId = "";
+
     // Use this for initialization
     private void Start()
     {
@@ -46,11 +50,24 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Toggle simulatesAskToBuyInSandbox", ToggleSimulatesAskToBuyInSandbox);
         CreateButton("Is Anonymous", IsAnonymous);
         CreateButton("Get AppUserId", GetAppUserId);
+        CreateProrationModeButtons();
         CreatePurchasePackageButtons();
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.EnableAdServicesAttributionTokenCollection();
+    }
+
+    private void CreateProrationModeButtons()
+    {
+        foreach (Purchases.ProrationMode mode in Enum.GetValues(typeof(Purchases.ProrationMode)))
+        {
+            CreateButton("Proration mode: " +  mode, () =>
+            {
+                infoLabel.text = "ProrationMode set to " + mode;
+                prorationMode = mode;
+            });
+        }
     }
 
     private void CreatePurchasePackageButtons()
@@ -71,7 +88,30 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     Debug.Log("Package " + package);
                     if (package == null) continue;
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
-                    CreateButton(label, () => PurchasePackageButtonClicked(package));
+                    CreateButton("Buy as Package: " + label, () => PurchasePackageButtonClicked(package));
+
+                    var options = package.StoreProduct.SubscriptionOptions;
+                    if (options is not null) {
+                        foreach (var subscriptionOption in options) {
+                            List<string> parts = new List<string>();
+                            var label2 = package.PackageType;
+
+                            var phases = subscriptionOption.PricingPhases;
+                            if (phases is not null) {
+                                foreach (var pricingPhase in phases) {
+                                    var period = pricingPhase.BillingPeriod;
+                                    var price = pricingPhase.Price;
+                                    if (period is not null && price is not null) {
+                                        parts.Add(price.Formatted + " for " + period.ISO8601);
+                                    }
+                                }
+                            } else {
+                                parts.Add("ITS SO NULL");
+                            }
+                            var info = String.Join(" -> ", parts.ToArray());
+                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
+                        }
+                    }
                 }
             }
         });
@@ -148,7 +188,34 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             {
                 Debug.Log("Subtester: User cancelled, don't show an error");
             }
-        });
+        }, currentProductId, prorationMode);
+    }
+
+    private void PurchaseSubscriptionOptionButtonClicked(Purchases.SubscriptionOption subscriptionOption)
+    {
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null;
+        if (prorationMode != Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy && currentProductId != "") {
+            googleProductChangeInfo = new Purchases.GoogleProductChangeInfo(currentProductId, prorationMode);
+        }
+        var purchases = GetComponent<Purchases>();
+        purchases.PurchaseSubscriptionOption(subscriptionOption, (productIdentifier, customerInfo, userCancelled, error) =>
+        {
+            if (!userCancelled)
+            {
+                if (error != null)
+                {
+                    LogError(error);
+                }
+                else
+                {
+                    DisplayCustomerInfo(customerInfo);
+                }
+            }
+            else
+            {
+                Debug.Log("Subtester: User cancelled, don't show an error");
+            }
+        }, googleProductChangeInfo, false);
     }
 
     void GetCustomerInfo()
@@ -163,6 +230,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             else
             {
                 DisplayCustomerInfo(customerInfo);
+                currentProductId = customerInfo.ActiveSubscriptions.First().Split(":").First();
             }
         });
     }

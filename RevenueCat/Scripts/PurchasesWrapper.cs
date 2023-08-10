@@ -10,11 +10,15 @@ public interface IPurchasesWrapper
 
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
         Purchases.PromotionalOffer discount = null);
 
     void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PromotionalOffer discount = null);
+        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null);
+
+    void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false);
 
     void RestorePurchases();
     void LogIn(string appUserId);

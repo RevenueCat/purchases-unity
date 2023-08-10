@@ -19,13 +19,19 @@ public partial class Purchases
 
         public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
             Purchases.PromotionalOffer discount = null)
         {
         }
 
         public void PurchasePackage(Package packageToPurchase, string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            Purchases.PromotionalOffer discount = null)
+            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
+        {
+        }
+
+        public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+            Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
         {
         }
 
@@ -163,11 +169,11 @@ public partial class Purchases
         public void SetCleverTapID(string cleverTapID)
         {
         }
-        
+
         public void SetMixpanelDistinctID(string mixpanelDistinctID)
         {
         }
-        
+
         public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
         {
         }

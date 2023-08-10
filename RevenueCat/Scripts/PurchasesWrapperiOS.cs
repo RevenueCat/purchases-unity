@@ -39,6 +39,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
         Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
@@ -53,7 +54,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        Purchases.PromotionalOffer discount = null)
+        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
     {
         string discountTimestamp = null;
         if (discount != null)
@@ -61,6 +62,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             discountTimestamp = discount.Timestamp.ToString();
         }
         _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
+    }
+
+    public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+    {
+        // No-Op
     }
 
     [DllImport("__Internal")]
@@ -290,21 +297,21 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCSetAirshipChannelID(airshipChannelID);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetCleverTapID(string cleverTapID);
     public void SetCleverTapID(string cleverTapID)
     {
         _RCSetCleverTapID(cleverTapID);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetMixpanelDistinctID(string mixpanelDistinctID);
     public void SetMixpanelDistinctID(string mixpanelDistinctID)
     {
         _RCSetMixpanelDistinctID(mixpanelDistinctID);
     }
-    
+
     [DllImport("__Internal")]
     private static extern void _RCSetFirebaseAppInstanceID(string firebaseAppInstanceID);
     public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)

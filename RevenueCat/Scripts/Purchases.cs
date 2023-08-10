@@ -80,7 +80,7 @@ public partial class Purchases : MonoBehaviour
              "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
              "it through PurchasesConfiguration instead")]
     public string proxyURL;
-    
+
     [Header("⚠️ Deprecated")]
     [Tooltip("⚠️ RevenueCat currently uses StoreKit 1 for purchases, as its stability in production " +
              "scenarios has proven to be more performant than StoreKit 2.\n" +
@@ -280,13 +280,20 @@ public partial class Purchases : MonoBehaviour
     /// <param name="type"> Android only. The type of product to purchase. </param>
     /// <param name="oldSku"> Android only. Optional. The oldSku to upgrade from. </param>
     /// <param name="prorationMode"> Android only. Optional. The <see cref="ProrationMode"/> to use when upgrading the given oldSku. </param>
+    /// <param name="googleIsPersonalizedPrice"> Android only. Optional. Indicates
+    /// personalized pricing on products available for purchase in the EU.
+    /// For compliance with EU regulations. User will see "This price has been
+    /// customized for you" in the purchase dialog when true.
+    /// See https://developer.android.com/google/play/billing/integrate#personalized-price
+    /// for more info. </param>
     ///
     public void PurchaseProduct(string productIdentifier, MakePurchaseFunc callback,
         string type = "subs", string oldSku = null,
-        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        bool googleIsPersonalizedPrice = false)
     {
         MakePurchaseCallback = callback;
-        _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode);
+        _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode, googleIsPersonalizedPrice);
     }
 
     ///
@@ -340,12 +347,19 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback"> A <see cref="MakePurchaseCallback"/> completion block that is called when the purchase completes.</param>
     /// <param name="oldSku"> Android only. Optional. The oldSku to upgrade from. </param>
     /// <param name="prorationMode"> Android only. Optional. The <see cref="ProrationMode"/> to use when upgrading the given oldSku. </param>
+    /// <param name="googleIsPersonalizedPrice"> Android only. Optional. Indicates
+    /// personalized pricing on products available for purchase in the EU.
+    /// For compliance with EU regulations. User will see "This price has been
+    /// customized for you" in the purchase dialog when true.
+    /// See https://developer.android.com/google/play/billing/integrate#personalized-price
+    /// for more info. </param>
     ///
     public void PurchasePackage(Package package, MakePurchaseFunc callback, string oldSku = null,
-        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy)
+        ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+        bool googleIsPersonalizedPrice = false)
     {
         MakePurchaseCallback = callback;
-        _wrapper.PurchasePackage(package, oldSku, prorationMode);
+        _wrapper.PurchasePackage(package, oldSku, prorationMode, googleIsPersonalizedPrice);
     }
 
     ///
@@ -374,6 +388,13 @@ public partial class Purchases : MonoBehaviour
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackage(package, discount: discount);
+    }
+
+    public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption, MakePurchaseFunc callback,
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+    {
+        MakePurchaseCallback = callback;
+        _wrapper.PurchaseSubscriptionOption(subscriptionOption, googleProductChangeInfo, googleIsPersonalizedPrice);
     }
 
     /// <summary>
@@ -1176,7 +1197,7 @@ public partial class Purchases : MonoBehaviour
         if (logLevelInResponse == null) return;
         var messageInResponse = response["message"];
         if (messageInResponse == null) return;
-        
+
         var logLevel = Extensions.ParseLogLevelByName(logLevelInResponse);
 
         LogHandler(logLevel, messageInResponse);
