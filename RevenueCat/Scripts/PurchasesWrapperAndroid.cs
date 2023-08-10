@@ -45,7 +45,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         else
         {
             CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku,
-                (int)prorationMode, googleIsPersonalizedPrice, packageToPurchase.OfferingIdentifier);
+                (int)prorationMode, googleIsPersonalizedPrice);
         }
     }
 

@@ -140,8 +140,7 @@ public class PurchasesWrapper {
                                        String offeringIdentifier,
                                        @Nullable final String oldSKU,
                                        final int prorationMode,
-                                       final boolean isPersonalized,
-                                       @Nullable final String presentedOfferingIdentifier
+                                       final boolean isPersonalized
                                        ) {
         CommonKt.purchasePackage(
                 UnityPlayer.currentActivity,
