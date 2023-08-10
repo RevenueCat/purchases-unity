@@ -1,11 +1,4 @@
-## 5.0.0-alpha.2
-### Bugfixes
-* [BC5] Map SubscriptionOption.PricingPhases (#298) via Josh Holtz (@joshdholtz)
-* Fix product changes and add a way to test in the Subtester app
-### Other Changes
-* Added buttons to purchase all SubscriptionOptions in the Subtester app
-
-## 5.0.0-alpha.1
+## 5.0.0
 **RevenueCat Purchases Unity v5** is here!! 😻
 
 This latest release updates the Android SDK dependency from v5 to [v6](https://github.com/RevenueCat/purchases-android/releases/tag/6.0.0) to use BillingClient 5. This version of BillingClient brings an entire new subscription model which has resulted in large changes across the entire SDK.
