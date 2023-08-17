@@ -8,8 +8,8 @@
   * [iOS 4.25.3](https://github.com/RevenueCat/purchases-ios/releases/tag/4.25.3)
   * [iOS 4.25.2](https://github.com/RevenueCat/purchases-ios/releases/tag/4.25.2)
   * [iOS 4.25.1](https://github.com/RevenueCat/purchases-ios/releases/tag/4.25.1)
-### Other Changes
-* BC5 Support (#293) via Mark Villacampa (@MarkVillacampa)
+### Bugfixes
+* Added the optional `googleIsPersonalizedPrice` parameter to all purchase methods.
 
 ## 5.0.0
 **RevenueCat Purchases Unity v5** is here!! 😻
