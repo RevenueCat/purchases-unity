@@ -221,7 +221,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)purchases:(RCPurchases *)purchases receivedUpdatedCustomerInfo:(RCCustomerInfo *)customerInfo {
     NSMutableDictionary *response = [NSMutableDictionary new];
-    response[@"customerInfo"] = customerInfo.dictionary;
+    response[@"customerInfo"] = [RCCommonFunctionality encodeCustomerInfo:customerInfo];
     [self sendJSONObject:response toMethod:RECEIVE_CUSTOMER_INFO];
 }
 
