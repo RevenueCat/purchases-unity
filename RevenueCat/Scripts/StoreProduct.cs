@@ -62,31 +62,36 @@ public partial class Purchases
             {
                 DefaultOption = new SubscriptionOption(defaultOptionJsonNode);
             }
+
             var subscriptionOptionsResponse = response["subscriptionOptions"];
             if (subscriptionOptionsResponse == null)
             {
                 SubscriptionOptions = null;
-                return;
             }
-            var subscriptionOptionsTemporaryList = new List<SubscriptionOption>();
-            foreach (var subscriptionOptionResponse in subscriptionOptionsResponse)
+            else
             {
-                subscriptionOptionsTemporaryList.Add(new SubscriptionOption(subscriptionOptionResponse));
+                var subscriptionOptionsTemporaryList = new List<SubscriptionOption>();
+                foreach (var subscriptionOptionResponse in subscriptionOptionsResponse)
+                {
+                    subscriptionOptionsTemporaryList.Add(new SubscriptionOption(subscriptionOptionResponse));
+                }
+                SubscriptionOptions = subscriptionOptionsTemporaryList.ToArray();
             }
-            SubscriptionOptions = subscriptionOptionsTemporaryList.ToArray();
 
             var discountsResponse = response["discounts"];
             if (discountsResponse == null)
             {
                 Discounts = null;
-                return;
             }
-            var temporaryList = new List<Discount>();
-            foreach (var discountResponse in discountsResponse)
+            else
             {
-                temporaryList.Add(new Discount(discountResponse));
+                var temporaryList = new List<Discount>();
+                foreach (var discountResponse in discountsResponse)
+                {
+                    temporaryList.Add(new Discount(discountResponse));
+                }
+                Discounts = temporaryList.ToArray();
             }
-            Discounts = temporaryList.ToArray();
         }
 
         public override string ToString()
