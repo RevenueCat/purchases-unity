@@ -64,7 +64,7 @@ public partial class Purchases
             }
 
             var subscriptionOptionsResponse = response["subscriptionOptions"];
-            if (subscriptionOptionsResponse == null) 
+            if (subscriptionOptionsResponse == null)
             {
                 SubscriptionOptions = null;
             }
