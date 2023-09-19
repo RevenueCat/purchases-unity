@@ -27,8 +27,7 @@ platform :ios do
     fail ArgumentError, "missing workspace" unless workspace
 
     match(type: "appstore")
-    # The default generated project stil has bitcode enabled, but that's no longer compatible with Xcode 14.
-    gym(export_method: "app-store", workspace: workspace, xcargs: "ENABLE_BITCODE=NO")
+    gym(export_method: "app-store", workspace: workspace)
   end
 
 end

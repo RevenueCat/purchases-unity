@@ -15,7 +15,7 @@ public static class XcodeSwiftVersionPostProcess
     {
         if (buildTarget == BuildTarget.iOS)
         {
-            Debug.Log("Installing for iOS. Setting ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES to NO and adding StoreKit");
+            Debug.Log("Installing for iOS. Setting ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES and ENABLE_BITCODE to NO and adding StoreKit");
             ModifyFrameworks(path);
             AddStoreKitFramework(path);
         }
@@ -35,6 +35,10 @@ public static class XcodeSwiftVersionPostProcess
         }
 
         project.SetBuildProperty(mainTargetGuid, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "YES");
+
+        // Older Unity versions still try to compile with Bitcode, which new versions of PHC
+        // are no longer compatible with.
+        project.SetBuildProperty(mainTargetGuid, "ENABLE_BITCODE", "NO");
 
         project.WriteToFile(projPath);
     }
