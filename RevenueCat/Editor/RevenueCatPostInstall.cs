@@ -32,13 +32,12 @@ public static class XcodeSwiftVersionPostProcess
         foreach (var targetGuid in new[] { mainTargetGuid, project.GetUnityFrameworkTargetGuid() })
         {
             project.SetBuildProperty(targetGuid, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "NO");
+            // Older Unity versions still try to compile with Bitcode, which new versions of PHC
+            // are no longer compatible with.
+            project.SetBuildProperty(targetGuid, "ENABLE_BITCODE", "NO");
         }
 
         project.SetBuildProperty(mainTargetGuid, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "YES");
-
-        // Older Unity versions still try to compile with Bitcode, which new versions of PHC
-        // are no longer compatible with.
-        project.SetBuildProperty(mainTargetGuid, "ENABLE_BITCODE", "NO");
 
         project.WriteToFile(projPath);
     }
