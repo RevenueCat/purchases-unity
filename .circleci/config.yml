@@ -289,7 +289,8 @@ jobs:
   archive-ios:
     description: "Run iOS integration tests for Unity"
     macos:
-      xcode: 13.4.1
+      # 14.3.x requires macOS 13.0 which this image doesn't currently have.
+      xcode: 14.1.0
     steps:
       - checkout
       - attach_workspace:
