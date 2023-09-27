@@ -73,7 +73,7 @@ public class PurchasesAPITests : MonoBehaviour
                 receivedCustomerInfo = customerInfo;
                 receivedUserCancelled = userCancelled;
                 receivedError = error2;
-            }, "oldSku", Purchases.ProrationMode.Deferred);
+            }, "oldSku", Purchases.ProrationMode.ImmediateWithoutProration);
 
             Purchases.StoreProduct storeProduct = storeProducts.First();
             Purchases.SubscriptionOption subscriptionOption = storeProduct.DefaultOption;
@@ -84,7 +84,7 @@ public class PurchasesAPITests : MonoBehaviour
                 receivedUserCancelled = userCancelled;
                 receivedError = error;
             }, null, false);
-            
+
             Purchases.PromotionalOffer receivedPromoOffer;
             purchases.GetPromotionalOffer(storeProduct, storeProduct.Discounts.First(), (offer, error2) =>
             {
@@ -125,7 +125,7 @@ public class PurchasesAPITests : MonoBehaviour
             receivedCustomerInfo = purchaserInfo;
             receivedUserCancelled = userCancelled;
             receivedError = error2;
-        }, "type", "oldSku", Purchases.ProrationMode.Deferred);
+        }, "type", "oldSku", Purchases.ProrationMode.ImmediateWithoutProration);
 
         purchases.RestorePurchases((customerInfo, error) =>
         {
