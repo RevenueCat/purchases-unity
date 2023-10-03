@@ -9,6 +9,9 @@ public partial class Purchases
         IntroEligibilityStatusIneligible = 1,
 
         /// The user is eligible for a free trial or intro pricing for this product.
-        IntroEligibilityStatusEligible = 2
+        IntroEligibilityStatusEligible = 2,
+
+        // There is no free trial or intro pricing for this product.
+        IntroEligibilityStatusNoIntroOfferExists = 3
     }
 }
