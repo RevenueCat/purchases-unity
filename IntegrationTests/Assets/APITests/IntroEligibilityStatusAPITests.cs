@@ -13,6 +13,7 @@ namespace DefaultNamespace
                 case Purchases.IntroEligibilityStatus.IntroEligibilityStatusEligible:
                 case Purchases.IntroEligibilityStatus.IntroEligibilityStatusIneligible:
                 case Purchases.IntroEligibilityStatus.IntroEligibilityStatusUnknown:
+                case Purchases.IntroEligibilityStatus.IntroEligibilityStatusNoIntroOfferExists:
                     break;
             }
         }
