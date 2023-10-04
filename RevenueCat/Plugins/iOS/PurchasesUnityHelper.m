@@ -62,7 +62,8 @@ char *makeStringCopy(NSString *nstring) {
           observerMode:(BOOL)observerMode
 usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
- dangerousSettingsJson:(NSString *)dangerousSettingsJson {
+ dangerousSettingsJson:(NSString *)dangerousSettingsJson
+ shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically {
     self.products = nil;
     self.gameObject = nil;
 
@@ -88,7 +89,7 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
                platformFlavorVersion:self.platformFlavorVersion
             usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                    dangerousSettings:dangerousSettings
-shouldShowInAppMessagesAutomatically: YES];
+shouldShowInAppMessagesAutomatically: shouldShowInAppMessagesAutomatically];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -380,6 +381,25 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setCreative:creative];
 }
 
+- (void)showInAppMessages:(NSArray<NSNumber*>*)messageTypes {
+    #if TARGET_OS_IPHONE
+    if (@available(iOS 16.0, *)) {
+        if (messageTypes == nil) {
+            [RCCommonFunctionality showStoreMessagesCompletion:^{
+            }];
+        } else {
+            NSSet *types = [[NSSet alloc] initWithArray:messageTypes];
+            [RCCommonFunctionality showStoreMessagesForTypes:types completion:^{
+            }];
+        }
+    } else {
+        NSLog(@"[Purchases] Warning: tried to showInAppMessages in iOS <16.0. That's not supported.");
+    }
+    #else
+    NSLog(@"[Purchases] Warning: tried to showInAppMessages in non-ios devices. That's not supported.");
+    #endif
+}
+
 #pragma mark Helper Methods
 
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName {
@@ -451,14 +471,16 @@ void _RCSetupPurchases(const char *gameObject,
                        const BOOL observerMode,
                        const BOOL usesStoreKit2IfAvailable,
                        const char *userDefaultsSuiteName,
-                       const char *dangerousSettingsJson) {
+                       const char *dangerousSettingsJson,
+                       const BOOL shouldShowInAppMessagesAutomatically) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
                               observerMode:observerMode
                   usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
-                     dangerousSettingsJson:convertCString(dangerousSettingsJson)];
+                     dangerousSettingsJson:convertCString(dangerousSettingsJson)
+                     shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
@@ -688,3 +710,18 @@ void _RCGetPromotionalOffer(const char *productIdentifier, const char *discountI
                                                         discount:convertCString(discountIdentifier)];
 }
 
+void _RCShowInAppMessages(const char *messagesJSON) {
+    NSError *error = nil;
+
+    NSData *data = [convertCString(messagesJSON) dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *messagesDictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                           options:0
+                                                                             error:&error];
+
+    if (error) {
+        NSLog(@"Error parsing JSON: %s %@", messagesJSON, error.localizedDescription);
+        return;
+    }
+
+    [_RCUnityHelperShared() showInAppMessages:messagesDictionary[@"messageTypes"]];
+}

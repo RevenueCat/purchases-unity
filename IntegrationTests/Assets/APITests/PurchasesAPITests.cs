@@ -223,9 +223,14 @@ public class PurchasesAPITests : MonoBehaviour
             .SetUseAmazon(false)
             .SetAppUserId(appUserId)
             .SetUsesStoreKit2IfAvailable(false)
+            .SetShouldShowInAppMessagesAutomatically(false)
             .Build();
         purchases.Configure(purchasesConfiguration);
 
         purchases.SyncObserverModeAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
+
+        purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
+            Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic });
+        purchases.ShowInAppMessages();
     }
 }

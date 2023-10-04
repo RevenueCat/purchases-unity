@@ -98,6 +98,12 @@ public partial class Purchases : MonoBehaviour
               "you which StoreKit implementation to use.", false)]
     public bool usesStoreKit2IfAvailable;
 
+    [Tooltip("Whether we should show store in-app messages automatically. Both Google Play and the App Store provide in-app " +
+             "messages for some situations like billing issues. By default, those messages will be shown automatically.\n" +
+             "This allows to disable that behavior, so you can display those messages at your convenience. For more information, " +
+             "check: https://rev.cat/storekit-message and https://rev.cat/googleplayinappmessaging")]
+    public bool shouldShowInAppMessagesAutomatically;
+
     private IPurchasesWrapper _wrapper;
 
     private void Start()
@@ -138,7 +144,8 @@ public partial class Purchases : MonoBehaviour
             .SetUserDefaultsSuiteName(userDefaultsSuiteName)
             .SetUseAmazon(useAmazon)
             .SetDangerousSettings(dangerousSettings)
-            .SetUsesStoreKit2IfAvailable(usesStoreKit2IfAvailable);
+            .SetUsesStoreKit2IfAvailable(usesStoreKit2IfAvailable)
+            .SetShouldShowInAppMessagesAutomatically(shouldShowInAppMessagesAutomatically);
 
         Configure(builder.Build());
     }
@@ -183,7 +190,7 @@ public partial class Purchases : MonoBehaviour
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.ObserverMode, purchasesConfiguration.UsesStoreKit2IfAvailable, purchasesConfiguration.UserDefaultsSuiteName,
-            purchasesConfiguration.UseAmazon, dangerousSettings);
+            purchasesConfiguration.UseAmazon, dangerousSettings, purchasesConfiguration.ShouldShowInAppMessagesAutomatically);
     }
 
     private bool IsAndroidEmulator()
@@ -1112,6 +1119,16 @@ public partial class Purchases : MonoBehaviour
     {
         GetPromotionalOfferCallback = callback;
         _wrapper.GetPromotionalOffer(storeProduct.Identifier, discount.Identifier);
+    }
+
+    /// Displays the specified store in-app message types to the user if there are any available to be shown.
+    /// - Important: This should only be used if you disabled these messages from showing automatically
+    /// during SDK configuration setting ``shouldShowInAppMessagesAutomatically`` to ``false``.
+    ///
+    /// @param [messageTypes] The types of messages to show.
+    public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes = null)
+    {
+        _wrapper.ShowInAppMessages(messageTypes);
     }
 
     // ReSharper disable once UnusedMember.Local

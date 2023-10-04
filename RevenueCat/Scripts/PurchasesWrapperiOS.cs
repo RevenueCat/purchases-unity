@@ -8,13 +8,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode,
                                                  bool usesStoreKit2IfAvailable, string userDefaultsSuiteName,
-                                                 string dangerousSettingsJson);
-
+                                                 string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically);
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
     {
         _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable,
-            userDefaultsSuiteName, dangerousSettingsJson);
+            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -399,5 +398,28 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCGetPromotionalOffer(productIdentifier, discountIdentifier);
     }
 
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    private class ShowInAppMessagesRequest
+    {
+        public int[] messageTypes;
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCShowInAppMessages(string messagesJson);
+    public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes)
+    {
+        int[] messageTypesAsInts = new int[messageTypes.Length];
+        for (int i = 0; i < messageTypes.Length; i++) {
+            Purchases.InAppMessageType messageType = messageTypes[i];
+            messageTypesAsInts[i] = (int)messageType;
+        }
+
+        var request = new ShowInAppMessagesRequest
+        {
+            messageTypes = messageTypesAsInts
+        };
+
+        _RCShowInAppMessages(JsonUtility.ToJson(request));
+    }
 }
 #endif

@@ -50,6 +50,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Toggle simulatesAskToBuyInSandbox", ToggleSimulatesAskToBuyInSandbox);
         CreateButton("Is Anonymous", IsAnonymous);
         CreateButton("Get AppUserId", GetAppUserId);
+        CreateButton("Show In-App Messages", ShowInAppMessages);
         CreateProrationModeButtons();
         CreatePurchasePackageButtons();
 
@@ -634,6 +635,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         var purchases = GetComponent<Purchases>();
         infoLabel.text = $"appUserId {purchases.GetAppUserId()}";
+    }
+
+    void ShowInAppMessages()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
+        Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic });
     }
 
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
