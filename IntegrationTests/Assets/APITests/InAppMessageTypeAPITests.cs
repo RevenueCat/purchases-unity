@@ -8,7 +8,7 @@ namespace DefaultNamespace
         private void Start()
         {
             Purchases.InAppMessageType inAppMessageType = Purchases.InAppMessageType.Generic;
-            switch (prorationMode)
+            switch (inAppMessageType)
             {
                 case Purchases.InAppMessageType.BillingIssue:
                 case Purchases.InAppMessageType.PriceIncreaseConsent:
