@@ -19,6 +19,7 @@ import com.revenuecat.purchases.hybridcommon.SubscriberAttributesKt;
 import com.revenuecat.purchases.hybridcommon.mappers.CustomerInfoMapperKt;
 import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener;
+import com.revenuecat.purchases.models.InAppMessageType;
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONArray;
@@ -62,13 +63,14 @@ public class PurchasesWrapper {
                              boolean observerMode,
                              String userDefaultsSuiteName,
                              boolean useAmazon,
+                             boolean shouldShowInAppMessagesAutomatically,
                              String dangerousSettingsJSON) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity,
-                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings);
+                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings, shouldShowInAppMessagesAutomatically);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
@@ -433,6 +435,34 @@ public class PurchasesWrapper {
     public static void getPromotionalOffer(String productIdentifier, String discountIdentifier) {
         ErrorContainer errorContainer = CommonKt.getPromotionalOffer();
         sendError(errorContainer, GET_PROMOTIONAL_OFFER);
+    }
+
+    public static void showInAppMessages(String messagesJson) {
+        try {
+            JSONObject request = new JSONObject(messagesJson);
+            JSONArray messageTypes = request.getJSONArray("messageTypes");
+            if (messageTypes == null) {
+                CommonKt.showInAppMessagesIfNeeded(UnityPlayer.currentActivity);
+            } else {
+                ArrayList<InAppMessageType> messageTypesList = new ArrayList<>();
+                InAppMessageType[] inAppMessageTypes = InAppMessageType.values();
+                for (int i = 0; i < messageTypes.length(); i++) {
+                    int messageTypeInt = messageTypes.getInt(i);
+                    InAppMessageType messageType = null;
+                    if (messageTypeInt < inAppMessageTypes.length) {
+                        messageType = inAppMessageTypes[messageTypeInt];
+                    }
+                    if (messageType != null) {
+                        messageTypesList.add(messageType);
+                    } else {
+                        Log.e("PurchasesPlugin", "Unsupported in-app message type: " + messageTypeInt);
+                    }
+                }
+                CommonKt.showInAppMessagesIfNeeded(UnityPlayer.currentActivity, messageTypesList);
+            }
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
     }
 
     private static void logJSONException(JSONException e) {

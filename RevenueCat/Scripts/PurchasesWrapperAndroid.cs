@@ -68,9 +68,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
     {
-        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon,
+        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon, shouldShowInAppMessagesAutomatically,
             dangerousSettingsJson);
     }
 
@@ -314,6 +314,27 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
     {
         CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier);
+    }
+
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    private class ShowInAppMessagesRequest
+    {
+        public int[] messageTypes;
+    }
+
+    public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes)
+    {
+        int[] messageTypesAsInts = new int[messageTypes.Length];
+        for (int i = 0; i < messageTypes.Length; i++) {
+            Purchases.InAppMessageType messageType = messageTypes[i];
+            messageTypesAsInts[i] = (int)messageType;
+        }
+
+        var request = new ShowInAppMessagesRequest
+        {
+            messageTypes = messageTypesAsInts
+        };
+        CallPurchases("showInAppMessages", JsonUtility.ToJson(request));
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

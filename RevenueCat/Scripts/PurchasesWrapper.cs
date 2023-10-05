@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public interface IPurchasesWrapper
 {
     void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson);
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically);
 
     void GetProducts(string[] productIdentifiers, string type = "subs");
 
@@ -67,4 +67,5 @@ public interface IPurchasesWrapper
     void CollectDeviceIdentifiers();
     void CanMakePayments(Purchases.BillingFeature[] features);
     void GetPromotionalOffer(string productIdentifier, string discountIdentifier);
+    void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes);
 }

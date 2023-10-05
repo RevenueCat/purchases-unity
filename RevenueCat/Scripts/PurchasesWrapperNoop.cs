@@ -5,7 +5,7 @@ public partial class Purchases
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
         public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson)
+            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
         {
         }
 
@@ -211,6 +211,10 @@ public partial class Purchases
         }
 
         public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        {
+        }
+
+        public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes)
         {
         }
     }

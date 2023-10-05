@@ -29,9 +29,10 @@ public partial class Purchases
         public readonly bool UseAmazon;
         public readonly DangerousSettings DangerousSettings;
         public readonly bool UsesStoreKit2IfAvailable;
+        public readonly bool ShouldShowInAppMessagesAutomatically;
 
         private PurchasesConfiguration(string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName,
-            bool useAmazon, DangerousSettings dangerousSettings, bool usesStoreKit2IfAvailable)
+            bool useAmazon, DangerousSettings dangerousSettings, bool usesStoreKit2IfAvailable, bool shouldShowInAppMessagesAutomatically)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -40,6 +41,7 @@ public partial class Purchases
             UseAmazon = useAmazon;
             DangerousSettings = dangerousSettings;
             UsesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
+            ShouldShowInAppMessagesAutomatically = shouldShowInAppMessagesAutomatically;
         }
 
         /// <summary>
@@ -70,6 +72,7 @@ public partial class Purchases
             private bool _useAmazon;
             private DangerousSettings _dangerousSettings;
             private bool _usesStoreKit2IfAvailable;
+            private bool _shouldShowInAppMessagesAutomatically;
 
             private Builder(string apiKey)
             {
@@ -85,7 +88,7 @@ public partial class Purchases
             {
                 _dangerousSettings = _dangerousSettings ?? new DangerousSettings(false);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName,
-                    _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable);
+                    _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable, _shouldShowInAppMessagesAutomatically);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -129,6 +132,14 @@ public partial class Purchases
                 _usesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
                 return this;
             }
+
+            public Builder SetShouldShowInAppMessagesAutomatically(bool shouldShowInAppMessagesAutomatically)
+            {
+                _shouldShowInAppMessagesAutomatically = shouldShowInAppMessagesAutomatically;
+                return this;
+            }
+
+
         }
 
         public override string ToString()
@@ -140,7 +151,8 @@ public partial class Purchases
                 $"{nameof(UserDefaultsSuiteName)}: {UserDefaultsSuiteName}\n" +
                 $"{nameof(UseAmazon)}: {UseAmazon}\n" +
                 $"{nameof(DangerousSettings)}: {DangerousSettings}" +
-                $"{nameof(UsesStoreKit2IfAvailable)}: {UsesStoreKit2IfAvailable}";
+                $"{nameof(UsesStoreKit2IfAvailable)}: {UsesStoreKit2IfAvailable}" +
+                $"{nameof(ShouldShowInAppMessagesAutomatically)}: {ShouldShowInAppMessagesAutomatically}";
         }
     }
 }
