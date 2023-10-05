@@ -102,7 +102,7 @@ public partial class Purchases : MonoBehaviour
              "messages for some situations like billing issues. By default, those messages will be shown automatically.\n" +
              "This allows to disable that behavior, so you can display those messages at your convenience. For more information, " +
              "check: https://rev.cat/storekit-message and https://rev.cat/googleplayinappmessaging")]
-    public bool shouldShowInAppMessagesAutomatically;
+    public bool shouldShowInAppMessagesAutomatically = true;
 
     private IPurchasesWrapper _wrapper;
 
