@@ -1,3 +1,7 @@
+## 5.3.1
+### Bug fixes
+* Add missing `IntroEligibilityStatusNoIntroOfferExists` (#335) via NachoSoto (@NachoSoto)
+
 ## 5.3.0
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 6.3.0 (#332) via RevenueCat Git Bot (@RCGitBot)
