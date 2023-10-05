@@ -445,17 +445,17 @@ public class PurchasesWrapper {
                 CommonKt.showInAppMessagesIfNeeded(UnityPlayer.currentActivity);
             } else {
                 ArrayList<InAppMessageType> messageTypesList = new ArrayList<>();
+                InAppMessageType[] inAppMessageTypes = InAppMessageType.values();
                 for (int i = 0; i < messageTypes.length(); i++) {
-                    try {
-                        int messageTypeInt = messageTypes.getInt(i);
-                        if (messageTypeInt >= 0 && messageTypeInt < InAppMessageType.values().length) {
-                            InAppMessageType messageType = InAppMessageType.values()[messageTypeInt];
-                            if (messageType != null) {
-                                messageTypesList.add(messageType);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        Log.e("PurchasesPlugin", "Error parsing message type", e);
+                    int messageTypeInt = messageTypes.getInt(i);
+                    InAppMessageType messageType = null;
+                    if (messageTypeInt < inAppMessageTypes.length) {
+                        messageType = inAppMessageTypes[messageTypeInt];
+                    }
+                    if (messageType != null) {
+                        messageTypesList.add(messageType);
+                    } else {
+                        Log.e("PurchasesPlugin", "Unsupported in-app message type: " + messageTypeInt);
                     }
                 }
                 CommonKt.showInAppMessagesIfNeeded(UnityPlayer.currentActivity, messageTypesList);
