@@ -8,7 +8,7 @@ If your app doesn't currently use DEFERRED replacement modes, then you should be
 
 If your app supports product changes using [DEFERRED replacement mode](https://www.revenuecat.com/docs/managing-subscriptions#google-play), then you can either stick with the previous major version until support for DEFERRED is re-introduced in this major version, or you can remove DEFERRED replacement options from your app.
 
-If you are using the SDK in observer mode, you should only use v7 in Android if you're using BillingClient 6.
+If you are using the SDK in observer mode, you should only use v6 in Android if you're using BillingClient 6.
 
 See the [Android Native - 6.x to 7.x Migration](https://github.com/RevenueCat/purchases-android/blob/main/migrations/v7-MIGRATION.md) for more details.
 
