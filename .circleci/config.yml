@@ -187,12 +187,9 @@ jobs:
           root: .
           paths:
             - Purchases.unitypackage
-            - Purchases-UnityIAP.unitypackage
 
       - store_artifacts:
           path: Purchases.unitypackage
-      - store_artifacts:
-          path: Purchases-UnityIAP.unitypackage
 
   build-subtester-android:
     executor: unity-android

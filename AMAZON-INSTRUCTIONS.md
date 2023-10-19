@@ -1,10 +1,10 @@
 ## Instructions
-- Download the `Purchases.unitypackage` (`Purchases-UnityIAP.unitypackage` if using in observer mode) in the release.
+- Download the `Purchases.unitypackage` in the release.
 - Open your Unity Project
 - Select Import package -> Custom package
 <img width="471" alt="Screen Shot 2021-11-24 at 3 55 50 PM" src="https://user-images.githubusercontent.com/664544/143326927-764cb381-30a7-4d8d-8f3a-3c45c1e9d67f.png">
 
-- Select Purchases.unitypackage (or `Purchases-UnityIAP.unitypackage`) and make sure all of the files are selected and press import
+- Select Purchases.unitypackage and make sure all of the files are selected and press import
 
 <img width="472" alt="Screen Shot 2021-11-24 at 3 56 10 PM" src="https://user-images.githubusercontent.com/664544/143326950-ec8d5993-cd9e-468a-9a9a-27fee8a63519.png">
 
