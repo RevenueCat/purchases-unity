@@ -1,5 +1,6 @@
 | Version       | iOS version | Android version | Common version | Unity IAP compatibility       |
 | ------------- | ----------- | --------------- | -------------- | ----------------------------- |
+| 6.3.0 | 4.30.2 | 7.2.0 | 7.3.0 | Not compatible |
 | 6.2.0 | 4.29.0 | 7.0.1 | 7.2.0 | Not compatible |
 | 6.1.0 | 4.28.0 | 7.0.1 | 7.1.0 | Not compatible |
 | 6.0.0         | 4.27.0      | 7.0.0           | 7.0.0          | Not compatible                |
