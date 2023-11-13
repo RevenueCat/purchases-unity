@@ -1,5 +1,6 @@
 | Version | iOS version | Android version | Common version | BillingClient version | Unity IAP compatibility |
 |---------|-------------|-----------------|----------------|-----------------------|-------------------------|
+| 3.5.4   | 3.14.4      | 4.6.1           | 2.0.2          | 4.0.0                 | Not compatible          |
 | 3.5.3   | 3.14.1      | 4.6.1           | 2.0.1          | 4.0.0                 | Not compatible          |
 | 3.5.2   | 3.14.1      | 4.6.1           | 2.0.1          | 4.0.0                 | Not compatible          |
 | 3.5.1   | 3.14.0      | 4.6.0           | 2.0.0          | 4.0.0                 | Not compatible          |
