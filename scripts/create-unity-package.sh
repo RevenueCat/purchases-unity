@@ -36,7 +36,7 @@ fi
 if [ -f $PROJECT/external-dependency-manager-*.unitypackage ]; then
     echo "👌 External dependency manager plugin found. It will be added to the unitypackage."
 else
-    wget https://github.com/googlesamples/unity-jar-resolver/raw/master/external-dependency-manager-latest.unitypackage -P $PROJECT
+    wget https://github.com/googlesamples/unity-jar-resolver/raw/v1.2.172/external-dependency-manager-latest.unitypackage -P $PROJECT
 fi
 
 if [ -f $PACKAGE ]; then
