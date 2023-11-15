@@ -1,3 +1,31 @@
+## 6.3.1
+### Dependency Updates
+* Bump fastlane from 2.216.0 to 2.217.0 (#365) via dependabot[bot] (@dependabot[bot])
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 7.3.3 (#363) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 7.2.3](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.3)
+  * [Android 7.2.2](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.2)
+  * [Android 7.2.1](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.1)
+  * [iOS 4.30.5](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.5)
+  * [iOS 4.30.4](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.4)
+  * [iOS 4.30.3](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.3)
+* Bump danger from 9.3.2 to 9.4.0 (#364) via dependabot[bot] (@dependabot[bot])
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 7.3.2 (#361) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 7.2.3](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.3)
+  * [Android 7.2.2](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.2)
+  * [Android 7.2.1](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.1)
+  * [iOS 4.30.5](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.5)
+  * [iOS 4.30.4](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.4)
+  * [iOS 4.30.3](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.3)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 7.3.1 (#357) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 7.2.3](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.3)
+  * [Android 7.2.2](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.2)
+  * [Android 7.2.1](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.1)
+  * [iOS 4.30.5](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.5)
+  * [iOS 4.30.4](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.4)
+  * [iOS 4.30.3](https://github.com/RevenueCat/purchases-ios/releases/tag/4.30.3)
+### Other Changes
+* Add `3.5.4` to `VERSIONS` (#362) via NachoSoto (@NachoSoto)
+
 ## 6.3.0
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 7.3.0 (#354) via RevenueCat Git Bot (@RCGitBot)
