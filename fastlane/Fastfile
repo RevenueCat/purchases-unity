@@ -83,16 +83,6 @@ lane :github_release do |options|
   )
 end
 
-desc "Creates PR changing version to next minor adding a -SNAPSHOT suffix"
-lane :prepare_next_version do |options|
-  create_next_snapshot_version(
-    current_version: current_version_number,
-    repo_name: repo_name,
-    github_pr_token: ENV["GITHUB_PULL_REQUEST_API_TOKEN"],
-    files_to_update: files_with_version_number
-  )
-end
-
 desc "Update hybrid common pod and gradle and pushes changes to a new branch if open_pr option is true"
 lane :update_hybrid_common do |options|
   if options[:dry_run]
