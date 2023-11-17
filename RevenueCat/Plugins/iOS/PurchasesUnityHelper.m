@@ -89,7 +89,8 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
                platformFlavorVersion:self.platformFlavorVersion
             usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                    dangerousSettings:dangerousSettings
-shouldShowInAppMessagesAutomatically: shouldShowInAppMessagesAutomatically];
+shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically 
+                    verificationMode:@"DISABLED"];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
