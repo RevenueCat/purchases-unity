@@ -9,6 +9,12 @@ public partial class Purchases
         {
         }
 
+        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
+            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
+            EntitlementVerificationMode entitlementVerificationMode)
+        {
+        }
+
         public void GetProducts(string[] productIdentifiers, string type = "subs")
         {
         }

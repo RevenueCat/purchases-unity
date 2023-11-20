@@ -6,6 +6,10 @@ public interface IPurchasesWrapper
     void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically);
 
+    void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
+        Purchases.EntitlementVerificationMode entitlementVerificationMode);
+
     void GetProducts(string[] productIdentifiers, string type = "subs");
 
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,

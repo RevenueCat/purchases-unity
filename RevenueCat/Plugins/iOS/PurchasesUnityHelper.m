@@ -63,7 +63,8 @@ char *makeStringCopy(NSString *nstring) {
 usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
  dangerousSettingsJson:(NSString *)dangerousSettingsJson
- shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically {
+ shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically 
+ entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode {
     self.products = nil;
     self.gameObject = nil;
 
@@ -90,7 +91,7 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
             usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                    dangerousSettings:dangerousSettings
 shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically 
-                    verificationMode:@"DISABLED"];
+                    verificationMode:entitlementVerificationMode];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];

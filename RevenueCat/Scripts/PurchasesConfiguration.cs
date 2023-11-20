@@ -30,9 +30,11 @@ public partial class Purchases
         public readonly DangerousSettings DangerousSettings;
         public readonly bool UsesStoreKit2IfAvailable;
         public readonly bool ShouldShowInAppMessagesAutomatically;
+        public readonly EntitlementVerificationMode EntitlementVerificationMode;
 
         private PurchasesConfiguration(string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName,
-            bool useAmazon, DangerousSettings dangerousSettings, bool usesStoreKit2IfAvailable, bool shouldShowInAppMessagesAutomatically)
+            bool useAmazon, DangerousSettings dangerousSettings, bool usesStoreKit2IfAvailable, bool shouldShowInAppMessagesAutomatically, 
+            EntitlementVerificationMode entitlementVerificationMode)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -42,6 +44,7 @@ public partial class Purchases
             DangerousSettings = dangerousSettings;
             UsesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
             ShouldShowInAppMessagesAutomatically = shouldShowInAppMessagesAutomatically;
+            EntitlementVerificationMode = entitlementVerificationMode;
         }
 
         /// <summary>
@@ -73,6 +76,7 @@ public partial class Purchases
             private DangerousSettings _dangerousSettings;
             private bool _usesStoreKit2IfAvailable;
             private bool _shouldShowInAppMessagesAutomatically;
+            private EntitlementVerificationMode _entitlementVerificationMode;
 
             private Builder(string apiKey)
             {
@@ -88,7 +92,8 @@ public partial class Purchases
             {
                 _dangerousSettings = _dangerousSettings ?? new DangerousSettings(false);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName,
-                    _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable, _shouldShowInAppMessagesAutomatically);
+                    _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable, _shouldShowInAppMessagesAutomatically, 
+                    _entitlementVerificationMode);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -139,6 +144,11 @@ public partial class Purchases
                 return this;
             }
 
+            public Builder SetEntitlementVerificationMode(EntitlementVerificationMode entitlementVerificationMode)
+            {
+                _entitlementVerificationMode = entitlementVerificationMode;
+                return this;
+            }
 
         }
 
@@ -150,9 +160,10 @@ public partial class Purchases
                 $"{nameof(ObserverMode)}: {ObserverMode}\n" +
                 $"{nameof(UserDefaultsSuiteName)}: {UserDefaultsSuiteName}\n" +
                 $"{nameof(UseAmazon)}: {UseAmazon}\n" +
-                $"{nameof(DangerousSettings)}: {DangerousSettings}" +
-                $"{nameof(UsesStoreKit2IfAvailable)}: {UsesStoreKit2IfAvailable}" +
-                $"{nameof(ShouldShowInAppMessagesAutomatically)}: {ShouldShowInAppMessagesAutomatically}";
+                $"{nameof(DangerousSettings)}: {DangerousSettings}\n" +
+                $"{nameof(UsesStoreKit2IfAvailable)}: {UsesStoreKit2IfAvailable}\n" +
+                $"{nameof(ShouldShowInAppMessagesAutomatically)}: {ShouldShowInAppMessagesAutomatically}\n" +
+                $"{nameof(EntitlementVerificationMode)}: {EntitlementVerificationMode}";
         }
     }
 }

@@ -8,12 +8,22 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode,
                                                  bool usesStoreKit2IfAvailable, string userDefaultsSuiteName,
-                                                 string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically);
+                                                 string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
+                                                 string entitlementVerificationMode);
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
     {
+        Setup(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, 
+            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, 
+            Purchases.EntitlementVerificationMode.Disabled);
+    }
+
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically, 
+        Purchases.EntitlementVerificationMode entitlementVerificationMode)
+    {
         _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable,
-            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically);
+            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name());
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]

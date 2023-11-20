@@ -23,6 +23,7 @@ public partial class Purchases
         public readonly bool IsSandbox;
         public readonly DateTime? UnsubscribeDetectedAt;
         public readonly DateTime? BillingIssueDetectedAt;
+        public readonly VerificationResult Verification;
 
         public EntitlementInfo(JSONNode response)
         {
@@ -60,6 +61,8 @@ public partial class Purchases
             {
                 BillingIssueDetectedAt = FromUnixTimeInMilliseconds(billingIssueJson.AsLong);
             }
+
+            Verification = VerificationResultExtensions.ParseVerificationResultByName(response["verification"]);
         }
 
         public override string ToString()
@@ -76,7 +79,8 @@ public partial class Purchases
                 $"{nameof(ProductIdentifier)}: {ProductIdentifier}\n" +
                 $"{nameof(IsSandbox)}: {IsSandbox}\n" +
                 $"{nameof(UnsubscribeDetectedAt)}: {UnsubscribeDetectedAt}\n" +
-                $"{nameof(BillingIssueDetectedAt)}: {BillingIssueDetectedAt}";
+                $"{nameof(BillingIssueDetectedAt)}: {BillingIssueDetectedAt}\n" +
+                $"{nameof(Verification)}: {Verification}";
         }
     }
 }

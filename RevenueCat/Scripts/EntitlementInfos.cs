@@ -11,6 +11,7 @@ public partial class Purchases
     {
         public readonly Dictionary<string, EntitlementInfo> All;
         public readonly Dictionary<string, EntitlementInfo> Active;
+        public readonly VerificationResult Verification;
 
         public EntitlementInfos(JSONNode response)
         {
@@ -25,12 +26,15 @@ public partial class Purchases
             {
                 Active.Add(keyValuePair.Key, new EntitlementInfo(keyValuePair.Value));
             }
+
+            Verification = VerificationResultExtensions.ParseVerificationResultByName(response["verification"]);
         }
 
         public override string ToString()
         {
             return $"{nameof(All)}:\n{DictToString(All)}\n" +
-                   $"{nameof(Active)}:\n{DictToString(Active)}";
+                   $"{nameof(Active)}:\n{DictToString(Active)}\n" +
+                   $"{nameof(Verification)}: {Verification}";
         }
     }
 }
