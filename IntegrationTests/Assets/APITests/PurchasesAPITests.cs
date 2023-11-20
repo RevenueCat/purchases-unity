@@ -224,7 +224,7 @@ public class PurchasesAPITests : MonoBehaviour
             .SetAppUserId(appUserId)
             .SetUsesStoreKit2IfAvailable(false)
             .SetShouldShowInAppMessagesAutomatically(false)
-            .SetEntitlementVerificationMode(EntitlementVerificationMode.Informational)
+            .SetEntitlementVerificationMode(Purchases.EntitlementVerificationMode.Informational)
             .Build();
         purchases.Configure(purchasesConfiguration);
 

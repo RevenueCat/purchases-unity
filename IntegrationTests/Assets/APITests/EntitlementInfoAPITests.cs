@@ -20,7 +20,7 @@ namespace DefaultNamespace
             bool isSandbox = entitlementInfo.IsSandbox;
             DateTime? unsubscribeDetectedAt = entitlementInfo.UnsubscribeDetectedAt;
             DateTime? billingIssueDetectedAt = entitlementInfo.BillingIssueDetectedAt;
-            VerificationResult verification = entitlementInfo.Verification;
+            Purchases.VerificationResult verification = entitlementInfo.Verification;
         }
     }
 }

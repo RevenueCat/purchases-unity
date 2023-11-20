@@ -14,7 +14,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
     {
         Setup(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, 
-            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, 
+            userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, 
             Purchases.EntitlementVerificationMode.Disabled);
     }
 

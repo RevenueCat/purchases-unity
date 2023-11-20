@@ -474,7 +474,8 @@ void _RCSetupPurchases(const char *gameObject,
                        const BOOL usesStoreKit2IfAvailable,
                        const char *userDefaultsSuiteName,
                        const char *dangerousSettingsJson,
-                       const BOOL shouldShowInAppMessagesAutomatically) {
+                       const BOOL shouldShowInAppMessagesAutomatically,
+                       const char *entitlementVerificationMode) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
@@ -482,7 +483,8 @@ void _RCSetupPurchases(const char *gameObject,
                   usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
                      dangerousSettingsJson:convertCString(dangerousSettingsJson)
-                     shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically];
+      shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
+               entitlementVerificationMode:convertCString(entitlementVerificationMode)];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
