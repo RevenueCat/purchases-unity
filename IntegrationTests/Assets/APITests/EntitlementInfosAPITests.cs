@@ -11,6 +11,7 @@ namespace DefaultNamespace
             
             Dictionary<string, Purchases.EntitlementInfo> all = entitlementInfos.All;
             Dictionary<string, Purchases.EntitlementInfo> active = entitlementInfos.Active;
+            Purchases.VerificationResult verification = entitlementInfos.Verification;
         }
     }
 }

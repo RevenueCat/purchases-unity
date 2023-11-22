@@ -74,6 +74,15 @@ public partial class Purchases : MonoBehaviour
              "it through PurchasesConfiguration instead")]
     public string userDefaultsSuiteName;
 
+    [Tooltip("Whether we should show store in-app messages automatically. Both Google Play and the App Store provide in-app " +
+             "messages for some situations like billing issues. By default, those messages will be shown automatically.\n" +
+             "This allows to disable that behavior, so you can display those messages at your convenience. For more information, " +
+             "check: https://rev.cat/storekit-message and https://rev.cat/googleplayinappmessaging")]
+    public bool shouldShowInAppMessagesAutomatically = true;
+
+    [Tooltip("The entitlement verification mode to use. For more information, check: https://rev.cat/trusted-entitlements")]
+    public EntitlementVerificationMode entitlementVerificationMode = EntitlementVerificationMode.Disabled;
+
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received " +
              "a proxy key value from your RevenueCat contact.\n" +
@@ -97,12 +106,6 @@ public partial class Purchases : MonoBehaviour
               "We recommend not using this parameter, letting RevenueCat decide for " +
               "you which StoreKit implementation to use.", false)]
     public bool usesStoreKit2IfAvailable;
-
-    [Tooltip("Whether we should show store in-app messages automatically. Both Google Play and the App Store provide in-app " +
-             "messages for some situations like billing issues. By default, those messages will be shown automatically.\n" +
-             "This allows to disable that behavior, so you can display those messages at your convenience. For more information, " +
-             "check: https://rev.cat/storekit-message and https://rev.cat/googleplayinappmessaging")]
-    public bool shouldShowInAppMessagesAutomatically = true;
 
     private IPurchasesWrapper _wrapper;
 
@@ -145,7 +148,8 @@ public partial class Purchases : MonoBehaviour
             .SetUseAmazon(useAmazon)
             .SetDangerousSettings(dangerousSettings)
             .SetUsesStoreKit2IfAvailable(usesStoreKit2IfAvailable)
-            .SetShouldShowInAppMessagesAutomatically(shouldShowInAppMessagesAutomatically);
+            .SetShouldShowInAppMessagesAutomatically(shouldShowInAppMessagesAutomatically)
+            .SetEntitlementVerificationMode(entitlementVerificationMode);
 
         Configure(builder.Build());
     }
@@ -190,7 +194,8 @@ public partial class Purchases : MonoBehaviour
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.ObserverMode, purchasesConfiguration.UsesStoreKit2IfAvailable, purchasesConfiguration.UserDefaultsSuiteName,
-            purchasesConfiguration.UseAmazon, dangerousSettings, purchasesConfiguration.ShouldShowInAppMessagesAutomatically);
+            purchasesConfiguration.UseAmazon, dangerousSettings, purchasesConfiguration.ShouldShowInAppMessagesAutomatically,
+            purchasesConfiguration.EntitlementVerificationMode);
     }
 
     private bool IsAndroidEmulator()

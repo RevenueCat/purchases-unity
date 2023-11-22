@@ -64,13 +64,15 @@ public class PurchasesWrapper {
                              String userDefaultsSuiteName,
                              boolean useAmazon,
                              boolean shouldShowInAppMessagesAutomatically,
-                             String dangerousSettingsJSON) {
+                             String dangerousSettingsJSON, 
+                             String entitlementVerificationMode) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity,
-                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings, shouldShowInAppMessagesAutomatically);
+                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings, shouldShowInAppMessagesAutomatically, 
+                entitlementVerificationMode);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
@@ -558,5 +560,4 @@ public class PurchasesWrapper {
         }
         return dangerousSettings;
     }
-
 }

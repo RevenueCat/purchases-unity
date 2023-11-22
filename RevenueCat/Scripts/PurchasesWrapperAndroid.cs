@@ -70,8 +70,16 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
     {
+        Setup(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, userDefaultsSuiteName, useAmazon,
+            dangerousSettingsJson, shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode.Disabled);
+    }
+
+    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
+        Purchases.EntitlementVerificationMode entitlementVerificationMode)
+    {
         CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon, shouldShowInAppMessagesAutomatically,
-            dangerousSettingsJson);
+            dangerousSettingsJson, entitlementVerificationMode.Name());
     }
 
     public void RestorePurchases()
