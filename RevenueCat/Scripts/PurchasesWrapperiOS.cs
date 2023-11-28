@@ -198,6 +198,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern bool _RCIsConfigured();
+    public bool IsConfigured()
+    {
+        return _RCIsConfigured();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCCheckTrialOrIntroductoryPriceEligibility(string productIdentifiersJson);
     public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
     {

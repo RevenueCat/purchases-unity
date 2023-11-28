@@ -44,6 +44,7 @@ public interface IPurchasesWrapper
     void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     void EnableAdServicesAttributionTokenCollection();
     bool IsAnonymous();
+    bool IsConfigured();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidateCustomerInfoCache();
     void PresentCodeRedemptionSheet();

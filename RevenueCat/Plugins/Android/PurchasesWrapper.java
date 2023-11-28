@@ -292,6 +292,10 @@ public class PurchasesWrapper {
         return CommonKt.isAnonymous();
     }
 
+    public static boolean isConfigured() {
+        return Purchases.isConfigured();
+    }
+
     public static void checkTrialOrIntroductoryPriceEligibility(String jsonProducts) {
         try {
             JSONObject request = new JSONObject(jsonProducts);
