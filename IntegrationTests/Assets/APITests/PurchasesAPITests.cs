@@ -153,6 +153,7 @@ public class PurchasesAPITests : MonoBehaviour
         #pragma warning restore CS0618 // Type or member is obsolete
         string appUserId = purchases.GetAppUserId();
         bool isAnonymous = purchases.IsAnonymous();
+        bool isConfigured = purchases.IsConfigured();
         #pragma warning disable CS0618 // Type or member is obsolete
         purchases.SetDebugLogsEnabled(true);
         #pragma warning restore CS0618 // Type or member is obsolete

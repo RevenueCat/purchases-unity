@@ -112,6 +112,11 @@ public partial class Purchases
             return false;
         }
 
+        public bool IsConfigured()
+        {
+            return false;
+        }
+
         public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
         {
         }

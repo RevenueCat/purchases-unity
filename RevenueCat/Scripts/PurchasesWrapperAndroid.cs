@@ -168,6 +168,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         return CallPurchases<bool>("isAnonymous");
     }
 
+    public bool IsConfigured()
+    {
+        return CallPurchases<bool>("isConfigured");
+    }
+
     public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
     {
         var request = new ProductsRequest

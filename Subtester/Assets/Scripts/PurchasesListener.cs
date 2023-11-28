@@ -49,6 +49,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Get all products", GetAllProducts);
         CreateButton("Toggle simulatesAskToBuyInSandbox", ToggleSimulatesAskToBuyInSandbox);
         CreateButton("Is Anonymous", IsAnonymous);
+        CreateButton("Is Configured", IsConfigured);
         CreateButton("Get AppUserId", GetAppUserId);
         CreateButton("Show In-App Messages", ShowInAppMessages);
         CreateProrationModeButtons();
@@ -629,6 +630,12 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         var purchases = GetComponent<Purchases>();
         infoLabel.text = $"is anonymous: {purchases.IsAnonymous()}";
+    }
+
+    void IsConfigured()
+    {
+        var purchases = GetComponent<Purchases>();
+        infoLabel.text = $"is configured: {purchases.IsConfigured()}";
     }
 
     void GetAppUserId()

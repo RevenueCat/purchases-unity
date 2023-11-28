@@ -558,6 +558,15 @@ public partial class Purchases : MonoBehaviour
 
     // ReSharper disable once UnusedMember.Global
     /// <summary>
+    /// Returns <c>true</c> if <c>configure</c> has been called and [Purchases.sharedInstance] is set.
+    /// </summary>
+    public bool IsConfigured()
+    {
+        return _wrapper.IsConfigured();
+    }
+
+    // ReSharper disable once UnusedMember.Global
+    /// <summary>
     /// Enable debug logging. Useful for debugging issues with the lovely team @RevenueCat.
     /// </summary>
     ///

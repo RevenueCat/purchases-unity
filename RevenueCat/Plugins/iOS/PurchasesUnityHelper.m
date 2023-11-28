@@ -237,6 +237,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     return RCCommonFunctionality.isAnonymous;
 }
 
+- (BOOL)isConfigured {
+    return RCPurchases.isConfigured;
+}
+
 - (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers {
     [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers
                                                     completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
@@ -575,6 +579,10 @@ void _RCEnableAdServicesAttributionTokenCollection() {
 
 void _RCIsAnonymous() {
     [_RCUnityHelperShared() isAnonymous];
+}
+
+void _RCIsConfigured() {
+    [_RCUnityHelperShared() isConfigured];
 }
 
 void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJSON) {
