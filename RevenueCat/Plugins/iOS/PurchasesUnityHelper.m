@@ -573,8 +573,8 @@ void _RCEnableAdServicesAttributionTokenCollection() {
     [_RCUnityHelperShared() enableAdServicesAttributionTokenCollection];
 }
 
-void _RCIsAnonymous() {
-    [_RCUnityHelperShared() isAnonymous];
+BOOL _RCIsAnonymous() {
+    return [_RCUnityHelperShared() isAnonymous];
 }
 
 void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJSON) {
