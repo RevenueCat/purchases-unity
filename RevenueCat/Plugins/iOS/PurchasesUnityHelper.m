@@ -581,8 +581,8 @@ void _RCIsAnonymous() {
     [_RCUnityHelperShared() isAnonymous];
 }
 
-void _RCIsConfigured() {
-    [_RCUnityHelperShared() isConfigured];
+BOOL _RCIsConfigured() {
+    return [_RCUnityHelperShared() isConfigured];
 }
 
 void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJSON) {
