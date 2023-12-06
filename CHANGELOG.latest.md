@@ -1,4 +1,6 @@
-### New Features
-* Adds `isConfigured` (#375) via Cesar de la Vega (@vegaro)
-### Bugfixes
-* Fix `isAnonymous` in iOS (#376) via Cesar de la Vega (@vegaro)
+### Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 8.1.0 (#379) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 7.2.6](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.6)
+  * [Android 7.2.5](https://github.com/RevenueCat/purchases-android/releases/tag/7.2.5)
+  * [iOS 4.31.1](https://github.com/RevenueCat/purchases-ios/releases/tag/4.31.1)
+  * [iOS 4.31.0](https://github.com/RevenueCat/purchases-ios/releases/tag/4.31.0)
