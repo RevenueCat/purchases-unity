@@ -1,6 +1,6 @@
 {
   "name": "com.revenuecat.purchases-unity",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "displayName": "RevenueCat SDK for Unity",
   "description": "Unity in-app purchases and subscriptions made easy. Supports iOS and Android.",
   "documentationUrl": "https://www.revenuecat.com/docs",
