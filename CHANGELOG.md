@@ -1,3 +1,7 @@
+## 6.6.2
+### Dependency Updates
+* Bump danger from 9.4.1 to 9.4.2 (#384) via dependabot[bot] (@dependabot[bot])
+
 ## 6.6.1
 ### Dependency Updates
 * Bump danger from 9.4.0 to 9.4.1 (#378) via dependabot[bot] (@dependabot[bot])
