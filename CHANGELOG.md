@@ -1,3 +1,7 @@
+## 5.3.2
+### Dependency Updates
+* Bump PHC 6.3.1 (#411) via Toni Rico (@tonidero)
+
 ## 5.3.1
 ### Bug fixes
 * Add missing `IntroEligibilityStatusNoIntroOfferExists` (#335) via NachoSoto (@NachoSoto)
