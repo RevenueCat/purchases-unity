@@ -354,7 +354,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)setMixpanelDistinctID:(nullable NSString *)mixpanelDistinctID {
-    [RCCommonFunctionality setAirshipChannelID:mixpanelDistinctID];
+    [RCCommonFunctionality setMixpanelDistinctID:mixpanelDistinctID];
 }
 
 - (void)setFirebaseAppInstanceID:(nullable NSString *)firebaseAppInstanceID {
