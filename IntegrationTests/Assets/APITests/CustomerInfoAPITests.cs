@@ -18,7 +18,7 @@ namespace DefaultNamespace
             DateTime requestDate = customerInfo.RequestDate;
             DateTime? originalPurchaseDate = customerInfo.OriginalPurchaseDate;
             Dictionary<string, DateTime?> allExpirationDates = customerInfo.AllExpirationDates;
-            Dictionary<string, DateTime> allPurchaseDates = customerInfo.AllPurchaseDates;
+            Dictionary<string, DateTime?> allPurchaseDates = customerInfo.AllPurchaseDates;
             string originalApplicationVersion = customerInfo.OriginalApplicationVersion;
             string managementURL = customerInfo.ManagementURL;
             List<Purchases.StoreTransaction> nonSubscriptionTransactions = customerInfo.NonSubscriptionTransactions;

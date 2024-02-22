@@ -30,7 +30,7 @@ public partial class Purchases
         public DateTime RequestDate;
         public DateTime? OriginalPurchaseDate;
         public Dictionary<string, DateTime?> AllExpirationDates;
-        public Dictionary<string, DateTime> AllPurchaseDates;
+        public Dictionary<string, DateTime?> AllPurchaseDates;
         [CanBeNull] public string OriginalApplicationVersion;
         [CanBeNull] public string ManagementURL;
         public List<StoreTransaction> NonSubscriptionTransactions;
@@ -73,10 +73,19 @@ public partial class Purchases
                 }
             }
 
-            AllPurchaseDates = new Dictionary<string, DateTime>();
+            AllPurchaseDates = new Dictionary<string, DateTime?>();
             foreach (var keyValue in response["allPurchaseDatesMillis"])
             {
-                AllPurchaseDates.Add(keyValue.Key, FromUnixTimeInMilliseconds(keyValue.Value.AsLong));
+                var productID = keyValue.Key;
+                var purchaseDateJSON = keyValue.Value;
+                if (purchaseDateJSON != null && !purchaseDateJSON.IsNull && purchaseDateJSON.AsLong != 0L)
+                {
+                    AllPurchaseDates.Add(productID, FromUnixTimeInMilliseconds(purchaseDateJSON.AsLong));
+                }
+                else
+                {
+                    AllPurchaseDates.Add(productID, null);
+                }
             }
 
             OriginalApplicationVersion = response["originalApplicationVersion"];
