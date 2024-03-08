@@ -26,8 +26,12 @@ platform :ios do
     workspace = options[:workspace]
     fail ArgumentError, "missing workspace" unless workspace
 
-    match(type: "appstore")
-    gym(export_method: "app-store", workspace: workspace)
+    gym(
+      export_method: "app-store",
+      workspace: workspace,
+      skip_codesigning: true,
+      skip_package_ipa: true
+    )
   end
 
 end
