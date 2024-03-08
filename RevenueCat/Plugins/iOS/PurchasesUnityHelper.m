@@ -389,7 +389,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         NSLog(@"Error serializing response: %@", error.localizedDescription);
         return;
     }
-    
+
     if (responseJSONData) {
         NSString *json = [[NSString alloc] initWithData:responseJSONData encoding:NSUTF8StringEncoding];
         UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, json.UTF8String);
@@ -428,7 +428,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"5.3.2";
+    return @"5.3.3";
 }
 
 @end
