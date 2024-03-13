@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using UnityEngine;
 
 #if UNITY_IOS
@@ -32,6 +33,23 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         public string[] productIdentifiers;
     }
 
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    [System.Serializable]
+    private class PresentedOfferingContextRequest
+    {
+        public string offeringIdentifier;
+        [CanBeNull] public string placementIdentifier;
+        [CanBeNull] public PresentedOfferingTargetingContextRequest targetingContext;
+    }
+
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    [System.Serializable]
+    private class PresentedOfferingTargetingContextRequest
+    {
+        public int revision;
+        public string ruleId;
+    }
+
     [DllImport("__Internal")]
     private static extern void _RCGetProducts(string productIdentifiersJson, string type);
     public void GetProducts(string[] productIdentifiers, string type = "subs")
@@ -60,7 +78,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
+    private static extern void _RCPurchasePackage(string packageIdentifier, string presentedOfferingContextJSON, string signedDiscountTimestamp);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
@@ -70,7 +88,35 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         {
             discountTimestamp = discount.Timestamp.ToString();
         }
-        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
+
+        Dictionary<string, object> contextDict = new Dictionary<string, object>();
+
+        if (packageToPurchase.PresentedOfferingContext.TargetingContext != null) {
+            Dictionary<string, object> targetingDict = new Dictionary<string, object>();
+            targetingDict.Add("revision", packageToPurchase.PresentedOfferingContext.TargetingContext.Revision);
+            targetingDict.Add("ruleId", packageToPurchase.PresentedOfferingContext.TargetingContext.RuleId);
+
+            contextDict.Add("targetingContext", targetingDict);
+        }
+
+        var request = new PresentedOfferingContextRequest
+        {
+            offeringIdentifier = packageToPurchase.PresentedOfferingContext.OfferingIdentifier,
+            placementIdentifier = packageToPurchase.PresentedOfferingContext.PlacementIdentifier,
+            targetingContext = targetingRequest
+        };
+
+        if (packageToPurchase.PresentedOfferingContext.PlacementIdentifier == null) {
+            Debug.Log("PLACEMENT IS NULL");
+        } else {
+            Debug.Log("PLACEMENT IS NOT NULL");
+        }
+
+        Debug.Log("packageToPurchase.PresentedOfferingContext: " + packageToPurchase.PresentedOfferingContext);
+        Debug.Log("packageToPurchase.PresentedOfferingContext.TargetingContext: " + packageToPurchase.PresentedOfferingContext.TargetingContext);
+        Debug.Log("request: " + request);
+
+        _RCPurchasePackage(packageToPurchase.Identifier, JsonUtility.ToJson(request), discountTimestamp);
     }
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,

@@ -63,7 +63,7 @@ char *makeStringCopy(NSString *nstring) {
 usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
  dangerousSettingsJson:(NSString *)dangerousSettingsJson
- shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically 
+ shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically
  entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode {
     self.products = nil;
     self.gameObject = nil;
@@ -90,7 +90,7 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
                platformFlavorVersion:self.platformFlavorVersion
             usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
                    dangerousSettings:dangerousSettings
-shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically 
+shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                     verificationMode:entitlementVerificationMode];
 
     self.gameObject = gameObject;
@@ -127,10 +127,16 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)purchasePackage:(NSString *)packageIdentifier
-     offeringIdentifier:(NSString *)offeringIdentifier
+presentedOfferingContext:(NSDictionary *)presentedOfferingContextWithEmptyStrings
 signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
+
+    // Unity's JSONUtility.ToJSON returns empty string instead of null values
+    // We need to remove the empty strings
+    NSMutableDictionary *presentedOfferingContext = [NSMutableDictionary dictionaryWithDictionary:presentedOfferingContextWithEmptyStrings];
+    [self removeEmptyStringsFromDictionary:presentedOfferingContext];
+
     [RCCommonFunctionality purchasePackage:packageIdentifier
-                                  offering:offeringIdentifier
+                  presentedOfferingContext: presentedOfferingContext
                    signedDiscountTimestamp:signedDiscountTimestamp
                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
@@ -416,7 +422,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         NSLog(@"Error serializing response: %@", error.localizedDescription);
         return;
     }
-    
+
     if (responseJSONData) {
         NSString *json = [[NSString alloc] initWithData:responseJSONData encoding:NSUTF8StringEncoding];
         UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, json.UTF8String);
@@ -448,6 +454,45 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         }
         [self sendJSONObject:response toMethod:method];
     };
+}
+
+- (void)removeEmptyStringsFromDictionary:(NSMutableDictionary *)dictionary {
+    NSMutableArray *keysToDelete = [NSMutableArray array];
+    for (NSString *key in dictionary.allKeys) {
+        id value = dictionary[key];
+        // Check if the value is an empty string and mark the key for removal
+        if ([value isKindOfClass:[NSString class]] && [value isEqualToString:@""]) {
+            [keysToDelete addObject:key];
+        }
+        // If the value is a dictionary, recursively process it
+        else if ([value isKindOfClass:[NSMutableDictionary class]]) {
+            [self removeEmptyStringsFromDictionary:value];
+        }
+        // If the value is an array, iterate through the array
+        else if ([value isKindOfClass:[NSMutableArray class]]) {
+            [self removeEmptyStringsFromArray:value];
+        }
+    }
+    // Remove all keys that were marked for deletion
+    [dictionary removeObjectsForKeys:keysToDelete];
+}
+
+- (void)removeEmptyStringsFromArray:(NSMutableArray *)array {
+    for (NSInteger i = array.count - 1; i >= 0; i--) {
+        id value = array[i];
+        // Check if the value is an empty string and remove it
+        if ([value isKindOfClass:[NSString class]] && [value isEqualToString:@""]) {
+            [array removeObjectAtIndex:i];
+        }
+        // If the value is a dictionary, recursively process it
+        else if ([value isKindOfClass:[NSMutableDictionary class]]) {
+            [self removeEmptyStringsFromDictionary:value];
+        }
+        // If the value is an array, recursively process it
+        else if ([value isKindOfClass:[NSMutableArray class]]) {
+            [self removeEmptyStringsFromArray:value];
+        }
+    }
 }
 
 - (NSString *)platformFlavor {
@@ -508,9 +553,17 @@ void _RCPurchaseProduct(const char *productIdentifier, const char *signedDiscoun
                     signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
 }
 
-void _RCPurchasePackage(const char *packageIdentifier, const char *offeringIdentifier, const char *signedDiscountTimestamp) {
+void _RCPurchasePackage(const char *packageIdentifier, const char *presentedOfferingContextJSON, const char *signedDiscountTimestamp) {
+    NSError *error = nil;
+    NSDictionary *presentedOfferingContext = [NSJSONSerialization JSONObjectWithData:[convertCString(presentedOfferingContextJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+
+    if (error) {
+        NSLog(@"Error parsing presentedOfferingContext JSON: %s %@", presentedOfferingContextJSON, error.localizedDescription);
+        return;
+    }
+
     [_RCUnityHelperShared() purchasePackage:convertCString(packageIdentifier)
-                         offeringIdentifier:convertCString(offeringIdentifier)
+                   presentedOfferingContext:presentedOfferingContext
                     signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
 }
 

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4439403, g: 0.4931519, b: 0.5722083, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -381,8 +381,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRuntimeSetup: 0
-  revenueCatAPIKeyApple: 
-  revenueCatAPIKeyGoogle: 
+  revenueCatAPIKeyApple: appl_KFpRDwauDyfIGIETKyVymslMcjX
+  revenueCatAPIKeyGoogle: goog_cRtaFpfwfcQYPXkIEqFUkVszUfN
   revenueCatAPIKeyAmazon: 
   useAmazon: 0
   autoSyncPurchases: 1
@@ -391,7 +391,10 @@ MonoBehaviour:
   listener: {fileID: 559298755}
   observerMode: 0
   userDefaultsSuiteName: 
+  shouldShowInAppMessagesAutomatically: 1
+  entitlementVerificationMode: 0
   proxyURL: 
+  usesStoreKit2IfAvailable: 0
 --- !u!4 &559298754
 Transform:
   m_ObjectHideFlags: 0
@@ -960,7 +963,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1016743159}
   m_Direction: 2
   m_Value: 0.90756994
-  m_Size: 0.021009983
+  m_Size: 0.021009985
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1129,7 +1132,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 195.25005, y: -201.85501}
+  m_AnchoredPosition: {x: 195.25005, y: -1000.001}
   m_SizeDelta: {x: 390.25, y: 2000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1575378376
@@ -1356,8 +1359,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 950935161}
   m_HandleRect: {fileID: 950935160}
   m_Direction: 2
-  m_Value: 1.0000005
-  m_Size: 0.58958787
+  m_Value: 1.0000006
+  m_Size: 0.20185499
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
