@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 
 public partial class Purchases

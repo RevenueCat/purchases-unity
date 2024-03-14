@@ -636,6 +636,24 @@ public partial class Purchases : MonoBehaviour
 
     private GetOfferingsFunc GetOfferingsCallback { get; set; }
 
+    /// <summary>
+    /// Callback for <see cref="Purchases.GetOfferings"/>.
+    /// </summary>
+    /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void GetCurerntOfferingForPlacementFunc(Offering offerings, Error error);
+
+    private GetCurerntOfferingForPlacementFunc GetCurrentOfferingForPlacementCallback { get; set; }
+
+    /// <summary>
+    /// Callback for <see cref="Purchases.GetOfferings"/>.
+    /// </summary>
+    /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void SyncAttributesAndOfferingsIfNeededFunc(Offerings offerings, Error error);
+
+    private SyncAttributesAndOfferingsIfNeededFunc SyncAttributesAndOfferingsIfNeededCallback { get; set; }
+
     ///
     /// <summary>
     /// Fetch the configured <see cref="Offerings"/> for this user.
@@ -657,6 +675,18 @@ public partial class Purchases : MonoBehaviour
     {
         GetOfferingsCallback = callback;
         _wrapper.GetOfferings();
+    }
+
+    public void GetCurrentOfferingForPlacement(string placementIdentifier, GetCurerntOfferingForPlacementFunc callback)
+    {
+        GetCurrentOfferingForPlacementCallback = callback;
+        _wrapper.GetCurrentOfferingForPlacement(placementIdentifier);
+    }
+
+    public void SyncAttributesAndOfferingsIfNeeded(SyncAttributesAndOfferingsIfNeededFunc callback)
+    {
+        SyncAttributesAndOfferingsIfNeededCallback = callback;
+        _wrapper.SyncAttributesAndOfferingsIfNeeded();
     }
 
     /// <summary>
@@ -1276,6 +1306,44 @@ public partial class Purchases : MonoBehaviour
         }
 
         GetOfferingsCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _getCurrentOfferingForPlacement(string offeringJson)
+    {
+        Debug.Log("_getCurrentOfferingForPlacement " + offeringJson);
+        if (GetCurrentOfferingForPlacementCallback == null) return;
+        var response = JSON.Parse(offeringJson);
+        if (ResponseHasError(response))
+        {
+            GetCurrentOfferingForPlacementCallback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var offeringResponse = response["offering"];
+            GetCurrentOfferingForPlacementCallback(new Offering(offeringResponse), null);
+        }
+
+        GetCurrentOfferingForPlacementCallback = null;
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _syncAttributesAndOfferingsIfNeeded(string offeringsJson)
+    {
+        Debug.Log("_syncAttributesAndOfferingsIfNeeded " + offeringsJson);
+        if (SyncAttributesAndOfferingsIfNeededCallback == null) return;
+        var response = JSON.Parse(offeringsJson);
+        if (ResponseHasError(response))
+        {
+            SyncAttributesAndOfferingsIfNeededCallback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var offeringsResponse = response["offerings"];
+            SyncAttributesAndOfferingsIfNeededCallback(new Offerings(offeringsResponse), null);
+        }
+
+        SyncAttributesAndOfferingsIfNeededCallback = null;
     }
 
     private void _checkTrialOrIntroductoryPriceEligibility(string json)

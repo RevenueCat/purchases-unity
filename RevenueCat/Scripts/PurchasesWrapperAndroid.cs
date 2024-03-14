@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using RevenueCat.SimpleJSON;
 using UnityEngine;
 
 #if UNITY_ANDROID
@@ -24,13 +25,20 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
         Purchases.PromotionalOffer discount = null)
     {
+        string presenteOfferingContextJSON = null;
+        if (presentedOfferingIdentifier != null) {
+            var contextDict = new JSONObject();
+            contextDict["offeringIdentifier"] = presentedOfferingIdentifier;
+            presenteOfferingContextJSON = contextDict.ToString();
+        }
+
         if (oldSku == null)
         {
             CallPurchases("purchaseProduct", productIdentifier, type);
         }
         else
         {
-            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode, googleIsPersonalizedPrice, presentedOfferingIdentifier);
+            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode, googleIsPersonalizedPrice, presenteOfferingContextJSON);
         }
     }
 
@@ -38,13 +46,15 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
     {
+        string presenteOfferingContextJSON = packageToPurchase.PresentedOfferingContext.ToJson();
+
         if (oldSku == null)
         {
-            CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier);
+            CallPurchases("purchasePackage", packageToPurchase.Identifier, presenteOfferingContextJSON);
         }
         else
         {
-            CallPurchases("purchasePackage", packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, oldSku,
+            CallPurchases("purchasePackage", packageToPurchase.Identifier, presenteOfferingContextJSON, oldSku,
                 (int)prorationMode, googleIsPersonalizedPrice);
         }
     }
@@ -53,17 +63,21 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
     {
+        string presenteOfferingContextJSON = null;
+        if (subscriptionOption.PresentedOfferingContext != null) {
+            presenteOfferingContextJSON = subscriptionOption.PresentedOfferingContext.ToJson();
+        }
         
         if (googleProductChangeInfo == null)
         {
             CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.Id,
-                null, 0, googleIsPersonalizedPrice, subscriptionOption.PresentedOfferingIdentifier);
+                null, 0, googleIsPersonalizedPrice, presenteOfferingContextJSON);
         }
         else
         {
             CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.Id,
                 googleProductChangeInfo.OldProductIdentifier, (int)googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice,
-                subscriptionOption.PresentedOfferingIdentifier);
+                presenteOfferingContextJSON);
         }
     }
 
@@ -140,6 +154,16 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void GetOfferings()
     {
         CallPurchases("getOfferings");
+    }
+
+    public void GetCurrentOfferingForPlacement(string placementIdentifier)
+    {
+        CallPurchases("getCurrentOfferingForPlacement", placementIdentifier);
+    }
+
+    public void SyncAttributesAndOfferingsIfNeeded()
+    {
+        CallPurchases("syncAttributesAndOfferingsIfNeeded");
     }
 
     public void SyncPurchases()

@@ -36,6 +36,8 @@ public interface IPurchasesWrapper
     string GetAppUserId();
     void GetCustomerInfo();
     void GetOfferings();
+    void GetCurrentOfferingForPlacement(string placementIdentifier);
+    void SyncAttributesAndOfferingsIfNeeded();
     void SyncPurchases();
 
     void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,

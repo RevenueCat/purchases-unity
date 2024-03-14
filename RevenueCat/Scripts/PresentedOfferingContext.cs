@@ -26,6 +26,25 @@ public partial class Purchases
                    $"{nameof(PlacementIdentifier)}: {PlacementIdentifier}\n" + 
                    $"{nameof(TargetingContext)}: {TargetingContext}";
         }
+
+        public string ToJson()
+        {
+            var contextDict = new JSONObject();
+            contextDict["offeringIdentifier"] = OfferingIdentifier;
+            if (PlacementIdentifier != null) {
+                contextDict["placementIdentifier"] = PlacementIdentifier;
+            }
+
+            if (TargetingContext != null) {
+                var targetingDict = new JSONObject();
+                targetingDict["revision"] = TargetingContext.Revision;
+                targetingDict["ruleId"] = TargetingContext.RuleId;
+
+                contextDict["targetingContext"] = targetingDict;
+            }
+            
+            return contextDict.ToString();
+        }
     }
 
     /// <summary>

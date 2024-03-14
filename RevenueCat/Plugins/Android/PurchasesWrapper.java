@@ -12,6 +12,7 @@ import com.revenuecat.purchases.Store;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
 import com.revenuecat.purchases.hybridcommon.ErrorContainer;
+import com.revenuecat.purchases.hybridcommon.OnNullableResult;
 import com.revenuecat.purchases.hybridcommon.OnResult;
 import com.revenuecat.purchases.hybridcommon.OnResultAny;
 import com.revenuecat.purchases.hybridcommon.OnResultList;
@@ -27,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,8 @@ public class PurchasesWrapper {
     private static final String LOG_IN = "_logIn";
     private static final String LOG_OUT = "_logOut";
     private static final String GET_OFFERINGS = "_getOfferings";
+    private static final String GET_CURRENT_OFFERING_FOR_PLACEMENT = "_getCurrentOfferingForPlacement";
+    private static final String SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED = "_syncAttributesAndOfferingsIfNeeded";
     private static final String CHECK_ELIGIBILITY = "_checkTrialOrIntroductoryPriceEligibility";
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
     private static final String GET_PROMOTIONAL_OFFER = "_getPromotionalOffer";
@@ -58,20 +62,21 @@ public class PurchasesWrapper {
     };
 
     public static void setup(String apiKey,
-                             String appUserId,
-                             String gameObject,
-                             boolean observerMode,
-                             String userDefaultsSuiteName,
-                             boolean useAmazon,
-                             boolean shouldShowInAppMessagesAutomatically,
-                             String dangerousSettingsJSON, 
-                             String entitlementVerificationMode) {
+            String appUserId,
+            String gameObject,
+            boolean observerMode,
+            String userDefaultsSuiteName,
+            boolean useAmazon,
+            boolean shouldShowInAppMessagesAutomatically,
+            String dangerousSettingsJSON,
+            String entitlementVerificationMode) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity,
-                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings, shouldShowInAppMessagesAutomatically, 
+                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings,
+                shouldShowInAppMessagesAutomatically,
                 entitlementVerificationMode);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
@@ -109,11 +114,24 @@ public class PurchasesWrapper {
     }
 
     public static void purchaseProduct(final String productIdentifier,
-                                       final String type,
-                                       @Nullable final String oldSKU,
-                                       final int prorationMode,
-                                       final boolean isPersonalized,
-                                       @Nullable final String presentedOfferingIdentifier) {
+            final String type,
+            @Nullable final String oldSKU,
+            final int prorationMode,
+            final boolean isPersonalized,
+            @Nullable final String presentedOfferingContextJSON) {
+        Log.d("JOSH", "PROD POC JSON:" + presentedOfferingContextJSON);
+
+        Map<String, ?> presentedOfferingContext = null;
+        try {
+            if (presentedOfferingContextJSON != null) {
+                JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
+                presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
+            }
+        } catch (JSONException e) {
+            Log.e("JOSH", "error parsing json");
+            logJSONException(e);
+        }
+
         CommonKt.purchaseProduct(
                 UnityPlayer.currentActivity,
                 productIdentifier,
@@ -122,7 +140,7 @@ public class PurchasesWrapper {
                 oldSKU,
                 prorationMode == 0 ? null : prorationMode,
                 isPersonalized,
-                presentedOfferingIdentifier,
+                new HashMap<>(), // FIXME
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
@@ -137,22 +155,77 @@ public class PurchasesWrapper {
     }
 
     public static void purchaseProduct(String productIdentifier, String type) {
-        purchaseProduct(productIdentifier, type, null,  0, false, null);
+        purchaseProduct(productIdentifier, type, null, 0, false, null);
     }
 
     public static void purchasePackage(String packageIdentifier,
-                                       String offeringIdentifier,
-                                       @Nullable final String oldSKU,
-                                       final int prorationMode,
-                                       final boolean isPersonalized
-                                       ) {
-        CommonKt.purchasePackage(
+            String presentedOfferingContextJSON,
+            @Nullable final String oldSKU,
+            final int prorationMode,
+            final boolean isPersonalized) {
+        try {
+            Log.d("JOSH", "PACKAGE POC JSON:" + presentedOfferingContextJSON);
+
+            JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
+            Map<String, ?> presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
+
+            CommonKt.purchasePackage(
+                    UnityPlayer.currentActivity,
+                    packageIdentifier,
+                    presentedOfferingContext,
+                    oldSKU,
+                    prorationMode == 0 ? null : prorationMode,
+                    isPersonalized,
+                    new OnResult() {
+                        @Override
+                        public void onReceived(Map<String, ?> map) {
+                            sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                        }
+
+                        @Override
+                        public void onError(ErrorContainer errorContainer) {
+                            sendErrorPurchase(errorContainer);
+                        }
+                    });
+        } catch (JSONException e) {
+            Log.e("JOSH", "error parsing json");
+            logJSONException(e);
+        }
+
+    }
+
+    public static void purchasePackage(String packageIdentifier,
+            String offeringIdentifier) {
+        purchasePackage(packageIdentifier, offeringIdentifier, null, 0, false);
+    }
+
+    public static void purchaseSubscriptionOption(final String productIdentifer,
+            final String optionIdentifier,
+            @Nullable final String oldSKU,
+            final int prorationMode,
+            final boolean isPersonalized,
+            @Nullable final String presentedOfferingContextJSON) {
+        Log.d("JOSH", "SUBOPT POC JSON:" + presentedOfferingContextJSON);
+
+        Map<String, ?> presentedOfferingContext = null;
+        try {
+            if (presentedOfferingContextJSON != null) {
+                JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
+                presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
+            }
+        } catch (JSONException e) {
+            Log.e("JOSH", "error parsing json");
+            logJSONException(e);
+        }
+
+        CommonKt.purchaseSubscriptionOption(
                 UnityPlayer.currentActivity,
-                packageIdentifier,
-                offeringIdentifier,
+                productIdentifer,
+                optionIdentifier,
                 oldSKU,
-                prorationMode == 0 ? null : prorationMode,
+                (prorationMode == 0) ? null : prorationMode,
                 isPersonalized,
+                presentedOfferingContext,
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
@@ -164,39 +237,6 @@ public class PurchasesWrapper {
                         sendErrorPurchase(errorContainer);
                     }
                 });
-    }
-
-    public static void purchasePackage(String packageIdentifier,
-                                       String offeringIdentifier) {
-        purchasePackage(packageIdentifier, offeringIdentifier, null,  0, false);
-    }
-
-    public static void purchaseSubscriptionOption(final String productIdentifer,
-                                           final String optionIdentifier,
-                                           @Nullable final String oldSKU,
-                                           final int prorationMode,
-                                           final boolean isPersonalized,
-                                           @Nullable final String offerIdentifier
-                                           ) {
-        CommonKt.purchaseSubscriptionOption(
-            UnityPlayer.currentActivity,
-            productIdentifer,
-            optionIdentifier,
-            oldSKU,
-            (prorationMode == 0) ? null : prorationMode,
-            isPersonalized,
-            offerIdentifier,
-            new OnResult() {
-                    @Override
-                    public void onReceived(Map<String, ?> map) {
-                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
-                    }
-
-                    @Override
-                    public void onError(ErrorContainer errorContainer) {
-                        sendErrorPurchase(errorContainer);
-                    }
-            });
     }
 
     public static void restorePurchases() {
@@ -235,13 +275,57 @@ public class PurchasesWrapper {
         });
     }
 
+    public static void getCurrentOfferingForPlacement(String placementIdentifier) {
+        CommonKt.getCurrentOfferingForPlacement(placementIdentifier, new OnNullableResult() {
+            @Override
+            public void onReceived(Map<String, ?> map) {
+                try {
+                    JSONObject offering = null;
+                    if (map != null) {
+                        offering = MappersHelpersKt.convertToJson(map);
+                    }
+
+                    JSONObject object = new JSONObject();
+                    object.put("offering", offering);
+                    sendJSONObject(object, GET_CURRENT_OFFERING_FOR_PLACEMENT);
+                } catch (JSONException e) {
+                    logJSONException(e);
+                }
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendError(errorContainer, GET_CURRENT_OFFERING_FOR_PLACEMENT);
+            }
+        });
+    }
+
+    public static void syncAttributesAndOfferingsIfNeeded() {
+        CommonKt.syncAttributesAndOfferingsIfNeeded(new OnResult() {
+            @Override
+            public void onReceived(Map<String, ?> map) {
+                try {
+                    JSONObject object = new JSONObject();
+                    object.put("offerings", MappersHelpersKt.convertToJson(map));
+                    sendJSONObject(object, SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED);
+                } catch (JSONException e) {
+                    logJSONException(e);
+                }
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendError(errorContainer, SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED);
+            }
+        });
+    }
+
     public static void syncObserverModeAmazonPurchase(
             String productID,
             String receiptID,
             String amazonUserID,
             String isoCurrencyCode,
-            double price
-    ) {
+            double price) {
         Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID,
                 amazonUserID, isoCurrencyCode, price);
     }
@@ -417,22 +501,22 @@ public class PurchasesWrapper {
             }
 
             CommonKt.canMakePayments(UnityPlayer.currentActivity, featuresToSend, new OnResultAny<Boolean>() {
-               @Override
-               public void onReceived(Boolean canMakePayments) {
-                   JSONObject object = new JSONObject();
-                   try {
-                       object.put("canMakePayments", canMakePayments);
-                   } catch (JSONException e) {
-                       logJSONException(e);
-                   }
-                   sendJSONObject(object, CAN_MAKE_PAYMENTS);
-               }
+                @Override
+                public void onReceived(Boolean canMakePayments) {
+                    JSONObject object = new JSONObject();
+                    try {
+                        object.put("canMakePayments", canMakePayments);
+                    } catch (JSONException e) {
+                        logJSONException(e);
+                    }
+                    sendJSONObject(object, CAN_MAKE_PAYMENTS);
+                }
 
-               @Override
-               public void onError(ErrorContainer errorContainer) {
-                   sendError(errorContainer, CAN_MAKE_PAYMENTS);
-               }
-           });
+                @Override
+                public void onError(ErrorContainer errorContainer) {
+                    sendError(errorContainer, CAN_MAKE_PAYMENTS);
+                }
+            });
         } catch (JSONException e) {
             logJSONException(e);
         }
@@ -517,9 +601,9 @@ public class PurchasesWrapper {
             public void onReceived(Map<String, ?> map) {
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    Map<String, ?> customerInfoMap = (Map<String, ?>)map.get("customerInfo");
+                    Map<String, ?> customerInfoMap = (Map<String, ?>) map.get("customerInfo");
                     jsonObject.put("customerInfo", MappersHelpersKt.convertToJson(customerInfoMap));
-                    jsonObject.put("created", (Boolean)map.get("created"));
+                    jsonObject.put("created", (Boolean) map.get("created"));
                 } catch (ClassCastException castException) {
                     Log.e("Purchases", "invalid casting Error: " + castException.getLocalizedMessage());
                 } catch (JSONException e) {

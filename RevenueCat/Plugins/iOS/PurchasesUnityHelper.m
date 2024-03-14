@@ -17,6 +17,8 @@ static NSString *const LOG_IN = @"_logIn";
 static NSString *const LOG_OUT = @"_logOut";
 static NSString *const MAKE_PURCHASE = @"_makePurchase";
 static NSString *const GET_OFFERINGS = @"_getOfferings";
+static NSString *const GET_CURRENT_OFFERING_FOR_PLACEMENT = @"_getCurrentOfferingForPlacement";
+static NSString *const SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED = @"_syncAttributesAndOfferingsIfNeeded";
 static NSString *const GET_CUSTOMER_INFO = @"_getCustomerInfo";
 static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligibility";
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
@@ -127,14 +129,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)purchasePackage:(NSString *)packageIdentifier
-presentedOfferingContext:(NSDictionary *)presentedOfferingContextWithEmptyStrings
+presentedOfferingContext:(NSDictionary *)presentedOfferingContext
 signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
-
-    // Unity's JSONUtility.ToJSON returns empty string instead of null values
-    // We need to remove the empty strings
-    NSMutableDictionary *presentedOfferingContext = [NSMutableDictionary dictionaryWithDictionary:presentedOfferingContextWithEmptyStrings];
-    [self removeEmptyStringsFromDictionary:presentedOfferingContext];
-
     [RCCommonFunctionality purchasePackage:packageIdentifier
                   presentedOfferingContext: presentedOfferingContext
                    signedDiscountTimestamp:signedDiscountTimestamp
@@ -188,6 +184,33 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         }
 
         [self sendJSONObject:response toMethod:GET_OFFERINGS];
+    }];
+}
+
+- (void)getCurrentOfferingForPlacement:(NSString*)placementIdentifier {
+    [RCCommonFunctionality getCurrentOfferingForPlacement:placementIdentifier completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        if (error) {
+            response[@"error"] = error.info;
+        } else {
+            response[@"offering"] = responseDictionary;
+        }
+
+        [self sendJSONObject:response toMethod:GET_CURRENT_OFFERING_FOR_PLACEMENT];
+    }];
+}
+
+
+- (void)syncAttributesAndOfferingsIfNeeded {
+    [RCCommonFunctionality syncAttributesAndOfferingsIfNeededWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        if (error) {
+            response[@"error"] = error.info;
+        } else {
+            response[@"offerings"] = responseDictionary;
+        }
+
+        [self sendJSONObject:response toMethod:SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED];
     }];
 }
 
@@ -456,45 +479,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     };
 }
 
-- (void)removeEmptyStringsFromDictionary:(NSMutableDictionary *)dictionary {
-    NSMutableArray *keysToDelete = [NSMutableArray array];
-    for (NSString *key in dictionary.allKeys) {
-        id value = dictionary[key];
-        // Check if the value is an empty string and mark the key for removal
-        if ([value isKindOfClass:[NSString class]] && [value isEqualToString:@""]) {
-            [keysToDelete addObject:key];
-        }
-        // If the value is a dictionary, recursively process it
-        else if ([value isKindOfClass:[NSMutableDictionary class]]) {
-            [self removeEmptyStringsFromDictionary:value];
-        }
-        // If the value is an array, iterate through the array
-        else if ([value isKindOfClass:[NSMutableArray class]]) {
-            [self removeEmptyStringsFromArray:value];
-        }
-    }
-    // Remove all keys that were marked for deletion
-    [dictionary removeObjectsForKeys:keysToDelete];
-}
-
-- (void)removeEmptyStringsFromArray:(NSMutableArray *)array {
-    for (NSInteger i = array.count - 1; i >= 0; i--) {
-        id value = array[i];
-        // Check if the value is an empty string and remove it
-        if ([value isKindOfClass:[NSString class]] && [value isEqualToString:@""]) {
-            [array removeObjectAtIndex:i];
-        }
-        // If the value is a dictionary, recursively process it
-        else if ([value isKindOfClass:[NSMutableDictionary class]]) {
-            [self removeEmptyStringsFromDictionary:value];
-        }
-        // If the value is an array, recursively process it
-        else if ([value isKindOfClass:[NSMutableArray class]]) {
-            [self removeEmptyStringsFromArray:value];
-        }
-    }
-}
-
 - (NSString *)platformFlavor {
     return @"unity";
 }
@@ -592,6 +576,14 @@ void _RCSetAllowSharingStoreAccount(const BOOL allow) {
 
 void _RCGetOfferings() {
     [_RCUnityHelperShared() getOfferings];
+}
+
+void _RCGetCurrentOfferingForPlacement(const char *placementIdentifier) {
+    [_RCUnityHelperShared() getCurrentOfferingForPlacement:convertCString(placementIdentifier)];
+}
+
+void _RCSyncAttributesAndOfferingsIfNeeded() {
+    [_RCUnityHelperShared() syncAttributesAndOfferingsIfNeeded];
 }
 
 void _RCSetDebugLogsEnabled(const BOOL enabled) {

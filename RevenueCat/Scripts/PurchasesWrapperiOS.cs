@@ -33,23 +33,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         public string[] productIdentifiers;
     }
 
-    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
-    [System.Serializable]
-    private class PresentedOfferingContextRequest
-    {
-        public string offeringIdentifier;
-        [CanBeNull] public string placementIdentifier;
-        [CanBeNull] public PresentedOfferingTargetingContextRequest targetingContext;
-    }
-
-    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
-    [System.Serializable]
-    private class PresentedOfferingTargetingContextRequest
-    {
-        public int revision;
-        public string ruleId;
-    }
-
     [DllImport("__Internal")]
     private static extern void _RCGetProducts(string productIdentifiersJson, string type);
     public void GetProducts(string[] productIdentifiers, string type = "subs")
@@ -89,34 +72,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             discountTimestamp = discount.Timestamp.ToString();
         }
 
-        Dictionary<string, object> contextDict = new Dictionary<string, object>();
-
-        if (packageToPurchase.PresentedOfferingContext.TargetingContext != null) {
-            Dictionary<string, object> targetingDict = new Dictionary<string, object>();
-            targetingDict.Add("revision", packageToPurchase.PresentedOfferingContext.TargetingContext.Revision);
-            targetingDict.Add("ruleId", packageToPurchase.PresentedOfferingContext.TargetingContext.RuleId);
-
-            contextDict.Add("targetingContext", targetingDict);
-        }
-
-        var request = new PresentedOfferingContextRequest
-        {
-            offeringIdentifier = packageToPurchase.PresentedOfferingContext.OfferingIdentifier,
-            placementIdentifier = packageToPurchase.PresentedOfferingContext.PlacementIdentifier,
-            targetingContext = targetingRequest
-        };
-
-        if (packageToPurchase.PresentedOfferingContext.PlacementIdentifier == null) {
-            Debug.Log("PLACEMENT IS NULL");
-        } else {
-            Debug.Log("PLACEMENT IS NOT NULL");
-        }
-
-        Debug.Log("packageToPurchase.PresentedOfferingContext: " + packageToPurchase.PresentedOfferingContext);
-        Debug.Log("packageToPurchase.PresentedOfferingContext.TargetingContext: " + packageToPurchase.PresentedOfferingContext.TargetingContext);
-        Debug.Log("request: " + request);
-
-        _RCPurchasePackage(packageToPurchase.Identifier, JsonUtility.ToJson(request), discountTimestamp);
+        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.PresentedOfferingContext.ToJson(), discountTimestamp);
     }
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
@@ -220,6 +176,20 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void GetOfferings()
     {
         _RCGetOfferings();
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCGetCurrentOfferingForPlacement(string placementIdentifier);
+    public void GetCurrentOfferingForPlacement(string placementIdentifier)
+    {
+        _RCGetCurrentOfferingForPlacement(placementIdentifier);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSyncAttributesAndOfferingsIfNeeded();
+    public void SyncAttributesAndOfferingsIfNeeded()
+    {
+        _RCSyncAttributesAndOfferingsIfNeeded();
     }
 
     [DllImport("__Internal")]
