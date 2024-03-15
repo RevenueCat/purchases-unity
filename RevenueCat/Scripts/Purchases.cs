@@ -637,16 +637,16 @@ public partial class Purchases : MonoBehaviour
     private GetOfferingsFunc GetOfferingsCallback { get; set; }
 
     /// <summary>
-    /// Callback for <see cref="Purchases.GetOfferings"/>.
+    /// Callback for <see cref="Purchases.GetCurrentOfferingForPlacement"/>.
     /// </summary>
-    /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
+    /// <param name="offerings"> The nullable <see cref="Offering"/> object if the request was successful, null otherwise.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
-    public delegate void GetCurerntOfferingForPlacementFunc(Offering offerings, Error error);
+    public delegate void GetCurrentOfferingForPlacementFunc(Offering offerings, Error error);
 
-    private GetCurerntOfferingForPlacementFunc GetCurrentOfferingForPlacementCallback { get; set; }
+    private GetCurrentOfferingForPlacementFunc GetCurrentOfferingForPlacementCallback { get; set; }
 
     /// <summary>
-    /// Callback for <see cref="Purchases.GetOfferings"/>.
+    /// Callback for <see cref="Purchases.SyncAttributesAndOfferingsIfNeeded"/>.
     /// </summary>
     /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
@@ -677,7 +677,7 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetOfferings();
     }
 
-    public void GetCurrentOfferingForPlacement(string placementIdentifier, GetCurerntOfferingForPlacementFunc callback)
+    public void GetCurrentOfferingForPlacement(string placementIdentifier, GetCurrentOfferingForPlacementFunc callback)
     {
         GetCurrentOfferingForPlacementCallback = callback;
         _wrapper.GetCurrentOfferingForPlacement(placementIdentifier);
@@ -1311,7 +1311,6 @@ public partial class Purchases : MonoBehaviour
     // ReSharper disable once UnusedMember.Local
     private void _getCurrentOfferingForPlacement(string offeringJson)
     {
-        Debug.Log("_getCurrentOfferingForPlacement " + offeringJson);
         if (GetCurrentOfferingForPlacementCallback == null) return;
         var response = JSON.Parse(offeringJson);
         if (ResponseHasError(response))
@@ -1330,7 +1329,6 @@ public partial class Purchases : MonoBehaviour
     // ReSharper disable once UnusedMember.Local
     private void _syncAttributesAndOfferingsIfNeeded(string offeringsJson)
     {
-        Debug.Log("_syncAttributesAndOfferingsIfNeeded " + offeringsJson);
         if (SyncAttributesAndOfferingsIfNeededCallback == null) return;
         var response = JSON.Parse(offeringsJson);
         if (ResponseHasError(response))

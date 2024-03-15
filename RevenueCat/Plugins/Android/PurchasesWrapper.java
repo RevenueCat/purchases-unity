@@ -210,24 +210,24 @@ public class PurchasesWrapper {
         }
 
         CommonKt.purchaseSubscriptionOption(
-                UnityPlayer.currentActivity,
-                productIdentifer,
-                optionIdentifier,
-                oldSKU,
-                (prorationMode == 0) ? null : prorationMode,
-                isPersonalized,
-                presentedOfferingContext,
-                new OnResult() {
-                    @Override
-                    public void onReceived(Map<String, ?> map) {
-                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
-                    }
+            UnityPlayer.currentActivity,
+            productIdentifer,
+            optionIdentifier,
+            oldSKU,
+            (prorationMode == 0) ? null : prorationMode,
+            isPersonalized,
+            presentedOfferingContext,
+            new OnResult() {
+                @Override
+                public void onReceived(Map<String, ?> map) {
+                    sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                }
 
-                    @Override
-                    public void onError(ErrorContainer errorContainer) {
-                        sendErrorPurchase(errorContainer);
-                    }
-                });
+                @Override
+                public void onError(ErrorContainer errorContainer) {
+                    sendErrorPurchase(errorContainer);
+                }
+            });
     }
 
     public static void restorePurchases() {
@@ -316,7 +316,8 @@ public class PurchasesWrapper {
             String receiptID,
             String amazonUserID,
             String isoCurrencyCode,
-            double price) {
+            double price
+    ) {
         Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID,
                 amazonUserID, isoCurrencyCode, price);
     }
