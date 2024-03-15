@@ -62,14 +62,14 @@ public class PurchasesWrapper {
     };
 
     public static void setup(String apiKey,
-            String appUserId,
-            String gameObject,
-            boolean observerMode,
-            String userDefaultsSuiteName,
-            boolean useAmazon,
-            boolean shouldShowInAppMessagesAutomatically,
-            String dangerousSettingsJSON,
-            String entitlementVerificationMode) {
+                             String appUserId,
+                             String gameObject,
+                             boolean observerMode,
+                             String userDefaultsSuiteName,
+                             boolean useAmazon,
+                             boolean shouldShowInAppMessagesAutomatically,
+                             String dangerousSettingsJSON,
+                             String entitlementVerificationMode) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
@@ -114,11 +114,11 @@ public class PurchasesWrapper {
     }
 
     public static void purchaseProduct(final String productIdentifier,
-            final String type,
-            @Nullable final String oldSKU,
-            final int prorationMode,
-            final boolean isPersonalized,
-            @Nullable final String presentedOfferingContextJSON) {
+                                       final String type,
+                                       @Nullable final String oldSKU,
+                                       final int prorationMode,
+                                       final boolean isPersonalized,
+                                       @Nullable final String presentedOfferingContextJSON) {
         Log.d("JOSH", "PROD POC JSON:" + presentedOfferingContextJSON);
 
         Map<String, ?> presentedOfferingContext = null;
@@ -159,10 +159,10 @@ public class PurchasesWrapper {
     }
 
     public static void purchasePackage(String packageIdentifier,
-            String presentedOfferingContextJSON,
-            @Nullable final String oldSKU,
-            final int prorationMode,
-            final boolean isPersonalized) {
+                                       String presentedOfferingContextJSON,
+                                       @Nullable final String oldSKU,
+                                       final int prorationMode,
+                                       final boolean isPersonalized) {
         try {
             Log.d("JOSH", "PACKAGE POC JSON:" + presentedOfferingContextJSON);
 
@@ -195,16 +195,16 @@ public class PurchasesWrapper {
     }
 
     public static void purchasePackage(String packageIdentifier,
-            String offeringIdentifier) {
+                                       String offeringIdentifier) {
         purchasePackage(packageIdentifier, offeringIdentifier, null, 0, false);
     }
 
     public static void purchaseSubscriptionOption(final String productIdentifer,
-            final String optionIdentifier,
-            @Nullable final String oldSKU,
-            final int prorationMode,
-            final boolean isPersonalized,
-            @Nullable final String presentedOfferingContextJSON) {
+                                                  final String optionIdentifier,
+                                                  @Nullable final String oldSKU,
+                                                  final int prorationMode,
+                                                  final boolean isPersonalized,
+                                                  @Nullable final String presentedOfferingContextJSON) {
         Log.d("JOSH", "SUBOPT POC JSON:" + presentedOfferingContextJSON);
 
         Map<String, ?> presentedOfferingContext = null;
