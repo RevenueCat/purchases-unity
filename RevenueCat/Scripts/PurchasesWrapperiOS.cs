@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using UnityEngine;
 
 #if UNITY_IOS
@@ -60,7 +61,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchasePackage(string packageIdentifier, string offeringIdentifier, string signedDiscountTimestamp);
+    private static extern void _RCPurchasePackage(string packageIdentifier, string presentedOfferingContextJSON, string signedDiscountTimestamp);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
@@ -70,7 +71,8 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         {
             discountTimestamp = discount.Timestamp.ToString();
         }
-        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.OfferingIdentifier, discountTimestamp);
+
+        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.PresentedOfferingContext.ToJsonString(), discountTimestamp);
     }
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
@@ -174,6 +176,20 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void GetOfferings()
     {
         _RCGetOfferings();
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCGetCurrentOfferingForPlacement(string placementIdentifier);
+    public void GetCurrentOfferingForPlacement(string placementIdentifier)
+    {
+        _RCGetCurrentOfferingForPlacement(placementIdentifier);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCSyncAttributesAndOfferingsIfNeeded();
+    public void SyncAttributesAndOfferingsIfNeeded()
+    {
+        _RCSyncAttributesAndOfferingsIfNeeded();
     }
 
     [DllImport("__Internal")]

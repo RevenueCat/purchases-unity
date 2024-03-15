@@ -33,6 +33,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         CreateButton("Get Customer Info", GetCustomerInfo);
         CreateButton("Get Offerings", GetOfferings);
+        CreateButton("Get Current Offering For Onboarding Placement", GetCurrentOfferingForPlacement);
+        CreateButton("Sync Attributes and Offerings", SyncAttributesAndOfferingsIfNeeded);
         CreateButton("Sync Purchases", SyncPurchases);
         CreateButton("Restore Purchases", RestorePurchases);
         CreateButton("Can Make Payments", CanMakePayments);
@@ -54,6 +56,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Show In-App Messages", ShowInAppMessages);
         CreateProrationModeButtons();
         CreatePurchasePackageButtons();
+        CreatePurchasePackageForPlacementButtons();
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -92,6 +95,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     var label = package.PackageType + " " + package.StoreProduct.PriceString;
                     CreateButton("Buy as Package: " + label, () => PurchasePackageButtonClicked(package));
 
+                    CreateButton("Buy as Product: " + label, () => PurchaseProductButtonClicked(package.StoreProduct));
+
                     var options = package.StoreProduct.SubscriptionOptions;
                     if (options is not null) {
                         foreach (var subscriptionOption in options) {
@@ -111,6 +116,53 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                                 parts.Add("ITS SO NULL");
                             }
                             var info = String.Join(" -> ", parts.ToArray());
+                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void CreatePurchasePackageForPlacementButtons()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetCurrentOfferingForPlacement("pizza", (offering, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                Debug.Log("offering for placement received " + offering.ToString());
+
+                foreach (var package in offering.AvailablePackages)
+                {
+                    Debug.Log("Placement Package " + package);
+                    if (package == null) continue;
+                    var label = package.PackageType + " " + package.StoreProduct.PriceString;
+                    CreateButton("Buy as Placement Package: " + label, () => PurchasePackageButtonClicked(package));
+
+                    var options = package.StoreProduct.SubscriptionOptions;
+                    if (options is not null) {
+                        foreach (var subscriptionOption in options) {
+                            List<string> parts = new List<string>();
+                            var label2 = package.PackageType;
+
+                            var phases = subscriptionOption.PricingPhases;
+                            if (phases is not null) {
+                                foreach (var pricingPhase in phases) {
+                                    var period = pricingPhase.BillingPeriod;
+                                    var price = pricingPhase.Price;
+                                    if (period is not null && price is not null) {
+                                        parts.Add(price.Formatted + " for " + period.ISO8601);
+                                    }
+                                }
+                            } else {
+                                parts.Add("ITS SO NULL");
+                            }
+                            var info = "PCMNT: " + String.Join(" -> ", parts.ToArray());
                             CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
                         }
                     }
@@ -167,6 +219,30 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         public string clickLabel;
         public string trackerName;
         public string trackerToken;
+    }
+
+
+    private void PurchaseProductButtonClicked(Purchases.StoreProduct storeProduct)
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.PurchaseProduct(storeProduct.Identifier, (productIdentifier, customerInfo, userCancelled, error) =>
+        {
+            if (!userCancelled)
+            {
+                if (error != null)
+                {
+                    LogError(error);
+                }
+                else
+                {
+                    DisplayCustomerInfo(customerInfo);
+                }
+            }
+            else
+            {
+                Debug.Log("Subtester: User cancelled, don't show an error");
+            }
+        }, "subs", null, prorationMode, false);
     }
 
 
@@ -241,6 +317,38 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         var purchases = GetComponent<Purchases>();
         purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = offerings.ToString();
+            }
+        });
+    }
+
+    void GetCurrentOfferingForPlacement()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetCurrentOfferingForPlacement("onboarding", (offering, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = offering.ToString();
+            }
+        });
+    }
+
+    void SyncAttributesAndOfferingsIfNeeded()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.SyncAttributesAndOfferingsIfNeeded((offerings, error) =>
         {
             if (error != null)
             {

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 
 public partial class Purchases
@@ -12,6 +14,9 @@ public partial class Purchases
         public readonly string Identifier;
         public readonly string PackageType;
         public readonly StoreProduct StoreProduct;
+        public readonly PresentedOfferingContext PresentedOfferingContext;
+
+        [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
         public readonly string OfferingIdentifier;
 
         public Package(JSONNode response)
@@ -19,7 +24,8 @@ public partial class Purchases
             Identifier = response["identifier"];
             PackageType = response["packageType"];
             StoreProduct = new StoreProduct(response["product"]);
-            OfferingIdentifier = response["offeringIdentifier"];
+            PresentedOfferingContext = new PresentedOfferingContext(response["presentedOfferingContext"]);
+            OfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
         }
 
         public override string ToString()
@@ -27,7 +33,7 @@ public partial class Purchases
             return $"{nameof(Identifier)}: {Identifier}\n" +
                    $"{nameof(PackageType)}: {PackageType}\n" +
                    $"{nameof(StoreProduct)}: {StoreProduct}\n" +
-                   $"{nameof(OfferingIdentifier)}: {OfferingIdentifier}";
+                   $"{nameof(PresentedOfferingContext)}: {PresentedOfferingContext}";
         }
     }
 }
