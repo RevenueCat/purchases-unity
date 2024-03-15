@@ -119,8 +119,6 @@ public class PurchasesWrapper {
                                        final int prorationMode,
                                        final boolean isPersonalized,
                                        @Nullable final String presentedOfferingContextJSON) {
-        Log.d("JOSH", "PROD POC JSON:" + presentedOfferingContextJSON);
-
         Map<String, ?> presentedOfferingContext = null;
         try {
             if (presentedOfferingContextJSON != null) {
@@ -128,7 +126,6 @@ public class PurchasesWrapper {
                 presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
             }
         } catch (JSONException e) {
-            Log.e("JOSH", "error parsing json");
             logJSONException(e);
         }
 
@@ -140,7 +137,7 @@ public class PurchasesWrapper {
                 oldSKU,
                 prorationMode == 0 ? null : prorationMode,
                 isPersonalized,
-                new HashMap<>(), // FIXME
+                presentedOfferingContext,
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
@@ -164,8 +161,6 @@ public class PurchasesWrapper {
                                        final int prorationMode,
                                        final boolean isPersonalized) {
         try {
-            Log.d("JOSH", "PACKAGE POC JSON:" + presentedOfferingContextJSON);
-
             JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
             Map<String, ?> presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
 
@@ -188,7 +183,6 @@ public class PurchasesWrapper {
                         }
                     });
         } catch (JSONException e) {
-            Log.e("JOSH", "error parsing json");
             logJSONException(e);
         }
 
@@ -205,8 +199,6 @@ public class PurchasesWrapper {
                                                   final int prorationMode,
                                                   final boolean isPersonalized,
                                                   @Nullable final String presentedOfferingContextJSON) {
-        Log.d("JOSH", "SUBOPT POC JSON:" + presentedOfferingContextJSON);
-
         Map<String, ?> presentedOfferingContext = null;
         try {
             if (presentedOfferingContextJSON != null) {
@@ -214,7 +206,6 @@ public class PurchasesWrapper {
                 presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
             }
         } catch (JSONException e) {
-            Log.e("JOSH", "error parsing json");
             logJSONException(e);
         }
 
