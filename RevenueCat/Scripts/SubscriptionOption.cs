@@ -73,9 +73,12 @@ public partial class Purchases
          */
         [CanBeNull] public readonly PricingPhase IntroPhase;
 
+        [CanBeNull] public readonly PresentedOfferingContext PresentedOfferingContext;
+
         /**
          * Offering identifier the subscription option was presented from
          */
+        [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
         [CanBeNull] public readonly string PresentedOfferingIdentifier;
 
         public SubscriptionOption(JSONNode response)
@@ -120,7 +123,12 @@ public partial class Purchases
             {
                 IntroPhase = new PricingPhase(introPhaseNode);
             }
-            PresentedOfferingIdentifier = response["presentedOfferingIdentifier"];
+
+            var presentedOfferingContexNode = response["presentedOfferingContext"];
+            if (presentedOfferingContexNode != null && !presentedOfferingContexNode.IsNull) {
+                PresentedOfferingContext = new PresentedOfferingContext(presentedOfferingContexNode);
+                PresentedOfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
+            }
         }
 
         public override string ToString()

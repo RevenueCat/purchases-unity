@@ -2,12 +2,12 @@ fileFormatVersion: 2
 guid: 983e30d0a59b48048e6287069dc87f16
 labels:
 - gvh
+- gvh_rename_to_disable
 - gvh_version-1.2.176
 - gvhp_exportpath-ExternalDependencyManager/Editor/1.2.176/Google.JarResolver.dll.mdb
 - gvhp_targets-editor
-timeCreated: 1538009133
-licenseType: Pro
 DefaultImporter:
-  userData:
-  assetBundleName:
-  assetBundleVariant:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

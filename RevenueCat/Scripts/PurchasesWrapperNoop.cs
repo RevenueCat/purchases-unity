@@ -90,6 +90,14 @@ public partial class Purchases
         {
         }
 
+        public void GetCurrentOfferingForPlacement(string placementIdentifier)
+        {
+        }
+
+        public void SyncAttributesAndOfferingsIfNeeded()
+        {
+        }
+
         public void SyncPurchases()
         {
         }

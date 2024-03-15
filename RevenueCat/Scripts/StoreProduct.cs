@@ -20,6 +20,9 @@ public partial class Purchases
         [CanBeNull] public readonly ProductCategory ProductCategory;
         [CanBeNull] public readonly SubscriptionOption DefaultOption;
         [CanBeNull] public readonly SubscriptionOption[] SubscriptionOptions;
+        [CanBeNull] public readonly PresentedOfferingContext PresentedOfferingContext;
+
+        [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
         [CanBeNull] public readonly string PresentedOfferingIdentifier;
 
         /// <summary>
@@ -52,7 +55,13 @@ public partial class Purchases
             {
                 IntroductoryPrice = new IntroductoryPrice(introPriceJsonNode);
             }
-            PresentedOfferingIdentifier = response["presentedOfferingIdentifier"];
+
+            var presentedOfferingContexNode = response["presentedOfferingContext"];
+            if (presentedOfferingContexNode != null && !presentedOfferingContexNode.IsNull) {
+                PresentedOfferingContext = new PresentedOfferingContext(presentedOfferingContexNode);
+                PresentedOfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
+            }
+
             if (!Enum.TryParse(response["productCategory"].Value, out ProductCategory))
             {
                 ProductCategory = ProductCategory.UNKNOWN;
