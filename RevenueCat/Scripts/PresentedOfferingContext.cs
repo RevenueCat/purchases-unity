@@ -27,7 +27,7 @@ public partial class Purchases
                    $"{nameof(TargetingContext)}: {TargetingContext}";
         }
 
-        public string ToJson()
+        public string ToJsonString()
         {
             var contextDict = new JSONObject();
             contextDict["offeringIdentifier"] = OfferingIdentifier;

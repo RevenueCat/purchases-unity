@@ -132,7 +132,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 presentedOfferingContext:(NSDictionary *)presentedOfferingContext
 signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality purchasePackage:packageIdentifier
-                  presentedOfferingContext: presentedOfferingContext
+                  presentedOfferingContext:presentedOfferingContext
                    signedDiscountTimestamp:signedDiscountTimestamp
                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;

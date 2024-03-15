@@ -72,7 +72,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             discountTimestamp = discount.Timestamp.ToString();
         }
 
-        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.PresentedOfferingContext.ToJson(), discountTimestamp);
+        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.PresentedOfferingContext.ToJsonString(), discountTimestamp);
     }
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
