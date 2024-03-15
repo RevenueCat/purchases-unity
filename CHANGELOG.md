@@ -1,4 +1,4 @@
-## 6.8.5
+## 6.9.0
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 10.2.0 (#434) via RevenueCat Git Bot (@RCGitBot)
   * [Android 7.7.2](https://github.com/RevenueCat/purchases-android/releases/tag/7.7.2)
