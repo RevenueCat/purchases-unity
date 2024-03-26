@@ -17,7 +17,11 @@ public partial class Purchases
         {
             OfferingIdentifier = response["offeringIdentifier"];
             PlacementIdentifier = response["placementIdentifier"];
-            TargetingContext = new PresentedOfferingTargetingContext(response["targetingContext"]);
+
+            var targetingContextNode = response["targetingContext"];
+            if (targetingContextNode != null && !targetingContextNode.IsNull) {
+                TargetingContext = new PresentedOfferingTargetingContext(targetingContextNode);
+            }
         }
 
         public override string ToString()
