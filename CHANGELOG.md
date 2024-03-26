@@ -1,3 +1,7 @@
+## 6.9.1
+### Bugfixes
+* Fix `purchasePackage` when no targeting context (#438) via Josh Holtz (@joshdholtz)
+
 ## 6.9.0
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 10.2.0 (#434) via RevenueCat Git Bot (@RCGitBot)
