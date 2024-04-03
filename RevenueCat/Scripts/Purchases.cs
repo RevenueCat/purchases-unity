@@ -1140,6 +1140,31 @@ public partial class Purchases : MonoBehaviour
     {
         CanMakePayments(new BillingFeature[] { }, callback);
     }
+    
+    /// <summary>
+    /// Callback function containing the result of GetAmazonLWAConsentStatus
+    /// </summary>
+    ///
+    /// <param name="hasConsented">A bool value indicating whether user has given consent to
+    /// Login with Amazon.
+    /// </param>
+    /// <param name="error">An Error object or null if successful.</param>
+    public delegate void GetAmazonLWAConsentStatusFunc(bool hasConsented, Error error);
+
+    private GetAmazonLWAConsentStatusFunc GetAmazonLWAConsentStatusCallback { get; set; }
+
+    /// <summary>
+    /// Get the Login with Amazon consent status for the current user. Used to implement Quick Subscribe.
+    ///
+    /// Note: This method only works for the Amazon Appstore. There is no Google equivalent at this time.
+    /// Calling from a Google-configured app will always return False.
+    /// </summary>
+    /// <param name="callback">A callback receiving a bool for hasConsented and potentially an Error</param>
+    public void GetAmazonLWAConsentStatus(GetAmazonLWAConsentStatusFunc callback)
+    {
+        GetAmazonLWAConsentStatusCallback = callback;
+        _wrapper.GetAmazonLWAConsentStatus();
+    }
 
     /// <summary>
     /// Callback function containing the result of GetPromotionalOffer
@@ -1381,6 +1406,27 @@ public partial class Purchases : MonoBehaviour
         }
 
         CanMakePaymentsCallback = null;
+    }
+    
+    private void _getAmazonLWAConsentStatus(string getAmazonLWAConsentStatusJson)
+    {
+        Debug.Log("_getAmazonLWAConsentStatus" + getAmazonLWAConsentStatusJson);
+
+        if (GetAmazonLWAConsentStatusCallback == null) return;
+
+        var response = JSON.Parse(getAmazonLWAConsentStatusJson);
+
+        if (ResponseHasError(response))
+        {
+            GetAmazonLWAConsentStatusCallback(false, new Error(response["error"]));
+        }
+        else
+        {
+            var amazonLWAConsentStatus = response["amazonLWAConsentStatus"];
+            GetAmazonLWAConsentStatusCallback(amazonLWAConsentStatus, null);
+        }
+
+        GetAmazonLWAConsentStatusCallback = null;
     }
 
     private void _getPromotionalOffer(string getPromotionalOfferJson)

@@ -101,6 +101,11 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         // No-Op
     }
 
+    public void GetAmazonLWAConsentStatus()
+    {
+        // No-Op
+    }
+
     [DllImport("__Internal")]
     private static extern void _RCLogIn(string appUserId);
     public void LogIn(string appUserId)
