@@ -179,6 +179,20 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCShowPaywall();
+    public void ShowPaywall()
+    {
+        _RCShowPaywall();
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCShowFooterPaywall();
+    public void ShowFooterPaywall()
+    {
+        _RCShowFooterPaywall();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCGetCurrentOfferingForPlacement(string placementIdentifier);
     public void GetCurrentOfferingForPlacement(string placementIdentifier)
     {

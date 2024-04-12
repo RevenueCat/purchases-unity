@@ -90,6 +90,14 @@ public partial class Purchases
         {
         }
 
+        public void ShowPaywall()
+        {
+        }
+
+        public void ShowFooterPaywall()
+        {
+        }
+
         public void GetCurrentOfferingForPlacement(string placementIdentifier)
         {
         }

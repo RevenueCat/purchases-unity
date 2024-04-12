@@ -33,6 +33,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         CreateButton("Get Customer Info", GetCustomerInfo);
         CreateButton("Get Offerings", GetOfferings);
+        CreateButton("Show Paywall", ShowPaywall);
+        CreateButton("Show Footer Paywall", ShowFooterPaywall);
         CreateButton("Get Current Offering For Onboarding Placement", GetCurrentOfferingForPlacement);
         CreateButton("Sync Attributes and Offerings", SyncAttributesAndOfferingsIfNeeded);
         CreateButton("Sync Purchases", SyncPurchases);
@@ -327,6 +329,18 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 infoLabel.text = offerings.ToString();
             }
         });
+    }
+
+    void ShowPaywall()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.ShowPaywall();
+    }
+
+    void ShowFooterPaywall()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.ShowFooterPaywall();
     }
 
     void GetCurrentOfferingForPlacement()

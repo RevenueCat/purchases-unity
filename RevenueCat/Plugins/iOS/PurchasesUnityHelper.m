@@ -8,7 +8,9 @@
 #import <StoreKit/StoreKit.h>
 #import <AdSupport/AdSupport.h>
 @import PurchasesHybridCommon;
+@import PurchasesHybridCommonUI;
 @import RevenueCat;
+@import RevenueCatUI;
 
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const RECEIVE_CUSTOMER_INFO = @"_receiveCustomerInfo";
@@ -435,6 +437,47 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     #endif
 }
 
+#pragma mark Paywalls
+
+- (void)showPaywall {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PaywallProxy *proxy = [[PaywallProxy alloc] init];
+        UIViewController *viewController = [proxy createFooterPaywallView];
+
+        UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        [rootViewController presentViewController:viewController animated:YES completion:^{
+
+        }];
+    });
+}
+
+- (void)showFooterPaywall {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PaywallProxy *proxy = [[PaywallProxy alloc] init];
+        UIViewController *viewController = [proxy createFooterPaywallView];
+
+        UIViewController* rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        [rootViewController addChildViewController:viewController];
+
+        [rootViewController.view addSubview:viewController.view];
+        [viewController didMoveToParentViewController:rootViewController];
+
+        // Disable autoresizing mask translation
+        viewController.view.translatesAutoresizingMaskIntoConstraints = NO;
+
+        // Constraints
+        NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:viewController.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:rootViewController.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
+        NSLayoutConstraint *leadingConstraint = [NSLayoutConstraint constraintWithItem:viewController.view attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:rootViewController.view attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
+        NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:viewController.view attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:rootViewController.view attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0];
+
+        // Add constraints to the parent view
+        [rootViewController.view addConstraints:@[bottomConstraint, leadingConstraint, trailingConstraint]];
+
+        // Activate constraints
+        [NSLayoutConstraint activateConstraints:@[bottomConstraint, leadingConstraint, trailingConstraint]];
+    });
+}
+
 #pragma mark Helper Methods
 
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName {
@@ -576,6 +619,14 @@ void _RCSetAllowSharingStoreAccount(const BOOL allow) {
 
 void _RCGetOfferings() {
     [_RCUnityHelperShared() getOfferings];
+}
+
+void _RCShowPaywall() {
+    [_RCUnityHelperShared() showPaywall];
+}
+
+void _RCShowFooterPaywall() {
+    [_RCUnityHelperShared() showFooterPaywall];
 }
 
 void _RCGetCurrentOfferingForPlacement(const char *placementIdentifier) {

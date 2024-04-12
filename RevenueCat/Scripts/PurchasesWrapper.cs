@@ -36,6 +36,8 @@ public interface IPurchasesWrapper
     string GetAppUserId();
     void GetCustomerInfo();
     void GetOfferings();
+    void ShowPaywall();
+    void ShowFooterPaywall();
     void GetCurrentOfferingForPlacement(string placementIdentifier);
     void SyncAttributesAndOfferingsIfNeeded();
     void SyncPurchases();

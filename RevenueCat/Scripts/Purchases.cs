@@ -677,6 +677,16 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetOfferings();
     }
 
+    public void ShowPaywall()
+    {
+        _wrapper.ShowPaywall();
+    }
+
+    public void ShowFooterPaywall()
+    {
+        _wrapper.ShowFooterPaywall();
+    }
+
     public void GetCurrentOfferingForPlacement(string placementIdentifier, GetCurrentOfferingForPlacementFunc callback)
     {
         GetCurrentOfferingForPlacementCallback = callback;
