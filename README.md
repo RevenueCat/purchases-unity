@@ -10,9 +10,6 @@ Unity in-app subscriptions made easy
 
 Purchases Unity is a client for the [RevenueCat](https://www.revenuecat.com/) subscription and purchase tracking system. It is an open source framework that provides a wrapper around `StoreKit`, `Google Play Billing` and the RevenueCat backend to make implementing in-app purchases in `Unity` easy.
 
-## Amazon Support
-This version of the SDK doesn't have support for Amazon Store. If you would like to use our SDK with Amazon Store, use the version tagged [amazon-latest](https://github.com/RevenueCat/purchases-unity/releases/tag/amazon-latest) and follow the AMAZON-INSTRUCTIONS.md docs to get set up.
-
 ## Features
 |   | RevenueCat |
 | --- | --- |
