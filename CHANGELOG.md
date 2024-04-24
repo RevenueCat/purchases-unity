@@ -1,3 +1,9 @@
+## 6.9.5
+### Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 10.4.2 (#448) via RevenueCat Git Bot (@RCGitBot)
+### Other Changes
+* Remove outdated Amazon note in README (#449) via Toni Rico (@tonidero)
+
 ## 6.9.4
 ### Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 10.4.1 (#446) via RevenueCat Git Bot (@RCGitBot)
