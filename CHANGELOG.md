@@ -1,3 +1,8 @@
+## 6.9.6
+### Dependency Updates
+* Bump rexml from 3.2.6 to 3.2.8 (#459) via dependabot[bot] (@dependabot[bot])
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 10.6.2 (#456) via RevenueCat Git Bot (@RCGitBot)
+
 ## 6.9.5
 ### Dependency Updates
 * BillingClient has been updated to version 6.2.1
