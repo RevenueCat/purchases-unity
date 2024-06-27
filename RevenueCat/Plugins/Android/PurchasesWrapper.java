@@ -74,8 +74,9 @@ public class PurchasesWrapper {
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
-        CommonKt.configure(UnityPlayer.currentActivity,
-                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings,
+        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId,
+                observerMode ? PurchasesAreCompletedBy.MY_APP : PurchasesAreCompletedBy.REVENUECAT,
+                platformInfo, store, dangerousSettings,
                 shouldShowInAppMessagesAutomatically,
                 entitlementVerificationMode);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
@@ -210,24 +211,24 @@ public class PurchasesWrapper {
         }
 
         CommonKt.purchaseSubscriptionOption(
-            UnityPlayer.currentActivity,
-            productIdentifer,
-            optionIdentifier,
-            oldSKU,
-            (prorationMode == 0) ? null : prorationMode,
-            isPersonalized,
-            presentedOfferingContext,
-            new OnResult() {
-                @Override
-                public void onReceived(Map<String, ?> map) {
-                    sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
-                }
+                UnityPlayer.currentActivity,
+                productIdentifer,
+                optionIdentifier,
+                oldSKU,
+                (prorationMode == 0) ? null : prorationMode,
+                isPersonalized,
+                presentedOfferingContext,
+                new OnResult() {
+                    @Override
+                    public void onReceived(Map<String, ?> map) {
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                    }
 
-                @Override
-                public void onError(ErrorContainer errorContainer) {
-                    sendErrorPurchase(errorContainer);
-                }
-            });
+                    @Override
+                    public void onError(ErrorContainer errorContainer) {
+                        sendErrorPurchase(errorContainer);
+                    }
+                });
     }
 
     public static void restorePurchases() {
@@ -357,7 +358,8 @@ public class PurchasesWrapper {
     }
 
     public static void setFinishTransactions(boolean enabled) {
-        CommonKt.setFinishTransactions(enabled);
+        CommonKt.setPurchasesAreCompletedBy(enabled ?
+                PurchasesAreCompletedBy.REVENUECAT : PurchasesAreCompletedBy.MY_APP);
     }
 
     public static void syncPurchases() {
