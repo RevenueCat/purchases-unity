@@ -1,5 +1,5 @@
 
-#if UNITY_EDITOR && UNITY_IOS
+#if UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
 
 using System.IO;
 using UnityEngine;
