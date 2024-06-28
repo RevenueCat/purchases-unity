@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using UnityEngine;
 
-#if UNITY_IOS
+#if UNITY_IOS || UNITY_VISION_OS
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
