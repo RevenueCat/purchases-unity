@@ -43,6 +43,7 @@ public interface IPurchasesWrapper
     void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,
         double price);
 
+    void GetAmazonLWAConsentStatus();
     void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     void EnableAdServicesAttributionTokenCollection();
     bool IsAnonymous();

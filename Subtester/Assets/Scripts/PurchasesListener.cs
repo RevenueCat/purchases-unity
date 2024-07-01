@@ -61,6 +61,17 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.EnableAdServicesAttributionTokenCollection();
+        purchases.GetAmazonLWAConsentStatus((status, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                Debug.Log(string.Format("Amazon received " + status.ToString()));
+            }
+        });
     }
 
     private void CreateProrationModeButtons()
