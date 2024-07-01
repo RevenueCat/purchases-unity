@@ -86,7 +86,7 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
 
     [RCPurchases configureWithAPIKey:apiKey
                            appUserID:appUserID
-                        observerMode:observerMode
+             purchasesAreCompletedBy:(observerMode ? RCPurchasesAreCompletedByMyApp : RCPurchasesAreCompletedByRevenueCat)
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
                platformFlavorVersion:self.platformFlavorVersion
@@ -237,7 +237,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 -  (void)setFinishTransactions:(BOOL)finishTransactions {
-    [RCCommonFunctionality setFinishTransactions:finishTransactions];
+    if (finishTransactions) {
+        [RCCommonFunctionality setPurchasesAreCompletedBy:RCPurchasesAreCompletedByRevenueCat];
+    } else {
+        [RCCommonFunctionality setPurchasesAreCompletedBy:RCPurchasesAreCompletedByMyApp];
+    }
 }
 
 - (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled {
