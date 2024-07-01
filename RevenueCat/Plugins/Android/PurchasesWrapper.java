@@ -75,11 +75,10 @@ public class PurchasesWrapper {
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
-        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId,
-                observerMode ? PurchasesAreCompletedBy.MY_APP : PurchasesAreCompletedBy.REVENUECAT,
-                platformInfo, store, dangerousSettings,
-                shouldShowInAppMessagesAutomatically,
-                entitlementVerificationMode);
+        PurchasesAreCompletedBy completedBy = observerMode ?
+                PurchasesAreCompletedBy.MY_APP : PurchasesAreCompletedBy.REVENUECAT;
+        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, completedBy, platformInfo, store,
+                dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
