@@ -10,6 +10,7 @@ namespace DefaultNamespace
             Purchases.ProrationMode prorationMode = Purchases.ProrationMode.ImmediateWithoutProration;
             switch (prorationMode)
             {
+                case Purchases.ProrationMode.Deferred:
                 case Purchases.ProrationMode.ImmediateWithoutProration:
                 case Purchases.ProrationMode.ImmediateWithTimeProration:
                 case Purchases.ProrationMode.ImmediateAndChargeProratedPrice:
