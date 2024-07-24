@@ -1,3 +1,9 @@
+## 6.10.1
+### Dependency Updates
+* Update `VERSIONS.md` to include Billing client version and update fastlane plugin (#476) via Toni Rico (@tonidero)
+### Other Changes
+* Update Unity IAP compatiiblity (#475) via Andy Boedo (@aboedo)
+
 ## 6.10.0
 ### New Features
 * Add support for `DEFERRED` upgrades and updates purchases-hybrid-common to 11.1.0 (#472) via RevenueCat Git Bot (@RCGitBot)
