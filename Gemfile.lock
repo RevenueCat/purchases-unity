@@ -3,6 +3,7 @@ GIT
   revision: d5f07426f7779470e535aeba7a98a662842d8fa5
   specs:
     fastlane-plugin-revenuecat_internal (0.1.0)
+      rest-client
 
 GEM
   remote: https://rubygems.org/
@@ -177,6 +178,7 @@ GEM
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
     highline (2.0.3)
+    http-accept (1.7.0)
     http-cookie (1.0.6)
       domain_name (~> 0.5)
     httpclient (2.8.3)
@@ -188,6 +190,9 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
+    mime-types (3.5.2)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2024.0702)
     mini_magick (4.13.1)
     mini_mime (1.1.5)
     multi_json (1.15.0)
@@ -195,6 +200,7 @@ GEM
     nanaimo (0.3.0)
     nap (1.1.0)
     naturally (2.2.1)
+    netrc (0.11.0)
     nkf (0.2.0)
     no_proxy_fix (0.1.2)
     octokit (8.1.0)
@@ -212,6 +218,11 @@ GEM
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
       uber (< 0.2.0)
+    rest-client (2.1.0)
+      http-accept (>= 1.7.0, < 2.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     retriable (3.1.2)
     rexml (3.2.9)
       strscan
