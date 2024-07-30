@@ -58,7 +58,7 @@ public partial class Purchases : MonoBehaviour
 
     [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component.\n" +
              "Use your custom subclass to define how to handle updated customer information.")]
-    public UpdatedCustomerInfoListener listener;
+    public IUpdatedCustomerInfoListener listener;
 
     [Tooltip("An optional boolean. Set this to true if you have your own IAP implementation " +
              "and want to use only RevenueCat's backend.\nDefault is false.\n" +
@@ -111,22 +111,32 @@ public partial class Purchases : MonoBehaviour
 
     private void Start()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperAndroid();
-#elif UNITY_IPHONE && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperiOS();
-#else
-        _wrapper = new PurchasesWrapperNoop();
-#endif
-        if (!string.IsNullOrEmpty(proxyURL))
-        {
-            _wrapper.SetProxyURL(proxyURL);
-        }
+        Prepare();
 
         if (useRuntimeSetup) return;
 
         Configure(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
+    }
+    
+    private void Prepare()
+    {
+        if (_wrapper != null)
+        {
+            return;
+        }
+        #if UNITY_ANDROID && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperAndroid();
+        #elif UNITY_IPHONE && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperiOS();
+        #else
+        _wrapper = new PurchasesWrapperNoop();
+        #endif
+        
+        if (!string.IsNullOrEmpty(proxyURL))
+        {
+            _wrapper.SetProxyURL(proxyURL);
+        }
     }
 
     private void Configure(string newUserId)
@@ -191,6 +201,9 @@ public partial class Purchases : MonoBehaviour
     ///
     public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
+        // Ensure wrapper is inited.
+        Prepare();
+        
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.ObserverMode, purchasesConfiguration.UsesStoreKit2IfAvailable, purchasesConfiguration.UserDefaultsSuiteName,
