@@ -56,9 +56,29 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("List of product identifiers.")]
     public string[] productIdentifiers;
 
+    [FormerlySerializedAs("laistener")]
     [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component.\n" +
              "Use your custom subclass to define how to handle updated customer information.")]
-    public IUpdatedCustomerInfoListener listener;
+    [SerializeField]
+    private UpdatedCustomerInfoListener listener;
+    
+    // Cache custom listener, if not from class.
+    private IUpdatedCustomerInfoListener customListener;
+    public IUpdatedCustomerInfoListener Listener
+    {
+        get => listener != null ? listener : customListener;
+        set
+        {
+            if (value is UpdatedCustomerInfoListener listenerValue)
+            {
+                this.listener = listenerValue;
+            }
+            else
+            {
+                customListener = value;
+            }
+        }
+    }
 
     [Tooltip("An optional boolean. Set this to true if you have your own IAP implementation " +
              "and want to use only RevenueCat's backend.\nDefault is false.\n" +
@@ -1253,18 +1273,18 @@ public partial class Purchases : MonoBehaviour
     {
         Debug.Log("_receiveCustomerInfo " + customerInfoJson);
 
-        if (listener == null) return;
+        if (Listener == null) return;
 
         var response = JSON.Parse(customerInfoJson);
         if (response["customerInfo"] == null) return;
         var info = new CustomerInfo(response["customerInfo"]);
-        listener.CustomerInfoReceived(info);
+        Listener.CustomerInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
     private void _handleLog(string logDetailsJson)
     {
-        if (listener == null) return;
+        if (Listener == null) return;
 
         var response = JSON.Parse(logDetailsJson);
         var logLevelInResponse = response["logLevel"];
