@@ -6,4 +6,9 @@ public partial class Purchases
     {
         public void CustomerInfoReceived(CustomerInfo customerInfo);
     }
+    
+    public abstract class UpdatedCustomerInfoListener : MonoBehaviour, IUpdatedCustomerInfoListener
+    {
+        public abstract void CustomerInfoReceived(CustomerInfo customerInfo);
+    }
 }
