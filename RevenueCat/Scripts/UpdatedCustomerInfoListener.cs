@@ -2,8 +2,8 @@ using UnityEngine;
 
 public partial class Purchases
 {
-    public abstract class UpdatedCustomerInfoListener : MonoBehaviour
+    public interface IUpdatedCustomerInfoListener
     {
-        public abstract void CustomerInfoReceived(CustomerInfo customerInfo);
+        public void CustomerInfoReceived(CustomerInfo customerInfo);
     }
 }
