@@ -56,7 +56,6 @@ public partial class Purchases : MonoBehaviour
     [Tooltip("List of product identifiers.")]
     public string[] productIdentifiers;
 
-    [FormerlySerializedAs("laistener")]
     [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component.\n" +
              "Use your custom subclass to define how to handle updated customer information.")]
     [SerializeField]
