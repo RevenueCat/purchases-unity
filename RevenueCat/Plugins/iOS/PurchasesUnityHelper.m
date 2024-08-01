@@ -495,8 +495,8 @@ static RCUnityHelperDelegate *_RCUnityHelperShared() {
 void _RCSetupPurchases(const char *gameObject,
                        const char *apiKey,
                        const char *appUserID,
-                       const BOOL observerMode,
-                       const BOOL usesStoreKit2IfAvailable,
+                       const char *purchasesAreCompletedBy,
+                       const char *storeKitVersion,
                        const char *userDefaultsSuiteName,
                        const char *dangerousSettingsJson,
                        const BOOL shouldShowInAppMessagesAutomatically,
@@ -504,8 +504,8 @@ void _RCSetupPurchases(const char *gameObject,
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
-                              observerMode:observerMode
-                  usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
+                   purchasesAreCompletedBy:convertCString(purchasesAreCompletedBy)
+                           storeKitVersion:convertCString(storeKitVersion)
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
                      dangerousSettingsJson:convertCString(dangerousSettingsJson)
       shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
