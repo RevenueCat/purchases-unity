@@ -4,14 +4,16 @@ public partial class Purchases
 {
     private class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
+        public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
+            Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
+            bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled)
         {
         }
 
-        public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-            string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
-            EntitlementVerificationMode entitlementVerificationMode)
+        public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
+            Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
+            bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
+            bool pendingTransactionsForPrepaidPlansEnabled)
         {
         }
 
@@ -50,10 +52,6 @@ public partial class Purchases
         }
 
         public void LogOut()
-        {
-        }
-
-        public void SetFinishTransactions(bool finishTransactions)
         {
         }
 
@@ -102,12 +100,8 @@ public partial class Purchases
         {
         }
 
-        public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
+        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
             string isoCurrencyCode, double price)
-        {
-        }
-
-        public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
         {
         }
 

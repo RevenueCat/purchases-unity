@@ -38,7 +38,7 @@ public void OnInitialized(IStoreController controller, IExtensionProvider extens
         if (product.hasReceipt) {
             var amazonExtensions = storeExtensionProvider.GetExtension<IAmazonExtensions>();
             var userId = amazonExtensions.amazonUserId;
-            purchases.SyncObserverModeAmazonPurchase( 
+            purchases.SyncAmazonPurchase( 
                 product.definition.id,
                 product.transactionID,
                 userId,
@@ -55,7 +55,7 @@ public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
     
     var amazonExtensions = storeExtensionProvider.GetExtension<IAmazonExtensions>();
     var userId = amazonExtensions.amazonUserId;
-    purchases.SyncObserverModeAmazonPurchase(
+    purchases.SyncAmazonPurchase(
         e.purchasedProduct.definition.id,
         e.purchasedProduct.transactionID,
         userId,

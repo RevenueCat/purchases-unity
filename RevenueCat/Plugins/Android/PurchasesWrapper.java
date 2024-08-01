@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import com.revenuecat.purchases.CustomerInfo;
 import com.revenuecat.purchases.DangerousSettings;
 import com.revenuecat.purchases.Purchases;
-import com.revenuecat.purchases.PurchasesAreCompletedBy;
 import com.revenuecat.purchases.Store;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
@@ -65,20 +64,20 @@ public class PurchasesWrapper {
     public static void setup(String apiKey,
                              String appUserId,
                              String gameObject,
-                             boolean observerMode,
+                             String purchasesAreCompletedBy,
                              String userDefaultsSuiteName,
                              boolean useAmazon,
                              boolean shouldShowInAppMessagesAutomatically,
                              String dangerousSettingsJSON,
-                             String entitlementVerificationMode) {
+                             String entitlementVerificationMode,
+                             boolean pendingTransactionsForPrepaidPlansEnabled) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
-        PurchasesAreCompletedBy completedBy = observerMode ?
-                PurchasesAreCompletedBy.MY_APP : PurchasesAreCompletedBy.REVENUECAT;
-        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, completedBy, platformInfo, store,
-                dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode);
+        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, purchasesAreCompletedBy, platformInfo, store,
+                dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
+                pendingTransactionsForPrepaidPlansEnabled);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
@@ -312,14 +311,14 @@ public class PurchasesWrapper {
         });
     }
 
-    public static void syncObserverModeAmazonPurchase(
+    public static void syncAmazonPurchase(
             String productID,
             String receiptID,
             String amazonUserID,
             String isoCurrencyCode,
             double price
     ) {
-        Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID,
+        Purchases.getSharedInstance().syncAmazonPurchase(productID, receiptID,
                 amazonUserID, isoCurrencyCode, price);
     }
 
@@ -355,11 +354,6 @@ public class PurchasesWrapper {
 
     public static void getCustomerInfo() {
         CommonKt.getCustomerInfo(getCustomerInfoListener(GET_CUSTOMER_INFO));
-    }
-
-    public static void setFinishTransactions(boolean enabled) {
-        CommonKt.setPurchasesAreCompletedBy(enabled ?
-                PurchasesAreCompletedBy.REVENUECAT : PurchasesAreCompletedBy.MY_APP);
     }
 
     public static void syncPurchases() {

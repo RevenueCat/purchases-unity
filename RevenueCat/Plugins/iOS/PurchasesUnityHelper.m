@@ -61,8 +61,8 @@ char *makeStringCopy(NSString *nstring) {
 - (void)setupPurchases:(NSString *)apiKey
              appUserID:(nullable NSString *)appUserID
             gameObject:(NSString *)gameObject
-          observerMode:(BOOL)observerMode
-usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
+purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
+       storeKitVersion:(NSString *)storeKitVersion
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
  dangerousSettingsJson:(NSString *)dangerousSettingsJson
  shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically
@@ -86,11 +86,11 @@ usesStoreKit2IfAvailable:(BOOL)usesStoreKit2IfAvailable
 
     [RCPurchases configureWithAPIKey:apiKey
                            appUserID:appUserID
-             purchasesAreCompletedBy:(observerMode ? RCPurchasesAreCompletedByMyApp : RCPurchasesAreCompletedByRevenueCat)
+             purchasesAreCompletedBy:purchasesAreCompletedBy
                userDefaultsSuiteName:userDefaultsSuiteName
                       platformFlavor:self.platformFlavor
                platformFlavorVersion:self.platformFlavorVersion
-            usesStoreKit2IfAvailable:usesStoreKit2IfAvailable
+                     storeKitVersion:storeKitVersion
                    dangerousSettings:dangerousSettings
 shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                     verificationMode:entitlementVerificationMode];
@@ -234,18 +234,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)getCustomerInfo {
     [RCCommonFunctionality getCustomerInfoWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:GET_CUSTOMER_INFO]];
-}
-
--  (void)setFinishTransactions:(BOOL)finishTransactions {
-    if (finishTransactions) {
-        [RCCommonFunctionality setPurchasesAreCompletedBy:RCPurchasesAreCompletedByRevenueCat];
-    } else {
-        [RCCommonFunctionality setPurchasesAreCompletedBy:RCPurchasesAreCompletedByMyApp];
-    }
-}
-
-- (void)setAutomaticAppleSearchAdsAttributionCollection:(BOOL)enabled {
-    [RCCommonFunctionality setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
 
 - (void)enableAdServicesAttributionTokenCollection {
@@ -571,9 +559,6 @@ void _RCLogOut() {
     [_RCUnityHelperShared() logOut];
 }
 
-void _RCSetFinishTransactions(const BOOL finishTransactions) {
-    [_RCUnityHelperShared() setFinishTransactions:finishTransactions];
-}
 void _RCSetAllowSharingStoreAccount(const BOOL allow) {
     [_RCUnityHelperShared() setAllowSharingStoreAccount:allow];
 }
@@ -616,10 +601,6 @@ void _RCGetCustomerInfo() {
 
 char * _RCGetAppUserID() {
     return [_RCUnityHelperShared() getAppUserID];
-}
-
-void _RCSetAutomaticAppleSearchAdsAttributionCollection(const BOOL enabled) {
-    [_RCUnityHelperShared() setAutomaticAppleSearchAdsAttributionCollection:enabled];
 }
 
 void _RCEnableAdServicesAttributionTokenCollection() {

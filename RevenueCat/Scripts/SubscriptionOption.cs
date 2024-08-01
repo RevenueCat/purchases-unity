@@ -81,6 +81,11 @@ public partial class Purchases
         [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
         [CanBeNull] public readonly string PresentedOfferingIdentifier;
 
+        /**
+         * Information about the installment subscription. Currently only supported in Google Play.
+         */
+        [CanBeNull] public readonly InstallmentsInfo OptionInstallmentsInfo;
+
         public SubscriptionOption(JSONNode response)
         {
             Id = response["id"];
@@ -129,6 +134,12 @@ public partial class Purchases
                 PresentedOfferingContext = new PresentedOfferingContext(presentedOfferingContexNode);
                 PresentedOfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
             }
+
+            var installmentsInfoNode = response["installmentsInfo"];
+            if (installmentsInfoNode != null && !installmentsInfoNode.IsNull)
+            {
+                OptionInstallmentsInfo = new InstallmentsInfo(installmentsInfoNode);
+            }
         }
 
         public override string ToString()
@@ -144,7 +155,8 @@ public partial class Purchases
                    $"{nameof(FullPricePhase)}: {FullPricePhase}\n" +
                    $"{nameof(FreePhase)}: {FreePhase}\n" +
                    $"{nameof(IntroPhase)}: {IntroPhase}\n" +
-                   $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}";
+                   $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
+                   $"{nameof(OptionInstallmentsInfo)}: {OptionInstallmentsInfo}\n";
         }
 
         public class PricingPhase
@@ -324,6 +336,27 @@ public partial class Purchases
                 return $"{nameof(Formatted)}: {Formatted}\n" +
                     $"{nameof(AmountMicros)}: {AmountMicros}\n" +
                     $"{nameof(CurrencyCode)}: {CurrencyCode}\n";
+            }
+        }
+
+        /// Type containing information of installment subscriptions. Currently only supported in Google Play.
+        public class InstallmentsInfo {
+            /// Number of payments the customer commits to in order to purchase the subscription.
+            public readonly int CommitmentPaymentsCount;
+
+            /// After the commitment payments are complete, the number of payments the user commits to upon a renewal.
+            public readonly int RenewalCommitmentPaymentsCount;
+
+            public InstallmentsInfo(JSONNode response)
+            {
+                CommitmentPaymentsCount = response["commitmentPaymentsCount"];
+                RenewalCommitmentPaymentsCount = response["renewalCommitmentPaymentsCount"];
+            }
+
+            public override string ToString()
+            {
+                return $"{nameof(CommitmentPaymentsCount)}: {CommitmentPaymentsCount}\n" +
+                    $"{nameof(RenewalCommitmentPaymentsCount)}: {RenewalCommitmentPaymentsCount}\n";
             }
         }
     }

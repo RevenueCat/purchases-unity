@@ -81,19 +81,20 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         }
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
+    public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy, Purchases.StoreKitVersion storeKitVersion,
+        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
+        bool pendingTransactionsForPrepaidPlansEnabled)
     {
-        Setup(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, userDefaultsSuiteName, useAmazon,
-            dangerousSettingsJson, shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode.Disabled);
+        Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion, userDefaultsSuiteName, useAmazon,
+            dangerousSettingsJson, shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled);
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
+    public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy, Purchases.StoreKitVersion storeKitVersion,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
-        Purchases.EntitlementVerificationMode entitlementVerificationMode)
+        Purchases.EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled)
     {
-        CallPurchases("setup", apiKey, appUserId, gameObject, observerMode, userDefaultsSuiteName, useAmazon, shouldShowInAppMessagesAutomatically,
-            dangerousSettingsJson, entitlementVerificationMode.Name());
+        CallPurchases("setup", apiKey, appUserId, gameObject, purchasesAreCompletedBy.Name(), userDefaultsSuiteName, useAmazon, shouldShowInAppMessagesAutomatically,
+            dangerousSettingsJson, entitlementVerificationMode.Name(), pendingTransactionsForPrepaidPlansEnabled);
     }
 
     public void RestorePurchases()
@@ -109,11 +110,6 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void LogOut()
     {
         CallPurchases("logOut");
-    }
-
-    public void SetFinishTransactions(bool finishTransactions)
-    {
-        CallPurchases("setFinishTransactions", finishTransactions);
     }
 
     public void SetAllowSharingStoreAccount(bool allow)
@@ -171,15 +167,10 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("syncPurchases");
     }
 
-    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
+    public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
         string isoCurrencyCode, double price)
     {
-        CallPurchases("syncObserverModeAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
-    }
-
-    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
-    {
-        // NOOP
+        CallPurchases("syncAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
 
     public void EnableAdServicesAttributionTokenCollection()

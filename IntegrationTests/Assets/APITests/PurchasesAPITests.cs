@@ -27,7 +27,6 @@ public class PurchasesAPITests : MonoBehaviour
         };
 
         purchases.listener = new CustomListener();
-        purchases.observerMode = true;
         purchases.userDefaultsSuiteName = "suitename";
         purchases.proxyURL = "https://proxy-url.revenuecat.com";
 
@@ -147,7 +146,6 @@ public class PurchasesAPITests : MonoBehaviour
             receivedError = error;
         });
 
-        purchases.SetFinishTransactions(true);
         #pragma warning disable CS0618 // Type or member is obsolete
         purchases.SetAllowSharingStoreAccount(false);
         #pragma warning restore CS0618 // Type or member is obsolete
@@ -170,7 +168,6 @@ public class PurchasesAPITests : MonoBehaviour
         });
 
         purchases.SyncPurchases();
-        purchases.SetAutomaticAppleSearchAdsAttributionCollection(true);
         purchases.EnableAdServicesAttributionTokenCollection();
         Dictionary<string, Purchases.IntroEligibility> receivedEligibilities;
         purchases.CheckTrialOrIntroductoryPriceEligibility(new string[] { "a", "b" },
@@ -220,16 +217,18 @@ public class PurchasesAPITests : MonoBehaviour
         Purchases.PurchasesConfiguration purchasesConfiguration =
             builder.SetUserDefaultsSuiteName("user_default")
             .SetDangerousSettings(new Purchases.DangerousSettings(false))
-            .SetObserverMode(true)
+            .SetPurchasesAreCompletedBy(Purchases.PurchasesAreCompletedBy.MyApp, Purchases.StoreKitVersion.StoreKit2)
             .SetUseAmazon(false)
             .SetAppUserId(appUserId)
-            .SetUsesStoreKit2IfAvailable(false)
+            .SetStoreKitVersion(Purchases.StoreKitVersion.StoreKit2)
             .SetShouldShowInAppMessagesAutomatically(false)
             .SetEntitlementVerificationMode(Purchases.EntitlementVerificationMode.Informational)
+            .SetPendingTransactionsForPrepaidPlansEnabled(true)
             .Build();
         purchases.Configure(purchasesConfiguration);
 
         purchases.SyncObserverModeAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
+        purchases.SyncAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
 
         purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
             Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic });

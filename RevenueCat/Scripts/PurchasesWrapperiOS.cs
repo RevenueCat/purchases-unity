@@ -7,23 +7,25 @@ using UnityEngine;
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
-    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, bool observerMode,
-                                                 bool usesStoreKit2IfAvailable, string userDefaultsSuiteName,
+    private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, string purchasesAreCompletedBy,
+                                                 string storeKitVersion, string userDefaultsSuiteName,
                                                  string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
                                                  string entitlementVerificationMode);
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically)
+    public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
+        Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
+        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled)
     {
-        Setup(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable, 
+        Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion, 
             userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, 
-            Purchases.EntitlementVerificationMode.Disabled);
+            Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled);
     }
 
-    public void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically, 
-        Purchases.EntitlementVerificationMode entitlementVerificationMode)
+    public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
+        Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
+        bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
+        bool pendingTransactionsForPrepaidPlansEnabled)
     {
-        _RCSetupPurchases(gameObject, apiKey, appUserId, observerMode, usesStoreKit2IfAvailable,
+        _RCSetupPurchases(gameObject, apiKey, appUserId, purchasesAreCompletedBy.Name(), storeKitVersion.Name(),
             userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name());
     }
 
@@ -95,7 +97,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCSyncPurchases();
     }
 
-    public void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID,
+    public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
         string isoCurrencyCode, double price)
     {
         // No-Op
@@ -113,13 +115,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void LogOut()
     {
         _RCLogOut();
-    }
-
-    [DllImport("__Internal")]
-    private static extern void _RCSetFinishTransactions(bool finishTransactions);
-    public void SetFinishTransactions(bool finishTransactions)
-    {
-        _RCSetFinishTransactions(finishTransactions);
     }
 
     [DllImport("__Internal")]
@@ -190,13 +185,6 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void SyncAttributesAndOfferingsIfNeeded()
     {
         _RCSyncAttributesAndOfferingsIfNeeded();
-    }
-
-    [DllImport("__Internal")]
-    private static extern void _RCSetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
-    public void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled)
-    {
-        _RCSetAutomaticAppleSearchAdsAttributionCollection(enabled);
     }
 
     [DllImport("__Internal")]

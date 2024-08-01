@@ -29,6 +29,9 @@ namespace DefaultNamespace
             bool IsBasePlan = subscriptionOption.IsBasePlan;
             bool IsPrepaid =  subscriptionOption.IsPrepaid;
             string PresentedOfferingIdentifier = subscriptionOption.PresentedOfferingIdentifier;
+            Purchases.SubscriptionOption.InstallmentsInfo installmentsInfo = subscriptionOption.OptionInstallmentsInfo;
+            int commitmentPaymentsCount = installmentsInfo.CommitmentPaymentsCount;
+            int renewalCommitmentPaymentsCount = installmentsInfo.RenewalCommitmentPaymentsCount;
         }
     }
 }
