@@ -131,6 +131,12 @@ public partial class Purchases : MonoBehaviour
                  || IsAndroidEmulator())
             apiKey = useAmazon ? revenueCatAPIKeyAmazon : revenueCatAPIKeyGoogle;
 
+        if (purchasesAreCompletedBy == PurchasesAreCompletedBy.MyApp && storeKitVersion == StoreKitVersion.Default)
+        {
+            Debug.Log("You must set a StoreKit version if you are setting PurchasesAreCompletedBy to MyApp. For Android, it doesn't matter which");
+            return;
+        }
+
         var dangerousSettings = new DangerousSettings(autoSyncPurchases);
         var builder = PurchasesConfiguration.Builder.Init(apiKey)
             .SetAppUserId(newUserId)
@@ -802,6 +808,31 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PresentCodeRedemptionSheet();
     }
 
+    /// <summary>
+    /// Callback for <see cref="Purchases.RecordPurchase"/>.
+    /// </summary>
+    /// <param name="transaction"> The <see cref="StoreTransaction"/> object if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void RecordPurchaseFunc(StoreTransaction transaction, Error error);
+
+    private RecordPurchaseFunc RecordPurchaseCallback { get; set; }
+
+    /// <summary>
+    /// iOS only. Always returns an error on iOS < 15.
+    /// Use this method only if you already have your own IAP implementation using StoreKit 2 and want to use
+    /// RevenueCat's backend. If you are using StoreKit 1 for your implementation, you do not need this method.
+    /// You only need to use this method with *new* purchases. Subscription updates are observed automatically.
+    /// Important: This should only be used if you have set PurchasesAreCompletedBy to MyApp during SDK configuration.
+    /// Important: You need to finish the transaction yourself after calling this method.
+    /// </summary>
+    /// <param name="productID">Product ID that was just purchased.</param>
+    /// <param name="callback"> A completion block called when the purchase has been recorded, with either a success or an error.</param>
+    public void RecordPurchase(string productID, RecordPurchaseFunc callback)
+    {
+        RecordPurchaseCallback = callback;
+        _wrapper.RecordPurchase(productID);
+    }
+
     ///
     /// <summary>
     /// iOS only.
@@ -1344,6 +1375,28 @@ public partial class Purchases : MonoBehaviour
         CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
 
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
+    }
+
+    private void _recordPurchase(string json)
+    {
+        Debug.Log("_recordPurchase " + json);
+
+        if (RecordPurchaseCallback == null) return;
+
+        var response = JSON.Parse(json);
+
+        if (ResponseHasError(response))
+        {
+            RecordPurchaseCallback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var transaction = new StoreTransaction(response["transaction"]);
+
+            RecordPurchaseCallback(transaction, null);
+        }
+
+        RecordPurchaseCallback = null;
     }
 
     private void _canMakePayments(string canMakePaymentsJson)

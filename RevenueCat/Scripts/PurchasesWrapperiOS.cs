@@ -235,6 +235,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCRecordPurchase(string productID);
+    public void RecordPurchase(string productID)
+    {
+        _RCRecordPurchase(productID);
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetSimulatesAskToBuyInSandbox(bool enabled);
     public void SetSimulatesAskToBuyInSandbox(bool enabled)
     {

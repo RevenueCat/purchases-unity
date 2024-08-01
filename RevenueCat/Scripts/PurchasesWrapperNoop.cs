@@ -131,6 +131,10 @@ public partial class Purchases
         {
         }
 
+        public void RecordPurchase(string productID)
+        {
+        }
+
         public void SetSimulatesAskToBuyInSandbox(bool enabled)
         {
         }

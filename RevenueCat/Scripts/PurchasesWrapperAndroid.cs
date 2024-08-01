@@ -207,6 +207,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         // NOOP
     }
 
+    public void RecordPurchase(string productID)
+    {
+        // NOOP
+    }
+
     public void SetSimulatesAskToBuyInSandbox(bool enabled)
     {
         // NOOP

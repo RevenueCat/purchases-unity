@@ -24,6 +24,7 @@ static NSString *const CHECK_ELIGIBILITY = @"_checkTrialOrIntroductoryPriceEligi
 static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
 static NSString *const GET_PROMOTIONAL_OFFER = @"_getPromotionalOffer";
 static NSString *const HANDLE_LOG = @"_handleLog";
+static NSString *const RECORD_PURCHASE = @"_recordPurchase";
 
 #pragma mark Utility Methods
 
@@ -279,6 +280,19 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
      } else {
          NSLog(@"[Purchases] Warning: tried to present codeRedemptionSheet, but it's only available on iOS 14.0 or greater.");
      }
+}
+
+- (void)recordPurchase:(NSString *)productID {
+    [RCCommonFunctionality recordPurchaseForProductID:productID completion:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        if (error) {
+            response[@"error"] = error.info;
+        } else {
+            response[@"transaction"] = responseDictionary;
+        }
+
+        [self sendJSONObject:response toMethod:RECORD_PURCHASE];
+    }];
 }
 
 - (void)setSimulatesAskToBuyInSandbox:(BOOL)enabled {
@@ -589,6 +603,10 @@ void _RCSetLogHandler() {
 
 void _RCSetProxyURLString(const char *proxyURLString) {
     [_RCUnityHelperShared() setProxyURLString:convertCString(proxyURLString)];
+}
+
+void _RCRecordPurchase(const char *productID) {
+    [_RCUnityHelperShared() recordPurchase:convertCString(productID)];
 }
 
 void _RCSetSimulatesAskToBuyInSandbox(const BOOL enabled) {

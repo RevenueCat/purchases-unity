@@ -50,6 +50,7 @@ public interface IPurchasesWrapper
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidateCustomerInfoCache();
     void PresentCodeRedemptionSheet();
+    void RecordPurchase(string productID);
     void SetSimulatesAskToBuyInSandbox(bool enabled);
     void SetAttributes(string attributesJson);
     void SetEmail(string email);
