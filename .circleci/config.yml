@@ -303,7 +303,7 @@ jobs:
       - run:
           name: Install Pods
           working_directory: IntegrationTests/buildiOS
-          command: pod install --verbose
+          command: pod install --repo-update --verbose
 
       - save_cache:
           key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
