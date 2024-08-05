@@ -51,7 +51,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "6.9.7";
+    private static final String PLUGIN_VERSION = "6.10.0";
 
     private static String gameObject;
 
@@ -65,20 +65,20 @@ public class PurchasesWrapper {
     public static void setup(String apiKey,
                              String appUserId,
                              String gameObject,
-                             boolean observerMode,
+                             String purchasesAreCompletedBy,
                              String userDefaultsSuiteName,
                              boolean useAmazon,
                              boolean shouldShowInAppMessagesAutomatically,
                              String dangerousSettingsJSON,
-                             String entitlementVerificationMode) {
+                             String entitlementVerificationMode,
+                             boolean pendingTransactionsForPrepaidPlansEnabled) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
-        CommonKt.configure(UnityPlayer.currentActivity,
-                apiKey, appUserId, observerMode, platformInfo, store, dangerousSettings,
-                shouldShowInAppMessagesAutomatically,
-                entitlementVerificationMode);
+        CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, purchasesAreCompletedBy, platformInfo, store,
+                dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
+                pendingTransactionsForPrepaidPlansEnabled);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
@@ -211,24 +211,24 @@ public class PurchasesWrapper {
         }
 
         CommonKt.purchaseSubscriptionOption(
-            UnityPlayer.currentActivity,
-            productIdentifer,
-            optionIdentifier,
-            oldSKU,
-            (prorationMode == 0) ? null : prorationMode,
-            isPersonalized,
-            presentedOfferingContext,
-            new OnResult() {
-                @Override
-                public void onReceived(Map<String, ?> map) {
-                    sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
-                }
+                UnityPlayer.currentActivity,
+                productIdentifer,
+                optionIdentifier,
+                oldSKU,
+                (prorationMode == 0) ? null : prorationMode,
+                isPersonalized,
+                presentedOfferingContext,
+                new OnResult() {
+                    @Override
+                    public void onReceived(Map<String, ?> map) {
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                    }
 
-                @Override
-                public void onError(ErrorContainer errorContainer) {
-                    sendErrorPurchase(errorContainer);
-                }
-            });
+                    @Override
+                    public void onError(ErrorContainer errorContainer) {
+                        sendErrorPurchase(errorContainer);
+                    }
+                });
     }
 
     public static void restorePurchases() {
@@ -312,14 +312,14 @@ public class PurchasesWrapper {
         });
     }
 
-    public static void syncObserverModeAmazonPurchase(
+    public static void syncAmazonPurchase(
             String productID,
             String receiptID,
             String amazonUserID,
             String isoCurrencyCode,
             double price
     ) {
-        Purchases.getSharedInstance().syncObserverModeAmazonPurchase(productID, receiptID,
+        Purchases.getSharedInstance().syncAmazonPurchase(productID, receiptID,
                 amazonUserID, isoCurrencyCode, price);
     }
 
@@ -375,10 +375,6 @@ public class PurchasesWrapper {
 
     public static void getCustomerInfo() {
         CommonKt.getCustomerInfo(getCustomerInfoListener(GET_CUSTOMER_INFO));
-    }
-
-    public static void setFinishTransactions(boolean enabled) {
-        CommonKt.setFinishTransactions(enabled);
     }
 
     public static void syncPurchases() {
