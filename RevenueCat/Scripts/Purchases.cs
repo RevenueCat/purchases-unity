@@ -1173,7 +1173,7 @@ public partial class Purchases : MonoBehaviour
     /// using Quick Subscribe.
     ///
     /// For more information, check the documentation:
-    /// https://developer.amazon.com/docs/in-app-purchasing/iap-quicksubscribe.html
+    /// https://rev.cat/amazon-quicksubscribe
     ///
     /// Note: This method only works for the Amazon Appstore. There is no Google equivalent at this time.
     /// Calling from a Google-configured app will always return False.
