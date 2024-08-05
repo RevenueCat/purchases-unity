@@ -170,7 +170,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
         string isoCurrencyCode, double price)
     {
-         CallPurchases("syncAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
+        CallPurchases("syncAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
 
     public void GetAmazonLWAConsentStatus()
