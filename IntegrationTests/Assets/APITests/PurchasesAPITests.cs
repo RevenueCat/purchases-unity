@@ -32,6 +32,7 @@ public class PurchasesAPITests : MonoBehaviour
 
         Purchases.CustomerInfo receivedCustomerInfo;
         Purchases.Error receivedError;
+        Purchases.StoreTransaction receivedTransaction;
 
         Purchases.Package receivedPackage;
         Purchases.Offerings receivedOfferings;
@@ -226,6 +227,11 @@ public class PurchasesAPITests : MonoBehaviour
             .SetPendingTransactionsForPrepaidPlansEnabled(true)
             .Build();
         purchases.Configure(purchasesConfiguration);
+        purchases.RecordPurchase("product_id", (transaction, error) => 
+        {
+            receivedTransaction = transaction;
+            receivedError = error;
+        });
 
         purchases.SyncObserverModeAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
         purchases.SyncAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
