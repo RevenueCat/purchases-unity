@@ -25,26 +25,29 @@ public partial class Purchases
         public readonly string ApiKey;
         public readonly string AppUserId;
         public readonly bool ObserverMode;
+        public readonly PurchasesAreCompletedBy PurchasesAreCompletedBy;
         public readonly string UserDefaultsSuiteName;
         public readonly bool UseAmazon;
         public readonly DangerousSettings DangerousSettings;
-        public readonly bool UsesStoreKit2IfAvailable;
+        public readonly StoreKitVersion StoreKitVersion;
         public readonly bool ShouldShowInAppMessagesAutomatically;
         public readonly EntitlementVerificationMode EntitlementVerificationMode;
+        public readonly bool PendingTransactionsForPrepaidPlansEnabled;
 
-        private PurchasesConfiguration(string apiKey, string appUserId, bool observerMode, string userDefaultsSuiteName,
-            bool useAmazon, DangerousSettings dangerousSettings, bool usesStoreKit2IfAvailable, bool shouldShowInAppMessagesAutomatically, 
-            EntitlementVerificationMode entitlementVerificationMode)
+        private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
+            bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically, 
+            EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
-            ObserverMode = observerMode;
+            PurchasesAreCompletedBy = purchasesAreCompletedBy;
             UserDefaultsSuiteName = userDefaultsSuiteName;
             UseAmazon = useAmazon;
             DangerousSettings = dangerousSettings;
-            UsesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
+            StoreKitVersion = storeKitVersion;
             ShouldShowInAppMessagesAutomatically = shouldShowInAppMessagesAutomatically;
             EntitlementVerificationMode = entitlementVerificationMode;
+            PendingTransactionsForPrepaidPlansEnabled = pendingTransactionsForPrepaidPlansEnabled;
         }
 
         /// <summary>
@@ -70,13 +73,14 @@ public partial class Purchases
         {
             private readonly string _apiKey;
             private string _appUserId;
-            private bool _observerMode;
+            private PurchasesAreCompletedBy _purchasesAreCompletedBy;
             private string _userDefaultsSuiteName;
             private bool _useAmazon;
             private DangerousSettings _dangerousSettings;
-            private bool _usesStoreKit2IfAvailable;
+            private StoreKitVersion _storeKitVersion;
             private bool _shouldShowInAppMessagesAutomatically;
             private EntitlementVerificationMode _entitlementVerificationMode;
+            private bool _pendingTransactionsForPrepaidPlansEnabled;
 
             private Builder(string apiKey)
             {
@@ -91,9 +95,9 @@ public partial class Purchases
             public PurchasesConfiguration Build()
             {
                 _dangerousSettings = _dangerousSettings ?? new DangerousSettings(false);
-                return new PurchasesConfiguration(_apiKey, _appUserId, _observerMode, _userDefaultsSuiteName,
-                    _useAmazon, _dangerousSettings, _usesStoreKit2IfAvailable, _shouldShowInAppMessagesAutomatically, 
-                    _entitlementVerificationMode);
+                return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
+                    _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically, 
+                    _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -102,9 +106,10 @@ public partial class Purchases
                 return this;
             }
 
-            public Builder SetObserverMode(bool observerMode)
+            public Builder SetPurchasesAreCompletedBy(PurchasesAreCompletedBy purchasesAreCompletedBy, StoreKitVersion storeKitVersion)
             {
-                _observerMode = observerMode;
+                _purchasesAreCompletedBy = purchasesAreCompletedBy;
+                _storeKitVersion = storeKitVersion;
                 return this;
             }
 
@@ -126,15 +131,9 @@ public partial class Purchases
                 return this;
             }
 
-            [Obsolete("RevenueCat currently uses StoreKit 1 for purchases, as its stability in production " +
-                      "scenarios has proven to be more performant than StoreKit 2.\n" +
-                      "We're collecting more data on the best approach, but StoreKit 1 vs StoreKit 2 is \n" +
-                      "an implementation detail that you shouldn't need to care about.\n" +
-                      "We recommend not using this parameter, letting RevenueCat decide for " +
-                      "you which StoreKit implementation to use.", false)]
-            public Builder SetUsesStoreKit2IfAvailable(bool usesStoreKit2IfAvailable)
+            public Builder SetStoreKitVersion(StoreKitVersion storeKitVersion)
             {
-                _usesStoreKit2IfAvailable = usesStoreKit2IfAvailable;
+                _storeKitVersion = storeKitVersion;
                 return this;
             }
 
@@ -150,6 +149,12 @@ public partial class Purchases
                 return this;
             }
 
+            public Builder SetPendingTransactionsForPrepaidPlansEnabled(bool pendingTransactionsForPrepaidPlansEnabled)
+            {
+                _pendingTransactionsForPrepaidPlansEnabled = pendingTransactionsForPrepaidPlansEnabled;
+                return this;
+            }
+
         }
 
         public override string ToString()
@@ -157,13 +162,14 @@ public partial class Purchases
             return
                 $"{nameof(ApiKey)}: {ApiKey}\n" +
                 $"{nameof(AppUserId)}: {AppUserId}\n" +
-                $"{nameof(ObserverMode)}: {ObserverMode}\n" +
+                $"{nameof(PurchasesAreCompletedBy)}: {PurchasesAreCompletedBy}\n" +
                 $"{nameof(UserDefaultsSuiteName)}: {UserDefaultsSuiteName}\n" +
                 $"{nameof(UseAmazon)}: {UseAmazon}\n" +
                 $"{nameof(DangerousSettings)}: {DangerousSettings}\n" +
-                $"{nameof(UsesStoreKit2IfAvailable)}: {UsesStoreKit2IfAvailable}\n" +
+                $"{nameof(StoreKitVersion)}: {StoreKitVersion}\n" +
                 $"{nameof(ShouldShowInAppMessagesAutomatically)}: {ShouldShowInAppMessagesAutomatically}\n" +
-                $"{nameof(EntitlementVerificationMode)}: {EntitlementVerificationMode}";
+                $"{nameof(EntitlementVerificationMode)}: {EntitlementVerificationMode}\n" +
+                $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n";
         }
     }
 }

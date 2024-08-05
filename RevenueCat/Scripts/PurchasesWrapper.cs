@@ -3,12 +3,14 @@ using System.Collections.Generic;
 
 public interface IPurchasesWrapper
 {
-    void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically);
+    void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
+        Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
+        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled);
 
-    void Setup(string gameObject, string apiKey, string appUserId, bool observerMode, bool usesStoreKit2IfAvailable,
-        string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
-        Purchases.EntitlementVerificationMode entitlementVerificationMode);
+    void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
+        Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
+        bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
+        bool pendingTransactionsForPrepaidPlansEnabled);
 
     void GetProducts(string[] productIdentifiers, string type = "subs");
 
@@ -27,7 +29,6 @@ public interface IPurchasesWrapper
     void RestorePurchases();
     void LogIn(string appUserId);
     void LogOut();
-    void SetFinishTransactions(bool finishTransactions);
     void SetAllowSharingStoreAccount(bool allow);
     void SetDebugLogsEnabled(bool enabled);
     void SetLogLevel(Purchases.LogLevel level);
@@ -40,16 +41,16 @@ public interface IPurchasesWrapper
     void SyncAttributesAndOfferingsIfNeeded();
     void SyncPurchases();
 
-    void SyncObserverModeAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,
+    void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,
         double price);
 
-    void SetAutomaticAppleSearchAdsAttributionCollection(bool enabled);
     void EnableAdServicesAttributionTokenCollection();
     bool IsAnonymous();
     bool IsConfigured();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidateCustomerInfoCache();
     void PresentCodeRedemptionSheet();
+    void RecordPurchase(string productID);
     void SetSimulatesAskToBuyInSandbox(bool enabled);
     void SetAttributes(string attributesJson);
     void SetEmail(string email);
