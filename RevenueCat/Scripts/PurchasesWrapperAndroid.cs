@@ -173,6 +173,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("syncAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
 
+    public void GetAmazonLWAConsentStatus()
+    {
+        CallPurchases("getAmazonLWAConsentStatus");
+    }
+
     public void EnableAdServicesAttributionTokenCollection()
     {
         // NOOP

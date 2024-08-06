@@ -104,6 +104,10 @@ public partial class Purchases
             string isoCurrencyCode, double price)
         {
         }
+        
+        public void GetAmazonLWAConsentStatus()
+        {
+        }
 
         public void EnableAdServicesAttributionTokenCollection()
         {
