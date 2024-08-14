@@ -1,3 +1,7 @@
+## 7.0.1
+### Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.0.1 (#491) via RevenueCat Git Bot (@RCGitBot)
+
 ## 7.0.0
 This latest release updates the Android SDK dependency from v7 to [v8](https://github.com/RevenueCat/purchases-android/releases/tag/6.0.0) to use BillingClient 7 and updates the iOS SDK dependency from v4 to v5 to use StoreKit 2 by default in the SDK.
 
