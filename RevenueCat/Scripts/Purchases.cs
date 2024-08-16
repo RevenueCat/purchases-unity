@@ -695,6 +695,36 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SyncPurchases();
     }
 
+    private CustomerInfoFunc SyncPurchasesCallback { get; set; }
+
+    /// <summary>
+    /// This method will post all purchases associated with the current App Store account to RevenueCat and
+    /// become associated with the current <c>appUserID</c>.
+    /// </summary>
+    ///
+    /// If the receipt is being used by an existing user, the current <c>appUserID</c> will be aliased together with
+    /// the <c>appUserID</c> of the existing user.
+    /// Going forward, either <c>appUserID</c> will be able to reference the same user.
+    ///
+    /// <remarks>
+    /// Warning: This function should only be called if you're not calling any purchase method.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Note: This method will not trigger a login prompt from App Store. However, if the receipt currently
+    /// on the device does not contain subscriptions, but the user has made subscription purchases, this method
+    /// won't be able to restore them. Use <see cref="RestorePurchases"/> to cover those cases.
+    /// </remarks>
+    /// <seealso href="https://docs.revenuecat.com/docs/restoring-purchases"/>
+    ///
+    /// <param name="callback"> A <see cref="CustomerInfoFunc"/> which will contain a <see cref="CustomerInfo"/>
+    /// if sync was successful, or an error otherwise. </param>
+    public void SyncPurchases(CustomerInfoFunc callback)
+    {
+        SyncPurchasesCallback = callback;
+        _wrapper.SyncPurchases();
+    }
+
     /// <summary>
     /// Android only. Noop in iOS.
     ///
@@ -1315,6 +1345,13 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_restorePurchases " + customerInfoJson);
         ReceiveCustomerInfoMethod(customerInfoJson, RestorePurchasesCallback);
         RestorePurchasesCallback = null;
+    }
+
+    private void _syncPurchases(string customerInfoJson)
+    {
+        Debug.Log("_syncPurchases " + customerInfoJson);
+        ReceiveCustomerInfoMethod(customerInfoJson, SyncPurchasesCallback);
+        SyncPurchasesCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local

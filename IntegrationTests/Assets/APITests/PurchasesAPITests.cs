@@ -169,6 +169,11 @@ public class PurchasesAPITests : MonoBehaviour
         });
 
         purchases.SyncPurchases();
+        purchases.SyncPurchases((customerInfo, error) =>
+        {
+            receivedCustomerInfo = customerInfo;
+            receivedError = error;
+        });
         purchases.EnableAdServicesAttributionTokenCollection();
         Dictionary<string, Purchases.IntroEligibility> receivedEligibilities;
         purchases.CheckTrialOrIntroductoryPriceEligibility(new string[] { "a", "b" },
