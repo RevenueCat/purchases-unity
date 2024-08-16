@@ -391,8 +391,17 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     void SyncPurchases()
     {
         var purchases = GetComponent<Purchases>();
-        purchases.SyncPurchases();
-        infoLabel.text = "Purchases sync started. Note: there's no callback for this method in Unity";
+        purchases.SyncPurchases((customerInfo, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                DisplayCustomerInfo(customerInfo);
+            }
+        });
     }
 
     void CanMakePayments()

@@ -25,6 +25,7 @@ static NSString *const CAN_MAKE_PAYMENTS = @"_canMakePayments";
 static NSString *const GET_PROMOTIONAL_OFFER = @"_getPromotionalOffer";
 static NSString *const HANDLE_LOG = @"_handleLog";
 static NSString *const RECORD_PURCHASE = @"_recordPurchase";
+static NSString *const SYNC_PURCHASES = @"_syncPurchases";
 
 #pragma mark Utility Methods
 
@@ -158,9 +159,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     // on Android, syncPurchases doesn't have a completion block. So instead of
     // calling getCustomerInfoCompletionBlockFor:SYNC_PURCHASES, we just
     // print the response, to match Android behavior.
-    [RCCommonFunctionality syncPurchasesWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
-        NSLog(@"received syncPurchases response: \n customerInfo: %@ \n error:%@", responseDictionary, error);
-    }];
+    [RCCommonFunctionality syncPurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:SYNC_PURCHASES]];
 }
 
 - (void)logInWithAppUserID:(NSString *)appUserID {

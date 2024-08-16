@@ -47,6 +47,7 @@ public class PurchasesWrapper {
     private static final String CAN_MAKE_PAYMENTS = "_canMakePayments";
     private static final String GET_PROMOTIONAL_OFFER = "_getPromotionalOffer";
     private static final String GET_LWA_CONSENT_STATUS = "_getAmazonLWAConsentStatus";
+    private static final String SYNC_PURCHASES = "_syncPurchases";
 
     private static final String HANDLE_LOG = "_handleLog";
 
@@ -378,7 +379,7 @@ public class PurchasesWrapper {
     }
 
     public static void syncPurchases() {
-        CommonKt.syncPurchases();
+        CommonKt.syncPurchases(getCustomerInfoListener(SYNC_PURCHASES));
     }
 
     public static boolean isAnonymous() {
