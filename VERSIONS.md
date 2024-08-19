@@ -1,5 +1,6 @@
 | Version       | iOS version | Android version | Common version | Play Billing Library version | Unity IAP compatibility       |
 | ------------- | ----------- | --------------- | -------------- | ---------------------------- | ----------------------------- |
+| 7.1.0 | [5.2.3](https://github.com/RevenueCat/purchases-ios/releases/tag/5.2.3) | [8.4.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.4.0) | [13.0.1](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/13.0.1) | [7.0.0](https://developer.android.com/google/play/billing/release-notes) | Unity IAP 4.12.0+ (BC6) |
 | 7.0.0 | [5.2.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.2.2) | [8.3.1](https://github.com/RevenueCat/purchases-android/releases/tag/8.3.1) | [13.0.0](https://github.com/RevenueCat/purchases-hybrid-common/releases/tag/13.0.0) | [7.0.0](https://developer.android.com/google/play/billing/release-notes) | Unity IAP 4.12.0+ (BC6) |
 | 6.10.0        | 4.43.2      | 7.12.0          | 11.1.0         | 6.2.1                        | Unity IAP 4.12.0+ (BC6)       |
 | 6.9.7         | 4.43.0      | 7.11.1          | 10.9.0         | 6.2.1                        | Unity IAP 4.12.0+ (BC6)       |
