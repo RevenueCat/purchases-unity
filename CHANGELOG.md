@@ -1,3 +1,7 @@
+## 7.1.1
+### Dependency Updates
+* Bump rexml from 3.3.3 to 3.3.6 (#496) via dependabot[bot] (@dependabot[bot])
+
 ## 7.1.0
 ### New Features
 * Add SyncPurchases method overload that accepts a callback as parameter (#493) via Mark Villacampa (@MarkVillacampa)
