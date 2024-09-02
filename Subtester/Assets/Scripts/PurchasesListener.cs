@@ -54,6 +54,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Is Configured", IsConfigured);
         CreateButton("Get AppUserId", GetAppUserId);
         CreateButton("Show In-App Messages", ShowInAppMessages);
+        CreateButton("Get Amazon LWAConsentStatus", GetAmazonLWAConsentStatus);
         CreateProrationModeButtons();
         CreatePurchasePackageButtons();
         CreatePurchasePackageForPlacementButtons();
@@ -61,17 +62,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.EnableAdServicesAttributionTokenCollection();
-        purchases.GetAmazonLWAConsentStatus((status, error) =>
-        {
-            if (error != null)
-            {
-                LogError(error);
-            }
-            else
-            {
-                Debug.Log(string.Format("Amazon received " + status.ToString()));
-            }
-        });
     }
 
     private void CreateProrationModeButtons()
@@ -777,6 +767,22 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var purchases = GetComponent<Purchases>();
         purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
         Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic });
+    }
+
+    void GetAmazonLWAConsentStatus()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetAmazonLWAConsentStatus((status, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                infoLabel.text = "AmazonLWAConsentStatus: " + status.ToString();
+            }
+        });
     }
 
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
