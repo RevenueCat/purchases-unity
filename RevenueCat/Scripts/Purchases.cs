@@ -511,7 +511,9 @@ public partial class Purchases : MonoBehaviour
     }
 
     // ReSharper disable once UnusedMember.Global
-    [Obsolete("Deprecated, configure behavior through the RevenueCat Dashboard instead.")]
+    [Obsolete(@"Configure behavior through the RevenueCat dashboard instead. 
+    If you have configured the 'Legacy' restore behavior in the RevenueCat Dashboard
+    and are currently setting this to true, keep this setting active.")]
     public void SetAllowSharingStoreAccount(bool allow)
     {
         _wrapper.SetAllowSharingStoreAccount(allow);
