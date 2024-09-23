@@ -58,7 +58,26 @@ public partial class Purchases : MonoBehaviour
 
     [Tooltip("A subclass of Purchases.UpdatedCustomerInfoListener component.\n" +
              "Use your custom subclass to define how to handle updated customer information.")]
-    public UpdatedCustomerInfoListener listener;
+    [SerializeField]
+    private UpdatedCustomerInfoListener listener;
+    
+    // Cache custom listener, if not from class.
+    private IUpdatedCustomerInfoListener customListener;
+    public IUpdatedCustomerInfoListener Listener
+    {
+        get => listener != null ? listener : customListener;
+        set
+        {
+            if (value is UpdatedCustomerInfoListener listenerValue)
+            {
+                this.listener = listenerValue;
+            }
+            else
+            {
+                customListener = value;
+            }
+        }
+    }
 
     [Tooltip("An optional string. iOS only.\n" +
              "Set this to use a specific NSUserDefaults suite for RevenueCat. " +
@@ -102,22 +121,32 @@ public partial class Purchases : MonoBehaviour
 
     private void Start()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperAndroid();
-#elif UNITY_IPHONE && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperiOS();
-#else
-        _wrapper = new PurchasesWrapperNoop();
-#endif
-        if (!string.IsNullOrEmpty(proxyURL))
-        {
-            _wrapper.SetProxyURL(proxyURL);
-        }
+        Prepare();
 
         if (useRuntimeSetup) return;
 
         Configure(string.IsNullOrEmpty(appUserID) ? null : appUserID);
         GetProducts(productIdentifiers, null);
+    }
+    
+    private void Prepare()
+    {
+        if (_wrapper != null)
+        {
+            return;
+        }
+        #if UNITY_ANDROID && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperAndroid();
+        #elif UNITY_IPHONE && !UNITY_EDITOR
+        _wrapper = new PurchasesWrapperiOS();
+        #else
+        _wrapper = new PurchasesWrapperNoop();
+        #endif
+        
+        if (!string.IsNullOrEmpty(proxyURL))
+        {
+            _wrapper.SetProxyURL(proxyURL);
+        }
     }
 
     private void Configure(string newUserId)
@@ -188,6 +217,9 @@ public partial class Purchases : MonoBehaviour
     ///
     public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
+        // Ensure wrapper is inited.
+        Prepare();
+        
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.PurchasesAreCompletedBy, purchasesConfiguration.StoreKitVersion, purchasesConfiguration.UserDefaultsSuiteName,
@@ -1316,18 +1348,18 @@ public partial class Purchases : MonoBehaviour
     {
         Debug.Log("_receiveCustomerInfo " + customerInfoJson);
 
-        if (listener == null) return;
+        if (Listener == null) return;
 
         var response = JSON.Parse(customerInfoJson);
         if (response["customerInfo"] == null) return;
         var info = new CustomerInfo(response["customerInfo"]);
-        listener.CustomerInfoReceived(info);
+        Listener.CustomerInfoReceived(info);
     }
 
     // ReSharper disable once UnusedMember.Local
     private void _handleLog(string logDetailsJson)
     {
-        if (listener == null) return;
+        if (Listener == null) return;
 
         var response = JSON.Parse(logDetailsJson);
         var logLevelInResponse = response["logLevel"];
