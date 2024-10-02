@@ -104,7 +104,7 @@ public partial class Purchases : MonoBehaviour
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
         _wrapper = new PurchasesWrapperAndroid();
-#elif UNITY_IPHONE && !UNITY_EDITOR
+#elif (UNITY_IOS || UNITY_VISIONOS) && !UNITY_EDITOR
         _wrapper = new PurchasesWrapperiOS();
 #else
         _wrapper = new PurchasesWrapperNoop();
