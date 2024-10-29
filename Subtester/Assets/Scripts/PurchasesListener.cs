@@ -68,7 +68,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         foreach (Purchases.ProrationMode mode in Enum.GetValues(typeof(Purchases.ProrationMode)))
         {
-            CreateButton("Proration mode: " + mode, () =>
+            CreateButton("Proration mode: " +  mode, () =>
             {
                 infoLabel.text = "ProrationMode set to " + mode;
                 prorationMode = mode;
@@ -99,32 +99,25 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     CreateButton("Buy as Product: " + label, () => PurchaseProductButtonClicked(package.StoreProduct));
 
                     var options = package.StoreProduct.SubscriptionOptions;
-                    if (options is not null)
-                    {
-                        foreach (var subscriptionOption in options)
-                        {
+                    if (options is not null) {
+                        foreach (var subscriptionOption in options) {
                             List<string> parts = new List<string>();
                             var label2 = package.PackageType;
 
                             var phases = subscriptionOption.PricingPhases;
-                            if (phases is not null)
-                            {
-                                foreach (var pricingPhase in phases)
-                                {
+                            if (phases is not null) {
+                                foreach (var pricingPhase in phases) {
                                     var period = pricingPhase.BillingPeriod;
                                     var price = pricingPhase.Price;
-                                    if (period is not null && price is not null)
-                                    {
+                                    if (period is not null && price is not null) {
                                         parts.Add(price.Formatted + " for " + period.ISO8601);
                                     }
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 parts.Add("ITS SO NULL");
                             }
                             var info = String.Join(" -> ", parts.ToArray());
-                            CreateButton(info, () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
+                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
                         }
                     }
                 }
@@ -153,32 +146,25 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                     CreateButton("Buy as Placement Package: " + label, () => PurchasePackageButtonClicked(package));
 
                     var options = package.StoreProduct.SubscriptionOptions;
-                    if (options is not null)
-                    {
-                        foreach (var subscriptionOption in options)
-                        {
+                    if (options is not null) {
+                        foreach (var subscriptionOption in options) {
                             List<string> parts = new List<string>();
                             var label2 = package.PackageType;
 
                             var phases = subscriptionOption.PricingPhases;
-                            if (phases is not null)
-                            {
-                                foreach (var pricingPhase in phases)
-                                {
+                            if (phases is not null) {
+                                foreach (var pricingPhase in phases) {
                                     var period = pricingPhase.BillingPeriod;
                                     var price = pricingPhase.Price;
-                                    if (period is not null && price is not null)
-                                    {
+                                    if (period is not null && price is not null) {
                                         parts.Add(price.Formatted + " for " + period.ISO8601);
                                     }
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 parts.Add("ITS SO NULL");
                             }
                             var info = "PCMNT: " + String.Join(" -> ", parts.ToArray());
-                            CreateButton(info, () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
+                            CreateButton(info,  () => PurchaseSubscriptionOptionButtonClicked(subscriptionOption));
                         }
                     }
                 }
@@ -196,7 +182,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var width = rect.width;
 
         var yPos = -1 // unity counts from the bottom left, so negative values give you buttons that are
-                      // lower in the screen
+                   // lower in the screen
                    * (currentButtons / maxButtonsPerRow // how many buttons are on top of this one
                       * (height +
                          yPaddingForButtons) // distance from start of the first button to the start of the second
@@ -287,8 +273,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private void PurchaseSubscriptionOptionButtonClicked(Purchases.SubscriptionOption subscriptionOption)
     {
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null;
-        if (prorationMode != Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy && currentProductId != "")
-        {
+        if (prorationMode != Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy && currentProductId != "") {
             googleProductChangeInfo = new Purchases.GoogleProductChangeInfo(currentProductId, prorationMode);
         }
         var purchases = GetComponent<Purchases>();
