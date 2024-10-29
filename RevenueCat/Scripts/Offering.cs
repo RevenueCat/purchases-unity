@@ -80,7 +80,7 @@ public partial class Purchases
         {
             return $"{nameof(Identifier)}: {Identifier}\n" +
                    $"{nameof(ServerDescription)}: {ServerDescription}\n" +
-                   $"{nameof(AvailablePackages)}: {AvailablePackages}\n" +
+                   $"{nameof(AvailablePackages)}: {string.Join(", ", AvailablePackages)}\n" +
                    $"{nameof(Metadata)}: {DictToString(Metadata)}\n" +
                    $"{nameof(Lifetime)}: {Lifetime}\n" +
                    $"{nameof(Annual)}: {Annual}\n" +

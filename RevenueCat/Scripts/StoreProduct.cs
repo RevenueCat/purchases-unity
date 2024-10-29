@@ -171,11 +171,12 @@ public partial class Purchases
                    $"{nameof(Price)}: {Price}\n" +
                    $"{nameof(PriceString)}: {PriceString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
-				   $"{nameof(ProductCategory)}: {ProductCategory}\n" +
+                   $"{nameof(ProductCategory)}: {ProductCategory}\n" +
                    $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
-                   $"{DefaultOption}\n" +
-                   $"{SubscriptionOptions}\n" +
-                   $"{IntroductoryPrice}\n" +
+                   $"{nameof(PresentedOfferingContext)}: {PresentedOfferingContext}\n" +
+                   $"{nameof(DefaultOption)}: {DefaultOption}\n" +
+                   $"{nameof(SubscriptionOptions)}: {SubscriptionOptions}\n" +
+                   $"{nameof(IntroductoryPrice)}: {IntroductoryPrice}\n" +
                    $"{nameof(Discounts)}: {Discounts}\n" +
                    $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}";
         }
