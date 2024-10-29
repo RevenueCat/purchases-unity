@@ -13,6 +13,7 @@ namespace DefaultNamespace
                 case Purchases.InAppMessageType.BillingIssue:
                 case Purchases.InAppMessageType.PriceIncreaseConsent:
                 case Purchases.InAppMessageType.Generic:
+                case Purchases.InAppMessageType.WinBackOffer:
                     break;
             }
         }

@@ -15,5 +15,9 @@ public partial class Purchases
 
         /// iOS-only. StoreKit generic messages.
         Generic = 2,
+
+        // iOS-only. This message will show if the subscriber is eligible for an iOS win-back
+        // offer and will allow the subscriber to redeem the offer.
+        WinBackOffer = 3,
     }
 }

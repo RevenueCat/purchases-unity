@@ -242,7 +242,7 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.SyncAmazonPurchase("product_id", "receipt_id", "amazon_user_id", "iso_currency_code", 1.99);
 
         purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
-            Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic });
+            Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic, Purchases.InAppMessageType.WinBackOffer });
         purchases.ShowInAppMessages();
     }
 }
