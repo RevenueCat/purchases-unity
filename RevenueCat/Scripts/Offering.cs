@@ -70,8 +70,10 @@ public partial class Purchases
             Metadata = new Dictionary<string, object>();
             if (response["metadata"] != null && !response["metadata"].IsNull)
             {
-                foreach(var metadataEntry in response["metadata"]) {
-                    Metadata.Add(metadataEntry.Key, metadataEntry.Value);
+                foreach(var metadataEntry in response["metadata"])
+                {
+                    object value = ParseJsonValue(metadataEntry.Value);
+                    Metadata.Add(metadataEntry.Key, value);
                 }
             }
         }
@@ -89,6 +91,35 @@ public partial class Purchases
                    $"{nameof(TwoMonth)}: {TwoMonth}\n" +
                    $"{nameof(Monthly)}: {Monthly}\n" +
                    $"{nameof(Weekly)}: {Weekly}";
+        }
+
+        private object ParseJsonValue(JSONNode jsonValue)
+        {
+            if (jsonValue.IsString) return jsonValue.Value;
+            if (jsonValue.IsNumber) return jsonValue.AsFloat;
+            if (jsonValue.IsBoolean) return jsonValue.AsBool;
+            
+            if (jsonValue.IsObject)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (var kvp in jsonValue.AsObject)
+                {
+                    dict[kvp.Key] = ParseJsonValue(kvp.Value);
+                }
+                return dict;
+            }
+            
+            if (jsonValue.IsArray)
+            {
+                var list = new List<object>();
+                foreach (var item in jsonValue.AsArray)
+                {
+                    list.Add(ParseJsonValue(item));
+                }
+                return list;
+            }
+            
+            return null;
         }
     }
 }
