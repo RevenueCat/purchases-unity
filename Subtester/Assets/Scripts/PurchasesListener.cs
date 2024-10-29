@@ -766,7 +766,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         var purchases = GetComponent<Purchases>();
         purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
-        Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic });
+        Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic, Purchases.InAppMessageType.WinBackOffer });
     }
 
     void GetAmazonLWAConsentStatus()
