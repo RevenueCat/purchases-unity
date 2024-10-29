@@ -10,23 +10,83 @@ public partial class Purchases
     /// </summary>
     public class StoreProduct
     {
+        /// <summary>
+        /// Title of the product.
+        /// </summary>
+        /// <returns></returns>
         public readonly string Title;
+
+        /// <summary>
+        /// Product Id.
+        /// </summary>
+        /// <returns></returns>
         public readonly string Identifier;
+
+        /// <summary>
+        /// Description of the product.
+        /// </summary>
+        /// <returns></returns> 
         public readonly string Description;
+
+        /// <summary>
+        /// Price of the product in the local currency.
+        /// Contains the price value of DefaultOption for Google Play.
+        /// </summary>
+        /// <returns></returns>
         public readonly float Price;
+
+        /// <summary>
+        /// Formatted price of the item, including its currency sign.
+        /// Contains the formatted price value of DefaultOption for Google Play.
+        /// </summary>
+        /// <returns></returns>
         public readonly string PriceString;
+
+        /// <summary>
+        /// Currency code for price and original price.
+        /// Contains the currency code of DefaultOption for Google Play.
+        /// </summary>
+        /// <returns></returns>
         [CanBeNull] public readonly string CurrencyCode;
+        
+        /// <summary>
+        /// Introductory price of the product. Null if no introductory price is available.
+        /// It contains the free trial if available and user is eligible for it.
+        /// Otherwise, it contains the introductory price of the product if the user is eligible for it.
+        /// This will be null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
         public IntroductoryPrice IntroductoryPrice;
+
+        /// <summary>
+        /// Product category of the product.
+        /// </summary>
+        /// <returns></returns>
         [CanBeNull] public readonly ProductCategory ProductCategory;
+
+        /// <summary>
+        /// Default subscription option for a product. Google Play only.
+        /// </summary>
+        /// <returns></returns>
         [CanBeNull] public readonly SubscriptionOption DefaultOption;
+
+        /// <summary>
+        /// Collection of subscription options for a product. Google Play only.
+        /// </summary>
+        /// <returns></returns>
         [CanBeNull] public readonly SubscriptionOption[] SubscriptionOptions;
+
+        /// <summary>
+        /// Offering context this package belongs to.
+        /// Null if not using offerings or if fetched directly from store via GetProducts.
+        /// </summary>
         [CanBeNull] public readonly PresentedOfferingContext PresentedOfferingContext;
 
         [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
         [CanBeNull] public readonly string PresentedOfferingIdentifier;
 
         /// <summary>
-        /// Collection of iOS promotional offers for a product. Null for Android.
+        /// Collection of iOS promotional offers for a product. Null for Android and Amazon.
         /// </summary>
         /// <returns></returns>
         [CanBeNull] public readonly Discount[] Discounts;
