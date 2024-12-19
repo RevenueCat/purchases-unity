@@ -238,5 +238,13 @@ public partial class Purchases
         public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes)
         {
         }
+
+        public void ParseAsWebPurchaseRedemption(string urlString)
+        {
+        }
+
+        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+        {
+        }
     }
 }

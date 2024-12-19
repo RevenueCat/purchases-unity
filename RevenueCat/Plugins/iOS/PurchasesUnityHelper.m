@@ -26,6 +26,8 @@ static NSString *const GET_PROMOTIONAL_OFFER = @"_getPromotionalOffer";
 static NSString *const HANDLE_LOG = @"_handleLog";
 static NSString *const RECORD_PURCHASE = @"_recordPurchase";
 static NSString *const SYNC_PURCHASES = @"_syncPurchases";
+static NSString *const PARSE_AS_WEB_PURCHASE_REDEMPTION = @"_parseAsWebPurchaseRedemption";
+static NSString *const REDEEM_WEB_PURCHASE = @"_redeemWebPurchase";
 
 #pragma mark Utility Methods
 
@@ -438,6 +440,36 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     #else
     NSLog(@"[Purchases] Warning: tried to showInAppMessages in non-ios devices. That's not supported.");
     #endif
+}
+
+- (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
+    BOOL isWebPurchaseRedemptionURL = [RCCommonFunctionality isWebPurchaseRedemptionURL:urlString];
+    if (isWebPurchaseRedemptionURL) {
+        [self sendJSONObject:@{@"redemptionLink": urlString} toMethod:PARSE_AS_WEB_PURCHASE_REDEMPTION];
+    } else {
+        [self sendJSONObject:nil toMethod:PARSE_AS_WEB_PURCHASE_REDEMPTION];
+    }
+}
+
+- (void)redeemWebPurchase:(NSString *)redemptionLink {
+    [RCCommonFunctionality redeemWebPurchaseWithUrlString:redemptionLink
+                                               completion:^(NSDictionary *_Nullable responseDictionary,
+                                                            RCErrorContainer *_Nullable error) {
+        if (error == nil && responseDictionary == nil) {
+            NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are null"}];
+            error = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
+
+        NSDictionary *response = (error)
+        ? @{
+            @"error": error.info
+        }
+        : responseDictionary;
+
+        [self sendJSONObject:response toMethod:REDEEM_WEB_PURCHASE];
+    }];
 }
 
 #pragma mark Helper Methods

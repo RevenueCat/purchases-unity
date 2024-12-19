@@ -375,6 +375,16 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("showInAppMessages", JsonUtility.ToJson(request));
     }
 
+    public void ParseAsWebPurchaseRedemption(string urlString)
+    {
+        CallPurchases("parseAsWebPurchaseRedemption", urlString);
+    }
+
+    public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+    {
+        CallPurchases("redeemWebPurchase", webPurchaseRedemption.RedemptionLink);
+    }
+
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";
 
     private static void CallPurchases(string methodName, params object[] args)

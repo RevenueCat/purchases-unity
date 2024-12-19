@@ -1251,6 +1251,26 @@ public partial class Purchases : MonoBehaviour
         _wrapper.ShowInAppMessages(messageTypes);
     }
 
+    public delegate void ParseAsWebPurchaseRedemptionFunc(WebPurchaseRedemption webPurchaseRedemption);
+
+    private ParseAsWebPurchaseRedemptionFunc ParseAsWebPurchaseRedemptionCallback { get; set; }
+
+    public void ParseAsWebPurchaseRedemption(string urlString, ParseAsWebPurchaseRedemptionFunc callback)
+    {
+        ParseAsWebPurchaseRedemptionCallback = callback;
+        _wrapper.ParseAsWebPurchaseRedemption(urlString);
+    }
+
+    public delegate void RedeemWebPurchaseFunc(WebPurchaseRedemptionResult result);
+
+    private RedeemWebPurchaseFunc RedeemWebPurchaseCallback { get; set; }
+
+    public void RedeemWebPurchase(WebPurchaseRedemption webPurchaseRedemption, RedeemWebPurchaseFunc callback)
+    {
+        RedeemWebPurchaseCallback = callback;
+        _wrapper.RedeemWebPurchase(webPurchaseRedemption);
+    }
+
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
     {
@@ -1528,6 +1548,48 @@ public partial class Purchases : MonoBehaviour
         }
 
         GetPromotionalOfferCallback = null;
+    }
+
+    private void _parseAsWebPurchaseRedemption(string parseAsWebPurchaseRedemptionJSON)
+    {
+        Debug.Log("_parseAsWebPurchaseRedemption " + parseAsWebPurchaseRedemptionJSON);
+
+        if (ParseAsWebPurchaseRedemptionCallback == null) return;
+
+        var response = JSON.Parse(parseAsWebPurchaseRedemptionJSON);
+
+        if (ResponseHasError(response))
+        {
+            ParseAsWebPurchaseRedemptionCallback(null);
+        }
+        else
+        {
+            var webPurchaseRedemption = new WebPurchaseRedemption(response["redemptionLink"]);
+            ParseAsWebPurchaseRedemptionCallback(webPurchaseRedemption);
+        }
+
+        ParseAsWebPurchaseRedemptionCallback = null;
+    }
+
+    private void _redeemWebPurchase(string redeemWebPurchaseJSON)
+    {
+        Debug.Log("_redeemWebPurchase " + redeemWebPurchaseJSON);
+
+        if (RedeemWebPurchaseCallback == null) return;
+
+        var response = JSON.Parse(redeemWebPurchaseJSON);
+
+        if (ResponseHasError(response))
+        {
+            RedeemWebPurchaseCallback(null);
+        }
+        else
+        {
+            var result = WebPurchaseRedemptionResult.FromJson(response);
+            RedeemWebPurchaseCallback(result);
+        }
+
+        RedeemWebPurchaseCallback = null;
     }
 
     private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)

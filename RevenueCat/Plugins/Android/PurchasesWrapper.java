@@ -48,6 +48,8 @@ public class PurchasesWrapper {
     private static final String GET_PROMOTIONAL_OFFER = "_getPromotionalOffer";
     private static final String GET_LWA_CONSENT_STATUS = "_getAmazonLWAConsentStatus";
     private static final String SYNC_PURCHASES = "_syncPurchases";
+    private static final String PARSE_AS_WEB_PURCHASE_REDEMPTION = "_parseAsWebPurchaseRedemption";
+    private static final String REDEEM_WEB_PURCHASE = "_redeemWebPurchase";
 
     private static final String HANDLE_LOG = "_handleLog";
 
@@ -563,6 +565,35 @@ public class PurchasesWrapper {
         } catch (JSONException e) {
             logJSONException(e);
         }
+    }
+
+    public static void parseAsWebPurchaseRedemption(String urlString) {
+        boolean isWebPurchaseRedemptionURL = CommonKt.isWebPurchaseRedemptionURL(urlString);
+        if (isWebPurchaseRedemptionURL) {
+            JSONObject object = new JSONObject();
+            object.put("redemptionLink", urlString);
+            sendJSONObject(object, PARSE_AS_WEB_PURCHASE_REDEMPTION);
+        } else {
+            sendJSONObject(null, PARSE_AS_WEB_PURCHASE_REDEMPTION);
+        }
+    }
+
+    public static void redeemWebPurchase(String redemptionLink) {
+        CommonKt.redeemWebPurchase(redemptionLink, new OnResult() {
+            @Override
+            public void onReceived(Map<String, ?> map) {
+                try {
+                    sendJSONObject(MappersHelpersKt.convertToJson(map), REDEEM_WEB_PURCHASE);
+                } catch (JSONException e) {
+                    logJSONException(e);
+                }
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendError(errorContainer, REDEEM_WEB_PURCHASE);
+            }
+        });
     }
 
     private static void logJSONException(JSONException e) {
