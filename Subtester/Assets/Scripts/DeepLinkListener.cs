@@ -40,7 +40,24 @@ public class DeepLinkListener : MonoBehaviour
                 Debug.Log("Starting redemption: " + webPurchaseRedemption.ToString());
                 purchases.RedeemWebPurchase(webPurchaseRedemption, (result) =>
                 {
-                    Debug.Log("Redemption result: " + result.ToString());
+                    switch (result) 
+                    {
+                        case Purchases.WebPurchaseRedemptionResult.Success success:
+                            Debug.Log("Redemption successful: " + success.CustomerInfo.ToString());
+                            break;
+                        case Purchases.WebPurchaseRedemptionResult.RedemptionError error:
+                            Debug.Log("Redemption failed: " + error.Error.ToString());
+                            break;
+                        case Purchases.WebPurchaseRedemptionResult.InvalidToken:
+                            Debug.Log("Redemption failed: Invalid token");
+                            break;
+                        case Purchases.WebPurchaseRedemptionResult.PurchaseBelongsToOtherUser:
+                            Debug.Log("Redemption failed: Purchase belongs to other user");
+                            break;
+                        case Purchases.WebPurchaseRedemptionResult.Expired expired:
+                            Debug.Log("Redemption failed: Expired. Sent new email to " + expired.ObfuscatedEmail);
+                            break;
+                    }
                 });
             }
         });
