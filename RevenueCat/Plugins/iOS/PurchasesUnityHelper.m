@@ -816,3 +816,11 @@ void _RCShowInAppMessages(const char *messagesJSON) {
 
     [_RCUnityHelperShared() showInAppMessages:messagesDictionary[@"messageTypes"]];
 }
+
+void _RCParseAsWebPurchaseRedemption(const char *urlString) {
+    [_RCUnityHelperShared() parseAsWebPurchaseRedemption:convertCString(urlString)];
+}
+
+void _RCRedeemWebPurchase(const char *redemptionLink) {
+    [_RCUnityHelperShared() redeemWebPurchase:convertCString(redemptionLink)];
+}
