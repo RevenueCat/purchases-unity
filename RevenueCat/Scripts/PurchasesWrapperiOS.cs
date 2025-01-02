@@ -454,5 +454,19 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
 
         _RCShowInAppMessages(JsonUtility.ToJson(request));
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCParseAsWebPurchaseRedemption(string urlString);
+    public void ParseAsWebPurchaseRedemption(string urlString)
+    {
+        _RCParseAsWebPurchaseRedemption(urlString);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCRedeemWebPurchase(string resultJson);
+    public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+    {
+        _RCRedeemWebPurchase(webPurchaseRedemption.RedemptionLink);
+    }
 }
 #endif

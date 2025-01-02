@@ -77,4 +77,6 @@ public interface IPurchasesWrapper
     void CanMakePayments(Purchases.BillingFeature[] features);
     void GetPromotionalOffer(string productIdentifier, string discountIdentifier);
     void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes);
+    void ParseAsWebPurchaseRedemption(string urlString);
+    void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption);
 }
