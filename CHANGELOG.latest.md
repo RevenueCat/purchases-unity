@@ -1,3 +1,5 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Support Web Redemption Links (#539) via Toni Rico (@tonidero)
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.13.0 (#537) via RevenueCat Git Bot (@RCGitBot)
+* Bump fastlane from 2.225.0 to 2.226.0 (#536) via dependabot[bot] (@dependabot[bot])
