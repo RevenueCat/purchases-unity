@@ -79,4 +79,8 @@ public interface IPurchasesWrapper
     void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes);
     void ParseAsWebPurchaseRedemption(string urlString);
     void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption);
+    void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct);
+    void GetEligibleWinBackOffersForPackage(Purchases.Package package);
+    void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer);
+    void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer);
 }

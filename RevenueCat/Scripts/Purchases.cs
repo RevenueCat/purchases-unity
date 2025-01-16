@@ -1271,6 +1271,72 @@ public partial class Purchases : MonoBehaviour
         _wrapper.RedeemWebPurchase(webPurchaseRedemption);
     }
 
+    public delegate void GetEligibleWinBackOffersForProductFunc(WinBackOffer[] winBackOffers, Error error);
+
+    private GetEligibleWinBackOffersForProductFunc GetEligibleWinBackOffersForProductCallback { get; set; }
+
+    /// <summary>
+    /// Gets eligible win-back offers for a given store product. Only available on iOS 18.0+ with StoreKit 2.
+    /// Returns an error if the platform is not iOS 18.0+ or if StoreKit 2 is not used.
+    /// </summary>
+    /// <param name="storeProduct">The Purchases.StoreProduct to get win-back offers for</param>
+    /// <param name="callback">A callback receiving an array of Purchases.WinBackOffer objects or an error if unsuccessful</param>
+    public void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct, GetEligibleWinBackOffersForProductFunc callback)
+    {
+        GetEligibleWinBackOffersForProductCallback = callback;
+        _wrapper.GetEligibleWinBackOffersForProduct(storeProduct);
+    }
+
+    public delegate void GetEligibleWinBackOffersForPackageFunc(WinBackOffer[] winBackOffers, Error error);
+
+    private GetEligibleWinBackOffersForPackageFunc GetEligibleWinBackOffersForPackageCallback { get; set; }
+
+    /// <summary>
+    /// Gets eligible win-back offers for a given package. Only available on iOS 18.0+ with StoreKit 2. 
+    /// Returns an error if the platform is not iOS 18.0+ or if StoreKit 2 is not used.
+    /// </summary>
+    /// <param name="package">The Purchases.Package to get win-back offers for</param>
+    /// <param name="callback">A callback receiving an array of Purchases.WinBackOffer objects or an error if unsuccessful</param>
+    public void GetEligibleWinBackOffersForPackage(Package package, GetEligibleWinBackOffersForPackageFunc callback)
+    {
+        GetEligibleWinBackOffersForPackageCallback = callback;
+        _wrapper.GetEligibleWinBackOffersForPackage(package);
+    }
+
+    public delegate void PurchaseProductWithWinBackOfferFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled, Error error);
+
+    private PurchaseProductWithWinBackOfferFunc PurchaseProductWithWinBackOfferCallback { get; set; }
+
+    /// <summary>
+    /// Purchase a product with a win-back offer. Only available on iOS 18.0+ with StoreKit 2.
+    /// Returns an error if the platform is not iOS 18.0+ or if StoreKit 2 is not used.
+    /// </summary>
+    /// <param name="storeProduct">The Purchases.StoreProduct to purchase</param>
+    /// <param name="winBackOffer">The Purchases.WinBackOffer to use</param>
+    /// <param name="callback">A callback receiving the product identifier, customer info, user cancellation, and an error if the purchase fails</param>
+    public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer, PurchaseProductWithWinBackOfferFunc callback)
+    {
+        PurchaseProductWithWinBackOfferCallback = callback;
+        _wrapper.PurchaseProductWithWinBackOffer(storeProduct, winBackOffer);
+    }
+
+    public delegate void PurchasePackageWithWinBackOfferFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled, Error error);
+
+    private PurchasePackageWithWinBackOfferFunc PurchasePackageWithWinBackOfferCallback { get; set; }
+
+    /// <summary>
+    /// Purchase a package with a win-back offer. Only available on iOS 18.0+ with StoreKit 2.
+    /// Returns an error if the platform is not iOS 18.0+ or if StoreKit 2 is not used.
+    /// </summary>
+    /// <param name="package">The Purchases.Package to purchase</param>
+    /// <param name="winBackOffer">The Purchases.WinBackOffer to use</param>
+    /// <param name="callback">A callback receiving the product identifier, customer info, user cancellation, and an error if the purchase fails</param>
+    public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer, PurchasePackageWithWinBackOfferFunc callback)
+    {
+        PurchasePackageWithWinBackOfferCallback = callback;
+        _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer);
+    }
+
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
     {
@@ -1590,6 +1656,105 @@ public partial class Purchases : MonoBehaviour
         }
 
         RedeemWebPurchaseCallback = null;
+    }
+
+    private void _getEligibleWinBackOffersForProduct(string eligibleWinBackOffersJson)
+    {
+        Debug.Log("_getEligibleWinBackOffersForProduct " + eligibleWinBackOffersJson);
+
+        if (GetEligibleWinBackOffersForProductCallback == null) return;
+
+        var response = JSON.Parse(eligibleWinBackOffersJson);
+
+        if (ResponseHasError(response))
+        {
+            GetEligibleWinBackOffersForProductCallback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var winBackOffers = new List<WinBackOffer>();
+            foreach (JSONNode offerResponse in response["eligibleWinBackOffers"])
+            {
+                var offer = new WinBackOffer(offerResponse);
+                Debug.Log("WinBackOffer print out: " + offer.ToString());
+                winBackOffers.Add(offer);
+            }
+
+            GetEligibleWinBackOffersForProductCallback(winBackOffers.ToArray(), null);
+        }
+
+        GetEligibleWinBackOffersForProductCallback = null;
+    }
+
+    private void _getEligibleWinBackOffersForPackage(string eligibleWinBackOffersJson)
+    {
+        Debug.Log("_getEligibleWinBackOffersForPackage " + eligibleWinBackOffersJson);
+
+        if (GetEligibleWinBackOffersForPackageCallback == null) return;
+
+        var response = JSON.Parse(eligibleWinBackOffersJson);
+
+        if (ResponseHasError(response))
+        {
+            GetEligibleWinBackOffersForPackageCallback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var winBackOffers = new List<WinBackOffer>();
+            foreach (JSONNode offerResponse in response["eligibleWinBackOffers"])
+            {
+                var offer = new WinBackOffer(offerResponse);
+                winBackOffers.Add(offer);
+            }
+
+            GetEligibleWinBackOffersForPackageCallback(winBackOffers.ToArray(), null);
+        }
+
+        GetEligibleWinBackOffersForPackageCallback = null;
+    }
+
+    private void _purchaseProductWithWinBackOffer(string purchaseProductWithWinBackOfferJson)
+    {
+        Debug.Log("_purchaseProductWithWinBackOffer " + purchaseProductWithWinBackOfferJson);
+
+        if (PurchaseProductWithWinBackOfferCallback == null) return;
+
+        var response = JSON.Parse(purchaseProductWithWinBackOfferJson);
+
+        if (ResponseHasError(response))
+        {
+            PurchaseProductWithWinBackOfferCallback(null, null, response["userCancelled"], new Error(response["error"]));
+        }
+        else
+        {
+            var info = new CustomerInfo(response["customerInfo"]);
+            var productIdentifier = response["productIdentifier"];
+            PurchaseProductWithWinBackOfferCallback(productIdentifier, info, false, null);
+        }
+
+        PurchaseProductWithWinBackOfferCallback = null;
+    }
+
+    private void _purchasePackageWithWinBackOffer(string purchasePackageWithWinBackOfferJson)
+    {
+        Debug.Log("_purchasePackageWithWinBackOffer " + purchasePackageWithWinBackOfferJson);
+
+        if (PurchasePackageWithWinBackOfferCallback == null) return;
+
+        var response = JSON.Parse(purchasePackageWithWinBackOfferJson);
+
+        if (ResponseHasError(response))
+        {
+            PurchasePackageWithWinBackOfferCallback(null, null, response["userCancelled"], new Error(response["error"]));
+        }
+        else
+        {
+            var info = new CustomerInfo(response["customerInfo"]);
+            var packageIdentifier = response["packageIdentifier"];
+            PurchasePackageWithWinBackOfferCallback(packageIdentifier, info, false, null);
+        }
+
+        PurchasePackageWithWinBackOfferCallback = null;
     }
 
     private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)

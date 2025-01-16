@@ -468,5 +468,33 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCRedeemWebPurchase(webPurchaseRedemption.RedemptionLink);
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCGetEligibleWinBackOffersForProduct(string productIdentifier);
+    public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+    {
+        _RCGetEligibleWinBackOffersForProduct(storeProduct.Identifier);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCGetEligibleWinBackOffersForPackage(string productIdentifier);
+    public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+    {
+        _RCGetEligibleWinBackOffersForPackage(package.StoreProduct.Identifier);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCPurchaseProductWithWinBackOffer(string productIdentifier, string winBackOfferIdentifier);
+    public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+    {
+        _RCPurchaseProductWithWinBackOffer(storeProduct.Identifier, winBackOffer.Identifier);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCPurchasePackageWithWinBackOffer(string packageIdentifier, string presentedOfferingContextJson, string winBackOfferIdentifier);
+    public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+    {
+        _RCPurchasePackageWithWinBackOffer(package.Identifier, package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier);
+    }
 }
 #endif

@@ -246,5 +246,21 @@ public partial class Purchases
         public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
         {
         }
+
+        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+        {
+        }
+
+        public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+        {
+        }
+
+        public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+        {
+        }
+
+        public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+        {
+        }
     }
 }
