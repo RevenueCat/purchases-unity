@@ -60,7 +60,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "7.4.0";
+    private static final String PLUGIN_VERSION = "7.4.1";
 
     private static String gameObject;
 
@@ -577,7 +577,11 @@ public class PurchasesWrapper {
         boolean isWebPurchaseRedemptionURL = CommonKt.isWebPurchaseRedemptionURL(urlString);
         if (isWebPurchaseRedemptionURL) {
             JSONObject object = new JSONObject();
-            object.put("redemptionLink", urlString);
+            try {
+                object.put("redemptionLink", urlString);
+            } catch (JSONException e) {
+                logJSONException(e);
+            }
             sendJSONObject(object, PARSE_AS_WEB_PURCHASE_REDEMPTION);
         } else {
             sendJSONObject(null, PARSE_AS_WEB_PURCHASE_REDEMPTION);
@@ -588,11 +592,7 @@ public class PurchasesWrapper {
         CommonKt.redeemWebPurchase(redemptionLink, new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                try {
-                    sendJSONObject(MappersHelpersKt.convertToJson(map), REDEEM_WEB_PURCHASE);
-                } catch (JSONException e) {
-                    logJSONException(e);
-                }
+                sendJSONObject(MappersHelpersKt.convertToJson(map), REDEEM_WEB_PURCHASE);
             }
 
             @Override
