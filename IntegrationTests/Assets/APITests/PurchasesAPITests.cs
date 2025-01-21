@@ -261,7 +261,7 @@ public class PurchasesAPITests : MonoBehaviour
         // Purchasing win-back offers with a package
         purchases.GetOfferings((offerings, error) =>
         {
-            Package package = offerings.Current.AvailablePackages.First();
+            Purchases.Package package = offerings.Current.AvailablePackages.First();
             purchases.GetEligibleWinBackOffersForPackage(package, (winBackOffers, error2) =>
             {
                 purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0], 
