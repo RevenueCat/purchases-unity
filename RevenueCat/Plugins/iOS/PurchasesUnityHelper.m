@@ -446,133 +446,109 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)getEligibleWinBackOffersForProduct:(NSString *)productIdentifier {
-    if (@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)) {
-        [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
-                                                         completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
+    // Checking for win-back offer APIs being available in the current OS is handled at the PHC level.
+    [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
+                                                        completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
 
-            if (eligibleWinBackOffers == nil && errorContainer == nil) {
-                NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                              code:RCUnknownError
-                                                          userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
-                errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
-            }
+        if (eligibleWinBackOffers == nil && errorContainer == nil) {
+            NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                            code:RCUnknownError
+                                                        userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
+            errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
 
-            // Send error if present
-            if (errorContainer != nil) {
-                NSDictionary *response = @{@"error": errorContainer.info};
-                [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
-                return;
-            }
-
-            // Send response dictionary if present
-            NSArray *offers = eligibleWinBackOffers ?: @[];
-            NSDictionary *response = @{@"eligibleWinBackOffers": offers};
+        // Send error if present
+        if (errorContainer != nil) {
+            NSDictionary *response = @{@"error": errorContainer.info};
             [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
-        }];
-    } else {
-        NSLog(@"[Purchases] Warning: Win-back offers are only available on iOS 18.0 or greater.");
-        NSDictionary *response = [self createWinBackOffersUnavailableError];
+            return;
+        }
+
+        // Send response dictionary if present
+        NSArray *offers = eligibleWinBackOffers ?: @[];
+        NSDictionary *response = @{@"eligibleWinBackOffers": offers};
         [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
-        return;
-    }
+    }];
 }
 
 // This function accepts a product identifier since the PHC code only fetches eligible win-back offers for products
 - (void)getEligibleWinBackOffersForPackage:(NSString *)productIdentifier {
-    if (@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)) {
-        [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
-                                                         completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
+    // Checking for win-back offer API availability in the current OS is handled at the PHC level.
+    [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
+                                                        completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
 
-            if (eligibleWinBackOffers == nil && errorContainer == nil) {
-                NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                            code:RCUnknownError
-                                                        userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
-                errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
-            }
-
-            // Send error if present
-            if (errorContainer != nil) {
-                NSDictionary *response = @{@"error": errorContainer.info};
-                [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
-                return;
-            }
-
-            // Send response dictionary if present
-            NSArray *offers = eligibleWinBackOffers ?: @[];
-            NSDictionary *response = @{@"eligibleWinBackOffers": offers};
-            [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
-        }];
-    } else {
-        NSLog(@"[Purchases] Warning: Win-back offers are only available on iOS 18.0 or greater.");
-        NSDictionary *response = [self createWinBackOffersUnavailableError];
-        [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
-        return;
-    }
-}
-
-- (void)purchaseProductWithWinBackOffer:(NSString *)productIdentifier winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
-    if (@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)) {
-        [RCCommonFunctionality purchaseProduct:productIdentifier
-                                winBackOfferID:winBackOfferIdentifier
-                               completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
-            NSMutableDictionary *response;
-            if (error) {
-                response = [NSMutableDictionary new];
-                response[@"error"] = error.info;
-                response[@"userCancelled"] = error.info[@"userCancelled"];
-            } else {
-                response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-                response[@"userCancelled"] = false;
-            }
-            [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
-        }];
-    } else {
-        NSLog(@"[Purchases] Warning: Win-back offers are only available on iOS 18.0 or greater.");
-        NSDictionary *response = [self createWinBackOffersUnavailableError];
-        [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
-        return;
-    }
-}
-
-- (void)purchasePackageWithWinBackOffer:(NSString *)packageIdentifier presentedOfferingContextJson:(NSString *)presentedOfferingContextJson winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
-    if (@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)) {
-        NSError *jsonError = nil;
-        NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary *presentedOfferingContextDict = [NSJSONSerialization JSONObjectWithData:jsonData 
-                                                                               options:0 
-                                                                                 error:&jsonError];
-        if (jsonError) {
-            NSLog(@"Error parsing presentedOfferingContext JSON: %@ %@", presentedOfferingContextJson, jsonError.localizedDescription);
+        if (eligibleWinBackOffers == nil && errorContainer == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                        code:jsonError
-                                                    userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse presentedOfferingContext"}];
-            RCErrorContainer *errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+                                                        code:RCUnknownError
+                                                    userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
+            errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
+
+        // Send error if present
+        if (errorContainer != nil) {
             NSDictionary *response = @{@"error": errorContainer.info};
-            [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
+            [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
             return;
         }
 
-        [RCCommonFunctionality purchasePackage:packageIdentifier
-                                presentedOfferingContext:presentedOfferingContextDict
-                                winBackOfferID:winBackOfferIdentifier
-                               completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
-            NSMutableDictionary *response;
-            if (error) {
-                response = [NSMutableDictionary new];
-                response[@"error"] = error.info;
-                response[@"userCancelled"] = error.info[@"userCancelled"];
-            } else {
-                response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-                response[@"userCancelled"] = false;
-            }
-            [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
-        }];
-    } else {
-        NSLog(@"[Purchases] Warning: Win-back offers are only available on iOS 18.0 or greater.");
-        NSDictionary *response = [self createWinBackOffersUnavailableError];
+        // Send response dictionary if present
+        NSArray *offers = eligibleWinBackOffers ?: @[];
+        NSDictionary *response = @{@"eligibleWinBackOffers": offers};
+        [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
+    }];
+}
+
+- (void)purchaseProductWithWinBackOffer:(NSString *)productIdentifier winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
+    // Checking for win-back offer API availability in the current OS is handled at the PHC level.
+    [RCCommonFunctionality purchaseProduct:productIdentifier
+                            winBackOfferID:winBackOfferIdentifier
+                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response;
+        if (error) {
+            response = [NSMutableDictionary new];
+            response[@"error"] = error.info;
+            response[@"userCancelled"] = error.info[@"userCancelled"];
+        } else {
+            response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
+            response[@"userCancelled"] = false;
+        }
+        [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
+    }];
+}
+
+- (void)purchasePackageWithWinBackOffer:(NSString *)packageIdentifier presentedOfferingContextJson:(NSString *)presentedOfferingContextJson winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
+    NSError *jsonError = nil;
+    NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *presentedOfferingContextDict = [NSJSONSerialization JSONObjectWithData:jsonData 
+                                                                            options:0 
+                                                                                error:&jsonError];
+    if (jsonError) {
+        NSLog(@"Error parsing presentedOfferingContext JSON: %@ %@", presentedOfferingContextJson, jsonError.localizedDescription);
+        NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                    code:jsonError
+                                                userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse presentedOfferingContext"}];
+        RCErrorContainer *errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        NSDictionary *response = @{@"error": errorContainer.info};
         [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
         return;
     }
+
+    // Checking for win-back offer API availability in the current OS is handled at the PHC level.
+    [RCCommonFunctionality purchasePackage:packageIdentifier
+                            presentedOfferingContext:presentedOfferingContextDict
+                            winBackOfferID:winBackOfferIdentifier
+                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response;
+        if (error) {
+            response = [NSMutableDictionary new];
+            response[@"error"] = error.info;
+            response[@"userCancelled"] = error.info[@"userCancelled"];
+        } else {
+            response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
+            response[@"userCancelled"] = false;
+        }
+        [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
+    }];
 }
 
 - (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
