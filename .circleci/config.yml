@@ -46,7 +46,7 @@ executors:
       - image: unityci/editor:2021.3.3f1-android-1
   unity-ios:
     docker:
-      - image: unityci/editor:2021.3.3f1-ios-3
+      - image: unityci/editor:2021.3.3f1-ios-2
 
 parameters:
    action:
@@ -286,7 +286,7 @@ jobs:
   archive-ios:
     description: "Run iOS integration tests for Unity"
     macos:
-      xcode: 16.2.0
+      xcode: 15.4.0
     steps:
       - checkout
       - attach_workspace:
