@@ -249,22 +249,23 @@ public class PurchasesAPITests : MonoBehaviour
         // Purchasing win-back offers with a product
         purchases.GetProducts(new[] { "product_id" }, (products, error) =>
         {
-        purchases.GetEligibleWinBackOffersForProduct(products[0], (winBackOffers, error) =>
+            purchases.GetEligibleWinBackOffersForProduct(products[0], (winBackOffers, error2) =>
             {
-                purchases.PurchaseProductWithWinBackOffer(product, winBackOffers[0], (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                purchases.PurchaseProductWithWinBackOffer(products[0], winBackOffers[0], 
+                    (productIdentifier, customerInfo, userCancelled, purchaseError) =>
                 {
                 });
-            }
-        )
-        );
+            });
+        });
 
         // Purchasing win-back offers with a package
         purchases.GetOfferings((offerings, error) =>
         {
             Package package = offerings.Current.AvailablePackages.First();
-            purchases.GetEligibleWinBackOffersForPackage(package, (winBackOffers, error) =>
+            purchases.GetEligibleWinBackOffersForPackage(package, (winBackOffers, error2) =>
             {
-                purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0], (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0], 
+                    (productIdentifier, customerInfo, userCancelled, purchaseError) =>
                 {
                 });
             });
