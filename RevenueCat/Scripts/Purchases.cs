@@ -1303,10 +1303,6 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetEligibleWinBackOffersForPackage(package);
     }
 
-    public delegate void PurchaseProductWithWinBackOfferFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled, Error error);
-
-    private PurchaseProductWithWinBackOfferFunc PurchaseProductWithWinBackOfferCallback { get; set; }
-
     /// <summary>
     /// Purchase a product with a win-back offer. Only available on iOS 18.0+ with StoreKit 2.
     /// Returns an error if the platform is not iOS 18.0+ or if StoreKit 2 is not used.
@@ -1314,15 +1310,11 @@ public partial class Purchases : MonoBehaviour
     /// <param name="storeProduct">The Purchases.StoreProduct to purchase</param>
     /// <param name="winBackOffer">The Purchases.WinBackOffer to use</param>
     /// <param name="callback">A callback receiving the product identifier, customer info, user cancellation, and an error if the purchase fails</param>
-    public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer, PurchaseProductWithWinBackOfferFunc callback)
+    public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer, MakePurchaseFunc callback)
     {
-        PurchaseProductWithWinBackOfferCallback = callback;
+        MakePurchaseCallback = callback;
         _wrapper.PurchaseProductWithWinBackOffer(storeProduct, winBackOffer);
     }
-
-    public delegate void PurchasePackageWithWinBackOfferFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled, Error error);
-
-    private PurchasePackageWithWinBackOfferFunc PurchasePackageWithWinBackOfferCallback { get; set; }
 
     /// <summary>
     /// Purchase a package with a win-back offer. Only available on iOS 18.0+ with StoreKit 2.
@@ -1331,9 +1323,9 @@ public partial class Purchases : MonoBehaviour
     /// <param name="package">The Purchases.Package to purchase</param>
     /// <param name="winBackOffer">The Purchases.WinBackOffer to use</param>
     /// <param name="callback">A callback receiving the product identifier, customer info, user cancellation, and an error if the purchase fails</param>
-    public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer, PurchasePackageWithWinBackOfferFunc callback)
+    public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer, MakePurchaseFunc callback)
     {
-        PurchasePackageWithWinBackOfferCallback = callback;
+        MakePurchaseCallback = callback;
         _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer);
     }
 
@@ -1676,7 +1668,6 @@ public partial class Purchases : MonoBehaviour
             foreach (JSONNode offerResponse in response["eligibleWinBackOffers"])
             {
                 var offer = new WinBackOffer(offerResponse);
-                Debug.Log("WinBackOffer print out: " + offer.ToString());
                 winBackOffers.Add(offer);
             }
 
@@ -1717,44 +1708,44 @@ public partial class Purchases : MonoBehaviour
     {
         Debug.Log("_purchaseProductWithWinBackOffer " + purchaseProductWithWinBackOfferJson);
 
-        if (PurchaseProductWithWinBackOfferCallback == null) return;
+        if (MakePurchaseCallback == null) return;
 
         var response = JSON.Parse(purchaseProductWithWinBackOfferJson);
 
         if (ResponseHasError(response))
         {
-            PurchaseProductWithWinBackOfferCallback(null, null, response["userCancelled"], new Error(response["error"]));
+            MakePurchaseCallback(null, null, response["userCancelled"], new Error(response["error"]));
         }
         else
         {
             var info = new CustomerInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
-            PurchaseProductWithWinBackOfferCallback(productIdentifier, info, false, null);
+            MakePurchaseCallback(productIdentifier, info, false, null);
         }
 
-        PurchaseProductWithWinBackOfferCallback = null;
+        MakePurchaseCallback = null;
     }
 
     private void _purchasePackageWithWinBackOffer(string purchasePackageWithWinBackOfferJson)
     {
         Debug.Log("_purchasePackageWithWinBackOffer " + purchasePackageWithWinBackOfferJson);
 
-        if (PurchasePackageWithWinBackOfferCallback == null) return;
+        if (MakePurchaseCallback == null) return;
 
         var response = JSON.Parse(purchasePackageWithWinBackOfferJson);
 
         if (ResponseHasError(response))
         {
-            PurchasePackageWithWinBackOfferCallback(null, null, response["userCancelled"], new Error(response["error"]));
+            MakePurchaseCallback(null, null, response["userCancelled"], new Error(response["error"]));
         }
         else
         {
             var info = new CustomerInfo(response["customerInfo"]);
             var packageIdentifier = response["packageIdentifier"];
-            PurchasePackageWithWinBackOfferCallback(packageIdentifier, info, false, null);
+            MakePurchaseCallback(packageIdentifier, info, false, null);
         }
 
-        PurchasePackageWithWinBackOfferCallback = null;
+        MakePurchaseCallback = null;
     }
 
     private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)
