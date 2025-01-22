@@ -450,16 +450,17 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
                                                         completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
 
+        RCErrorContainer *finalErrorContainer = errorContainer;
         if (eligibleWinBackOffers == nil && errorContainer == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
                                                             code:RCUnknownError
                                                         userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
-            errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+            finalErrorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
         }
 
         // Send error if present
-        if (errorContainer != nil) {
-            NSDictionary *response = @{@"error": errorContainer.info};
+        if (finalErrorContainer != nil) {
+            NSDictionary *response = @{@"error": finalErrorContainer.info};
             [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
             return;
         }
@@ -477,16 +478,17 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
                                                         completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
 
+        RCErrorContainer *finalErrorContainer = errorContainer;
         if (eligibleWinBackOffers == nil && errorContainer == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
                                                         code:RCUnknownError
                                                     userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
-            errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+            finalErrorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
         }
 
         // Send error if present
-        if (errorContainer != nil) {
-            NSDictionary *response = @{@"error": errorContainer.info};
+        if (finalErrorContainer != nil) {
+            NSDictionary *response = @{@"error": finalErrorContainer.info};
             [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
             return;
         }
