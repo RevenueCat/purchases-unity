@@ -614,6 +614,8 @@ public class PurchasesWrapper {
         sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT);
     }
 
+    // This function accepts a product identifier since the PHC code only fetches
+    // eligible win-back offers for products
     public static void getEligibleWinBackOffersForPackage(String productIdentifier) {
         // NOOP
         PurchasesError error = new PurchasesError(
