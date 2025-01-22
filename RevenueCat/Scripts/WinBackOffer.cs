@@ -3,7 +3,7 @@ using RevenueCat.SimpleJSON;
 public partial class Purchases
 {
     /// <summary>
-    /// iOS only. Describes a win-back offer that you configured in App Store Connect.
+    /// iOS only. Requires StoreKit 2 and iOS 18.0+. Describes a win-back offer that you configured in App Store Connect.
     /// </summary>
     public class WinBackOffer
     {
