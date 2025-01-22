@@ -627,20 +627,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     };
 }
 
-- (NSDictionary *)createWinBackOffersUnavailableError {
-    RCPurchasesErrorCode error = RCUnsupportedError;
-    
-    NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                  code:error
-                                              userInfo:@{
-        NSLocalizedDescriptionKey: @"Win-back offers are only available on iOS 18.0 or greater.",
-    }];
-    RCErrorContainer *errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{
-        @"readableErrorCode": @"UNAVAILABLE",
-    }];
-    return @{@"error": errorContainer.info};
-}
-
 - (NSString *)platformFlavor {
     return @"unity";
 }
