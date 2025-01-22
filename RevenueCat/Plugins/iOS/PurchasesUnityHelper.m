@@ -448,13 +448,13 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)getEligibleWinBackOffersForProduct:(NSString *)productIdentifier {
     // Checking for win-back offer APIs being available in the current OS is handled at the PHC level.
     [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
-                                                        completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
+                                                     completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
 
         RCErrorContainer *finalErrorContainer = errorContainer;
         if (eligibleWinBackOffers == nil && errorContainer == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                            code:RCUnknownError
-                                                        userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
             finalErrorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
         }
 
@@ -476,13 +476,13 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)getEligibleWinBackOffersForPackage:(NSString *)productIdentifier {
     // Checking for win-back offer API availability in the current OS is handled at the PHC level.
     [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
-                                                        completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
+                                                     completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
 
         RCErrorContainer *finalErrorContainer = errorContainer;
         if (eligibleWinBackOffers == nil && errorContainer == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                        code:RCUnknownError
-                                                    userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are nil"}];
             finalErrorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
         }
 
@@ -504,7 +504,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     // Checking for win-back offer API availability in the current OS is handled at the PHC level.
     [RCCommonFunctionality purchaseProduct:productIdentifier
                             winBackOfferID:winBackOfferIdentifier
-                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+                           completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
         if (error) {
             response = [NSMutableDictionary new];
@@ -521,14 +521,14 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)purchasePackageWithWinBackOffer:(NSString *)packageIdentifier presentedOfferingContextJson:(NSString *)presentedOfferingContextJson winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
     NSError *jsonError = nil;
     NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *presentedOfferingContextDict = [NSJSONSerialization JSONObjectWithData:jsonData 
-                                                                            options:0 
-                                                                                error:&jsonError];
+    NSDictionary *presentedOfferingContextDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                                 options:0
+                                                                                   error:&jsonError];
     if (jsonError) {
         NSLog(@"Error parsing presentedOfferingContext JSON: %@ %@", presentedOfferingContextJson, jsonError.localizedDescription);
         NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
-                                                    code:jsonError
-                                                userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse presentedOfferingContext"}];
+                                                      code:jsonError
+                                                  userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse presentedOfferingContext"}];
         RCErrorContainer *errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
         NSDictionary *response = @{@"error": errorContainer.info};
         [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
@@ -537,9 +537,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
     // Checking for win-back offer API availability in the current OS is handled at the PHC level.
     [RCCommonFunctionality purchasePackage:packageIdentifier
-                            presentedOfferingContext:presentedOfferingContextDict
+                  presentedOfferingContext:presentedOfferingContextDict
                             winBackOfferID:winBackOfferIdentifier
-                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+                           completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response;
         if (error) {
             response = [NSMutableDictionary new];
@@ -917,8 +917,8 @@ void _RCShowInAppMessages(const char *messagesJSON) {
 
     NSData *data = [convertCString(messagesJSON) dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *messagesDictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                           options:0
-                                                                             error:&error];
+                                                                       options:0
+                                                                         error:&error];
 
     if (error) {
         NSLog(@"Error parsing JSON: %s %@", messagesJSON, error.localizedDescription);
