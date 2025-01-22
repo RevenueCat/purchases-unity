@@ -549,7 +549,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = false;
         }
-        [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
+        [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
     }];
 }
 
