@@ -787,18 +787,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             else if (products != null)
             {
                 var product = products[0];
-                infoLabel.text = $"Got product: {product}";
-                purchases.PurchaseProduct(product.Identifier, (identifier, customerInfo, cancelled, purchaseError) =>
-                {
-                    if (purchaseError != null)
-                    {
-                        LogError(purchaseError);
-                    }
-                    else
-                    {
-                        infoLabel.text = $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
-                    }
-                });
+                PurchaseProductButtonClicked(product);
             }
             else
             {
@@ -885,19 +874,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             else
             {
                 var package = offerings.Current.AvailablePackages.First();
-                infoLabel.text = $"Got package: {package}";
-                purchases.PurchasePackage(package, (identifier, customerInfo, cancelled, purchaseError) =>
-                {
-                    if (purchaseError != null)
-                    {
-                        LogError(purchaseError);
-                        return;
-                    }
-                    else
-                    {
-                        infoLabel.text = $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
-                    }
-                });
+                PurchasePackageButtonClicked(package);
             }
         });
     }
