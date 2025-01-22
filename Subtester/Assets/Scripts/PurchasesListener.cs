@@ -775,6 +775,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     void PurchaseProductForWinBackTesting()
     {
+        LogWinBackOfferTestingInstructions();
         var purchases = GetComponent<Purchases>();
         purchases.GetProducts(new[] { "com.revenuecat.monthly_4.99.1_week_intro" }, (products, error) =>
         {
@@ -808,6 +809,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     void FetchAndRedeemWinBackForProduct()
     {
+        LogWinBackOfferTestingInstructions();
         var purchases = GetComponent<Purchases>();
         purchases.GetProducts(new[] { "com.revenuecat.monthly_4.99.1_week_intro" }, (products, error) =>
         {
@@ -870,6 +872,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     void PurchasePackageForWinBackTesting()
     {
+        LogWinBackOfferTestingInstructions();
         var purchases = GetComponent<Purchases>();
         purchases.GetOfferings((offerings, error) =>
         {
@@ -900,6 +903,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     void FetchAndRedeemWinBackForPackage()
     {
+        LogWinBackOfferTestingInstructions();
         var purchases = GetComponent<Purchases>();
         purchases.GetOfferings((offerings, error) =>
         {
@@ -953,6 +957,11 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 });
             }
         });
+    }
+
+    void LogWinBackOfferTestingInstructions()
+    {
+        Debug.Log("To test win-back offers, add Subtester/SKConfig.storekit to your Xcode project, ensure that it is selected in the scheme, and run the app on an iOS 18.0+ device/simulator with StoreKit 2 enabled.");
     }
 
     void GetAmazonLWAConsentStatus()
