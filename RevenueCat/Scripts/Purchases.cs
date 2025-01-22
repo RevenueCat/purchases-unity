@@ -252,8 +252,9 @@ public partial class Purchases : MonoBehaviour
 
     /// <summary>
     /// Callback type for methods that make purchases, like <see cref="Purchases.PurchaseProduct"/>,\n
-    /// <see cref="Purchases.PurchaseDiscountedProduct"/>, <see cref="Purchases.PurchasePackage"/> and \n
-    /// <see cref="Purchases.PurchaseDiscountedPackage"/>.
+    /// <see cref="Purchases.PurchaseDiscountedProduct"/>, <see cref="Purchases.PurchasePackage"/>, \n
+    /// <see cref="Purchases.PurchaseDiscountedPackage"/>, <see cref="Purchases.PurchaseProductWithWinBackOffer"/>, \n
+    /// and <see cref="Purchases.PurchasePackageWithWinBackOffer"/>.
     /// </summary>
     ///
     /// <param name="productIdentifier"> The product identifier for which the purchase was attempted.</param>

@@ -847,6 +847,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                                 if (purchaseError != null)
                                 {
                                     LogError(purchaseError);
+                                    Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
                                     return;
                                 }
                                 else
@@ -940,6 +941,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                                     if (purchaseError != null)
                                     {
                                         LogError(purchaseError);
+                                        Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
                                         return;
                                     }
                                     else
