@@ -1742,8 +1742,8 @@ public partial class Purchases : MonoBehaviour
         else
         {
             var info = new CustomerInfo(response["customerInfo"]);
-            var packageIdentifier = response["packageIdentifier"];
-            MakePurchaseCallback(packageIdentifier, info, false, null);
+            var productIdentifier = response["productIdentifier"];
+            MakePurchaseCallback(productIdentifier, info, false, null);
         }
 
         MakePurchaseCallback = null;
