@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import com.revenuecat.purchases.CustomerInfo;
 import com.revenuecat.purchases.DangerousSettings;
 import com.revenuecat.purchases.Purchases;
+import com.revenuecat.purchases.PurchasesError;
+import com.revenuecat.purchases.PurchasesErrorCode;
 import com.revenuecat.purchases.Store;
 import com.revenuecat.purchases.common.PlatformInfo;
 import com.revenuecat.purchases.hybridcommon.CommonKt;
@@ -19,6 +21,7 @@ import com.revenuecat.purchases.hybridcommon.OnResultList;
 import com.revenuecat.purchases.hybridcommon.SubscriberAttributesKt;
 import com.revenuecat.purchases.hybridcommon.mappers.CustomerInfoMapperKt;
 import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
+import com.revenuecat.purchases.hybridcommon.mappers.PurchasesErrorKt;
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener;
 import com.revenuecat.purchases.models.InAppMessageType;
 import com.unity3d.player.UnityPlayer;
@@ -50,7 +53,10 @@ public class PurchasesWrapper {
     private static final String SYNC_PURCHASES = "_syncPurchases";
     private static final String PARSE_AS_WEB_PURCHASE_REDEMPTION = "_parseAsWebPurchaseRedemption";
     private static final String REDEEM_WEB_PURCHASE = "_redeemWebPurchase";
-
+    private static final String GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = "_getEligibleWinBackOffersForProduct";
+    private static final String GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = "_getEligibleWinBackOffersForPackage";
+    private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
+    private static final String PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = "_purchasePackageWithWinBackOffer";
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
@@ -594,6 +600,52 @@ public class PurchasesWrapper {
                 sendError(errorContainer, REDEEM_WEB_PURCHASE);
             }
         });
+    }
+
+    public static void getEligibleWinBackOffersForProduct(String productIdentifier) {
+        // NOOP
+        PurchasesError error = new PurchasesError(
+                PurchasesErrorCode.UnsupportedError,
+                "Win-back offers are not supported on Android.");
+
+        ErrorContainer errorContainer = PurchasesErrorKt.map(
+                error,
+                new HashMap<>());
+        sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT);
+    }
+
+    // This function accepts a product identifier since the PHC code only fetches
+    // eligible win-back offers for products
+    public static void getEligibleWinBackOffersForPackage(String productIdentifier) {
+        // NOOP
+        PurchasesError error = new PurchasesError(
+                PurchasesErrorCode.UnsupportedError,
+                "Win-back offers are not supported on Android.");
+
+        ErrorContainer errorContainer = PurchasesErrorKt.map(
+                error,
+                new HashMap<>());
+        sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE);
+    }
+
+    public static void purchaseProductWithWinBackOffer(String productIdentifier, String winBackOfferIdentifier) {
+        // NOOP
+        PurchasesError error = new PurchasesError(
+                PurchasesErrorCode.UnsupportedError,
+                "Win-back offers are not supported on Android.");
+
+        ErrorContainer errorContainer = PurchasesErrorKt.map(error, new HashMap<>());
+        sendError(errorContainer, PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER);
+    }
+
+    public static void purchasePackageWithWinBackOffer(String packageIdentifier, String presentedOfferingContextJson, String winBackOfferIdentifier) {
+        // NOOP
+        PurchasesError error = new PurchasesError(
+                PurchasesErrorCode.UnsupportedError,
+                "Win-back offers are not supported on Android.");
+
+        ErrorContainer errorContainer = PurchasesErrorKt.map(error, new HashMap<>());
+        sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER);
     }
 
     private static void logJSONException(JSONException e) {

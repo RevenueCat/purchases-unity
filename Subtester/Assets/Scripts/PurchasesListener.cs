@@ -58,6 +58,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateProrationModeButtons();
         CreatePurchasePackageButtons();
         CreatePurchasePackageForPlacementButtons();
+        CreateButton("Purchase Product For WinBack Testing", PurchaseProductForWinBackTesting);
+        CreateButton("Fetch & Redeem WinBack for Product", FetchAndRedeemWinBackForProduct);
+        CreateButton("Purchase Package For WinBack Testing", PurchasePackageForWinBackTesting);
+        CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -767,6 +771,176 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var purchases = GetComponent<Purchases>();
         purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
         Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic, Purchases.InAppMessageType.WinBackOffer });
+    }
+
+    void PurchaseProductForWinBackTesting()
+    {
+        LogWinBackOfferTestingInstructions();
+        var purchases = GetComponent<Purchases>();
+        purchases.GetProducts(new[] { "com.revenuecat.monthly_4.99.1_week_intro" }, (products, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+                return;
+            }
+            else if (products != null)
+            {
+                var product = products[0];
+                PurchaseProductButtonClicked(product);
+            }
+            else
+            {
+                infoLabel.text = "No product found";
+            }
+        });
+    }
+
+    void FetchAndRedeemWinBackForProduct()
+    {
+        LogWinBackOfferTestingInstructions();
+        var purchases = GetComponent<Purchases>();
+        purchases.GetProducts(new[] { "com.revenuecat.monthly_4.99.1_week_intro" }, (products, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+                return;
+            }
+            else if (products != null)
+            {
+                var product = products[0];
+                infoLabel.text = $"Got product: {product}";
+                purchases.GetEligibleWinBackOffersForProduct(product, (winBackOffers, error) =>
+                {
+                    if (error != null)
+                    {
+                        LogError(error);
+                        return;
+                    }
+                    else
+                    {
+                        if (winBackOffers != null && winBackOffers.Length > 0)
+                        {
+                            Debug.Log("Win-back offers: " + winBackOffers);
+                            // Print the eligible win-back offers
+                            string offerText = "Eligible win-back offers:\n";
+                            foreach (var offer in winBackOffers)
+                            {
+                                offerText += $"- {offer.Identifier}\n";
+                            }
+                            infoLabel.text = offerText;
+
+                            purchases.PurchaseProductWithWinBackOffer(product, winBackOffers[0], (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                            {
+                                if (purchaseError != null)
+                                {
+                                    LogError(purchaseError);
+                                    Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                    return;
+                                }
+                                else
+                                {
+                                    infoLabel.text = $"Purchase of {productIdentifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                    Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            infoLabel.text = "No eligible win-back offers found";
+                        }
+                    }
+                });
+            }
+            else
+            {
+                infoLabel.text = "No product found";
+            }
+        });
+    }
+
+    void PurchasePackageForWinBackTesting()
+    {
+        LogWinBackOfferTestingInstructions();
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+                return;
+            }
+            else
+            {
+                var package = offerings.Current.AvailablePackages.First();
+                PurchasePackageButtonClicked(package);
+            }
+        });
+    }
+
+    void FetchAndRedeemWinBackForPackage()
+    {
+        LogWinBackOfferTestingInstructions();
+        var purchases = GetComponent<Purchases>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                LogError(error);
+            }
+            else
+            {
+                var package = offerings.Current.AvailablePackages.First();
+                infoLabel.text = $"Got package: {package}";
+                purchases.GetEligibleWinBackOffersForPackage(package, (winBackOffers, error) =>
+                {
+                    if (error != null)
+                    {
+                        LogError(error);
+                        return;
+                    }
+                    else
+                    {
+                        if (winBackOffers != null && winBackOffers.Length > 0)
+                        {
+                            // Print the eligible win-back offers
+                            string offerText = "Eligible win-back offers:\n";
+                            foreach (var offer in winBackOffers)
+                            {
+                                offerText += $"- {offer.Identifier}\n";
+                            }
+                            infoLabel.text = offerText;
+
+                            purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0],
+                                (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                                {
+                                    if (purchaseError != null)
+                                    {
+                                        LogError(purchaseError);
+                                        Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        infoLabel.text = $"Purchase of {productIdentifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                        Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                    }
+                                });
+                        }
+                        else
+                        {
+                            infoLabel.text = "No eligible win-back offers found";
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    void LogWinBackOfferTestingInstructions()
+    {
+        Debug.Log("To test win-back offers, add Subtester/SKConfig.storekit to your Xcode project, ensure that it is selected in the scheme, and run the app on an iOS 18.0+ device/simulator with StoreKit 2 enabled.");
     }
 
     void GetAmazonLWAConsentStatus()

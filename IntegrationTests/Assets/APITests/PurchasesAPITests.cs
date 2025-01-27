@@ -244,5 +244,31 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.ShowInAppMessages(new Purchases.InAppMessageType[] { Purchases.InAppMessageType.BillingIssue,
             Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic, Purchases.InAppMessageType.WinBackOffer });
         purchases.ShowInAppMessages();
+
+        // Win-back offer API tests
+        // Purchasing win-back offers with a product
+        purchases.GetProducts(new[] { "product_id" }, (products, error) =>
+        {
+            purchases.GetEligibleWinBackOffersForProduct(products[0], (winBackOffers, error2) =>
+            {
+                purchases.PurchaseProductWithWinBackOffer(products[0], winBackOffers[0], 
+                    (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                {
+                });
+            });
+        });
+
+        // Purchasing win-back offers with a package
+        purchases.GetOfferings((offerings, error) =>
+        {
+            Purchases.Package package = offerings.Current.AvailablePackages.First();
+            purchases.GetEligibleWinBackOffersForPackage(package, (winBackOffers, error2) =>
+            {
+                purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0], 
+                    (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                {
+                });
+            });
+        });
     }
 }
