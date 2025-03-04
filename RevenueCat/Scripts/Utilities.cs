@@ -1,3 +1,4 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,19 @@ namespace RevenueCat
         {
             var items = list.Select(arg => $"{arg.ToString()}");
             return $"{{ \n { string.Join(Environment.NewLine, items) }\n }} \n";
+        }
+
+        internal static DateTime? FromISO8601(string iso8601)
+        {
+            if (iso8601 == null) {
+                return null;
+            }
+            try {
+                return DateTime.Parse(iso8601);
+            } catch (FormatException e) {
+                Debug.Log($"Error parsing ISO8601 date: {e.Message}");
+                return null;
+            }
         }
     }
 }
