@@ -22,6 +22,7 @@ namespace DefaultNamespace
             string originalApplicationVersion = customerInfo.OriginalApplicationVersion;
             string managementURL = customerInfo.ManagementURL;
             List<Purchases.StoreTransaction> nonSubscriptionTransactions = customerInfo.NonSubscriptionTransactions;
+            Dictionary<string, Purchases.SubscriptionInfo> subscriptionsByProductIdentifier = customerInfo.SubscriptionsByProductIdentifier;
         }
     }
 }
