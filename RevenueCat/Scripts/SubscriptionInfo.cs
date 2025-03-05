@@ -41,7 +41,7 @@ public partial class Purchases
             Store = response["store"];
             UnsubscribeDetectedAt = FromResponseISO8601String(response, "unsubscribeDetectedAt");
             IsSandbox = response["isSandbox"].AsBool;
-            BillingIssuesDetectedAt = FromResponseISO8601String(response, "billingIssueDetectedAt");
+            BillingIssuesDetectedAt = FromResponseISO8601String(response, "billingIssuesDetectedAt");
             GracePeriodExpiresDate = FromResponseISO8601String(response, "gracePeriodExpiresDate");
             OwnershipType = response["ownershipType"];
             PeriodType = response["periodType"];
