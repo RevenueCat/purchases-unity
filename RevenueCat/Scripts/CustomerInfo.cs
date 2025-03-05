@@ -34,6 +34,7 @@ public partial class Purchases
         [CanBeNull] public string OriginalApplicationVersion;
         [CanBeNull] public string ManagementURL;
         public List<StoreTransaction> NonSubscriptionTransactions;
+        public Dictionary<string, SubscriptionInfo> SubscriptionsByProductIdentifier;
 
         public CustomerInfo(JSONNode response)
         {
@@ -95,6 +96,14 @@ public partial class Purchases
             {
                 NonSubscriptionTransactions.Add(new StoreTransaction(transactionResponse));
             }
+
+            SubscriptionsByProductIdentifier = new Dictionary<string, SubscriptionInfo>();
+            foreach (var keyValue in response["subscriptionsByProductIdentifier"])
+            {
+                var productID = keyValue.Key;
+                var subscriptionInfoJSON = keyValue.Value;
+                SubscriptionsByProductIdentifier.Add(productID, new SubscriptionInfo(subscriptionInfoJSON));
+            }
         }
 
         public override string ToString()
@@ -111,6 +120,7 @@ public partial class Purchases
                    $"{nameof(OriginalPurchaseDate)}: {OriginalPurchaseDate}\n" +
                    $"{nameof(ManagementURL)}: {ManagementURL}\n" +
                    $"{nameof(NonSubscriptionTransactions)}: {ListToString(NonSubscriptionTransactions)}\n" +
+                   $"{nameof(SubscriptionsByProductIdentifier)}: {DictToString(SubscriptionsByProductIdentifier)}\n" +
                    $"{nameof(OriginalApplicationVersion)}: {OriginalApplicationVersion}";
         }
 
