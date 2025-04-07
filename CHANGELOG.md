@@ -1,3 +1,44 @@
+## 7.6.3
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.28.0 (#581) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 8.16.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.16.0)
+  * [Android 8.15.1](https://github.com/RevenueCat/purchases-android/releases/tag/8.15.1)
+  * [Android 8.15.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.15.0)
+  * [Android 8.14.3](https://github.com/RevenueCat/purchases-android/releases/tag/8.14.3)
+  * [Android 8.14.2](https://github.com/RevenueCat/purchases-android/releases/tag/8.14.2)
+  * [iOS 5.21.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.21.0)
+  * [iOS 5.20.3](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.3)
+  * [iOS 5.20.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.2)
+  * [iOS 5.20.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.1)
+  * [iOS 5.20.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.27.0 (#580) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 8.16.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.16.0)
+  * [Android 8.15.1](https://github.com/RevenueCat/purchases-android/releases/tag/8.15.1)
+  * [Android 8.15.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.15.0)
+  * [Android 8.14.3](https://github.com/RevenueCat/purchases-android/releases/tag/8.14.3)
+  * [Android 8.14.2](https://github.com/RevenueCat/purchases-android/releases/tag/8.14.2)
+  * [iOS 5.21.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.21.0)
+  * [iOS 5.20.3](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.3)
+  * [iOS 5.20.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.2)
+  * [iOS 5.20.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.1)
+  * [iOS 5.20.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.26.1 (#579) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 8.16.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.16.0)
+  * [Android 8.15.1](https://github.com/RevenueCat/purchases-android/releases/tag/8.15.1)
+  * [Android 8.15.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.15.0)
+  * [Android 8.14.3](https://github.com/RevenueCat/purchases-android/releases/tag/8.14.3)
+  * [Android 8.14.2](https://github.com/RevenueCat/purchases-android/releases/tag/8.14.2)
+  * [iOS 5.21.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.21.0)
+  * [iOS 5.20.3](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.3)
+  * [iOS 5.20.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.2)
+  * [iOS 5.20.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.1)
+  * [iOS 5.20.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.20.0)
+
+### 🔄 Other Changes
+* Bump nokogiri from 1.18.3 to 1.18.4 (#578) via dependabot[bot] (@dependabot[bot])
+* Update compatibility versions for Unity IAP 5.0-pre versions (#577) via Toni Rico (@tonidero)
+
 ## 7.6.2
 ## RevenueCat SDK
 ### 📦 Dependency Updates
