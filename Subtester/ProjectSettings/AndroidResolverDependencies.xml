@@ -1,7 +1,7 @@
 <dependencies>
   <packages>
     <package>androidx.annotation:annotation:[1.2.0]</package>
-    <package>com.revenuecat.purchases:purchases-hybrid-common:[13.27.0]</package>
+    <package>com.revenuecat.purchases:purchases-hybrid-common:[13.28.0]</package>
   </packages>
   <files />
   <settings>
