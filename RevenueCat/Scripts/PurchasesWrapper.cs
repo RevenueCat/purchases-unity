@@ -12,6 +12,7 @@ public interface IPurchasesWrapper
         bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
         bool pendingTransactionsForPrepaidPlansEnabled);
 
+    void GetStorefront();
     void GetProducts(string[] productIdentifiers, string type = "subs");
 
     void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,

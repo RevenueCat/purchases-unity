@@ -17,6 +17,10 @@ public partial class Purchases
         {
         }
 
+        public void GetStorefront()
+        {
+        }
+
         public void GetProducts(string[] productIdentifiers, string type = "subs")
         {
         }

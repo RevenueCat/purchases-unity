@@ -11,6 +11,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         public string[] productIdentifiers;
     }
 
+    public void GetStorefront()
+    {
+        CallPurchases("getStorefront");
+    }
+
     public void GetProducts(string[] productIdentifiers, string type = "subs")
     {
         var request = new ProductsRequest

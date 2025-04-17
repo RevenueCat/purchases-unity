@@ -10,6 +10,7 @@
 @import PurchasesHybridCommon;
 @import RevenueCat;
 
+static NSString *const RECEIVE_STOREFRONT = @"_receiveStorefront";
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const RECEIVE_CUSTOMER_INFO = @"_receiveCustomerInfo";
 static NSString *const RESTORE_PURCHASES = @"_restorePurchases";
@@ -113,6 +114,16 @@ shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
             @"products": productObjects
         };
         [self sendJSONObject:response toMethod:RECEIVE_PRODUCTS];
+    }];
+}
+
+- (void)getStorefront {
+    [RCCommonFunctionality getStorefrontWithCompletion:^(NSDictionary *_Nullable responseDictionary) {
+        if (responseDictionary == nil) {
+            [self sendEmptyResponseToMethod:RECEIVE_STOREFRONT];
+        } else {
+            [self sendJSONObject:responseDictionary toMethod:RECEIVE_STOREFRONT];
+        }
     }];
 }
 
@@ -585,6 +596,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 #pragma mark Helper Methods
 
+- (void)sendEmptyResponseToMethod:(NSString *)methodName {
+    UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, "{}");
+}
+
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName {
     NSError *error = nil;
     NSData *responseJSONData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
@@ -666,6 +681,10 @@ void _RCSetupPurchases(const char *gameObject,
                      dangerousSettingsJson:convertCString(dangerousSettingsJson)
       shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                entitlementVerificationMode:convertCString(entitlementVerificationMode)];
+}
+
+void _RCGetStorefront() {
+    [_RCUnityHelperShared() getStorefront];
 }
 
 void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {

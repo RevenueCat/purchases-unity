@@ -29,6 +29,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name());
     }
 
+    [DllImport("__Internal")]
+    private static extern void _RCGetStorefront();
+    public void GetStorefront()
+    {
+        _RCGetStorefront();
+    }
+
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     private class ProductsRequest
     {
