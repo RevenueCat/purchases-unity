@@ -221,6 +221,7 @@ public partial class Purchases : MonoBehaviour
 
     /// <summary>
     /// Fetches the <c>Storefront</c> for the customer's current store account.
+    /// If there is an error, the callback will be called with a null value.
     /// </summary>
     public void GetStorefront(GetStorefrontFunc callback)
     {
