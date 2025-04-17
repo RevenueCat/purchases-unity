@@ -41,6 +41,12 @@ public class PurchasesAPITests : MonoBehaviour
         bool receivedUserCancelled;
         Purchases.LogLevel receivedLogLevel;
         String receivedMessage;
+        Purchases.Storefront? receivedStorefront;
+
+        purchases.GetStorefront((storefront) =>
+        {
+            receivedStorefront = storefront;
+        });
 
         List<Purchases.StoreProduct> receivedProducts = new List<Purchases.StoreProduct>();
 

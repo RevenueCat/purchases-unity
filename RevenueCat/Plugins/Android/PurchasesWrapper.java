@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PurchasesWrapper {
+    private static final String RECEIVE_STOREFRONT = "_receiveStorefront";
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
     private static final String GET_CUSTOMER_INFO = "_getCustomerInfo";
     private static final String MAKE_PURCHASE = "_makePurchase";
@@ -89,6 +90,17 @@ public class PurchasesWrapper {
                 dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
                 pendingTransactionsForPrepaidPlansEnabled);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
+    }
+
+    public static void getStorefront() {
+        CommonKt.getStorefront(storefrontMap -> {
+            if (storefrontMap != null) {
+                sendJSONObject(MappersHelpersKt.convertToJson(storefrontMap), RECEIVE_STOREFRONT);
+            } else {
+                sendEmptyJSONObject(RECEIVE_STOREFRONT);
+            }
+            return null;
+        });
     }
 
     public static void getProducts(String jsonProducts, String type) {
@@ -650,6 +662,10 @@ public class PurchasesWrapper {
 
     private static void logJSONException(JSONException e) {
         Log.e("Purchases", "JSON Error: " + e.getLocalizedMessage());
+    }
+
+    static void sendEmptyJSONObject(String method) {
+        UnityPlayer.UnitySendMessage(gameObject, method, "{}");
     }
 
     static void sendJSONObject(JSONObject object, String method) {

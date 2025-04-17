@@ -62,6 +62,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Fetch & Redeem WinBack for Product", FetchAndRedeemWinBackForProduct);
         CreateButton("Purchase Package For WinBack Testing", PurchasePackageForWinBackTesting);
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
+        CreateButton("Get Storefront", GetStorefront);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -78,6 +79,22 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 prorationMode = mode;
             });
         }
+    }
+
+    private void GetStorefront()
+    {
+        var purchases = GetComponent<Purchases>();
+        purchases.GetStorefront((storefront) =>
+        {
+            if (storefront == null)
+            {
+                infoLabel.text = "Storefront is null";
+            }
+            else
+            {
+                infoLabel.text = "Storefront: " + storefront.CountryCode;
+            }
+        });
     }
 
     private void CreatePurchasePackageButtons()

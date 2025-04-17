@@ -212,6 +212,23 @@ public partial class Purchases : MonoBehaviour
     }
 
     /// <summary>
+    /// Callback type for <see cref="Purchases.GetStorefront"/>.
+    /// Includes the info of the current store account.
+    /// </summary>
+    public delegate void GetStorefrontFunc(Storefront? storefront);
+
+    private GetStorefrontFunc StorefrontCallback { get; set; }
+
+    /// <summary>
+    /// Fetches the <c>Storefront</c> for the customer's current store account.
+    /// </summary>
+    public void GetStorefront(GetStorefrontFunc callback)
+    {
+        StorefrontCallback = callback;
+        _wrapper.GetStorefront();
+    }
+
+    /// <summary>
     /// Callback type for <see cref="Purchases.GetProducts"/>.
     /// Includes a list of products or an error.
     /// </summary>
@@ -1328,6 +1345,34 @@ public partial class Purchases : MonoBehaviour
     {
         MakePurchaseCallback = callback;
         _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer);
+    }
+
+    private void _receiveStorefront(string storefrontJson)
+    {
+        Debug.Log("_receiveStorefront " + storefrontJson);
+
+        if (StorefrontCallback == null) return;
+
+        if (storefrontJson == null || storefrontJson == "{}")
+        {
+            StorefrontCallback(null);
+        }
+        else
+        {
+            var response = JSON.Parse(storefrontJson);
+            var countryCode = response["countryCode"];
+            if (countryCode == null)
+            {
+                Debug.LogError("StorefrontCallback received null countryCode");
+                StorefrontCallback(null);
+            }
+            else 
+            {
+                StorefrontCallback(new Storefront(countryCode));
+            }
+        }
+
+        StorefrontCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
