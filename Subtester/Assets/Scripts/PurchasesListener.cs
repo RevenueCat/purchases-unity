@@ -31,6 +31,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     // Use this for initialization
     private void Start()
     {
+        Debug.Log("=== PurchasesListener Start() called ===");
+        Debug.Log("Setting up RevenueCat test buttons...");
+        
         CreateButton("Get Customer Info", GetCustomerInfo);
         CreateButton("Get Offerings", GetOfferings);
         CreateButton("Get Current Offering For Onboarding Placement", GetCurrentOfferingForPlacement);
@@ -64,9 +67,24 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
         CreateButton("Get Storefront", GetStorefront);
 
+        Debug.Log("Attempting to get Purchases component...");
         var purchases = GetComponent<Purchases>();
+        if (purchases == null)
+        {
+            Debug.LogError("ERROR: No Purchases component found on this GameObject!");
+            Debug.LogError("Make sure the PurchasesManager GameObject has a Purchases component attached.");
+            return;
+        }
+        
+        Debug.Log("Purchases component found! Setting up RevenueCat...");
+        Debug.Log("Parent Panel: " + (parentPanel != null ? "Found" : "NULL - Please assign in Inspector"));
+        Debug.Log("Button Prefab: " + (buttonPrefab != null ? "Found" : "NULL - Please assign in Inspector"));
+        Debug.Log("Info Label: " + (infoLabel != null ? "Found" : "NULL - Please assign in Inspector"));
+        
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.EnableAdServicesAttributionTokenCollection();
+        
+        Debug.Log("=== RevenueCat setup complete ===");
     }
 
     private void CreateProrationModeButtons()
@@ -195,6 +213,20 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private void CreateButton(string label, UnityAction action)
     {
+        Debug.Log("Creating button: " + label);
+        
+        if (buttonPrefab == null)
+        {
+            Debug.LogError("Cannot create button '" + label + "' - buttonPrefab is null!");
+            return;
+        }
+        
+        if (parentPanel == null)
+        {
+            Debug.LogError("Cannot create button '" + label + "' - parentPanel is null!");
+            return;
+        }
+        
         var button = Instantiate(buttonPrefab, parentPanel, false);
         var buttonTransform = (RectTransform)button.transform;
 
