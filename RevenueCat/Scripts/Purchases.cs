@@ -1353,10 +1353,12 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_receiveStorefront " + storefrontJson);
 
         if (StorefrontCallback == null) return;
+        var callback = StorefrontCallback;
+        StorefrontCallback = null;
 
         if (storefrontJson == null || storefrontJson == "{}")
         {
-            StorefrontCallback(null);
+            callback(null);
         }
         else
         {
@@ -1365,15 +1367,13 @@ public partial class Purchases : MonoBehaviour
             if (countryCode == null)
             {
                 Debug.LogError("StorefrontCallback received null countryCode");
-                StorefrontCallback(null);
+                callback(null);
             }
             else 
             {
-                StorefrontCallback(new Storefront(countryCode));
+                callback(new Storefront(countryCode));
             }
         }
-
-        StorefrontCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1384,10 +1384,12 @@ public partial class Purchases : MonoBehaviour
         if (ProductsCallback == null) return;
 
         var response = JSON.Parse(productsJson);
+        var callback = ProductsCallback;
+        ProductsCallback = null;
 
         if (ResponseHasError(response))
         {
-            ProductsCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
@@ -1398,18 +1400,17 @@ public partial class Purchases : MonoBehaviour
                 products.Add(product);
             }
 
-            ProductsCallback(products, null);
+            callback(products, null);
         }
-
-        ProductsCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
     private void _getCustomerInfo(string customerInfoJson)
     {
         Debug.Log("_getCustomerInfo " + customerInfoJson);
-        ReceiveCustomerInfoMethod(customerInfoJson, GetCustomerInfoCallback);
+        var callback = GetCustomerInfoCallback;
         GetCustomerInfoCallback = null;
+        ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1418,22 +1419,22 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_makePurchase " + makePurchaseResponseJson);
 
         if (MakePurchaseCallback == null) return;
+        var callback = MakePurchaseCallback;
+        MakePurchaseCallback = null;
 
         var response = JSON.Parse(makePurchaseResponseJson);
 
         if (ResponseHasError(response))
         {
-            MakePurchaseCallback(null, null, response["userCancelled"],
+            callback(null, null, response["userCancelled"],
                 new Error(response["error"]));
         }
         else
         {
             var info = new CustomerInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
-            MakePurchaseCallback(productIdentifier, info, false, null);
+            callback(productIdentifier, info, false, null);
         }
-
-        MakePurchaseCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1470,31 +1471,35 @@ public partial class Purchases : MonoBehaviour
     private void _restorePurchases(string customerInfoJson)
     {
         Debug.Log("_restorePurchases " + customerInfoJson);
-        ReceiveCustomerInfoMethod(customerInfoJson, RestorePurchasesCallback);
+        var callback = RestorePurchasesCallback;
         RestorePurchasesCallback = null;
+        ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
     private void _syncPurchases(string customerInfoJson)
     {
         Debug.Log("_syncPurchases " + customerInfoJson);
-        ReceiveCustomerInfoMethod(customerInfoJson, SyncPurchasesCallback);
+        var callback = SyncPurchasesCallback;
         SyncPurchasesCallback = null;
+        ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
     // ReSharper disable once UnusedMember.Local
     private void _logIn(string logInResultJson)
     {
         Debug.Log("_logIn " + logInResultJson);
-        ReceiveLogInResultMethod(logInResultJson, LogInCallback);
+        var callback = LogInCallback;
         LogInCallback = null;
+        ReceiveLogInResultMethod(logInResultJson, LogInCallback);
     }
 
     // ReSharper disable once UnusedMember.Local
     private void _logOut(string customerInfoJson)
     {
         Debug.Log("_logOut " + customerInfoJson);
-        ReceiveCustomerInfoMethod(customerInfoJson, LogOutCallback);
+        var callback = LogOutCallback;
         LogOutCallback = null;
+        ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1503,17 +1508,17 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_getOfferings " + offeringsJson);
         if (GetOfferingsCallback == null) return;
         var response = JSON.Parse(offeringsJson);
+        var callback = GetOfferingsCallback;
+        GetOfferingsCallback = null;
         if (ResponseHasError(response))
         {
-            GetOfferingsCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
             var offeringsResponse = response["offerings"];
-            GetOfferingsCallback(new Offerings(offeringsResponse), null);
+            callback(new Offerings(offeringsResponse), null);
         }
-
-        GetOfferingsCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1521,17 +1526,17 @@ public partial class Purchases : MonoBehaviour
     {
         if (GetCurrentOfferingForPlacementCallback == null) return;
         var response = JSON.Parse(offeringJson);
+        var callback = GetCurrentOfferingForPlacementCallback;
+        GetCurrentOfferingForPlacementCallback = null;
         if (ResponseHasError(response))
         {
-            GetCurrentOfferingForPlacementCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
             var offeringResponse = response["offering"];
-            GetCurrentOfferingForPlacementCallback(new Offering(offeringResponse), null);
+            callback(new Offering(offeringResponse), null);
         }
-
-        GetCurrentOfferingForPlacementCallback = null;
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1539,17 +1544,17 @@ public partial class Purchases : MonoBehaviour
     {
         if (SyncAttributesAndOfferingsIfNeededCallback == null) return;
         var response = JSON.Parse(offeringsJson);
+        var callback = SyncAttributesAndOfferingsIfNeededCallback;
+        SyncAttributesAndOfferingsIfNeededCallback = null;
         if (ResponseHasError(response))
         {
-            SyncAttributesAndOfferingsIfNeededCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
             var offeringsResponse = response["offerings"];
-            SyncAttributesAndOfferingsIfNeededCallback(new Offerings(offeringsResponse), null);
+            callback(new Offerings(offeringsResponse), null);
         }
-
-        SyncAttributesAndOfferingsIfNeededCallback = null;
     }
 
     private void _checkTrialOrIntroductoryPriceEligibility(string json)
@@ -1565,9 +1570,11 @@ public partial class Purchases : MonoBehaviour
             dictionary[keyValuePair.Key] = new IntroEligibility(keyValuePair.Value);
         }
 
-        CheckTrialOrIntroductoryPriceEligibilityCallback(dictionary);
-
+        var callback = CheckTrialOrIntroductoryPriceEligibilityCallback;
         CheckTrialOrIntroductoryPriceEligibilityCallback = null;
+
+        callback(dictionary);
+
     }
 
     private void _recordPurchase(string json)
@@ -1577,19 +1584,19 @@ public partial class Purchases : MonoBehaviour
         if (RecordPurchaseCallback == null) return;
 
         var response = JSON.Parse(json);
+        var callback = RecordPurchaseCallback;
+        RecordPurchaseCallback = null;
 
         if (ResponseHasError(response))
         {
-            RecordPurchaseCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
             var transaction = new StoreTransaction(response["transaction"]);
 
-            RecordPurchaseCallback(transaction, null);
+            callback(transaction, null);
         }
-
-        RecordPurchaseCallback = null;
     }
 
     private void _canMakePayments(string canMakePaymentsJson)
@@ -1599,18 +1606,18 @@ public partial class Purchases : MonoBehaviour
         if (CanMakePaymentsCallback == null) return;
 
         var response = JSON.Parse(canMakePaymentsJson);
+        var callback = CanMakePaymentsCallback;
+        CanMakePaymentsCallback = null;
 
         if (ResponseHasError(response))
         {
-            CanMakePaymentsCallback(false, new Error(response["error"]));
+            callback(false, new Error(response["error"]));
         }
         else
         {
             var canMakePayments = response["canMakePayments"];
-            CanMakePaymentsCallback(canMakePayments, null);
+            callback(canMakePayments, null);
         }
-
-        CanMakePaymentsCallback = null;
     }
 
     private void _getAmazonLWAConsentStatus(string getAmazonLWAConsentStatusJson)
@@ -1620,18 +1627,19 @@ public partial class Purchases : MonoBehaviour
         if (GetAmazonLWAConsentStatusCallback == null) return;
 
         var response = JSON.Parse(getAmazonLWAConsentStatusJson);
+        var callback = GetAmazonLWAConsentStatusCallback;
+        GetAmazonLWAConsentStatusCallback = null;
 
         if (ResponseHasError(response))
         {
-            GetAmazonLWAConsentStatusCallback(false, new Error(response["error"]));
+            callback(false, new Error(response["error"]));
         }
         else
         {
             var amazonLWAConsentStatus = response["amazonLWAConsentStatus"];
-            GetAmazonLWAConsentStatusCallback(amazonLWAConsentStatus, null);
+            callback(amazonLWAConsentStatus, null);
         }
 
-        GetAmazonLWAConsentStatusCallback = null;
     }
 
     private void _getPromotionalOffer(string getPromotionalOfferJson)
@@ -1641,18 +1649,18 @@ public partial class Purchases : MonoBehaviour
         if (GetPromotionalOfferCallback == null) return;
 
         var response = JSON.Parse(getPromotionalOfferJson);
+        var callback = GetPromotionalOfferCallback;
+        GetPromotionalOfferCallback = null;
 
         if (ResponseHasError(response))
         {
-            GetPromotionalOfferCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
             var promotionalOffer = new PromotionalOffer(response);
-            GetPromotionalOfferCallback(promotionalOffer, null);
+            callback(promotionalOffer, null);
         }
-
-        GetPromotionalOfferCallback = null;
     }
 
     private void _parseAsWebPurchaseRedemption(string parseAsWebPurchaseRedemptionJSON)
@@ -1662,18 +1670,18 @@ public partial class Purchases : MonoBehaviour
         if (ParseAsWebPurchaseRedemptionCallback == null) return;
 
         var response = JSON.Parse(parseAsWebPurchaseRedemptionJSON);
+        var callback = ParseAsWebPurchaseRedemptionCallback;
+        ParseAsWebPurchaseRedemptionCallback = null;
 
         if (ResponseHasError(response))
         {
-            ParseAsWebPurchaseRedemptionCallback(null);
+            callback(null);
         }
         else
         {
             var webPurchaseRedemption = new WebPurchaseRedemption(response["redemptionLink"]);
-            ParseAsWebPurchaseRedemptionCallback(webPurchaseRedemption);
+            callback(webPurchaseRedemption);
         }
-
-        ParseAsWebPurchaseRedemptionCallback = null;
     }
 
     private void _redeemWebPurchase(string redeemWebPurchaseJSON)
@@ -1683,18 +1691,18 @@ public partial class Purchases : MonoBehaviour
         if (RedeemWebPurchaseCallback == null) return;
 
         var response = JSON.Parse(redeemWebPurchaseJSON);
+        var callback = RedeemWebPurchaseCallback;
+        RedeemWebPurchaseCallback = null;
 
         if (ResponseHasError(response))
         {
-            RedeemWebPurchaseCallback(null);
+            callback(null);
         }
         else
         {
             var result = WebPurchaseRedemptionResult.FromJson(response);
-            RedeemWebPurchaseCallback(result);
+            callback(result);
         }
-
-        RedeemWebPurchaseCallback = null;
     }
 
     private void _getEligibleWinBackOffersForProduct(string eligibleWinBackOffersJson)
@@ -1704,10 +1712,12 @@ public partial class Purchases : MonoBehaviour
         if (GetEligibleWinBackOffersForProductCallback == null) return;
 
         var response = JSON.Parse(eligibleWinBackOffersJson);
+        var callback = GetEligibleWinBackOffersForProductCallback;
+        GetEligibleWinBackOffersForProductCallback = null;
 
         if (ResponseHasError(response))
         {
-            GetEligibleWinBackOffersForProductCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
@@ -1718,10 +1728,8 @@ public partial class Purchases : MonoBehaviour
                 winBackOffers.Add(offer);
             }
 
-            GetEligibleWinBackOffersForProductCallback(winBackOffers.ToArray(), null);
+            callback(winBackOffers.ToArray(), null);
         }
-
-        GetEligibleWinBackOffersForProductCallback = null;
     }
 
     private void _getEligibleWinBackOffersForPackage(string eligibleWinBackOffersJson)
@@ -1731,10 +1739,12 @@ public partial class Purchases : MonoBehaviour
         if (GetEligibleWinBackOffersForPackageCallback == null) return;
 
         var response = JSON.Parse(eligibleWinBackOffersJson);
+        var callback = GetEligibleWinBackOffersForPackageCallback;
+        GetEligibleWinBackOffersForPackageCallback = null;
 
         if (ResponseHasError(response))
         {
-            GetEligibleWinBackOffersForPackageCallback(null, new Error(response["error"]));
+            callback(null, new Error(response["error"]));
         }
         else
         {
@@ -1745,10 +1755,9 @@ public partial class Purchases : MonoBehaviour
                 winBackOffers.Add(offer);
             }
 
-            GetEligibleWinBackOffersForPackageCallback(winBackOffers.ToArray(), null);
+            callback(winBackOffers.ToArray(), null);
         }
 
-        GetEligibleWinBackOffersForPackageCallback = null;
     }
 
     private void _purchaseProductWithWinBackOffer(string purchaseProductWithWinBackOfferJson)
@@ -1758,19 +1767,20 @@ public partial class Purchases : MonoBehaviour
         if (MakePurchaseCallback == null) return;
 
         var response = JSON.Parse(purchaseProductWithWinBackOfferJson);
+        var callback = MakePurchaseCallback;
+        MakePurchaseCallback = null;
 
         if (ResponseHasError(response))
         {
-            MakePurchaseCallback(null, null, response["userCancelled"], new Error(response["error"]));
+            callback(null, null, response["userCancelled"], new Error(response["error"]));
         }
         else
         {
             var info = new CustomerInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
-            MakePurchaseCallback(productIdentifier, info, false, null);
+            callback(productIdentifier, info, false, null);
         }
 
-        MakePurchaseCallback = null;
     }
 
     private void _purchasePackageWithWinBackOffer(string purchasePackageWithWinBackOfferJson)
@@ -1780,19 +1790,19 @@ public partial class Purchases : MonoBehaviour
         if (MakePurchaseCallback == null) return;
 
         var response = JSON.Parse(purchasePackageWithWinBackOfferJson);
+        var callback = MakePurchaseCallback;
+        MakePurchaseCallback = null;
 
         if (ResponseHasError(response))
         {
-            MakePurchaseCallback(null, null, response["userCancelled"], new Error(response["error"]));
+            callback(null, null, response["userCancelled"], new Error(response["error"]));
         }
         else
         {
             var info = new CustomerInfo(response["customerInfo"]);
             var productIdentifier = response["productIdentifier"];
-            MakePurchaseCallback(productIdentifier, info, false, null);
+            callback(productIdentifier, info, false, null);
         }
-
-        MakePurchaseCallback = null;
     }
 
     private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)
