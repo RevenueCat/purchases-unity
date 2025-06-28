@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kotlin.Unit;
+
 public class PurchasesWrapper {
     private static final String RECEIVE_STOREFRONT = "_receiveStorefront";
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
@@ -68,7 +70,13 @@ public class PurchasesWrapper {
     private static UpdatedCustomerInfoListener listener = new UpdatedCustomerInfoListener() {
         @Override
         public void onReceived(@NonNull CustomerInfo customerInfo) {
-            sendCustomerInfo(CustomerInfoMapperKt.map(customerInfo), RECEIVE_CUSTOMER_INFO);
+            CustomerInfoMapperKt.mapAsync(
+                    customerInfo,
+                    map -> {
+                        sendCustomerInfo(map, RECEIVE_CUSTOMER_INFO);
+                        return Unit.INSTANCE;
+                    }
+            );
         }
     };
 
