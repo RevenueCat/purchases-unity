@@ -1,3 +1,6 @@
 target 'Unity-iPhone' do
+  pod 'PurchasesHybridCommon', '~> 13.32.0'
+  pod 'PurchasesHybridCommonUI', '~> 13.32.0'
   pod 'Purchases'
+  use_frameworks!
 end

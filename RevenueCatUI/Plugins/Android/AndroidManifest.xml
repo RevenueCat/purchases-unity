@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.revenuecat.purchases.ui.unity">
+
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
+    
+    <!-- No activities or services needed for this plugin -->
+    <!-- The plugin only provides utility classes -->
+    
+</manifest> 

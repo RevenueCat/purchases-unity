@@ -2,7 +2,8 @@ allprojects {
     buildscript {
         repositories {**ARTIFACTORYREPOSITORY**
             google()
-            jcenter()
+            mavenCentral()
+            gradlePluginPortal()
         }
 
         dependencies {
@@ -10,14 +11,14 @@ allprojects {
             // See which Gradle version is preinstalled with Unity here https://docs.unity3d.com/Manual/android-gradle-overview.html
             // See official Gradle and Android Gradle Plugin compatibility table here https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
             // To specify a custom Gradle version in Unity, go do "Preferences > External Tools", uncheck "Gradle Installed with Unity (recommended)" and specify a path to a custom Gradle version
-            classpath 'com.android.tools.build:gradle:7.0.2'
+            classpath 'com.android.tools.build:gradle:8.1.1'
             **BUILD_SCRIPT_DEPS**
         }
     }
 
     repositories {**ARTIFACTORYREPOSITORY**
         google()
-        jcenter()
+        mavenCentral()
         flatDir {
             dirs "${project(':unityLibrary').projectDir}/libs"
         }

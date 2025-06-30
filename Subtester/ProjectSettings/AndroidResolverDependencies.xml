@@ -2,10 +2,11 @@
   <packages>
     <package>androidx.annotation:annotation:[1.2.0]</package>
     <package>com.revenuecat.purchases:purchases-hybrid-common:[13.32.0]</package>
+    <package>com.revenuecat.purchases:purchases-hybrid-common-ui:[13.32.0]</package>
   </packages>
   <files />
   <settings>
-    <setting name="androidAbis" value="armeabi-v7a" />
+    <setting name="androidAbis" value="arm64-v8a,armeabi-v7a" />
     <setting name="bundleId" value="com.revenuecat.purchases_sample" />
     <setting name="explodeAars" value="True" />
     <setting name="gradleBuildEnabled" value="True" />
@@ -16,7 +17,9 @@
     <setting name="packageDir" value="Assets/Plugins/Android" />
     <setting name="patchAndroidManifest" value="True" />
     <setting name="patchMainTemplateGradle" value="True" />
-    <setting name="projectExportEnabled" value="True" />
+    <setting name="projectExportEnabled" value="False" />
+    <setting name="useFullCustomMavenRepoPathWhenExport" value="True" />
+    <setting name="useFullCustomMavenRepoPathWhenNotExport" value="False" />
     <setting name="useJetifier" value="True" />
   </settings>
 </dependencies>

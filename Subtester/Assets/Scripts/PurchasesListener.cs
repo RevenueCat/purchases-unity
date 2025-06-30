@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using RevenueCat.UI;
+using System.Threading.Tasks;
 
 public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 {
@@ -58,6 +62,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Get AppUserId", GetAppUserId);
         CreateButton("Show In-App Messages", ShowInAppMessages);
         CreateButton("Get Amazon LWAConsentStatus", GetAmazonLWAConsentStatus);
+        CreateButton("Show Paywall", ShowPaywall);
+        CreateButton("Show Customer Center", ShowCustomerCenter);
         CreateProrationModeButtons();
         CreatePurchasePackageButtons();
         CreatePurchasePackageForPlacementButtons();
@@ -1006,6 +1012,140 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 infoLabel.text = "AmazonLWAConsentStatus: " + status.ToString();
             }
         });
+    }
+
+    async void ShowPaywall()
+    {
+        Debug.Log("=== ShowPaywall button clicked ===");
+        
+        if (!RevenueCatUI.IsSupported())
+        {
+            Debug.LogWarning("❌ RevenueCat UI not supported on this platform");
+            infoLabel.text = "RevenueCat UI not supported on this platform.\n" +
+                           "Build to iOS (15.0+) or Android (API 24+) to test actual functionality.";
+            return;
+        }
+
+        try
+        {
+            Debug.Log("📱 Presenting RevenueCat paywall...");
+            infoLabel.text = "Presenting paywall...";
+            
+            var result = await RevenueCatUI.PresentPaywall();
+            HandlePaywallResult(result);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ Error presenting paywall: {e.Message}");
+            infoLabel.text = $"Error presenting paywall: {e.Message}";
+        }
+    }
+
+    async void ShowCustomerCenter()
+    {
+        Debug.Log("=== ShowCustomerCenter button clicked ===");
+        
+        if (!RevenueCatUI.IsSupported())
+        {
+            Debug.LogWarning("❌ RevenueCat UI not supported on this platform");
+            infoLabel.text = "RevenueCat UI not supported on this platform.\n" +
+                           "Build to iOS (15.0+) or Android (API 24+) to test actual functionality.";
+            return;
+        }
+
+        try
+        {
+            Debug.Log("🏪 Presenting RevenueCat customer center...");
+            infoLabel.text = "Presenting customer center...";
+            
+            await RevenueCatUI.PresentCustomerCenter();
+            Debug.Log("✅ Customer center was dismissed");
+            infoLabel.text = "Customer center was dismissed.\nRefreshing customer info...";
+            
+            // Refresh customer info after customer center interaction
+            await RefreshCustomerInfoAfterCustomerCenter();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ Error presenting customer center: {e.Message}");
+            infoLabel.text = $"Error presenting customer center: {e.Message}";
+        }
+    }
+
+    /// <summary>
+    /// Handle the result of paywall presentations
+    /// </summary>
+    private void HandlePaywallResult(PaywallResult result)
+    {
+        Debug.Log($"Paywall result: {result.Result}");
+        
+        switch (result.Result)
+        {
+            case PaywallResultType.Purchased:
+                Debug.Log("🎉 SUCCESS: User made a purchase!");
+                infoLabel.text = "🎉 Purchase successful!\nRefreshing customer info...";
+                OnPurchaseCompleted();
+                break;
+                
+            case PaywallResultType.Restored:
+                Debug.Log("🔄 SUCCESS: User restored purchases!");
+                infoLabel.text = "🔄 Purchases restored!\nRefreshing customer info...";
+                OnPurchaseCompleted();
+                break;
+                
+            case PaywallResultType.Cancelled:
+                Debug.Log("❌ User cancelled the paywall");
+                infoLabel.text = "❌ User cancelled the paywall";
+                break;
+                
+            case PaywallResultType.Error:
+                Debug.LogError("❌ Error occurred during paywall presentation");
+                infoLabel.text = "❌ Error occurred during paywall presentation";
+                break;
+                
+            case PaywallResultType.NotPresented:
+                Debug.Log("ℹ️ Paywall was not presented (user already has entitlement)");
+                infoLabel.text = "ℹ️ Paywall not shown - user already has access";
+                break;
+                
+            default:
+                Debug.Log($"ℹ️ Paywall result: {result.Result}");
+                infoLabel.text = $"Paywall result: {result.Result}";
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Called when a purchase or restore is completed
+    /// </summary>
+    private void OnPurchaseCompleted()
+    {
+        Debug.Log("🚀 Purchase completed - refreshing customer info!");
+        
+        // Refresh customer info to reflect new purchases
+        GetCustomerInfo();
+    }
+
+    /// <summary>
+    /// Refresh customer info after customer center interactions
+    /// </summary>
+    private async Task RefreshCustomerInfoAfterCustomerCenter()
+    {
+        try
+        {
+            Debug.Log("🔄 Refreshing customer info after customer center...");
+            
+            // Use the existing GetCustomerInfo method
+            GetCustomerInfo();
+            
+            await Task.Delay(1000); // Small delay to let the UI update
+            infoLabel.text += "\n✅ Customer info refreshed";
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ Error refreshing customer info: {e.Message}");
+            infoLabel.text += $"\n❌ Error refreshing: {e.Message}";
+        }
     }
 
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
