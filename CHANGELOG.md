@@ -1,3 +1,17 @@
+## 7.7.5
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.38.1 (#609) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 8.20.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.20.0)
+
+## 7.7.4
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix issue where chained calls to the same methods would cause the inner callback not to be called. (#605) via Toni Rico (@tonidero)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 13.37.0 (#603) via RevenueCat Git Bot (@RCGitBot)
+  * [iOS 5.29.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.29.0)
+
 ## 7.7.3
 ## RevenueCat SDK
 ### 📦 Dependency Updates
