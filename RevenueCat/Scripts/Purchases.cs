@@ -1490,7 +1490,7 @@ public partial class Purchases : MonoBehaviour
         Debug.Log("_logIn " + logInResultJson);
         var callback = LogInCallback;
         LogInCallback = null;
-        ReceiveLogInResultMethod(logInResultJson, LogInCallback);
+        ReceiveLogInResultMethod(logInResultJson, callback);
     }
 
     // ReSharper disable once UnusedMember.Local
