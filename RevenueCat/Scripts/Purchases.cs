@@ -1419,18 +1419,7 @@ public partial class Purchases : MonoBehaviour
         MakePurchaseCallback = null;
 
         var response = JSON.Parse(makePurchaseResponseJson);
-
-        if (ResponseHasError(response))
-        {
-            callback(null, null, response["userCancelled"],
-                new Error(response["error"]));
-        }
-        else
-        {
-            var info = new CustomerInfo(response["customerInfo"]);
-            var productIdentifier = response["productIdentifier"];
-            callback(productIdentifier, info, false, null);
-        }
+        callback(new PurchaseResult(response));
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1766,17 +1755,7 @@ public partial class Purchases : MonoBehaviour
         var callback = MakePurchaseCallback;
         MakePurchaseCallback = null;
 
-        if (ResponseHasError(response))
-        {
-            callback(null, null, response["userCancelled"], new Error(response["error"]));
-        }
-        else
-        {
-            var info = new CustomerInfo(response["customerInfo"]);
-            var productIdentifier = response["productIdentifier"];
-            callback(productIdentifier, info, false, null);
-        }
-
+        callback(new PurchaseResult(response));
     }
 
     private void _purchasePackageWithWinBackOffer(string purchasePackageWithWinBackOfferJson)
@@ -1789,16 +1768,7 @@ public partial class Purchases : MonoBehaviour
         var callback = MakePurchaseCallback;
         MakePurchaseCallback = null;
 
-        if (ResponseHasError(response))
-        {
-            callback(null, null, response["userCancelled"], new Error(response["error"]));
-        }
-        else
-        {
-            var info = new CustomerInfo(response["customerInfo"]);
-            var productIdentifier = response["productIdentifier"];
-            callback(productIdentifier, info, false, null);
-        }
+        callback(new PurchaseResult(response));
     }
 
     private static void ReceiveCustomerInfoMethod(string arguments, CustomerInfoFunc callback)
