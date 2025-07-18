@@ -247,17 +247,18 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private void PurchaseProductButtonClicked(Purchases.StoreProduct storeProduct)
     {
         var purchases = GetComponent<Purchases>();
-        purchases.PurchaseProduct(storeProduct.Identifier, (productIdentifier, customerInfo, userCancelled, error) =>
+        purchases.PurchaseProduct(storeProduct.Identifier, (purchaseResult) =>
         {
-            if (!userCancelled)
+            if (!purchaseResult.UserCancelled)
             {
-                if (error != null)
+                if (purchaseResult.Error != null)
                 {
-                    LogError(error);
+                    LogError(purchaseResult.Error);
                 }
                 else
                 {
-                    DisplayCustomerInfo(customerInfo);
+                    DisplayCustomerInfo(purchaseResult.CustomerInfo);
+                    Debug.Log("StoreTransaction: " + purchaseResult.StoreTransaction);
                 }
             }
             else
@@ -271,17 +272,18 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private void PurchasePackageButtonClicked(Purchases.Package package)
     {
         var purchases = GetComponent<Purchases>();
-        purchases.PurchasePackage(package, (productIdentifier, customerInfo, userCancelled, error) =>
+        purchases.PurchasePackage(package, (purchaseResult) =>
         {
-            if (!userCancelled)
+            if (!purchaseResult.UserCancelled)
             {
-                if (error != null)
+                if (purchaseResult.Error != null)
                 {
-                    LogError(error);
+                    LogError(purchaseResult.Error);
                 }
                 else
                 {
-                    DisplayCustomerInfo(customerInfo);
+                    DisplayCustomerInfo(purchaseResult.CustomerInfo);
+                    Debug.Log("StoreTransaction: " + purchaseResult.StoreTransaction);
                 }
             }
             else
@@ -298,17 +300,18 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             googleProductChangeInfo = new Purchases.GoogleProductChangeInfo(currentProductId, prorationMode);
         }
         var purchases = GetComponent<Purchases>();
-        purchases.PurchaseSubscriptionOption(subscriptionOption, (productIdentifier, customerInfo, userCancelled, error) =>
+        purchases.PurchaseSubscriptionOption(subscriptionOption, (purchaseResult) =>
         {
-            if (!userCancelled)
+            if (!purchaseResult.UserCancelled)
             {
-                if (error != null)
+                if (purchaseResult.Error != null)
                 {
-                    LogError(error);
+                    LogError(purchaseResult.Error);
                 }
                 else
                 {
-                    DisplayCustomerInfo(customerInfo);
+                    DisplayCustomerInfo(purchaseResult.CustomerInfo);
+                    Debug.Log("StoreTransaction: " + purchaseResult.StoreTransaction);
                 }
             }
             else
@@ -622,23 +625,23 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                             else
                             {
                                 purchases.PurchaseDiscountedProduct(storeProduct.Identifier, promoOffer,
-                                    (identifier, customerInfo, cancelled, purchaseError) =>
+                                    (purchaseResult) =>
                                     {
-                                        if (purchaseError != null)
+                                        if (purchaseResult.Error != null)
                                         {
-                                            if (cancelled)
+                                            if (purchaseResult.UserCancelled)
                                             {
                                                 infoLabel.text = "purchase cancelled!";
                                             }
                                             else
                                             {
-                                                LogError(purchaseError);
+                                                LogError(purchaseResult.Error);
                                             }
                                         }
                                         else
                                         {
                                             infoLabel.text +=
-                                                $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                                $"Purchase of {purchaseResult.ProductIdentifier} successful!\ncustomerInfo:\n{purchaseResult.CustomerInfo}";
                                         }
                                     });
                             }
@@ -683,23 +686,23 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                             else
                             {
                                 purchases.PurchaseDiscountedProduct(package.StoreProduct.Identifier, promoOffer,
-                                    (identifier, customerInfo, cancelled, purchaseError) =>
+                                    (purchaseResult) =>
                                     {
-                                        if (purchaseError != null)
+                                        if (purchaseResult.Error != null)
                                         {
-                                            if (cancelled)
+                                            if (purchaseResult.UserCancelled)
                                             {
                                                 infoLabel.text = "purchase cancelled!";
                                             }
                                             else
                                             {
-                                                LogError(purchaseError);
+                                                LogError(purchaseResult.Error);
                                             }
                                         }
                                         else
                                         {
                                             infoLabel.text +=
-                                                $"Purchase of {identifier} successful!\ncustomerInfo:\n{customerInfo}";
+                                                $"Purchase of {purchaseResult.ProductIdentifier} successful!\ncustomerInfo:\n{purchaseResult.CustomerInfo}";
                                         }
                                     });
                             }
@@ -848,18 +851,18 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                             }
                             infoLabel.text = offerText;
 
-                            purchases.PurchaseProductWithWinBackOffer(product, winBackOffers[0], (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                            purchases.PurchaseProductWithWinBackOffer(product, winBackOffers[0], (purchaseResult) =>
                             {
-                                if (purchaseError != null)
+                                if (purchaseResult.Error != null)
                                 {
-                                    LogError(purchaseError);
-                                    Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                    LogError(purchaseResult.Error);
+                                    Debug.Log($"productIdentifier: {purchaseResult.ProductIdentifier}, customerInfo: {purchaseResult.CustomerInfo}, userCancelled: {purchaseResult.UserCancelled}, purchaseError: {purchaseResult.Error}");
                                     return;
                                 }
                                 else
                                 {
-                                    infoLabel.text = $"Purchase of {productIdentifier} successful!\ncustomerInfo:\n{customerInfo}";
-                                    Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                    infoLabel.text = $"Purchase of {purchaseResult.ProductIdentifier} successful!\ncustomerInfo:\n{purchaseResult.CustomerInfo}";
+                                    Debug.Log($"productIdentifier: {purchaseResult.ProductIdentifier}, customerInfo: {purchaseResult.CustomerInfo}, userCancelled: {purchaseResult.UserCancelled}, purchaseError: {purchaseResult.Error}");
                                 }
                             });
                         }
@@ -930,18 +933,18 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                             infoLabel.text = offerText;
 
                             purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0],
-                                (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                                (purchaseResult) =>
                                 {
-                                    if (purchaseError != null)
+                                    if (purchaseResult.Error != null)
                                     {
-                                        LogError(purchaseError);
-                                        Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                        LogError(purchaseResult.Error);
+                                        Debug.Log($"productIdentifier: {purchaseResult.ProductIdentifier}, customerInfo: {purchaseResult.CustomerInfo}, userCancelled: {purchaseResult.UserCancelled}, purchaseError: {purchaseResult.Error}");
                                         return;
                                     }
                                     else
                                     {
-                                        infoLabel.text = $"Purchase of {productIdentifier} successful!\ncustomerInfo:\n{customerInfo}";
-                                        Debug.Log($"productIdentifier: {productIdentifier}, customerInfo: {customerInfo}, userCancelled: {userCancelled}, purchaseError: {purchaseError}");
+                                        infoLabel.text = $"Purchase of {purchaseResult.ProductIdentifier} successful!\ncustomerInfo:\n{purchaseResult.CustomerInfo}";
+                                        Debug.Log($"productIdentifier: {purchaseResult.ProductIdentifier}, customerInfo: {purchaseResult.CustomerInfo}, userCancelled: {purchaseResult.UserCancelled}, purchaseError: {purchaseResult.Error}");
                                     }
                                 });
                         }

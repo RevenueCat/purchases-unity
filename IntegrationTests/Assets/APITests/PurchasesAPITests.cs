@@ -34,6 +34,8 @@ public class PurchasesAPITests : MonoBehaviour
         Purchases.Error receivedError;
         Purchases.StoreTransaction receivedTransaction;
 
+        Purchases.PurchaseResult receivedPurchaseResult;
+
         Purchases.Package receivedPackage;
         Purchases.Offerings receivedOfferings;
         Purchases.Offering receivedOffering;
@@ -65,30 +67,21 @@ public class PurchasesAPITests : MonoBehaviour
             receivedOffering = receivedOfferings.All.First().Value;
 
             receivedPackage = receivedOffering.AvailablePackages.First();
-            purchases.PurchasePackage(receivedPackage, (productIdentifier, customerInfo, userCancelled, error2) =>
+            purchases.PurchasePackage(receivedPackage, (purchaseResult) =>
             {
-                receivedProductIdentifier = productIdentifier;
-                receivedCustomerInfo = customerInfo;
-                receivedUserCancelled = userCancelled;
-                receivedError = error2;
+                receivedPurchaseResult = purchaseResult;
             });
 
-            purchases.PurchasePackage(receivedPackage, (productIdentifier, customerInfo, userCancelled, error2) =>
+            purchases.PurchasePackage(receivedPackage, (purchaseResult) =>
             {
-                receivedProductIdentifier = productIdentifier;
-                receivedCustomerInfo = customerInfo;
-                receivedUserCancelled = userCancelled;
-                receivedError = error2;
+                receivedPurchaseResult = purchaseResult;
             }, "oldSku", Purchases.ProrationMode.ImmediateWithoutProration);
 
             Purchases.StoreProduct storeProduct = storeProducts.First();
             Purchases.SubscriptionOption subscriptionOption = storeProduct.DefaultOption;
-            purchases.PurchaseSubscriptionOption(subscriptionOption, (productIdentifier, customerInfo, userCancelled, error) =>
+            purchases.PurchaseSubscriptionOption(subscriptionOption, (purchaseResult) =>
             {
-                receivedProductIdentifier = productIdentifier;
-                receivedCustomerInfo = customerInfo;
-                receivedUserCancelled = userCancelled;
-                receivedError = error;
+                receivedPurchaseResult = purchaseResult;
             }, null, false);
 
             Purchases.PromotionalOffer receivedPromoOffer;
@@ -98,39 +91,27 @@ public class PurchasesAPITests : MonoBehaviour
                 receivedError = error2;
 
                 purchases.PurchaseDiscountedPackage(receivedPackage, receivedPromoOffer,
-                    (productIdentifier, purchaserInfo, userCancelled, error3) =>
+                    (purchaseResult) =>
                     {
-                        receivedProductIdentifier = productIdentifier;
-                        receivedCustomerInfo = purchaserInfo;
-                        receivedUserCancelled = userCancelled;
-                        receivedError = error3;
+                        receivedPurchaseResult = purchaseResult;
                     });
 
                 purchases.PurchaseDiscountedProduct("product_id", receivedPromoOffer,
-                    (productIdentifier, purchaserInfo, userCancelled, error3) =>
+                    (purchaseResult) =>
                     {
-                        receivedProductIdentifier = productIdentifier;
-                        receivedCustomerInfo = purchaserInfo;
-                        receivedUserCancelled = userCancelled;
-                        receivedError = error3;
+                        receivedPurchaseResult = purchaseResult;
                     });
             });
         });
 
-        purchases.PurchaseProduct("product_id", (productIdentifier, customerInfo, userCancelled, error2) =>
+        purchases.PurchaseProduct("product_id", (purchaseResult) =>
         {
-            receivedProductIdentifier = productIdentifier;
-            receivedCustomerInfo = customerInfo;
-            receivedUserCancelled = userCancelled;
-            receivedError = error2;
+            receivedPurchaseResult = purchaseResult;
         });
 
-        purchases.PurchaseProduct("product_id", (productIdentifier, purchaserInfo, userCancelled, error2) =>
+        purchases.PurchaseProduct("product_id", (purchaseResult) =>
         {
-            receivedProductIdentifier = productIdentifier;
-            receivedCustomerInfo = purchaserInfo;
-            receivedUserCancelled = userCancelled;
-            receivedError = error2;
+            receivedPurchaseResult = purchaseResult;
         }, "type", "oldSku", Purchases.ProrationMode.ImmediateWithoutProration);
 
         purchases.RestorePurchases((customerInfo, error) =>
@@ -258,8 +239,9 @@ public class PurchasesAPITests : MonoBehaviour
             purchases.GetEligibleWinBackOffersForProduct(products[0], (winBackOffers, error2) =>
             {
                 purchases.PurchaseProductWithWinBackOffer(products[0], winBackOffers[0], 
-                    (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                    (purchaseResult) =>
                 {
+                    receivedPurchaseResult = purchaseResult;
                 });
             });
         });
@@ -271,8 +253,9 @@ public class PurchasesAPITests : MonoBehaviour
             purchases.GetEligibleWinBackOffersForPackage(package, (winBackOffers, error2) =>
             {
                 purchases.PurchasePackageWithWinBackOffer(package, winBackOffers[0], 
-                    (productIdentifier, customerInfo, userCancelled, purchaseError) =>
+                    (purchaseResult) =>
                 {
+                    receivedPurchaseResult = purchaseResult;
                 });
             });
         });
