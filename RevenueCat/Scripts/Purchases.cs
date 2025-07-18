@@ -275,12 +275,8 @@ public partial class Purchases : MonoBehaviour
     /// and <see cref="Purchases.PurchasePackageWithWinBackOffer"/>.
     /// </summary>
     ///
-    /// <param name="productIdentifier"> The product identifier for which the purchase was attempted.</param>
-    /// <param name="customerInfo"> The updated <see cref="CustomerInfo"/> object after the successful purchase.</param>
-    /// <param name="userCancelled"> A boolean that indicates whether the purchase was cancelled by the user.</param>
-    /// <param name="error"> An error, if one occurred. Null if the purchase was successful. </param>
-    public delegate void MakePurchaseFunc(string productIdentifier, CustomerInfo customerInfo, bool userCancelled,
-        Error error);
+    /// <param name="purchaseResult"> The <see cref="PurchaseResult"/> object for the purchase attempt that just happened.</param>
+    public delegate void MakePurchaseFunc(PurchaseResult purchaseResult);
 
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
