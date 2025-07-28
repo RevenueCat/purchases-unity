@@ -251,6 +251,10 @@ public partial class Purchases
         {
         }
 
+        public void GetVirtualCurrencies()
+        {
+        }
+
         public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
         {
         }

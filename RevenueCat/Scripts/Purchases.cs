@@ -1286,6 +1286,16 @@ public partial class Purchases : MonoBehaviour
         _wrapper.RedeemWebPurchase(webPurchaseRedemption);
     }
 
+    public delegate void GetVirtualCurrenciesFunc(VirtualCurrencies virtualCurrencies, Error error);
+
+    private GetVirtualCurrenciesFunc GetVirtualCurrenciesCallback { get; set; }
+
+    public void GetVirtualCurrencies(GetVirtualCurrenciesFunc callback)
+    {
+        GetVirtualCurrenciesCallback = callback;
+        _wrapper.GetVirtualCurrencies();
+    }
+
     public delegate void GetEligibleWinBackOffersForProductFunc(WinBackOffer[] winBackOffers, Error error);
 
     private GetEligibleWinBackOffersForProductFunc GetEligibleWinBackOffersForProductCallback { get; set; }
@@ -1687,6 +1697,27 @@ public partial class Purchases : MonoBehaviour
         {
             var result = WebPurchaseRedemptionResult.FromJson(response);
             callback(result);
+        }
+    }
+
+    private void _getVirtualCurrencies(string getVirtualCurrenciesJson)
+    {
+        Debug.Log("_getVirtualCurrencies " + getVirtualCurrenciesJson);
+
+        if (GetVirtualCurrenciesCallback == null) return;
+
+        var response = JSON.Parse(getVirtualCurrenciesJson);
+        var callback = GetVirtualCurrenciesCallback;
+        GetVirtualCurrenciesCallback = null;
+
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var virtualCurrencies = new VirtualCurrencies(response);
+            callback(virtualCurrencies, null);
         }
     }
 

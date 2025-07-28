@@ -29,6 +29,7 @@ static NSString *const RECORD_PURCHASE = @"_recordPurchase";
 static NSString *const SYNC_PURCHASES = @"_syncPurchases";
 static NSString *const PARSE_AS_WEB_PURCHASE_REDEMPTION = @"_parseAsWebPurchaseRedemption";
 static NSString *const REDEEM_WEB_PURCHASE = @"_redeemWebPurchase";
+static NSString *const GET_VIRTUAL_CURRENCIES = @"_getVirtualCurrencies";
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = @"_getEligibleWinBackOffersForProduct";
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = @"_getEligibleWinBackOffersForPackage";
 static NSString *const PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = @"_purchaseProductWithWinBackOffer";
@@ -594,6 +595,25 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
+- (void)getVirtualCurrencies {
+    [RCCommonFunctionality getVirtualCurrenciesWithCompletion:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
+        if (error == nil && responseDictionary == nil) {
+            NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are null"}];
+            error = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
+        
+        NSDictionary *response = (error)
+        ? @{
+            @"error": error.info
+        }
+        : responseDictionary;
+
+        [self sendJSONObject:response toMethod:GET_VIRTUAL_CURRENCIES];
+    }];
+}
+
 #pragma mark Helper Methods
 
 - (void)sendEmptyResponseToMethod:(NSString *)methodName {
@@ -953,6 +973,10 @@ void _RCParseAsWebPurchaseRedemption(const char *urlString) {
 
 void _RCRedeemWebPurchase(const char *redemptionLink) {
     [_RCUnityHelperShared() redeemWebPurchase:convertCString(redemptionLink)];
+}
+
+void _RCGetVirtualCurrencies() {
+    [_RCUnityHelperShared() getVirtualCurrencies];
 }
 
 void _RCGetEligibleWinBackOffersForProduct(const char *productIdentifier) {
