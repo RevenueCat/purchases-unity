@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RevenueCat.SimpleJSON;
+using static RevenueCat.Utilities;
 
 public partial class Purchases
 {
