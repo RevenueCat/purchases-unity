@@ -56,6 +56,7 @@ public class PurchasesWrapper {
     private static final String SYNC_PURCHASES = "_syncPurchases";
     private static final String PARSE_AS_WEB_PURCHASE_REDEMPTION = "_parseAsWebPurchaseRedemption";
     private static final String REDEEM_WEB_PURCHASE = "_redeemWebPurchase";
+    private static final String GET_VIRTUAL_CURRENCIES = "_getVirtualCurrencies";
     private static final String GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = "_getEligibleWinBackOffersForProduct";
     private static final String GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = "_getEligibleWinBackOffersForPackage";
     private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
@@ -618,6 +619,20 @@ public class PurchasesWrapper {
             @Override
             public void onError(ErrorContainer errorContainer) {
                 sendError(errorContainer, REDEEM_WEB_PURCHASE);
+            }
+        });
+    }
+
+    public static void getVirtualCurrencies() {
+        CommonKt.getVirtualCurrencies(new OnResult() {
+            @Override
+            public void onReceived(Map<String, ?> map) {
+                sendJSONObject(MappersHelpersKt.convertToJson(map), GET_VIRTUAL_CURRENCIES);
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendError(errorContainer, GET_VIRTUAL_CURRENCIES);
             }
         });
     }

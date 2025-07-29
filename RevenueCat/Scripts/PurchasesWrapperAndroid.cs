@@ -390,6 +390,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("redeemWebPurchase", webPurchaseRedemption.RedemptionLink);
     }
 
+    public void GetVirtualCurrencies()
+    {
+        CallPurchases("getVirtualCurrencies");
+    }
+
     public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
     {
         CallPurchases("getEligibleWinBackOffersForProduct", storeProduct.Identifier);
