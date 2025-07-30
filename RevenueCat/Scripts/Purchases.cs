@@ -1286,7 +1286,7 @@ public partial class Purchases : MonoBehaviour
         _wrapper.RedeemWebPurchase(webPurchaseRedemption);
     }
 
-    public delegate void GetVirtualCurrenciesFunc(VirtualCurrencies virtualCurrencies, Error error);
+    public delegate void GetVirtualCurrenciesFunc(VirtualCurrencies? virtualCurrencies, Error error);
 
     private GetVirtualCurrenciesFunc GetVirtualCurrenciesCallback { get; set; }
 
@@ -1296,7 +1296,7 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetVirtualCurrencies();
     }
 
-    public VirtualCurrencies GetCachedVirtualCurrencies()
+    public VirtualCurrencies? GetCachedVirtualCurrencies()
     {
         string jsonResult = _wrapper.GetCachedVirtualCurrencies();
         
