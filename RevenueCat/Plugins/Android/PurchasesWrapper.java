@@ -57,7 +57,6 @@ public class PurchasesWrapper {
     private static final String PARSE_AS_WEB_PURCHASE_REDEMPTION = "_parseAsWebPurchaseRedemption";
     private static final String REDEEM_WEB_PURCHASE = "_redeemWebPurchase";
     private static final String GET_VIRTUAL_CURRENCIES = "_getVirtualCurrencies";
-    private static final String GET_CACHED_VIRTUAL_CURRENCIES = "_getCachedVirtualCurrencies";
     private static final String GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = "_getEligibleWinBackOffersForProduct";
     private static final String GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = "_getEligibleWinBackOffersForPackage";
     private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
