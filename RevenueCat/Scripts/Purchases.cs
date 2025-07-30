@@ -1298,15 +1298,15 @@ public partial class Purchases : MonoBehaviour
 
     public VirtualCurrencies? GetCachedVirtualCurrencies()
     {
-        string jsonResult = _wrapper.GetCachedVirtualCurrencies();
+        string cachedVirtualCurrenciesJSON = _wrapper.GetCachedVirtualCurrencies();
         
-        if (string.IsNullOrEmpty(jsonResult))
+        if (string.IsNullOrEmpty(cachedVirtualCurrenciesJSON))
         {
             return null;
         }
         
-        var parsedResult = JSON.Parse(jsonResult);
-        return new VirtualCurrencies(parsedResult);
+        var response = JSON.Parse(cachedVirtualCurrenciesJSON);
+        return new VirtualCurrencies(response);
     }
 
     public void InvalidateVirtualCurrenciesCache()
