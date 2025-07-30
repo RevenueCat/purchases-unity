@@ -1290,12 +1290,23 @@ public partial class Purchases : MonoBehaviour
 
     private GetVirtualCurrenciesFunc GetVirtualCurrenciesCallback { get; set; }
 
+    /// <summary>
+    /// Fetches the virtual currencies for the current user.
+    /// </summary>
     public void GetVirtualCurrencies(GetVirtualCurrenciesFunc callback)
     {
         GetVirtualCurrenciesCallback = callback;
         _wrapper.GetVirtualCurrencies();
     }
 
+    /// <summary>
+    /// The currently cached VirtualCurrencies if one is available.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// This value will remain null until virtual currencies have been fetched at 
+    /// least once with GetVirtualCurrencies or an equivalent function.
+    /// </remarks>
     public VirtualCurrencies? GetCachedVirtualCurrencies()
     {
         string cachedVirtualCurrenciesJSON = _wrapper.GetCachedVirtualCurrencies();
@@ -1309,6 +1320,15 @@ public partial class Purchases : MonoBehaviour
         return new VirtualCurrencies(response);
     }
 
+    /// <summary>
+    /// Invalidates the cache for virtual currencies.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// This is useful for cases where a virtual currency's balance might have been updated
+    /// outside of the app, like if you decreased a user's balance from the user spending a virtual currency,
+    /// or if you increased the balance from your backend using the server APIs.
+    /// </remarks>
     public void InvalidateVirtualCurrenciesCache()
     {
         _wrapper.InvalidateVirtualCurrenciesCache();
