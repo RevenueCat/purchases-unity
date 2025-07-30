@@ -1308,6 +1308,11 @@ public partial class Purchases : MonoBehaviour
         var parsedResult = JSON.Parse(jsonResult);
         return new VirtualCurrencies(parsedResult);
     }
+
+    public void InvalidateVirtualCurrenciesCache()
+    {
+        _wrapper.InvalidateVirtualCurrenciesCache();
+    }
     
     public delegate void GetEligibleWinBackOffersForProductFunc(WinBackOffer[] winBackOffers, Error error);
 

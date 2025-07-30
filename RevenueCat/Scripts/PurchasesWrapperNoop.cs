@@ -260,6 +260,10 @@ public partial class Purchases
             return null;
         }
 
+        public void InvalidateVirtualCurrenciesCache()
+        {
+        }
+
         public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
         {
         }

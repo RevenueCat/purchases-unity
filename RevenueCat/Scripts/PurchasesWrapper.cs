@@ -82,6 +82,7 @@ public interface IPurchasesWrapper
     void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption);
     void GetVirtualCurrencies();
     string GetCachedVirtualCurrencies();
+    void InvalidateVirtualCurrenciesCache();
     void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct);
     void GetEligibleWinBackOffersForPackage(Purchases.Package package);
     void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer);

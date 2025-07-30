@@ -491,6 +491,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCInvalidateVirtualCurrenciesCache();
+    public void InvalidateVirtualCurrenciesCache()
+    {
+        _RCInvalidateVirtualCurrenciesCache();
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCGetEligibleWinBackOffersForProduct(string productIdentifier);
     public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
     {

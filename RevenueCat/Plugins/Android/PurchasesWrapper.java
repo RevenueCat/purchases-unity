@@ -650,6 +650,10 @@ public class PurchasesWrapper {
         return null;
     }
 
+    public static void invalidateVirtualCurrenciesCache() {
+        CommonKt.invalidateVirtualCurrenciesCache();
+    }
+
     public static void getEligibleWinBackOffersForProduct(String productIdentifier) {
         // NOOP
         PurchasesError error = new PurchasesError(

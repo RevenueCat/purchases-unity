@@ -633,6 +633,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     return NULL;
 }
 
+- (void)invalidateVirtualCurrenciesCache {
+    [RCCommonFunctionality invalidateVirtualCurrenciesCache];
+}
+
 #pragma mark Helper Methods
 
 - (void)sendEmptyResponseToMethod:(NSString *)methodName {
@@ -1000,6 +1004,10 @@ void _RCGetVirtualCurrencies() {
 
 char * _RCGetCachedVirtualCurrencies() {
     return [_RCUnityHelperShared() getCachedVirtualCurrencies];
+}
+
+void _RCInvalidateVirtualCurrenciesCache() {
+    [_RCUnityHelperShared() invalidateVirtualCurrenciesCache];
 }
 
 void _RCGetEligibleWinBackOffersForProduct(const char *productIdentifier) {
