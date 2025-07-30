@@ -59,6 +59,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreatePurchasePackageButtons();
         CreatePurchasePackageForPlacementButtons();
         CreateButton("Get Virtual Currencies", GetVirtualCurrencies);
+        CreateButton("Get Cached Virtual Currencies", GetCachedVirtualCurrencies);
         CreateButton("Purchase Product For WinBack Testing", PurchaseProductForWinBackTesting);
         CreateButton("Fetch & Redeem WinBack for Product", FetchAndRedeemWinBackForProduct);
         CreateButton("Purchase Package For WinBack Testing", PurchasePackageForWinBackTesting);
@@ -808,6 +809,21 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 infoLabel.text = $"Virtual currencies: {virtualCurrencies}";
             }
         });
+    }
+
+    void GetCachedVirtualCurrencies()
+    {
+        var purchases = GetComponent<Purchases>();
+        var cachedVirtualCurrencies = purchases.GetCachedVirtualCurrencies();
+        
+        if (cachedVirtualCurrencies != null)
+        {
+            infoLabel.text = $"Cached virtual currencies: {cachedVirtualCurrencies}";
+        }
+        else
+        {
+            infoLabel.text = "Cached virtual currencies: null";
+        }
     }
 
     void PurchaseProductForWinBackTesting()

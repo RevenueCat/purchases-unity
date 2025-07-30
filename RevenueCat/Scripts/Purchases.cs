@@ -1296,6 +1296,19 @@ public partial class Purchases : MonoBehaviour
         _wrapper.GetVirtualCurrencies();
     }
 
+    public VirtualCurrencies GetCachedVirtualCurrencies()
+    {
+        string jsonResult = _wrapper.GetCachedVirtualCurrencies();
+        
+        if (string.IsNullOrEmpty(jsonResult))
+        {
+            return null;
+        }
+        
+        var parsedResult = JSON.Parse(jsonResult);
+        return new VirtualCurrencies(parsedResult);
+    }
+    
     public delegate void GetEligibleWinBackOffersForProductFunc(WinBackOffer[] winBackOffers, Error error);
 
     private GetEligibleWinBackOffersForProductFunc GetEligibleWinBackOffersForProductCallback { get; set; }

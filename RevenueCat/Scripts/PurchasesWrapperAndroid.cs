@@ -395,6 +395,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("getVirtualCurrencies");
     }
 
+    public string GetCachedVirtualCurrencies()
+    {
+        return CallPurchases<string>("getCachedVirtualCurrencies");
+    }
+
     public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
     {
         CallPurchases("getEligibleWinBackOffersForProduct", storeProduct.Identifier);

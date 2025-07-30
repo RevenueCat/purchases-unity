@@ -614,6 +614,25 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
+- (char *)getCachedVirtualCurrencies {
+    NSDictionary *cachedVirtualCurrencies = [RCCommonFunctionality getCachedVirtualCurrencies];
+    
+    if (cachedVirtualCurrencies != nil) {
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:cachedVirtualCurrencies options:0 error:&error];
+        
+        if (error) {
+            NSLog(@"Error serializing cached virtual currencies: %@", error.localizedDescription);
+            return NULL;
+        }
+        
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        return makeStringCopy(jsonString);
+    }
+    
+    return NULL;
+}
+
 #pragma mark Helper Methods
 
 - (void)sendEmptyResponseToMethod:(NSString *)methodName {
@@ -977,6 +996,10 @@ void _RCRedeemWebPurchase(const char *redemptionLink) {
 
 void _RCGetVirtualCurrencies() {
     [_RCUnityHelperShared() getVirtualCurrencies];
+}
+
+char * _RCGetCachedVirtualCurrencies() {
+    return [_RCUnityHelperShared() getCachedVirtualCurrencies];
 }
 
 void _RCGetEligibleWinBackOffersForProduct(const char *productIdentifier) {

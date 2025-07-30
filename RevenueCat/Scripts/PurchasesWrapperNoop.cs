@@ -255,6 +255,11 @@ public partial class Purchases
         {
         }
 
+        public string GetCachedVirtualCurrencies()
+        {
+            return null;
+        }
+
         public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
         {
         }
