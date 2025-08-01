@@ -390,6 +390,21 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("redeemWebPurchase", webPurchaseRedemption.RedemptionLink);
     }
 
+    public void GetVirtualCurrencies()
+    {
+        CallPurchases("getVirtualCurrencies");
+    }
+
+    public string GetCachedVirtualCurrencies()
+    {
+        return CallPurchases<string>("getCachedVirtualCurrencies");
+    }
+
+    public void InvalidateVirtualCurrenciesCache()
+    {
+        CallPurchases("invalidateVirtualCurrenciesCache");
+    }
+
     public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
     {
         CallPurchases("getEligibleWinBackOffersForProduct", storeProduct.Identifier);

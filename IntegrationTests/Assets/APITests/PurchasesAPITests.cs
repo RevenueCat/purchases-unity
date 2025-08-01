@@ -44,6 +44,7 @@ public class PurchasesAPITests : MonoBehaviour
         Purchases.LogLevel receivedLogLevel;
         String receivedMessage;
         Purchases.Storefront? receivedStorefront;
+        Purchases.VirtualCurrencies? receivedVirtualCurrencies;
 
         purchases.GetStorefront((storefront) =>
         {
@@ -259,5 +260,15 @@ public class PurchasesAPITests : MonoBehaviour
                 });
             });
         });
+
+        // Virtual currencies API tests
+        purchases.GetVirtualCurrencies((virtualCurrencies, error) =>
+        {
+            receivedVirtualCurrencies = virtualCurrencies;
+            receivedError = error;
+        });
+
+        receivedVirtualCurrencies = purchases.GetCachedVirtualCurrencies();
+        purchases.InvalidateVirtualCurrenciesCache();
     }
 }
