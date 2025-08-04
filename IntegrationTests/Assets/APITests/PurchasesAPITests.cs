@@ -45,6 +45,7 @@ public class PurchasesAPITests : MonoBehaviour
         String receivedMessage;
         Purchases.Storefront? receivedStorefront;
         Purchases.VirtualCurrencies? receivedVirtualCurrencies;
+        Purchases.Error? receivedOptionalError;
 
         purchases.GetStorefront((storefront) =>
         {
@@ -265,7 +266,7 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.GetVirtualCurrencies((virtualCurrencies, error) =>
         {
             receivedVirtualCurrencies = virtualCurrencies;
-            receivedError = error;
+            receivedOptionalError = error;
         });
 
         receivedVirtualCurrencies = purchases.GetCachedVirtualCurrencies();
