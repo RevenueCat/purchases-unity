@@ -1286,6 +1286,54 @@ public partial class Purchases : MonoBehaviour
         _wrapper.RedeemWebPurchase(webPurchaseRedemption);
     }
 
+    public delegate void GetVirtualCurrenciesFunc(VirtualCurrencies? virtualCurrencies, Error? error);
+
+    private GetVirtualCurrenciesFunc GetVirtualCurrenciesCallback { get; set; }
+
+    /// <summary>
+    /// Fetches the virtual currencies for the current user.
+    /// </summary>
+    public void GetVirtualCurrencies(GetVirtualCurrenciesFunc callback)
+    {
+        GetVirtualCurrenciesCallback = callback;
+        _wrapper.GetVirtualCurrencies();
+    }
+
+    /// <summary>
+    /// The currently cached VirtualCurrencies if one is available.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// This value will remain null until virtual currencies have been fetched at 
+    /// least once with GetVirtualCurrencies or an equivalent function.
+    /// </remarks>
+    public VirtualCurrencies? GetCachedVirtualCurrencies()
+    {
+        string cachedVirtualCurrenciesJSON = _wrapper.GetCachedVirtualCurrencies();
+        
+        if (string.IsNullOrEmpty(cachedVirtualCurrenciesJSON))
+        {
+            return null;
+        }
+        
+        var response = JSON.Parse(cachedVirtualCurrenciesJSON);
+        return new VirtualCurrencies(response);
+    }
+
+    /// <summary>
+    /// Invalidates the cache for virtual currencies.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// This is useful for cases where a virtual currency's balance might have been updated
+    /// outside of the app, like if you decreased a user's balance from the user spending a virtual currency,
+    /// or if you increased the balance from your backend using the server APIs.
+    /// </remarks>
+    public void InvalidateVirtualCurrenciesCache()
+    {
+        _wrapper.InvalidateVirtualCurrenciesCache();
+    }
+    
     public delegate void GetEligibleWinBackOffersForProductFunc(WinBackOffer[] winBackOffers, Error error);
 
     private GetEligibleWinBackOffersForProductFunc GetEligibleWinBackOffersForProductCallback { get; set; }
@@ -1687,6 +1735,27 @@ public partial class Purchases : MonoBehaviour
         {
             var result = WebPurchaseRedemptionResult.FromJson(response);
             callback(result);
+        }
+    }
+
+    private void _getVirtualCurrencies(string getVirtualCurrenciesJson)
+    {
+        Debug.Log("_getVirtualCurrencies " + getVirtualCurrenciesJson);
+
+        if (GetVirtualCurrenciesCallback == null) return;
+
+        var response = JSON.Parse(getVirtualCurrenciesJson);
+        var callback = GetVirtualCurrenciesCallback;
+        GetVirtualCurrenciesCallback = null;
+
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            var virtualCurrencies = new VirtualCurrencies(response);
+            callback(virtualCurrencies, null);
         }
     }
 
