@@ -43,6 +43,63 @@ public partial class Purchases
         public readonly string PriceString;
 
         /// <summary>
+        /// Null for non-subscription products. The price of the StoreProduct in a weekly recurrence.
+        /// This means that, for example, if the period is monthly, the price will be
+        /// divided by 4. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
+        /// </summary>
+        /// <returns></returns>
+        public readonly float? PricePerWeek;
+
+        /// <summary>
+        /// Null for non-subscription products. The price of the StoreProduct in a monthly recurrence.
+        /// This means that, for example, if the period is yearly, the price will be
+        /// divided by 12. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
+        /// </summary>
+        /// <returns></returns>
+        public readonly float? PricePerMonth;
+
+        /// <summary>
+        /// Null for non-subscription products. The price of the StoreProduct in a yearly recurrence.
+        /// This means that, for example, if the period is monthly, the price will be
+        /// multiplied by 12. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
+        /// </summary>
+        /// <returns></returns>
+        public readonly float? PricePerYear;
+
+        /// <summary>
+        /// Null for non-subscription products. The price of the StoreProduct formatted for the current
+        /// locale in a weekly recurrence. This means that, for example, if the period is monthly,
+        /// the price will be divided by 4. It uses a currency formatter to format the price in the
+        /// given locale. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
+        /// </summary>
+        /// <returns></returns>
+        public readonly string? PricePerWeekString;
+
+        /// <summary>
+        /// Null for non-subscription products. The price of the StoreProduct formatted for the current
+        /// locale in a monthly recurrence. This means that, for example, if the period is yearly,
+        /// the price will be divided by 12. It uses a currency formatter to format the price in the
+        /// given locale. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
+        /// </summary>
+        /// <returns></returns>
+        public readonly string? PricePerMonthString;
+
+        /// <summary>
+        /// Null for non-subscription products. The price of the StoreProduct formatted for the current
+        /// locale in a yearly recurrence. This means that, for example, if the period is monthly,
+        /// the price will be multiplied by 12. It uses a currency formatter to format the price in the
+        /// given locale. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
+        /// </summary>
+        /// <returns></returns>
+        public readonly string? PricePerYearString;
+
+        /// <summary>
         /// Currency code for price and original price.
         /// Contains the currency code of DefaultOption for Google Play.
         /// </summary>
@@ -110,6 +167,14 @@ public partial class Purchases
             PriceString = response["priceString"];
             CurrencyCode = response["currencyCode"];
             SubscriptionPeriod = response["subscriptionPeriod"];
+
+            PricePerWeek = response["pricePerWeek"];
+            PricePerMonth = response["pricePerMonth"];
+            PricePerYear = response["pricePerYear"];
+            PricePerWeekString = response["pricePerWeekString"];
+            PricePerMonthString = response["pricePerMonthString"];
+            PricePerYearString = response["pricePerYearString"];
+
             var introPriceJsonNode = response["introPrice"];
             if (introPriceJsonNode != null && !introPriceJsonNode.IsNull)
             {
@@ -170,6 +235,12 @@ public partial class Purchases
                    $"{nameof(Description)}: {Description}\n" +
                    $"{nameof(Price)}: {Price}\n" +
                    $"{nameof(PriceString)}: {PriceString}\n" +
+                   $"{nameof(PricePerWeek)}: {PricePerWeek}\n" +
+                   $"{nameof(PricePerMonth)}: {PricePerMonth}\n" +
+                   $"{nameof(PricePerYear)}: {PricePerYear}\n" +
+                   $"{nameof(PricePerWeekString)}: {PricePerWeekString}\n" +
+                   $"{nameof(PricePerMonthString)}: {PricePerMonthString}\n" +
+                   $"{nameof(PricePerYearString)}: {PricePerYearString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
                    $"{nameof(ProductCategory)}: {ProductCategory}\n" +
                    $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
