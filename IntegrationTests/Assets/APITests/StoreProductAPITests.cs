@@ -14,6 +14,12 @@ namespace DefaultNamespace
             string description = storeProduct.Description;
             float price = storeProduct.Price;
             string priceString = storeProduct.PriceString;
+            float? pricePerWeek = storeProduct.PricePerWeek;
+            float? pricePerMonth = storeProduct.PricePerMonth;
+            float? pricePerYear = storeProduct.PricePerYear;
+            string? pricePerWeekString = storeProduct.PricePerWeekString;
+            string? pricePerMonthString = storeProduct.PricePerMonthString;
+            string? pricePerYearString = storeProduct.PricePerYearString;
             string currencyCode = storeProduct.CurrencyCode;
             float introPrice = storeProduct.IntroductoryPrice.Price;
             string introPriceString = storeProduct.IntroductoryPrice.PriceString;

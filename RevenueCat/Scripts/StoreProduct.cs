@@ -43,6 +43,45 @@ public partial class Purchases
         public readonly string PriceString;
 
         /// <summary>
+        /// Price of the product per week. Null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
+        public readonly float? PricePerWeek;
+
+        /// <summary>
+        /// Price of the product per month. Null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
+        public readonly float? PricePerMonth;
+
+        /// <summary>
+        /// Price of the product per year. Null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
+        public readonly float? PricePerYear;
+
+        /// <summary>
+        /// Formatted price of the item per week, including its currency sign.
+        /// Null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
+        public readonly string? PricePerWeekString;
+
+        /// <summary>
+        /// Formatted price of the item per month, including its currency sign.
+        /// Null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
+        public readonly string? PricePerMonthString;
+
+        /// <summary>
+        /// Formatted price of the item per year, including its currency sign.
+        /// Null for non-subscription products.
+        /// </summary>
+        /// <returns></returns>
+        public readonly string? PricePerYearString;
+
+        /// <summary>
         /// Currency code for price and original price.
         /// Contains the currency code of DefaultOption for Google Play.
         /// </summary>
@@ -110,6 +149,14 @@ public partial class Purchases
             PriceString = response["priceString"];
             CurrencyCode = response["currencyCode"];
             SubscriptionPeriod = response["subscriptionPeriod"];
+
+            PricePerWeek = response["pricePerWeek"];
+            PricePerMonth = response["pricePerMonth"];
+            PricePerYear = response["pricePerYear"];
+            PricePerWeekString = response["pricePerWeekString"];
+            PricePerMonthString = response["pricePerMonthString"];
+            PricePerYearString = response["pricePerYearString"];
+
             var introPriceJsonNode = response["introPrice"];
             if (introPriceJsonNode != null && !introPriceJsonNode.IsNull)
             {
@@ -170,6 +217,12 @@ public partial class Purchases
                    $"{nameof(Description)}: {Description}\n" +
                    $"{nameof(Price)}: {Price}\n" +
                    $"{nameof(PriceString)}: {PriceString}\n" +
+                   $"{nameof(PricePerWeek)}: {PricePerWeek}\n" +
+                   $"{nameof(PricePerMonth)}: {PricePerMonth}\n" +
+                   $"{nameof(PricePerYear)}: {PricePerYear}\n" +
+                   $"{nameof(PricePerWeekString)}: {PricePerWeekString}\n" +
+                   $"{nameof(PricePerMonthString)}: {PricePerMonthString}\n" +
+                   $"{nameof(PricePerYearString)}: {PricePerYearString}\n" +
                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n" +
                    $"{nameof(ProductCategory)}: {ProductCategory}\n" +
                    $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
