@@ -43,40 +43,58 @@ public partial class Purchases
         public readonly string PriceString;
 
         /// <summary>
-        /// Price of the product per week. Null for non-subscription products.
+        /// Null for non-subscription products. The price of the StoreProduct in a weekly recurrence.
+        /// This means that, for example, if the period is monthly, the price will be
+        /// divided by 4. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
         /// </summary>
         /// <returns></returns>
         public readonly float? PricePerWeek;
 
         /// <summary>
-        /// Price of the product per month. Null for non-subscription products.
+        /// Null for non-subscription products. The price of the StoreProduct in a monthly recurrence.
+        /// This means that, for example, if the period is yearly, the price will be
+        /// divided by 12. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
         /// </summary>
         /// <returns></returns>
         public readonly float? PricePerMonth;
 
         /// <summary>
-        /// Price of the product per year. Null for non-subscription products.
+        /// Null for non-subscription products. The price of the StoreProduct in a yearly recurrence.
+        /// This means that, for example, if the period is monthly, the price will be
+        /// multiplied by 12. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
         /// </summary>
         /// <returns></returns>
         public readonly float? PricePerYear;
 
         /// <summary>
-        /// Formatted price of the item per week, including its currency sign.
-        /// Null for non-subscription products.
+        /// Null for non-subscription products. The price of the StoreProduct formatted for the current
+        /// locale in a weekly recurrence. This means that, for example, if the period is monthly,
+        /// the price will be divided by 4. It uses a currency formatter to format the price in the
+        /// given locale. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
         /// </summary>
         /// <returns></returns>
         public readonly string? PricePerWeekString;
 
         /// <summary>
-        /// Formatted price of the item per month, including its currency sign.
-        /// Null for non-subscription products.
+        /// Null for non-subscription products. The price of the StoreProduct formatted for the current
+        /// locale in a monthly recurrence. This means that, for example, if the period is yearly,
+        /// the price will be divided by 12. It uses a currency formatter to format the price in the
+        /// given locale. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
         /// </summary>
         /// <returns></returns>
         public readonly string? PricePerMonthString;
 
         /// <summary>
-        /// Formatted price of the item per year, including its currency sign.
-        /// Null for non-subscription products.
+        /// Null for non-subscription products. The price of the StoreProduct formatted for the current
+        /// locale in a yearly recurrence. This means that, for example, if the period is monthly,
+        /// the price will be multiplied by 12. It uses a currency formatter to format the price in the
+        /// given locale. Note that this value may be an approximation. For Google subscriptions,
+        /// this value will use the basePlan to calculate the value.
         /// </summary>
         /// <returns></returns>
         public readonly string? PricePerYearString;
