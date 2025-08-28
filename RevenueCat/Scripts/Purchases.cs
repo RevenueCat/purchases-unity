@@ -608,6 +608,8 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetLogHandler();
     }
 
+    private System.Action<PaywallResult> _oneShotPaywallResultCallback;
+
     private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
 
     // ReSharper disable once UnusedMember.Global
@@ -1499,6 +1501,20 @@ public partial class Purchases : MonoBehaviour
         LogHandler(logLevel, messageInResponse);
     }
 
+    // ReSharper disable once UnusedMember.Local
+    private void _paywallResult(string paywallResultName)
+    {
+        Debug.Log("_paywallResult " + paywallResultName);
+        
+        var callback = _oneShotPaywallResultCallback;
+        _oneShotPaywallResultCallback = null;
+        
+        if (callback != null)
+        {
+            var result = PaywallResultExtensions.FromString(paywallResultName);
+            callback(result);
+        }
+    }
 
     // ReSharper disable once UnusedMember.Local
     private void _restorePurchases(string customerInfoJson)
@@ -1878,5 +1894,12 @@ public partial class Purchases : MonoBehaviour
     private static bool ResponseHasError(JSONNode response)
     {
         return response != null && response.HasKey("error") && response["error"] != null && !response["error"].IsNull;
+    }
+
+    // Present paywall and receive a PaywallResult
+    public void PresentPaywall(System.Action<PaywallResult> callback)
+    {
+        _oneShotPaywallResultCallback = callback;
+        _wrapper.PresentPaywall(callback);
     }
 }

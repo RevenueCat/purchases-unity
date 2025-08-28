@@ -3,6 +3,7 @@
     <androidPackages>
         <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[17.0.0]" />
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
+        <androidPackage spec="androidx.appcompat:appcompat:[1.6.1]" />
     </androidPackages>
     <iosPods>
         <iosPod name="PurchasesHybridCommon" version="17.0.0" minTargetSdk="13.0"/>
