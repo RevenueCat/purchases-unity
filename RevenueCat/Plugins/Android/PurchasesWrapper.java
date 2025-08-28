@@ -1,5 +1,6 @@
 package com.revenuecat.purchasesunity;
 
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -62,6 +63,9 @@ public class PurchasesWrapper {
     private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
     private static final String PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = "_purchasePackageWithWinBackOffer";
     private static final String HANDLE_LOG = "_handleLog";
+    private static final String PAYWALL_EVENT = "_paywallEvent";
+    private static final String PAYWALL_RESULT = "_paywallResult";
+
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "8.2.3";
@@ -99,6 +103,21 @@ public class PurchasesWrapper {
                 dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
                 pendingTransactionsForPrepaidPlansEnabled);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
+    }
+
+    public static void presentPaywallForResult(@Nullable String offeringIdentifier) {
+        try {
+            android.app.Activity activity = UnityPlayer.currentActivity;
+            Intent intent = new Intent(activity, com.revenuecat.purchasesunity.PaywallProxyActivity.class);
+            intent.putExtra(com.revenuecat.purchasesunity.PaywallProxyActivity.EXTRA_GAME_OBJECT, gameObject);
+            intent.putExtra(com.revenuecat.purchasesunity.PaywallProxyActivity.EXTRA_METHOD, PAYWALL_RESULT);
+            if (offeringIdentifier != null) {
+                intent.putExtra(com.revenuecat.purchasesunity.PaywallProxyActivity.EXTRA_OFFERING_ID, offeringIdentifier);
+            }
+            activity.startActivity(intent);
+        } catch (Throwable t) {
+            Log.e("Purchases", "Error launching PaywallProxyActivity", t);
+        }
     }
 
     public static void getStorefront() {

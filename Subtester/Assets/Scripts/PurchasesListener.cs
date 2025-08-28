@@ -66,6 +66,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Purchase Package For WinBack Testing", PurchasePackageForWinBackTesting);
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
         CreateButton("Get Storefront", GetStorefront);
+        CreateButton("Present Paywall", PresentPaywallResult);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -192,6 +193,68 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                         }
                     }
                 }
+            }
+        });
+    }
+
+    void PresentPaywallResult()
+    {
+        var purchases = GetComponent<Purchases>();
+        Debug.Log("Subtester: launching paywall");
+        if (infoLabel != null) infoLabel.text = "Launching paywall...";
+        purchases.PresentPaywall(result =>
+        {
+            Debug.Log("Subtester: paywall result = " + result);
+            if (infoLabel != null)
+            {
+                string status = "";
+                
+                switch (result)
+                {
+                    case Purchases.PaywallResult.Purchased:
+                        status = "PURCHASED - User completed a purchase";
+                        GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
+                            if (error != null)
+                            {
+                                Debug.LogError("Subtester: Error refreshing customer info after purchase: " + error);
+                            }
+                            else
+                            {
+                                Debug.Log("Subtester: Refreshed customer info after purchase");
+                                DisplayCustomerInfo(customerInfo);
+                            }
+                        });
+                        break;
+                    case Purchases.PaywallResult.Restored:
+                        status = "RESTORED - User restored previous purchases";
+                        GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
+                            if (error != null)
+                            {
+                                Debug.LogError("Subtester: Error refreshing customer info after restore: " + error);
+                            }
+                            else
+                            {
+                                Debug.Log("Subtester: Refreshed customer info after restore");
+                                DisplayCustomerInfo(customerInfo);
+                            }
+                        });
+                        break;
+                    case Purchases.PaywallResult.Cancelled:
+                        status = "CANCELLED - User dismissed the paywall";
+                        break;
+                    case Purchases.PaywallResult.Error:
+                        status = "ERROR - An error occurred during paywall";
+                        break;
+                    case Purchases.PaywallResult.NotPresented:
+                        status = "NOT PRESENTED - Paywall was not needed";
+                        break;
+                    default:
+                        status = $"UNKNOWN - Received: {result}";
+                        break;
+                }
+                
+                infoLabel.text = $"Paywall result: {status}";
+                Debug.Log($"Subtester: {status}");
             }
         });
     }
