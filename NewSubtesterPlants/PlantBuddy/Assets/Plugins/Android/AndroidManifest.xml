@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  package="com.unity3d.player">
+
+  <uses-permission android:name="android.permission.INTERNET" />
+
+  <application android:extractNativeLibs="true" tools:node="merge">
+    <!-- Unity launcher activity -->
+    <activity
+      android:name="com.unity3d.player.UnityPlayerGameActivity"
+      android:exported="true"
+      android:launchMode="singleTask"
+      android:hardwareAccelerated="false"
+      android:screenOrientation="fullUser"
+      android:resizeableActivity="true"
+      android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
+      android:theme="@style/BaseUnityGameActivityTheme">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+      <meta-data android:name="android.app.lib_name" android:value="game" />
+    </activity>
+
+    <!-- RevenueCat UI bridge activity -->
+    <activity
+      android:name="com.revenuecat.unity.PaywallBridgeActivity"
+      android:exported="false"
+      android:theme="@style/Theme.AppCompat.NoActionBar" />
+  </application>
+</manifest>
+
+

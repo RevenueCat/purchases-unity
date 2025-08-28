@@ -8,7 +8,7 @@ namespace RevenueCat.UI.Platforms
 {
     /// <summary>
     /// Android implementation of the paywall presenter.
-    /// Uses purchases-hybrid-common presentPaywallFromFragment.
+    /// Uses native PaywallActivity directly, avoiding FragmentActivity requirement.
     /// </summary>
     internal class AndroidPaywallPresenter : IPaywallPresenter
     {
@@ -17,7 +17,7 @@ namespace RevenueCat.UI.Platforms
 
         public AndroidPaywallPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.purchases.ui.unity.RevenueCatUIPlugin");
+            _plugin = new AndroidJavaClass("com.revenuecat.unity.RevenueCatUIPlugin");
             RevenueCatUICallbackHandler.Initialize();
             RevenueCatUICallbackHandler.SetAndroidPresenter(this);
         }
@@ -46,10 +46,12 @@ namespace RevenueCat.UI.Platforms
 
             try
             {
-                string offeringId = options?.OfferingIdentifier;
+                string offeringId = options?.OfferingIdentifier ?? "";
+                
+                Debug.Log($"[RevenueCatUI] Android: Presenting paywall with offering: '{offeringId}'");
 
-                // For regular paywall presentation, we don't need an entitlement ID
-                _plugin.CallStatic("presentPaywall", "", offeringId ?? "");
+                // Call Java bridge with both parameters (requiredEntitlementIdentifier not needed for regular paywall)
+                _plugin.CallStatic("presentPaywall", "", offeringId);
             }
             catch (Exception e)
             {
@@ -72,9 +74,12 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 string entitlementId = requiredEntitlementIdentifier ?? "";
-                string offeringId = options?.OfferingIdentifier;
+                string offeringId = options?.OfferingIdentifier ?? "";
 
-                _plugin.CallStatic("presentPaywallIfNeeded", entitlementId, offeringId ?? "");
+                Debug.Log($"[RevenueCatUI] Android: Presenting conditional paywall for entitlement: '{entitlementId}', offering: '{offeringId}'");
+
+                // Call Java bridge with both parameters
+                _plugin.CallStatic("presentPaywallIfNeeded", entitlementId, offeringId);
             }
             catch (Exception e)
             {
@@ -96,6 +101,8 @@ namespace RevenueCat.UI.Platforms
                 string[] parts = resultData.Split('|');
                 string resultString = parts.Length > 0 ? parts[0] : "ERROR";
                 string message = parts.Length > 1 ? parts[1] : "";
+
+                Debug.Log($"[RevenueCatUI] Android: Received paywall result: {resultString} - {message}");
 
                 PaywallResult result;
                 switch (resultString.ToUpper())

@@ -17,7 +17,7 @@ namespace RevenueCat.UI.Platforms
 
         public AndroidCustomerCenterPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.purchases.ui.unity.RevenueCatUIPlugin");
+            _plugin = new AndroidJavaClass("com.revenuecat.unity.RevenueCatUIPlugin");
             RevenueCatUICallbackHandler.Initialize();
             RevenueCatUICallbackHandler.SetAndroidCustomerCenterPresenter(this);
         }
