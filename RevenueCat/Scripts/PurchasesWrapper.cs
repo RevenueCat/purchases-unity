@@ -87,4 +87,6 @@ public interface IPurchasesWrapper
     void GetEligibleWinBackOffersForPackage(Purchases.Package package);
     void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer);
     void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer);
+
+    void PresentPaywall(System.Action<Purchases.PaywallResult> callback);
 }
