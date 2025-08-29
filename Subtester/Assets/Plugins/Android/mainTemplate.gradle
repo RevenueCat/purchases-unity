@@ -36,6 +36,8 @@ android {
 }
 // Android Resolver Exclusions End
 android {
+    namespace "com.unity3d.player"
+
     compileSdkVersion **APIVERSION**
     buildToolsVersion '**BUILDTOOLS**'
 
