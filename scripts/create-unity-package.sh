@@ -25,6 +25,10 @@ awk '!/com.revenuecat.purchases-unity/' $MANIFEST_JSON_PATH > temp && mv temp $M
 FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
+# Unity 6.2 compatibility: Set build cache cleanup for clean package generation
+# This ensures consistent package generation across different Unity versions
+export UNITY_BUILD_CACHE_CLEAN=1
+
 if ! [ -d "$PROJECT" ]; then
     echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
     rm $SYMBOLIC_LINK_PATH
@@ -33,7 +37,15 @@ fi
 
 if [ -z "$UNITY_BIN" ]; then
     echo "😞 Unity not passed as parameter!"
-    echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/2019.3.10f1/Unity.app/Contents/MacOS/Unity"
+    echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/6000.2.0f1/Unity.app/Contents/MacOS/Unity"
+    echo "Note: This script is optimized for Unity 6.2 (6000.2.x) but should work with Unity 2021.3+ versions"
+    rm $SYMBOLIC_LINK_PATH
+    exit 1
+fi
+
+# Verify Unity binary exists and is executable
+if [ ! -x "$UNITY_BIN" ]; then
+    echo "😞 Unity binary not found or not executable at: $UNITY_BIN"
     rm $SYMBOLIC_LINK_PATH
     exit 1
 fi
@@ -61,12 +73,16 @@ fi
 
 echo "📦 Creating Purchases.unitypackage, this may take a minute."
 
+# Unity 6.2+ optimizations:
+# -disable-assembly-updater: Speeds up package creation by skipping assembly updates
+# -gvh_disable: Required for External Dependency Manager compatibility
 if [ ! -z "$CI" ] ; then
     xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
     -nographics \
     -silent-crashes \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile \
+    -disable-assembly-updater \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
 else
@@ -74,6 +90,7 @@ else
     -nographics \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile exportlog.txt \
+    -disable-assembly-updater \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
 fi

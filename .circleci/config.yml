@@ -37,16 +37,22 @@ orbs:
 executors:
   unity:
     docker:
-      - image: unityci/editor:2021.3.3f1-base-1.0
+      - image: unityci/editor:6000.2.0f1-base-1
         environment:
           TAR_OPTIONS: --no-same-owner
+          # Unity 6.2 compatibility: Set cache root for package manager
+          UPM_CACHE_ROOT: /tmp/upm-cache
 
   unity-android:
     docker:
-      - image: unityci/editor:2021.3.3f1-android-1
+      - image: unityci/editor:6000.2.0f1-android-1
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
   unity-ios:
     docker:
-      - image: unityci/editor:2021.3.3f1-ios-1
+      - image: unityci/editor:6000.2.0f1-ios-1
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
 
 parameters:
    action:
@@ -86,6 +92,7 @@ commands:
               -batchmode \
               -nographics \
               -logFile /dev/stdout \
+              -disable-assembly-updater \
               -importPackage ../Purchases.unitypackage
 
       - run:
@@ -111,6 +118,7 @@ commands:
             -nographics \
             -silent-crashes \
             -logFile \
+            -disable-assembly-updater \
             -manualLicenseFile Unity.x.ulf || exit 0
 
   perform-build:
@@ -135,6 +143,7 @@ commands:
             -customBuildOptions AcceptExternalModificationsToPlayer \
             -executeMethod BuildCommand.PerformBuild \
             -nographics \
+            -disable-assembly-updater \
             -logFile /dev/stdout || exit 0
 
   resolve-dependencies:
@@ -156,6 +165,7 @@ commands:
               -customBuildOptions AcceptExternalModificationsToPlayer \
               -executeMethod BuildCommand.Resolve \
               -nographics \
+              -disable-assembly-updater \
               -logFile /dev/stdout
 
   copy-api-tests-and-utils-to-subtester:
