@@ -382,8 +382,8 @@ MonoBehaviour:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 307c0000
-    m_LastClickedID: 31792
+    m_SelectedIDs: 30700000
+    m_LastClickedID: 28720
     m_ExpandedIDs: 00000000b66f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -441,7 +441,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c6230000
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
@@ -546,7 +546,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 70aaffff86aeffff
+      m_ExpandedIDs: 88daffff06dcffff1edcffff2addffff18fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1198,7 +1198,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 883, y: 513.5}
+  m_TargetSize: {x: 1766, y: 1027}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 0
@@ -1213,10 +1213,10 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -220.75
-    m_HBaseRangeMax: 220.75
-    m_VBaseRangeMin: -128.375
-    m_VBaseRangeMax: 128.375
+    m_HBaseRangeMin: -441.5
+    m_HBaseRangeMax: 441.5
+    m_VBaseRangeMin: -256.75
+    m_VBaseRangeMax: 256.75
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -1236,7 +1236,7 @@ MonoBehaviour:
       y: 21
       width: 883
       height: 513.5
-    m_Scale: {x: 2, y: 2}
+    m_Scale: {x: 1, y: 1}
     m_Translation: {x: 441.5, y: 256.75}
     m_MarginLeft: 0
     m_MarginRight: 0
@@ -1244,12 +1244,12 @@ MonoBehaviour:
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -220.75
-      y: -128.375
-      width: 441.5
-      height: 256.75
+      x: -441.5
+      y: -256.75
+      width: 883
+      height: 513.5
     m_MinimalGUI: 1
-  m_defaultScale: 2
+  m_defaultScale: 1
   m_LastWindowPixelSize: {x: 1766, y: 1069}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
