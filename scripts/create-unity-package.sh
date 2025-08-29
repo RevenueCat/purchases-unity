@@ -63,7 +63,27 @@ fi
 if [ -f $PROJECT/external-dependency-manager-*.unitypackage ]; then
     echo "👌 External dependency manager plugin found. It will be added to the unitypackage."
 else
-    wget https://github.com/googlesamples/unity-jar-resolver/raw/master/external-dependency-manager-latest.unitypackage -P $PROJECT
+    echo "⬇️ Downloading External Dependency Manager..."
+    EDM_URL="https://github.com/googlesamples/unity-jar-resolver/raw/master/external-dependency-manager-latest.unitypackage"
+    EDM_FILE="$PROJECT/external-dependency-manager-latest.unitypackage"
+    
+    # Try wget first (more reliable in CI), fallback to curl
+    if command -v wget >/dev/null 2>&1; then
+        wget "$EDM_URL" -O "$EDM_FILE"
+    elif command -v curl >/dev/null 2>&1; then
+        curl -L "$EDM_URL" -o "$EDM_FILE"
+    else
+        echo "❌ Neither wget nor curl found. Please install one of them."
+        rm $SYMBOLIC_LINK_PATH
+        exit 1
+    fi
+    
+    # Verify download succeeded
+    if [ ! -f "$EDM_FILE" ]; then
+        echo "❌ Failed to download External Dependency Manager"
+        rm $SYMBOLIC_LINK_PATH
+        exit 1
+    fi
 fi
 
 if [ -f $PACKAGE ]; then
