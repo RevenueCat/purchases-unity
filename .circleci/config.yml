@@ -181,53 +181,6 @@ commands:
             cp IntegrationTests/Assets/Editor/CIEditorScript.cs Subtester/Assets/Editor/CIEditorScript.cs
 
 jobs:
-  # Custom job to create Unity 6.2 activation file with correct Docker image
-  create-unity-6-2-activation-file:
-    docker:
-      - image: unityci/editor:ubuntu-2023.2.20f1-base-3
-        environment:
-          TAR_OPTIONS: --no-same-owner
-          UPM_CACHE_ROOT: /tmp/upm-cache
-    resource_class: medium
-    steps:
-      - checkout
-      - run:
-          name: Create Unity activation file
-          command: |
-            #!/bin/bash
-            
-            echo "Creating Unity 6.2 manual activation file..."
-            
-            create_manual_activation_file() {
-              /opt/unity/Editor/Unity \
-                -batchmode \
-                -nographics \
-                -createManualActivationFile \
-                -quit \
-                -logfile /dev/stdout
-
-              # Check if license file was created successfully
-              if ls Unity_v*.alf &> /dev/null; then 
-                echo "✅ Unity activation file created successfully"
-                return 0
-              else 
-                echo "❌ Failed to create Unity activation file"
-                return 1
-              fi
-            }
-
-            if ! create_manual_activation_file; then
-              echo "Failed to create Unity license file."
-              echo "Please try again or open an issue."
-              exit 1
-            fi
-
-            # Rename for easier download
-            mv Unity_v*.alf Unity.alf
-            echo "📄 Activation file ready: Unity.alf"
-      - store_artifacts:
-          path: Unity.alf
-
   export-package:
     executor: unity
 
@@ -415,12 +368,6 @@ jobs:
 
 workflows:
   version: 2
-  # Temporary workflow to create Unity 6.2 activation file
-  # Run this once to generate Unity.alf, then disable/remove this workflow
-  create-unity-6-2-activation-file:
-    jobs:
-      - create-unity-6-2-activation-file
-
   danger:
     when:
       not:
@@ -433,13 +380,18 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package
-      - build-subtester-android
-      - build-subtester-ios
+      - export-package:
+          context: unity  # Add your CircleCI context name here
+      - build-subtester-android:
+          context: unity
+      - build-subtester-ios:
+          context: unity
       - build-integration-tests-android:
+          context: unity
           requires:
             - export-package
       - build-integration-tests-ios:
+          context: unity
           requires:
             - export-package
       - archive-ios:
@@ -463,7 +415,9 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package: *release-tags
+      - export-package: 
+          context: unity
+          <<: *release-tags
       - github-release:
           requires:
             - export-package
