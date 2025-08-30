@@ -18,11 +18,44 @@ SYMBOLIC_LINK_PATH="$PROJECT/Assets/RevenueCat"
 MANIFEST_JSON_PATH="$PROJECT/Packages/manifest.json"
 # Here we are adding a symbolic link in the Subtester/Assets project to the RevenueCat scripts so they are exported
 # as part of the .unitypackage
+echo "🔗 Creating symlink: $PWD/RevenueCat → $PROJECT/Assets/RevenueCat"
 ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
+
+# Verify symlink was created successfully
+if [ -L "$PROJECT/Assets/RevenueCat" ]; then
+    echo "✅ Symlink created successfully"
+    echo "📁 RevenueCat folder contents:"
+    ls -la "$PROJECT/Assets/RevenueCat/" | head -5
+else
+    echo "❌ Failed to create symlink!"
+    rm -f $SYMBOLIC_LINK_PATH
+    exit 1
+fi
 # This removes the purchases-unity package dependency from the Subtester project
 # to export it, otherwise it will fail due to duplicated files with the package dependency.
+echo "📄 Original manifest.json:"
+cat $MANIFEST_JSON_PATH
+echo ""
 awk '!/com.revenuecat.purchases-unity/' $MANIFEST_JSON_PATH > temp && mv temp $MANIFEST_JSON_PATH
-FOLDERS_TO_EXPORT=$(cd $PROJECT; find Assets/RevenueCat/* Assets/PlayServicesResolver Assets/ExternalDependencyManager -type d -prune)
+echo "📄 Modified manifest.json:"
+cat $MANIFEST_JSON_PATH
+echo ""
+# Build export folders list, checking what actually exists
+FOLDERS_TO_EXPORT=""
+cd $PROJECT
+if [ -d "Assets/RevenueCat" ]; then
+    REVENUECAT_FOLDERS=$(find Assets/RevenueCat/* -type d -prune 2>/dev/null | tr '\n' ' ')
+    FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT $REVENUECAT_FOLDERS"
+fi
+if [ -d "Assets/PlayServicesResolver" ]; then
+    FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/PlayServicesResolver"
+fi  
+if [ -d "Assets/ExternalDependencyManager" ]; then
+    FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/ExternalDependencyManager"
+fi
+cd - > /dev/null
+
+echo "📁 Folders to export: $FOLDERS_TO_EXPORT"
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
 # Unity 6.2 compatibility: Set build cache cleanup for clean package generation
@@ -105,6 +138,7 @@ if [ ! -z "$CI" ] ; then
     -disable-assembly-updater \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
+    UNITY_EXIT_CODE=$?
 else
     $UNITY_BIN -gvh_disable \
     -nographics \
@@ -113,8 +147,20 @@ else
     -disable-assembly-updater \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
+    UNITY_EXIT_CODE=$?
 fi
 
-echo "Unity package created"
+# Check if Unity succeeded and package was actually created
+if [ $UNITY_EXIT_CODE -eq 0 ] && [ -f "$PACKAGE" ]; then
+    echo "✅ Unity package created successfully: $PACKAGE"
+else
+    echo "❌ Unity package creation failed!"
+    echo "   Unity exit code: $UNITY_EXIT_CODE"
+    if [ ! -f "$PACKAGE" ]; then
+        echo "   Package file not found: $PACKAGE"
+    fi
+    rm -f $SYMBOLIC_LINK_PATH
+    exit 1
+fi
 
 rm $SYMBOLIC_LINK_PATH
