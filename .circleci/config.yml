@@ -104,24 +104,6 @@ commands:
             # rename all the .cs.break files in APITests to .cs
             for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
 
-  activate-license:
-    description: "Activates Unity license"
-    steps:
-      - run:
-          name: Decode license in env variable
-          command: echo $UNITY_LICENSE | base64 --decode >> Unity.x.ulf
-      - run:
-          name: Import Unity license file
-          command: |
-            /opt/unity/Editor/Unity -projectPath IntegrationTests \
-            -quit \
-            -batchmode \
-            -nographics \
-            -silent-crashes \
-            -logFile \
-            -disable-assembly-updater \
-            -manualLicenseFile Unity.x.ulf || exit 0
-
   perform-build:
     description: "Builds Unity project"
     parameters:
@@ -186,7 +168,7 @@ jobs:
 
     steps:
       - checkout
-      - activate-license
+      - unity/prepare-env
 
       - run:
           name: Export Unity Package
@@ -211,7 +193,7 @@ jobs:
 
       - copy-api-tests-and-utils-to-subtester
 
-      - activate-license
+      - unity/prepare-env
 
       - resolve-dependencies:
           project: Subtester
@@ -233,7 +215,7 @@ jobs:
 
       - copy-api-tests-and-utils-to-subtester
 
-      - activate-license
+      - unity/prepare-env
 
       - resolve-dependencies:
           project: Subtester
@@ -255,7 +237,7 @@ jobs:
       - attach_workspace:
           at: .
 
-      - activate-license
+      - unity/prepare-env
 
       - import-package
 
@@ -277,7 +259,7 @@ jobs:
       - attach_workspace:
           at: .
 
-      - activate-license
+      - unity/prepare-env
 
       - import-package
 
