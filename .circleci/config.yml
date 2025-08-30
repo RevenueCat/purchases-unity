@@ -33,6 +33,7 @@ aliases:
 
 orbs:
   revenuecat: revenuecat/sdks-common-config@2.2.0
+  unity: game-ci/unity@3.1.0
 
 executors:
   unity:
@@ -367,6 +368,13 @@ jobs:
 
 workflows:
   version: 2
+  # Temporary workflow to create Unity 6.2 activation file
+  # Run this once to generate Unity.alf, then disable/remove this workflow
+  create-unity-6-2-activation-file:
+    jobs:
+      - unity/create-activation-file:
+          editor_version: 6000.2.2f1
+
   danger:
     when:
       not:

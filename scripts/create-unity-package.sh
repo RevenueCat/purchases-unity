@@ -37,7 +37,7 @@ fi
 
 if [ -z "$UNITY_BIN" ]; then
     echo "😞 Unity not passed as parameter!"
-    echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/6000.2.0f1/Unity.app/Contents/MacOS/Unity"
+    echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/6000.2.2f1/Unity.app/Contents/MacOS/Unity"
     echo "Note: This script is optimized for Unity 6.2 (6000.2.x) but should work with Unity 2021.3+ versions"
     rm $SYMBOLIC_LINK_PATH
     exit 1
