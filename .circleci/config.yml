@@ -373,7 +373,7 @@ workflows:
   create-unity-6-2-activation-file:
     jobs:
       - unity/create-activation-file:
-          editor_version: 6000.2.2f1
+          editor_version: 6000.2.2f1-3.1.0
 
   danger:
     when:
