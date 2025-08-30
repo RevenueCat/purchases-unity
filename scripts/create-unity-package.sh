@@ -18,6 +18,10 @@ SYMBOLIC_LINK_PATH="$PROJECT/Assets/RevenueCat"
 MANIFEST_JSON_PATH="$PROJECT/Packages/manifest.json"
 # Here we are adding a symbolic link in the Subtester/Assets project to the RevenueCat scripts so they are exported
 # as part of the .unitypackage
+echo "📁 Source RevenueCat folder contents:"
+ls -la "$PWD/RevenueCat/"
+echo ""
+
 echo "🔗 Creating symlink: $PWD/RevenueCat → $PROJECT/Assets/RevenueCat"
 ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
 
@@ -25,7 +29,20 @@ ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
 if [ -L "$PROJECT/Assets/RevenueCat" ]; then
     echo "✅ Symlink created successfully"
     echo "📁 RevenueCat folder contents:"
-    ls -la "$PROJECT/Assets/RevenueCat/" | head -5
+    ls -la "$PROJECT/Assets/RevenueCat/"
+    echo ""
+    echo "📂 Checking for Scripts folder specifically:"
+    if [ -d "$PROJECT/Assets/RevenueCat/Scripts" ]; then
+        echo "  ✅ Scripts folder exists"
+        echo "  📄 Scripts contents:"
+        ls -la "$PROJECT/Assets/RevenueCat/Scripts/" | head -10
+    else
+        echo "  ❌ Scripts folder missing!"
+    fi
+    echo ""
+    echo "📂 Checking assembly definition files:"
+    find "$PROJECT/Assets/RevenueCat" -name "*.asmdef" -type f
+    echo ""
 else
     echo "❌ Failed to create symlink!"
     rm -f $SYMBOLIC_LINK_PATH
@@ -56,6 +73,17 @@ fi
 cd - > /dev/null
 
 echo "📁 Folders to export: $FOLDERS_TO_EXPORT"
+
+# Check if there are any assembly definition files that might affect compilation order
+echo "🔍 Checking assembly definitions in Subtester project:"
+find "$PROJECT/Assets" -name "*.asmdef" -type f -exec basename {} \;
+echo ""
+
+# Note: We need to keep all Subtester scripts intact as they're part of the testing infrastructure
+# Give Unity a moment to recognize the new symlinked assemblies
+echo "⏳ Allowing Unity to recognize symlinked assemblies..."
+sleep 2
+
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
 # Unity 6.2 compatibility: Set build cache cleanup for clean package generation
@@ -149,6 +177,8 @@ else
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
     UNITY_EXIT_CODE=$?
 fi
+
+# Unity export completed
 
 # Check if Unity succeeded and package was actually created
 if [ $UNITY_EXIT_CODE -eq 0 ] && [ -f "$PACKAGE" ]; then
