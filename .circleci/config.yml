@@ -184,7 +184,7 @@ jobs:
   # Custom job to create Unity 6.2 activation file with correct Docker image
   create-unity-6-2-activation-file:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-base-3
+      - image: unityci/editor:ubuntu-2023.2.20f1-base-3
         environment:
           TAR_OPTIONS: --no-same-owner
           UPM_CACHE_ROOT: /tmp/upm-cache
