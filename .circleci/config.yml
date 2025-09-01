@@ -125,7 +125,7 @@ commands:
               -customBuildName << parameters.target >> \
               -customBuildPath build \
               -customBuildOptions AcceptExternalModificationsToPlayer \
-              -executeMethod BuildCommand.PerformBuild \
+              -executeMethod RevenueCatBuildCommand.PerformBuild \
               -nographics \
               -disable-assembly-updater \
               -logFile /dev/stdout
@@ -147,7 +147,7 @@ commands:
               -buildTarget << parameters.target >> \
               -customBuildTarget << parameters.target >> \
               -customBuildOptions AcceptExternalModificationsToPlayer \
-              -executeMethod BuildCommand.Resolve \
+              -executeMethod RevenueCatBuildCommand.Resolve \
               -nographics \
               -disable-assembly-updater \
               -logFile /dev/stdout
