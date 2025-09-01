@@ -124,18 +124,20 @@ commands:
       - run:
           name: Build Unity project and export it
           command: |
+            set -euo pipefail
             /opt/unity/Editor/Unity \
-            -projectPath << parameters.project >> \
-            -quit \
-            -batchmode \
-            -buildTarget << parameters.target >> \
-            -customBuildTarget << parameters.target >> \
-            -customBuildName << parameters.target >> \
-            -customBuildPath build \
-            -customBuildOptions AcceptExternalModificationsToPlayer \
-            -executeMethod BuildCommand.PerformBuild \
-            -nographics \
-            -logFile /dev/stdout || exit 0
+              -projectPath << parameters.project >> \
+              -quit \
+              -batchmode \
+              -buildTarget << parameters.target >> \
+              -customBuildTarget << parameters.target >> \
+              -customBuildName << parameters.target >> \
+              -customBuildPath build \
+              -customBuildOptions AcceptExternalModificationsToPlayer \
+              -executeMethod BuildCommand.PerformBuild \
+              -nographics \
+              -disable-assembly-updater \
+              -logFile /dev/stdout
 
   resolve-dependencies:
     description: "Resolve Dependencies"
@@ -209,6 +211,10 @@ jobs:
       - perform-build:
           project: Subtester
           target: Android
+
+      - run:
+          name: Verify APK exists
+          command: test -f Subtester/buildAndroid.apk
 
       - store_artifacts:
           path: Subtester/buildAndroid.apk
