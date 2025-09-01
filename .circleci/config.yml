@@ -205,8 +205,7 @@ jobs:
           target: Android
       - run:
           name: Verify APK exists
-          command: |
-          test -f Subtester/buildAndroid.apk
+          command: test -f Subtester/buildAndroid.apk
 
       - store_artifacts:
           path: Subtester/buildAndroid.apk
