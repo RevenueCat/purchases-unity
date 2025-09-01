@@ -257,12 +257,16 @@ jobs:
           project: IntegrationTests
           target: Android
 
-      - perform-build:
-          project: IntegrationTests
-          target: Android
+      - unity/build:
+          project-path: IntegrationTests
+          build-target: Android
+          build-name: Android
+          build-method: BuildCommand.PerformBuild
+          custom-parameters: |
+            -customBuildOptions AcceptExternalModificationsToPlayer
 
       - store_artifacts:
-          path: IntegrationTests/buildAndroid.apk
+          path: IntegrationTests/Builds/Android/Android.apk
 
   build-integration-tests-ios:
     executor: unity-ios
@@ -374,16 +378,16 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      # - export-package:
-          # context: unity
+      - export-package:
+          context: unity
       - build-subtester-android:
           context: unity
       # - build-subtester-ios:
           # context: unity
-      # - build-integration-tests-android:
-          # context: unity
-          # requires:
-            # - export-package
+      - build-integration-tests-android:
+          context: unity
+          requires:
+            - export-package
       # - build-integration-tests-ios:
           # context: unity
           # requires:
