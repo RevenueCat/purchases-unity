@@ -204,7 +204,6 @@ jobs:
           project-path: Subtester
           build-target: Android
           custom-parameters: |
-            -executeMethod BuildCommand.PerformBuild \
             -customBuildTarget Android \
             -customBuildName Android \
             -customBuildPath build \
