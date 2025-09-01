@@ -208,7 +208,7 @@ jobs:
           project-path: Subtester
           build-target: Android
           build-name: Android
-          build-method: BuildCommand.PerformBuild
+          build-method: RevenueCatBuildCommand.PerformBuild
           custom-parameters: |
             -customBuildOptions AcceptExternalModificationsToPlayer
       - run:
