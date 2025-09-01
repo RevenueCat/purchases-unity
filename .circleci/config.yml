@@ -203,6 +203,7 @@ jobs:
       - unity/build:
           project-path: Subtester
           build-target: Android
+          build-method: BuildCommand.PerformBuild
           custom-parameters: |
             -customBuildTarget Android \
             -customBuildName Android \
