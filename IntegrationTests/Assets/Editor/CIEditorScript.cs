@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using Google;
 
-static class BuildCommand
+static class RevenueCatBuildCommand
 {
     private const string KEYSTORE_PASS  = "KEYSTORE_PASS";
     private const string KEY_ALIAS_PASS = "KEY_ALIAS_PASS";
