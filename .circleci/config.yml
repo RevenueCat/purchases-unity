@@ -193,6 +193,7 @@ jobs:
 
   build-subtester-android:
     executor: unity-android
+    resource_class: large
     steps:
       - checkout
       - attach_workspace:
@@ -239,6 +240,7 @@ jobs:
 
   build-integration-tests-android:
     executor: unity-android
+    resource_class: large
     steps:
       - checkout
       - attach_workspace:
