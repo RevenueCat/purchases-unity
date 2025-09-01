@@ -142,7 +142,7 @@ static class RevenueCatBuildCommand
         Console.WriteLine(":: Resolving");
         
         VersionHandler.UpdateCompleteMethods = new [] {
-            ":BuildCommand:ResolverEnabled"
+            ":RevenueCatBuildCommand:ResolverEnabled"
         };
         VersionHandler.UpdateNow();
     }
