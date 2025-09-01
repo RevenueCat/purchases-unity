@@ -14,10 +14,6 @@ apply plugin: 'com.android.library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-// Android Resolver Dependencies Start
-    implementation 'androidx.annotation:annotation:[1.2.0]' // Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml:5
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[14.2.0]' // Assets/RevenueCat/Plugins/Editor/RevenueCatDependencies.xml:4
-// Android Resolver Dependencies End
 **DEPS**}
 
 // Android Resolver Exclusions Start
