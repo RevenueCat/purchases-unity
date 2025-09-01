@@ -44,12 +44,6 @@ executors:
   unity-android:
     docker:
       - image: unityci/editor:2021.3.3f1-android-1
-        environment:
-          TAR_OPTIONS: --no-same-owner
-          # Keep Gradle lightweight to avoid daemon OOMs
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx2048m -Dfile.encoding=UTF-8 -XX:+UseG1GC -XX:MaxMetaspaceSize=512m'"
-          _JAVA_OPTIONS: "-Xmx1024m -Dfile.encoding=UTF-8 -XX:+UseG1GC -XX:MaxMetaspaceSize=512m"
-          JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
   unity-ios:
     docker:
       - image: unityci/editor:2021.3.3f1-ios-1
