@@ -43,17 +43,21 @@ executors:
           TAR_OPTIONS: --no-same-owner
           # Unity 6.2 compatibility: Set cache root for package manager
           UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
 
   unity-android:
     docker:
       - image: unityci/editor:ubuntu-6000.2.2f1-android-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
+
   unity-ios:
     docker:
       - image: unityci/editor:ubuntu-6000.2.2f1-ios-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
 
 parameters:
    action:
@@ -203,18 +207,16 @@ jobs:
       - unity/build:
           project-path: Subtester
           build-target: Android
+          build-name: Android
           build-method: BuildCommand.PerformBuild
           custom-parameters: |
-            -customBuildTarget Android \
-            -customBuildName Android \
-            -customBuildPath build \
             -customBuildOptions AcceptExternalModificationsToPlayer
       - run:
           name: Verify APK exists
-          command: test -f Subtester/buildAndroid.apk
+          command: test -f Subtester/Builds/Android/Android.apk
 
       - store_artifacts:
-          path: Subtester/buildAndroid.apk
+          path: Subtester/Builds/Android/Android.apk
 
   build-subtester-ios:
     executor: unity-ios
