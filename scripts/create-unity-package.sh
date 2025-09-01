@@ -22,12 +22,36 @@ echo "📁 Source RevenueCat folder contents:"
 ls -la "$PWD/RevenueCat/"
 echo ""
 
-echo "🔗 Creating symlink: $PWD/RevenueCat → $PROJECT/Assets/RevenueCat"
-ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
+if [ ! -z "$CI" ]; then
+    # In CI (Linux), Unity doesn't traverse symlinks properly, so copy the folder
+    echo "🔧 CI environment detected - copying RevenueCat folder instead of symlinking"
+    echo "📁 Copying: $PWD/RevenueCat → $PROJECT/Assets/RevenueCat"
+    cp -r "$PWD/RevenueCat" "$PROJECT/Assets/"
+    
+    # Verify copy was successful
+    if [ -d "$PROJECT/Assets/RevenueCat" ]; then
+        echo "✅ RevenueCat folder copied successfully"
+    else
+        echo "❌ Failed to copy RevenueCat folder!"
+        exit 1
+    fi
+else
+    # Local development (macOS) - use symlink for convenience
+    echo "🔗 Creating symlink: $PWD/RevenueCat → $PROJECT/Assets/RevenueCat"
+    ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
+    
+    # Verify symlink was created successfully
+    if [ -L "$PROJECT/Assets/RevenueCat" ]; then
+        echo "✅ Symlink created successfully"
+    else
+        echo "❌ Failed to create symlink!"
+        rm -f $SYMBOLIC_LINK_PATH
+        exit 1
+    fi
+fi
 
-# Verify symlink was created successfully
-if [ -L "$PROJECT/Assets/RevenueCat" ]; then
-    echo "✅ Symlink created successfully"
+# Common verification for both approaches
+if [ -d "$PROJECT/Assets/RevenueCat" ]; then
     echo "📁 RevenueCat folder contents:"
     ls -la "$PROJECT/Assets/RevenueCat/"
     echo ""
@@ -44,40 +68,10 @@ if [ -L "$PROJECT/Assets/RevenueCat" ]; then
     find "$PROJECT/Assets/RevenueCat" -name "*.asmdef" -type f
     echo ""
 else
-    echo "❌ Failed to create symlink!"
-    rm -f $SYMBOLIC_LINK_PATH
+    echo "❌ Failed to access RevenueCat folder!"
+    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
     exit 1
 fi
-
-# Fix: In CI environments, .asmdef files may not be properly visible through symlinks
-# Copy assembly definition files explicitly to ensure Unity can find them
-echo "🔧 Ensuring assembly definition files are accessible..."
-ASMDEF_FILES_COPIED=0
-
-# Copy .asmdef files from Scripts folder
-if [ -f "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef" ]; then
-    echo "📋 Copying Scripts assembly definition..."
-    cp "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef" "$PROJECT/Assets/RevenueCat/Scripts/"
-    if [ -f "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef.meta" ]; then
-        cp "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef.meta" "$PROJECT/Assets/RevenueCat/Scripts/"
-    fi
-    ASMDEF_FILES_COPIED=$((ASMDEF_FILES_COPIED + 1))
-fi
-
-# Copy .asmdef files from Editor folder
-if [ -f "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef" ]; then
-    echo "📋 Copying Editor assembly definition..."
-    cp "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef" "$PROJECT/Assets/RevenueCat/Editor/"
-    if [ -f "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef.meta" ]; then
-        cp "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef.meta" "$PROJECT/Assets/RevenueCat/Editor/"
-    fi
-    ASMDEF_FILES_COPIED=$((ASMDEF_FILES_COPIED + 1))
-fi
-
-echo "✅ Copied $ASMDEF_FILES_COPIED assembly definition files"
-echo "📂 Verification - assembly definition files now visible:"
-find "$PROJECT/Assets/RevenueCat" -name "*.asmdef" -type f
-echo ""
 
 # This removes the purchases-unity package dependency from the Subtester project
 # to export it, otherwise it will fail due to duplicated files with the package dependency.
@@ -123,7 +117,7 @@ export UNITY_BUILD_CACHE_CLEAN=1
 
 if ! [ -d "$PROJECT" ]; then
     echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
-    rm $SYMBOLIC_LINK_PATH
+    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
     exit 1
 fi
 
@@ -131,14 +125,14 @@ if [ -z "$UNITY_BIN" ]; then
     echo "😞 Unity not passed as parameter!"
     echo "Pass the location of Unity. Something like ./scripts/create-unity-package.sh -u /Applications/Unity/Hub/Editor/6000.2.2f1/Unity.app/Contents/MacOS/Unity"
     echo "Note: This script is optimized for Unity 6.2 (6000.2.x) but should work with Unity 2021.3+ versions"
-    rm $SYMBOLIC_LINK_PATH
+    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
     exit 1
 fi
 
 # Verify Unity binary exists and is executable
 if [ ! -x "$UNITY_BIN" ]; then
     echo "😞 Unity binary not found or not executable at: $UNITY_BIN"
-    rm $SYMBOLIC_LINK_PATH
+    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
     exit 1
 fi
 
@@ -166,14 +160,14 @@ else
         curl -L "$EDM_URL" -o "$EDM_FILE"
     else
         echo "❌ Neither wget nor curl found. Please install one of them."
-        rm $SYMBOLIC_LINK_PATH
+        rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
         exit 1
     fi
     
     # Verify download succeeded
     if [ ! -f "$EDM_FILE" ]; then
         echo "❌ Failed to download External Dependency Manager"
-        rm $SYMBOLIC_LINK_PATH
+        rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
         exit 1
     fi
 fi
@@ -193,7 +187,7 @@ if [ ! -z "$CI" ] ; then
     -nographics \
     -silent-crashes \
     -projectPath $PROJECT \
-    -force-free -quit -batchmode -logFile \
+    -force-free -quit -batchmode -logFile /dev/stdout \
     -disable-assembly-updater \
     -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
@@ -220,8 +214,10 @@ else
     if [ ! -f "$PACKAGE" ]; then
         echo "   Package file not found: $PACKAGE"
     fi
-    rm -f $SYMBOLIC_LINK_PATH
+    # Cleanup RevenueCat folder/symlink
+    rm -rf "$PROJECT/Assets/RevenueCat"
     exit 1
 fi
 
-rm $SYMBOLIC_LINK_PATH
+# Cleanup RevenueCat folder/symlink
+rm -rf "$PROJECT/Assets/RevenueCat"
