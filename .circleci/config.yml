@@ -200,9 +200,15 @@ jobs:
           project: Subtester
           target: Android
 
-      - perform-build:
-          project: Subtester
-          target: Android
+      - unity/build:
+          project-path: Subtester
+          build-target: Android
+          custom-parameters: |
+            -executeMethod BuildCommand.PerformBuild \
+            -customBuildTarget Android \
+            -customBuildName Android \
+            -customBuildPath build \
+            -customBuildOptions AcceptExternalModificationsToPlayer
       - run:
           name: Verify APK exists
           command: test -f Subtester/buildAndroid.apk
