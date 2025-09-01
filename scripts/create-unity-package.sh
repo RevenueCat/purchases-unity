@@ -48,6 +48,37 @@ else
     rm -f $SYMBOLIC_LINK_PATH
     exit 1
 fi
+
+# Fix: In CI environments, .asmdef files may not be properly visible through symlinks
+# Copy assembly definition files explicitly to ensure Unity can find them
+echo "🔧 Ensuring assembly definition files are accessible..."
+ASMDEF_FILES_COPIED=0
+
+# Copy .asmdef files from Scripts folder
+if [ -f "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef" ]; then
+    echo "📋 Copying Scripts assembly definition..."
+    cp "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef" "$PROJECT/Assets/RevenueCat/Scripts/"
+    if [ -f "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef.meta" ]; then
+        cp "$PWD/RevenueCat/Scripts/revenuecat.purchases-unity.asmdef.meta" "$PROJECT/Assets/RevenueCat/Scripts/"
+    fi
+    ASMDEF_FILES_COPIED=$((ASMDEF_FILES_COPIED + 1))
+fi
+
+# Copy .asmdef files from Editor folder
+if [ -f "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef" ]; then
+    echo "📋 Copying Editor assembly definition..."
+    cp "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef" "$PROJECT/Assets/RevenueCat/Editor/"
+    if [ -f "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef.meta" ]; then
+        cp "$PWD/RevenueCat/Editor/revenuecat.purchases-unity.Editor.asmdef.meta" "$PROJECT/Assets/RevenueCat/Editor/"
+    fi
+    ASMDEF_FILES_COPIED=$((ASMDEF_FILES_COPIED + 1))
+fi
+
+echo "✅ Copied $ASMDEF_FILES_COPIED assembly definition files"
+echo "📂 Verification - assembly definition files now visible:"
+find "$PROJECT/Assets/RevenueCat" -name "*.asmdef" -type f
+echo ""
+
 # This removes the purchases-unity package dependency from the Subtester project
 # to export it, otherwise it will fail due to duplicated files with the package dependency.
 echo "📄 Original manifest.json:"
