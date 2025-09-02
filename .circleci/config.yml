@@ -232,7 +232,8 @@ jobs:
 
       - copy-api-tests-and-utils-to-subtester
 
-      - unity/prepare-env
+      - unity/prepare-env:
+          project-path: Subtester
 
       - resolve-dependencies:
           project: Subtester
@@ -286,7 +287,8 @@ jobs:
       - attach_workspace:
           at: .
 
-      - unity/prepare-env
+      - unity/prepare-env:
+          project-path: IntegrationTests
 
       - import-package
 
@@ -393,31 +395,31 @@ workflows:
           context: unity
       - build-subtester-android:
           context: unity
-      # - build-subtester-ios:
-          # context: unity
+      - build-subtester-ios:
+          context: unity
       - build-integration-tests-android:
           context: unity
           requires:
             - export-package
-      # - build-integration-tests-ios:
-          # context: unity
-          # requires:
-            # - export-package
-      # - archive-ios:
-          # requires:
-            # - build-integration-tests-ios
-      # - hold:
-      #     type: approval
-      #     requires:
-      #       - build-integration-tests-android
-      #       - build-subtester-android
-      #       - build-subtester-ios
-      #       - archive-ios
-      #     <<: *release-branches
-      # - revenuecat/tag-current-branch:
-      #     requires:
-      #       - hold
-      #     <<: *release-branches
+      - build-integration-tests-ios:
+          context: unity
+          requires:
+            - export-package
+      - archive-ios:
+          requires:
+            - build-integration-tests-ios
+      - hold:
+          type: approval
+          requires:
+            - build-integration-tests-android
+            - build-subtester-android
+            - build-subtester-ios
+            - archive-ios
+          <<: *release-branches
+      - revenuecat/tag-current-branch:
+          requires:
+            - hold
+          <<: *release-branches
 
   deploy:
     when:

@@ -99,21 +99,11 @@ cd - > /dev/null
 
 echo "📁 Folders to export: $FOLDERS_TO_EXPORT"
 
-# Check if there are any assembly definition files that might affect compilation order
 echo "🔍 Checking assembly definitions in Subtester project:"
 find "$PROJECT/Assets" -name "*.asmdef" -type f -exec basename {} \;
 echo ""
 
-# Note: We need to keep all Subtester scripts intact as they're part of the testing infrastructure
-# Give Unity a moment to recognize the new symlinked assemblies
-echo "⏳ Allowing Unity to recognize symlinked assemblies..."
-sleep 2
-
 PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
-
-# Unity 6.2 compatibility: Set build cache cleanup for clean package generation
-# This ensures consistent package generation across different Unity versions
-export UNITY_BUILD_CACHE_CLEAN=1
 
 if ! [ -d "$PROJECT" ]; then
     echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
@@ -164,7 +154,6 @@ else
         exit 1
     fi
     
-    # Verify download succeeded
     if [ ! -f "$EDM_FILE" ]; then
         echo "❌ Failed to download External Dependency Manager"
         rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
@@ -203,9 +192,6 @@ else
     UNITY_EXIT_CODE=$?
 fi
 
-# Unity export completed
-
-# Check if Unity succeeded and package was actually created
 if [ $UNITY_EXIT_CODE -eq 0 ] && [ -f "$PACKAGE" ]; then
     echo "✅ Unity package created successfully: $PACKAGE"
 else
