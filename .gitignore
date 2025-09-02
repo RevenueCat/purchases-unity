@@ -9,7 +9,7 @@ Android/.idea/*
 Subtester/Assets/Plugins/Android/*.aar
 exportlog.txt
 IntegrationTests/Assets/RevenueCat/
-IntegrationTests/Assets/Plugins/
+IntegrationTests/Assets/Plugins/Android/*.aar
 IntegrationTests/Assets/ExternalDependencyManager/
 IntegrationTests/ProjectSettings/AndroidResolverDependencies.xml
 Purchases.unitypackage
