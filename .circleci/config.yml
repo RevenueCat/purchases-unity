@@ -190,6 +190,7 @@ jobs:
           path: Purchases.unitypackage
 
   build-subtester-android:
+    resource_class: large
     executor: unity-android
     steps:
       - checkout
@@ -214,6 +215,10 @@ jobs:
       - run:
           name: Verify APK exists
           command: test -f Subtester/Builds/Android/Android.apk
+
+      - run:
+          name: Verify APK exists
+          command: test -f Subtester/buildAndroid.apk
 
       - store_artifacts:
           path: Subtester/Builds/Android/Android.apk
@@ -243,6 +248,7 @@ jobs:
             - Subtester/buildiOS
 
   build-integration-tests-android:
+    resource_class: large
     executor: unity-android
     steps:
       - checkout
