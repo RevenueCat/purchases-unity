@@ -212,13 +212,10 @@ jobs:
           build-method: RevenueCatBuildCommand.PerformBuild
           custom-parameters: |
             -customBuildOptions AcceptExternalModificationsToPlayer
-      - run:
-          name: Verify APK exists
-          command: test -f Subtester/Builds/Android/Android.apk
 
       - run:
           name: Verify APK exists
-          command: test -f Subtester/buildAndroid.apk
+          command: test -f Subtester/Builds/Android/Android.apk
 
       - store_artifacts:
           path: Subtester/Builds/Android/Android.apk
@@ -267,9 +264,13 @@ jobs:
           project-path: IntegrationTests
           build-target: Android
           build-name: Android
-          build-method: BuildCommand.PerformBuild
+          build-method: RevenueCatBuildCommand.PerformBuild
           custom-parameters: |
             -customBuildOptions AcceptExternalModificationsToPlayer
+      
+      - run:
+          name: Verify APK exists
+          command: test -f IntegrationTests/Builds/Android/Android.apk
 
       - store_artifacts:
           path: IntegrationTests/Builds/Android/Android.apk
