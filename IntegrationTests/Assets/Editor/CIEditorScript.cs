@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using Google;
 
-static class RevenueCatBuildCommand
+static class BuildCommand
 {
     private const string KEYSTORE_PASS  = "KEYSTORE_PASS";
     private const string KEY_ALIAS_PASS = "KEY_ALIAS_PASS";
@@ -142,7 +142,7 @@ static class RevenueCatBuildCommand
         Console.WriteLine(":: Resolving");
         
         VersionHandler.UpdateCompleteMethods = new [] {
-            ":RevenueCatBuildCommand:ResolverEnabled"
+            ":BuildCommand:ResolverEnabled"
         };
         VersionHandler.UpdateNow();
     }

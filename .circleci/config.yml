@@ -129,7 +129,7 @@ commands:
               -customBuildName << parameters.target >> \
               -customBuildPath build \
               -customBuildOptions AcceptExternalModificationsToPlayer \
-              -executeMethod RevenueCatBuildCommand.PerformBuild \
+              -executeMethod BuildCommand.PerformBuild \
               -nographics \
               -disable-assembly-updater \
               -logFile /dev/stdout
@@ -151,7 +151,7 @@ commands:
               -buildTarget << parameters.target >> \
               -customBuildTarget << parameters.target >> \
               -customBuildOptions AcceptExternalModificationsToPlayer \
-              -executeMethod RevenueCatBuildCommand.Resolve \
+              -executeMethod BuildCommand.Resolve \
               -nographics \
               -disable-assembly-updater \
               -logFile /dev/stdout
@@ -173,7 +173,9 @@ jobs:
 
     steps:
       - checkout
-      - unity/prepare-env
+
+      - unity/prepare-env:
+          project-path: Subtester
 
       - run:
           name: Export Unity Package
@@ -199,7 +201,8 @@ jobs:
 
       - copy-api-tests-and-utils-to-subtester
 
-      - unity/prepare-env
+      - unity/prepare-env:
+          project-path: Subtester
 
       - resolve-dependencies:
           project: Subtester
@@ -209,7 +212,7 @@ jobs:
           project-path: Subtester
           build-target: Android
           build-name: Android
-          build-method: RevenueCatBuildCommand.PerformBuild
+          build-method: BuildCommand.PerformBuild
           custom-parameters: |
             -customBuildOptions AcceptExternalModificationsToPlayer
 
@@ -252,7 +255,8 @@ jobs:
       - attach_workspace:
           at: .
 
-      - unity/prepare-env
+      - unity/prepare-env:
+          project-path: IntegrationTests
 
       - import-package
 
@@ -264,7 +268,7 @@ jobs:
           project-path: IntegrationTests
           build-target: Android
           build-name: Android
-          build-method: RevenueCatBuildCommand.PerformBuild
+          build-method: BuildCommand.PerformBuild
           custom-parameters: |
             -customBuildOptions AcceptExternalModificationsToPlayer
       
