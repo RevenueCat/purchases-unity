@@ -387,8 +387,8 @@ workflows:
     jobs:
       - export-package:
           context: unity
-      # - build-subtester-android:
-      #     context: unity
+      - build-subtester-android:
+          context: unity
       # - build-subtester-ios:
           # context: unity
       - build-integration-tests-android:
