@@ -33,20 +33,31 @@ aliases:
 
 orbs:
   revenuecat: revenuecat/sdks-common-config@2.2.0
+  unity: game-ci/unity@1.7.1
 
 executors:
   unity:
     docker:
-      - image: unityci/editor:2021.3.3f1-base-1.0
+      - image: unityci/editor:ubuntu-6000.2.2f1-base-3
         environment:
           TAR_OPTIONS: --no-same-owner
+          # Unity 6.2 compatibility: Set cache root for package manager
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
 
   unity-android:
     docker:
-      - image: unityci/editor:2021.3.3f1-android-1
+      - image: unityci/editor:ubuntu-6000.2.2f1-android-3
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
+
   unity-ios:
     docker:
-      - image: unityci/editor:2021.3.3f1-ios-1
+      - image: unityci/editor:ubuntu-6000.2.2f1-ios-3
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
 
 parameters:
    action:
@@ -86,6 +97,7 @@ commands:
               -batchmode \
               -nographics \
               -logFile /dev/stdout \
+              -disable-assembly-updater \
               -importPackage ../Purchases.unitypackage
 
       - run:
@@ -95,23 +107,6 @@ commands:
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
             # rename all the .cs.break files in APITests to .cs
             for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
-
-  activate-license:
-    description: "Activates Unity license"
-    steps:
-      - run:
-          name: Decode license in env variable
-          command: echo $UNITY_LICENSE | base64 --decode >> Unity.x.ulf
-      - run:
-          name: Import Unity license file
-          command: |
-            /opt/unity/Editor/Unity -projectPath IntegrationTests \
-            -quit \
-            -batchmode \
-            -nographics \
-            -silent-crashes \
-            -logFile \
-            -manualLicenseFile Unity.x.ulf || exit 0
 
   perform-build:
     description: "Builds Unity project"
@@ -158,6 +153,7 @@ commands:
               -customBuildOptions AcceptExternalModificationsToPlayer \
               -executeMethod BuildCommand.Resolve \
               -nographics \
+              -disable-assembly-updater \
               -logFile /dev/stdout
 
   copy-api-tests-and-utils-to-subtester:
@@ -177,13 +173,15 @@ jobs:
 
     steps:
       - checkout
-      - activate-license
+
+      - unity/prepare-env:
+          project-path: Subtester
 
       - run:
           name: Export Unity Package
           description: Creating Purchases.unitypackage, this may take a minute.
           command: |
-            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity
+            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity -v
 
       - persist_to_workspace:
           root: .
@@ -203,22 +201,27 @@ jobs:
 
       - copy-api-tests-and-utils-to-subtester
 
-      - activate-license
+      - unity/prepare-env:
+          project-path: Subtester
 
       - resolve-dependencies:
           project: Subtester
           target: Android
 
-      - perform-build:
-          project: Subtester
-          target: Android
+      - unity/build:
+          project-path: Subtester
+          build-target: Android
+          build-name: Android
+          build-method: BuildCommand.PerformBuild
+          custom-parameters: |
+            -customBuildOptions AcceptExternalModificationsToPlayer
 
       - run:
           name: Verify APK exists
-          command: test -f Subtester/buildAndroid.apk
+          command: test -f Subtester/Builds/Android/Android.apk
 
       - store_artifacts:
-          path: Subtester/buildAndroid.apk
+          path: Subtester/Builds/Android/Android.apk
 
   build-subtester-ios:
     executor: unity-ios
@@ -229,7 +232,8 @@ jobs:
 
       - copy-api-tests-and-utils-to-subtester
 
-      - activate-license
+      - unity/prepare-env:
+          project-path: Subtester
 
       - resolve-dependencies:
           project: Subtester
@@ -252,7 +256,8 @@ jobs:
       - attach_workspace:
           at: .
 
-      - activate-license
+      - unity/prepare-env:
+          project-path: IntegrationTests
 
       - import-package
 
@@ -260,12 +265,20 @@ jobs:
           project: IntegrationTests
           target: Android
 
-      - perform-build:
-          project: IntegrationTests
-          target: Android
+      - unity/build:
+          project-path: IntegrationTests
+          build-target: Android
+          build-name: Android
+          build-method: BuildCommand.PerformBuild
+          custom-parameters: |
+            -customBuildOptions AcceptExternalModificationsToPlayer
+      
+      - run:
+          name: Verify APK exists
+          command: test -f IntegrationTests/Builds/Android/Android.apk
 
       - store_artifacts:
-          path: IntegrationTests/buildAndroid.apk
+          path: IntegrationTests/Builds/Android/Android.apk
 
   build-integration-tests-ios:
     executor: unity-ios
@@ -274,7 +287,8 @@ jobs:
       - attach_workspace:
           at: .
 
-      - activate-license
+      - unity/prepare-env:
+          project-path: IntegrationTests
 
       - import-package
 
@@ -377,13 +391,18 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package
-      - build-subtester-android
-      - build-subtester-ios
+      - export-package:
+          context: unity
+      - build-subtester-android:
+          context: unity
+      - build-subtester-ios:
+          context: unity
       - build-integration-tests-android:
+          context: unity
           requires:
             - export-package
       - build-integration-tests-ios:
+          context: unity
           requires:
             - export-package
       - archive-ios:
@@ -407,7 +426,9 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - export-package: *release-tags
+      - export-package: 
+          context: unity
+          <<: *release-tags
       - github-release:
           requires:
             - export-package
