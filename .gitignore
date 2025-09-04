@@ -21,6 +21,9 @@ IntegrationTests/buildiOS/
 fastlane/report.xml
 fastlane/.env
 
+# Unity UserSettings (user-specific settings)
+**/UserSettings/
+
 # CircleCI folders
 vendor/
 .bundle/
