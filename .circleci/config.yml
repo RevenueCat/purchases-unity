@@ -181,7 +181,7 @@ jobs:
           name: Export Unity Package
           description: Creating Purchases.unitypackage, this may take a minute.
           command: |
-            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity
+            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity -v
 
       - persist_to_workspace:
           root: .
