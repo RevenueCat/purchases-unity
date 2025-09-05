@@ -15,6 +15,15 @@
 ### 🔄 Other Changes
 * Update Unity IAP compatibility docs (#645) via Toni Rico (@tonidero)
 
+## 8.2.0
+## RevenueCat SDK
+> [!WARNING]  
+> If you don't have any login system in your app, please make sure your one-time purchase products have been correctly configured in the RevenueCat dashboard as either consumable or non-consumable. If they're incorrectly configured as consumables, RevenueCat will consume these purchases. This means that users won't be able to restore them from version 8.0.0 onward.
+> Non-consumables are products that are meant to be bought only once, for example, lifetime subscriptions.
+
+### ✨ New Features
+* Add pricePerWeek/Month/Year convenience properties to StoreProduct (#639) via Toni Rico (@tonidero)
+
 ## 8.1.0
 ## RevenueCat SDK
 > [!WARNING]  
