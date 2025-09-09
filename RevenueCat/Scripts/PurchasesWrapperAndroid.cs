@@ -445,7 +445,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void PresentPaywall(System.Action<Purchases.PaywallResult> callback)
     {
-        CallPurchases("presentPaywall");
+        CallPurchases("presentPaywallForResult", null);
     }
 }
 #endif

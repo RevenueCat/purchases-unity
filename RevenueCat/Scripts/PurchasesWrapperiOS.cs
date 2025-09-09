@@ -7,6 +7,8 @@ using UnityEngine;
 public class PurchasesWrapperiOS : IPurchasesWrapper
 {
     [DllImport("__Internal")]
+    private static extern void _RCPresentPaywall(string offeringIdentifier);
+    [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, string purchasesAreCompletedBy,
                                                  string storeKitVersion, string userDefaultsSuiteName,
                                                  string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
@@ -523,6 +525,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
     {
         _RCPurchasePackageWithWinBackOffer(package.Identifier, package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier);
+    }
+
+    public void PresentPaywall(System.Action<Purchases.PaywallResult> callback)
+    {
+        // Native side will call back into Unity via _paywallResult
+        _RCPresentPaywall(null);
     }
 }
 #endif

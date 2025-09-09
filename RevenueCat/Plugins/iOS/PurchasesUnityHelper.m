@@ -9,6 +9,9 @@
 #import <AdSupport/AdSupport.h>
 @import PurchasesHybridCommon;
 @import RevenueCat;
+// Intentionally avoid importing PurchasesHybridCommonUI headers to prevent build issues
+// when Objective-C exceptions are disabled. We'll call into Swift at runtime.
+#import <objc/message.h>
 
 static NSString *const RECEIVE_STOREFRONT = @"_receiveStorefront";
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
@@ -34,6 +37,7 @@ static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = @"_getEligible
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = @"_getEligibleWinBackOffersForPackage";
 static NSString *const PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = @"_purchaseProductWithWinBackOffer";
 static NSString *const PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = @"_purchasePackageWithWinBackOffer";
+static NSString *const PAYWALL_RESULT = @"_paywallResult";
 #pragma mark Utility Methods
 
 NSString *convertCString(const char *string) {
@@ -1032,4 +1036,48 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
     NSString *presentedOfferingContextJsonString = convertCString(presentedOfferingContextJson);
     NSString *winBackOfferIdentifierString = convertCString(winBackOfferIdentifier);
     [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
+}
+
+// Presents the RevenueCatUI paywall and sends result back to Unity via _paywallResult
+void _RCPresentPaywall(const char *offeringIdentifier) {
+    NSOperatingSystemVersion v = [[NSProcessInfo processInfo] operatingSystemVersion];
+    BOOL supportsPaywall = (v.majorVersion > 15) || (v.majorVersion == 15 && v.minorVersion >= 0);
+    if (supportsPaywall) {
+        Class proxyClass = NSClassFromString(@"PurchasesHybridCommonUI.PaywallProxy");
+        if (proxyClass == nil) {
+            proxyClass = NSClassFromString(@"PaywallProxy");
+        }
+        if (proxyClass == nil) {
+            RCUnityHelperDelegate *helper = _RCUnityHelperShared();
+            UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, "error");
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            id proxy = [[proxyClass alloc] init];
+            NSMutableDictionary *options = [NSMutableDictionary new];
+            options[@"displayCloseButton"] = @YES;
+            if (offeringIdentifier != NULL) {
+                NSString *offering = convertCString(offeringIdentifier);
+                if (offering.length > 0) {
+                    options[@"offeringIdentifier"] = offering;
+                }
+            }
+
+            SEL sel = NSSelectorFromString(@"presentPaywallWithOptions:paywallResultHandler:");
+            if ([proxy respondsToSelector:sel]) {
+                RCUnityHelperDelegate *helper = _RCUnityHelperShared();
+                void (*func)(id, SEL, NSDictionary *, void(^)(NSString *)) = (void *)[proxy methodForSelector:sel];
+                func(proxy, sel, options, ^(NSString *resultName){
+                    NSString *normalized = [[resultName lowercaseString] stringByReplacingOccurrencesOfString:@"_" withString:@""];
+                    UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, normalized.UTF8String);
+                });
+            } else {
+                RCUnityHelperDelegate *helper = _RCUnityHelperShared();
+                UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, "error");
+            }
+        });
+    } else {
+        RCUnityHelperDelegate *helper = _RCUnityHelperShared();
+        UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, "notpresented");
+    }
 }
