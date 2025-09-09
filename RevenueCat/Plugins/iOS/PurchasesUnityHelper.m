@@ -9,9 +9,9 @@
 #import <AdSupport/AdSupport.h>
 @import PurchasesHybridCommon;
 @import RevenueCat;
-// Intentionally avoid importing PurchasesHybridCommonUI headers to prevent build issues
-// when Objective-C exceptions are disabled. We'll call into Swift at runtime.
-#import <objc/message.h>
+@import PurchasesHybridCommonUI;
+// Import Swift interface for direct calls into PaywallProxy
+#import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 static NSString *const RECEIVE_STOREFRONT = @"_receiveStorefront";
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
@@ -1040,41 +1040,24 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
 
 // Presents the RevenueCatUI paywall and sends result back to Unity via _paywallResult
 void _RCPresentPaywall(const char *offeringIdentifier) {
-    NSOperatingSystemVersion v = [[NSProcessInfo processInfo] operatingSystemVersion];
-    BOOL supportsPaywall = (v.majorVersion > 15) || (v.majorVersion == 15 && v.minorVersion >= 0);
-    if (supportsPaywall) {
-        Class proxyClass = NSClassFromString(@"PurchasesHybridCommonUI.PaywallProxy");
-        if (proxyClass == nil) {
-            proxyClass = NSClassFromString(@"PaywallProxy");
-        }
-        if (proxyClass == nil) {
-            RCUnityHelperDelegate *helper = _RCUnityHelperShared();
-            UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, "error");
-            return;
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            id proxy = [[proxyClass alloc] init];
-            NSMutableDictionary *options = [NSMutableDictionary new];
-            options[@"displayCloseButton"] = @YES;
-            if (offeringIdentifier != NULL) {
-                NSString *offering = convertCString(offeringIdentifier);
-                if (offering.length > 0) {
-                    options[@"offeringIdentifier"] = offering;
-                }
-            }
+    if (@available(iOS 15.0, *)) {
+        PaywallProxy *proxy = [[PaywallProxy alloc] init];
 
-            SEL sel = NSSelectorFromString(@"presentPaywallWithOptions:paywallResultHandler:");
-            if ([proxy respondsToSelector:sel]) {
-                RCUnityHelperDelegate *helper = _RCUnityHelperShared();
-                void (*func)(id, SEL, NSDictionary *, void(^)(NSString *)) = (void *)[proxy methodForSelector:sel];
-                func(proxy, sel, options, ^(NSString *resultName){
-                    NSString *normalized = [[resultName lowercaseString] stringByReplacingOccurrencesOfString:@"_" withString:@""];
-                    UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, normalized.UTF8String);
-                });
-            } else {
-                RCUnityHelperDelegate *helper = _RCUnityHelperShared();
-                UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, "error");
+        NSMutableDictionary *options = [NSMutableDictionary new];
+        options[@"displayCloseButton"] = @YES;
+        if (offeringIdentifier != NULL) {
+            NSString *offering = convertCString(offeringIdentifier);
+            if (offering.length > 0) {
+                options[@"offeringIdentifier"] = offering;
             }
+        }
+
+        RCUnityHelperDelegate *helper = _RCUnityHelperShared();
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [proxy presentPaywallWithOptions:options paywallResultHandler:^(NSString * _Nonnull resultName) {
+                NSString *normalized = [[resultName lowercaseString] stringByReplacingOccurrencesOfString:@"_" withString:@""];
+                UnitySendMessage(helper.gameObject.UTF8String, PAYWALL_RESULT.UTF8String, normalized.UTF8String);
+            }];
         });
     } else {
         RCUnityHelperDelegate *helper = _RCUnityHelperShared();
