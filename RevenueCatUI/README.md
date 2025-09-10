@@ -30,18 +30,14 @@ https://github.com/RevenueCat/purchases-unity.git?path=RevenueCatUI
 
 ### Requirements
 
-- **Unity 2022.3 LTS or later**
-- **RevenueCat Unity SDK** - This package depends on the main RevenueCat package
-- **iOS 15.0+** - Required for paywall presentation
-- **Android API 24+** - Required for UI components
+- Unity 2022.3 LTS or later
+- RevenueCat Unity SDK (this package depends on the main RevenueCat package)
 
 ### Dependencies
 
-This package automatically includes:
-- **iOS**: `PurchasesHybridCommonUI` via CocoaPods
-- **Android**: `purchases-hybrid-common-ui` via Gradle
-
-Dependencies are managed by Unity's External Dependency Manager.
+This package is currently stub-only. It does not include native Android/iOS UI
+components or dependency definitions. You can wire your flows against the API in
+Editor and on devices (no-ops), and add native UI code separately when ready.
 
 ## Quick Start
 
@@ -126,15 +122,11 @@ public enum PaywallResultType
 
 ## Architecture
 
-### iOS Implementation
-- **Native Bridge**: `RevenueCatUIBridge.mm` (Objective-C++)
-- **Dependencies**: `PurchasesHybridCommonUI` via External Dependency Manager
-- **Minimum Version**: iOS 15.0 (required for paywall presentation)
-
-### Android Implementation  
-- **Java Bridge**: `RevenueCatUIPlugin.java`
-- **Dependencies**: `purchases-hybrid-common-ui` via Gradle
-- **Minimum Version**: API 24 (Android 7.0)
+### Native Implementation (optional)
+This package ships with stubs only. To enable native UI later:
+- Add your Android/iOS plugin code under `Plugins/` and platform presenters under `Runtime/Platforms/`.
+- Define `REVENUECAT_UI_NATIVE` in Scripting Define Symbols so the factory uses native presenters.
+- Provide dependency specs (EDM4U) in `Plugins/Editor/` when you add native code.
 
 ### Platform Abstraction
 - Factory pattern with `IPaywallPresenter` and `ICustomerCenterPresenter`
@@ -143,12 +135,8 @@ public enum PaywallResultType
 
 ## Platform Support
 
-| Platform | Paywalls | Customer Center | Notes |
-|----------|----------|----------------|-------|
-| iOS      | ✅       | ✅             | Requires iOS 15.0+ |
-| Android  | ✅       | ✅             | Requires API 24+ |  
-| Editor   | ❌       | ❌             | Logs warnings only |
-| Other    | ❌       | ❌             | Graceful fallbacks |
+- Editor / Any platform: Stubs return immediate results (no UI)
+- Native support: Add your native code and set `REVENUECAT_UI_NATIVE`
 
 ## Examples
 

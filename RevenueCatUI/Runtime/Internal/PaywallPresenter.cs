@@ -27,14 +27,12 @@ namespace RevenueCat.UI
 
         private static IPaywallPresenter CreatePlatformPresenter()
         {
-#if REVENUECAT_UI_STUBS
-            return new Platforms.Stub.StubPaywallPresenter();
-#elif UNITY_IOS && !UNITY_EDITOR
+#if REVENUECAT_UI_NATIVE && UNITY_IOS && !UNITY_EDITOR
             return new Platforms.IOSPaywallPresenter();
-#elif UNITY_ANDROID && !UNITY_EDITOR
+#elif REVENUECAT_UI_NATIVE && UNITY_ANDROID && !UNITY_EDITOR
             return new Platforms.AndroidPaywallPresenter();
 #else
-            return new UnsupportedPaywallPresenter();
+            return new Platforms.Stub.StubPaywallPresenter();
 #endif
         }
     }

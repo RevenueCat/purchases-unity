@@ -27,14 +27,12 @@ namespace RevenueCat.UI
 
         private static ICustomerCenterPresenter CreatePlatformPresenter()
         {
-#if REVENUECAT_UI_STUBS
-            return new Platforms.Stub.StubCustomerCenterPresenter();
-#elif UNITY_IOS && !UNITY_EDITOR
+#if REVENUECAT_UI_NATIVE && UNITY_IOS && !UNITY_EDITOR
             return new Platforms.IOSCustomerCenterPresenter();
-#elif UNITY_ANDROID && !UNITY_EDITOR
+#elif REVENUECAT_UI_NATIVE && UNITY_ANDROID && !UNITY_EDITOR
             return new Platforms.AndroidCustomerCenterPresenter();
 #else
-            return new UnsupportedCustomerCenterPresenter();
+            return new Platforms.Stub.StubCustomerCenterPresenter();
 #endif
         }
     }
