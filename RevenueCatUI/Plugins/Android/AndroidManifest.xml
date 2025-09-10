@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Bridge Activity for launching paywalls from Unity PlayerActivity -->
+        <activity 
+            android:name="com.revenuecat.unity.PaywallBridgeActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:exported="false" />
+    </application>
+</manifest> 

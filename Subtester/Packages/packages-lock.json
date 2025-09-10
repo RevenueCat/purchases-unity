@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.revenuecat.purchases-ui-unity": {
+      "version": "file:../../RevenueCatUI",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.revenuecat.purchases-unity": "file:../RevenueCat"
+      }
+    },
     "com.revenuecat.purchases-unity": {
       "version": "file:../../RevenueCat",
       "depth": 0,
@@ -101,8 +109,8 @@
       "source": "registry",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
-        "com.unity.services.core": "1.12.4",
-        "com.unity.modules.jsonserialize": "1.0.0"
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.services.core": "1.12.4"
       },
       "url": "https://packages.unity.com"
     },
@@ -111,9 +119,9 @@
       "depth": 2,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.androidjni": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
         "com.unity.nuget.newtonsoft-json": "3.2.1",
-        "com.unity.modules.unitywebrequest": "1.0.0"
+        "com.unity.modules.androidjni": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
@@ -132,9 +140,9 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.director": "1.0.0",
         "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.particlesystem": "1.0.0"
       },
       "url": "https://packages.unity.com"

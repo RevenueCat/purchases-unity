@@ -1,0 +1,32 @@
+{
+  "name": "com.revenuecat.purchases-ui-unity",
+  "version": "1.0.0",
+  "displayName": "RevenueCat UI SDK for Unity",
+  "description": "Unity UI components for RevenueCat paywalls and customer center. Supports iOS and Android.",
+  "documentationUrl": "https://www.revenuecat.com/docs/unity-ui",
+  "changelogUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/RevenueCatUI/CHANGELOG.md",
+  "licensesUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/LICENSE",
+  "author": {
+    "name": "RevenueCat",
+    "email": "support@revenuecat.com",
+    "url": "https://www.revenuecat.com"
+  },
+  "keywords": [
+    "unity",
+    "ui",
+    "paywall",
+    "customer center",
+    "in-app purchase",
+    "subscriptions",
+    "iap",
+    "iOS",
+    "Apple",
+    "Android"
+  ],
+  "repoUrl": "https://github.com/RevenueCat/purchases-unity",
+  "dependencies": {
+    "com.revenuecat.purchases-unity": "file:../RevenueCat"
+  },
+  "unity": "2021.3",
+  "unityRelease": "0f1"
+} 
