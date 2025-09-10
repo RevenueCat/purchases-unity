@@ -9,7 +9,7 @@ namespace RevenueCat.UI.Internal
     {
         private static RevenueCatUICallbackHandler _instance;
 
-#if REVENUECAT_UI_NATIVE && UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
         private static Platforms.AndroidPaywallPresenter _androidPresenter;
         private static Platforms.AndroidCustomerCenterPresenter _androidCustomerCenterPresenter;
 #endif
@@ -39,7 +39,7 @@ namespace RevenueCat.UI.Internal
         // Called from Android via UnitySendMessage
         public void OnPaywallResult(string resultData)
         {
-#if REVENUECAT_UI_NATIVE && UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
             _androidPresenter?.OnPaywallResult(resultData);
 #endif
         }
@@ -47,7 +47,7 @@ namespace RevenueCat.UI.Internal
         // Called from Android via UnitySendMessage
         public void OnCustomerCenterResult(string resultData)
         {
-#if REVENUECAT_UI_NATIVE && UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
             _androidCustomerCenterPresenter?.OnCustomerCenterResult(resultData);
 #endif
         }

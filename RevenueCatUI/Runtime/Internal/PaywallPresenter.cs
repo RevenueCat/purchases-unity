@@ -27,11 +27,12 @@ namespace RevenueCat.UI
 
         private static IPaywallPresenter CreatePlatformPresenter()
         {
-#if REVENUECAT_UI_NATIVE && UNITY_IOS && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
             return new Platforms.IOSPaywallPresenter();
-#elif REVENUECAT_UI_NATIVE && UNITY_ANDROID && !UNITY_EDITOR
+#elif UNITY_ANDROID && !UNITY_EDITOR
             return new Platforms.AndroidPaywallPresenter();
 #else
+            // Editor/other: fall back to C# stub
             return new Platforms.Stub.StubPaywallPresenter();
 #endif
         }

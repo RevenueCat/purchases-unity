@@ -1,31 +1,23 @@
-# RevenueCat UI for Unity
+# RevenueCat UI for Unity (Stub Package)
 
-Unity UI components (paywalls and customer center) for RevenueCat's subscription management.
+This package provides the Unity API surface for RevenueCat UI (paywalls and customer center),
+implemented with lightweight stubs so you can wire your flows without native dependencies.
 
-## Features
-
-- 🎨 **Native Paywalls**: Present beautiful, native paywalls
-- 🏪 **Customer Center**: Manage subscriptions and customer support
-- 🔄 **Unity Integration**: Clean, async/await APIs following Unity conventions
-- 📱 **Mobile-First**: iOS and Android support
-- 🎯 **Production Ready**: Built on proven purchases-hybrid-common-ui
+Use this to integrate and test control flow in Editor and on devices. Device builds route
+through minimal native stubs; Editor runs C# fallbacks. When ready, replace the minimal
+native code with your real implementations.
 
 ## Installation
 
-### Option 1: Git URL (Development Branch)
-
-Since this package is currently on the `ui-test_v1` branch, install via:
+Add to your Unity project's `Packages/manifest.json`:
 
 ```
-https://github.com/RevenueCat/purchases-unity.git?path=RevenueCatUI#ui-test_v1
-```
-
-### Option 2: Git URL (After Merge to Main)
-
-Once merged to main, you can use:
-
-```
-https://github.com/RevenueCat/purchases-unity.git?path=RevenueCatUI
+{
+  "dependencies": {
+    "com.revenuecat.purchases-unity": "file:../RevenueCat",       // existing core SDK
+    "com.revenuecat.purchases-ui-unity": "file:../RevenueCatUI"   // this UI package (stub)
+  }
+}
 ```
 
 ### Requirements
@@ -35,9 +27,11 @@ https://github.com/RevenueCat/purchases-unity.git?path=RevenueCatUI
 
 ### Dependencies
 
-This package is currently stub-only. It does not include native Android/iOS UI
-components or dependency definitions. You can wire your flows against the API in
-Editor and on devices (no-ops), and add native UI code separately when ready.
+By default this package runs in stub mode. On iOS/Android device builds, the
+API routes through minimal native stubs that immediately return results (no
+external dependencies). In the Editor and other platforms, C# fallbacks return
+the same immediate results. When you’re ready for real UI, replace the minimal
+native code with your implementation and add dependencies as needed.
 
 ## Quick Start
 
@@ -88,14 +82,12 @@ public class MySubscriptionManager : MonoBehaviour
 
 ### RevenueCatUI (Main API)
 
-| Method | Description |
-|--------|-------------|
-| `PresentPaywall()` | Present paywall with default offering |
-| `PresentPaywall(PaywallOptions)` | Present paywall with specific options |
-| `PresentPaywallIfNeeded(string)` | Present paywall only if user lacks entitlement |
-| `PresentPaywallIfNeeded(string, PaywallOptions)` | Conditional paywall with options |
-| `PresentCustomerCenter()` | Present customer center |
-| `IsSupported()` | Check if UI is supported on current platform |
+Implemented now (stubbed behavior everywhere):
+- `PresentPaywall()` — returns `Cancelled` immediately
+- `PresentPaywall(PaywallOptions)` — same as above with options
+- `PresentPaywallIfNeeded(string[, PaywallOptions])` — returns `NotNeeded` immediately
+- `PresentCustomerCenter()` — completes immediately
+- `IsSupported()` — returns `true` on devices; in Editor, `Paywall` is `true` and `Customer Center` may be `false`
 
 ### PaywallOptions
 
@@ -122,11 +114,13 @@ public enum PaywallResultType
 
 ## Architecture
 
-### Native Implementation (optional)
-This package ships with stubs only. To enable native UI later:
-- Add your Android/iOS plugin code under `Plugins/` and platform presenters under `Runtime/Platforms/`.
-- Define `REVENUECAT_UI_NATIVE` in Scripting Define Symbols so the factory uses native presenters.
-- Provide dependency specs (EDM4U) in `Plugins/Editor/` when you add native code.
+### Native Implementation (reference only)
+Minimal native code is provided as a reference scaffold:
+- Android class: `com.revenuecat.unity.RevenueCatUI`
+- iOS functions: `rcui_presentPaywall`, `rcui_presentPaywallIfNeeded`, `rcui_presentCustomerCenter`, `rcui_isSupported`
+
+If/when you add real native UI, update the platform presenters in
+`RevenueCatUI/Runtime/Platforms/{Android,iOS}` to select your implementations.
 
 ### Platform Abstraction
 - Factory pattern with `IPaywallPresenter` and `ICustomerCenterPresenter`
@@ -135,47 +129,23 @@ This package ships with stubs only. To enable native UI later:
 
 ## Platform Support
 
-- Editor / Any platform: Stubs return immediate results (no UI)
-- Native support: Add your native code and set `REVENUECAT_UI_NATIVE`
+- Editor / Any platform: C# fallbacks return immediate results (no UI)
+- iOS/Android device: Minimal native stubs return immediate results (no UI)
 
 ## Examples
 
-See `RevenueCatUIExample.cs` for complete examples including:
-- Basic paywall presentation
-- Conditional paywalls based on entitlements  
-- Customer center presentation
-- Error handling and result processing
-- Integration with RevenueCat SDK
+Examples are not included in this stub package. Use the Quick Start snippet above
+or your own scene code to exercise the API.
 
-## Troubleshooting
+## Troubleshooting (stub mode)
 
-### iOS Issues
-- Ensure Xcode project has iOS 15.0+ deployment target
-- Verify CocoaPods dependencies are resolved
-- Check that `PurchasesHybridCommonUI` is included
-
-### Android Issues  
-- Verify Unity activity extends `FragmentActivity`
-- Check that `purchases-hybrid-common-ui` is in dependencies
-- Ensure minimum API level 24
-
-### General
 - Call `RevenueCatUI.IsSupported()` before presenting UI
-- Initialize RevenueCat SDK before using UI components
-- Check Unity console for debug logs with `[RevenueCatUI]` prefix
+- Initialize the core RevenueCat SDK before using UI components
+- Check Unity console for logs tagged `[RevenueCatUI]`
 
-## Stub Mode (No Native Dependencies)
+## Modes
 
-To integrate the API without pulling native UI dependencies yet, enable stub mode:
-
-- Add scripting define symbol `REVENUECAT_UI_STUBS` in Unity Player Settings.
-- Behavior in stub mode:
-  - `PresentPaywall()` returns `Cancelled` immediately.
-  - `PresentPaywallIfNeeded(...)` returns `NotNeeded` immediately.
-  - `PresentCustomerCenter()` completes immediately.
-  - `IsSupported()` returns `true` so you can wire flows.
-
-Remove the define once you are ready to resolve Android/iOS dependencies and ship the real UI.
+Single mode: stub behavior on all platforms (native stubs on devices, C# fallbacks in Editor).
 
 ## License
 
