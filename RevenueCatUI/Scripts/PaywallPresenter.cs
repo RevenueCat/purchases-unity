@@ -32,8 +32,8 @@ namespace RevenueCat.UI
 #elif UNITY_ANDROID && !UNITY_EDITOR
             return new Platforms.AndroidPaywallPresenter();
 #else
-            // Editor/other: fall back to C# stub
-            return new Platforms.Stub.StubPaywallPresenter();
+            // Editor/other: unsupported implementation (no UI)
+            return new UnsupportedPaywallPresenter();
 #endif
         }
     }
