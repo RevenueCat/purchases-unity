@@ -82,9 +82,12 @@ namespace RevenueCat.UI
         }
 
         /// <summary>
-        /// Checks if the RevenueCat UI components are available on the current platform.
+        /// Checks if RevenueCat UI is available on the current platform.
+        /// Returns true on iOS/Android device builds when both paywall and
+        /// customer center are supported; returns false on other platforms
+        /// (Editor, Windows, macOS, WebGL, etc.).
         /// </summary>
-        /// <returns>True if UI components are supported on this platform</returns>
+        /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public static bool IsSupported()
         {
             try

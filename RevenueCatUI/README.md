@@ -87,7 +87,7 @@ Implemented now (stubbed behavior everywhere):
 - `PresentPaywall(PaywallOptions)` — same as above with options
 - `PresentPaywallIfNeeded(string[, PaywallOptions])` — returns `NotNeeded` immediately
 - `PresentCustomerCenter()` — completes immediately
-- `IsSupported()` — returns `true` on devices; in Editor, `Paywall` is `true` and `Customer Center` may be `false`
+- `IsSupported()` — returns `true` on iOS/Android device builds when both Paywall and Customer Center are available; returns `false` on other platforms (Editor, Windows, macOS, WebGL, etc.)
 
 ### PaywallOptions
 

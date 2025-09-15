@@ -24,9 +24,11 @@ namespace RevenueCat.UI
         Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options);
 
         /// <summary>
-        /// Checks if paywall presentation is supported on this platform.
+        /// Whether paywall presentation is supported on this platform.
+        /// Returns true on iOS/Android device builds; false on other platforms
+        /// (Editor, Windows, macOS, WebGL, etc.).
         /// </summary>
-        /// <returns>True if supported, false otherwise</returns>
+        /// <returns>True if supported on the current platform, otherwise false.</returns>
         bool IsSupported();
     }
 }
