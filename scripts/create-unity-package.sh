@@ -106,8 +106,8 @@ verbose_echo "Original manifest.json contents:"
 if [ "$VERBOSE" = true ]; then
     cat $MANIFEST_JSON_PATH
 fi
-verbose_echo "Removing com.revenuecat.purchases-unity dependency from manifest.json"
-awk '!/com.revenuecat.purchases-unity/' $MANIFEST_JSON_PATH > temp && mv temp $MANIFEST_JSON_PATH
+verbose_echo "Removing com.revenuecat.purchases-unity and com.revenuecat.purchases-ui-unity dependencies from manifest.json"
+awk '!/com.revenuecat.purchases-unity/ && !/com.revenuecat.purchases-ui-unity/' $MANIFEST_JSON_PATH > temp && mv temp $MANIFEST_JSON_PATH
 verbose_echo "Modified manifest.json contents:"
 if [ "$VERBOSE" = true ]; then
     cat $MANIFEST_JSON_PATH
