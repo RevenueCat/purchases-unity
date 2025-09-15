@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using RevenueCat.UI.Internal;
+// No Internal handler needed; Android uses direct callbacks via AndroidJavaProxy
 
 namespace RevenueCat.UI.Platforms
 {
@@ -16,7 +16,7 @@ namespace RevenueCat.UI.Platforms
         {
             _plugin = new AndroidJavaClass("com.revenuecat.unity.RevenueCatUI");
             _callbacks = new CallbacksProxy(this);
-            try { _plugin.CallStatic("registerCallbacks", _callbacks); } catch { /* ignore */ }
+            try { _plugin.CallStatic("registerCustomerCenterCallbacks", _callbacks); } catch { /* ignore */ }
         }
 
         public bool IsSupported()
@@ -42,14 +42,9 @@ namespace RevenueCat.UI.Platforms
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidCustomerCenterPresenter _owner;
-            public CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.unity.RevenueCatUI$RevenueCatUICallbacks")
+            public CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.unity.RevenueCatUI$CustomerCenterCallbacks")
             {
                 _owner = owner;
-            }
-
-            public void onPaywallResult(string result)
-            {
-                // No-op for customer center presenter
             }
 
             public void onCustomerCenterResult(string result)

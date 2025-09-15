@@ -3,20 +3,17 @@ package com.revenuecat.unity;
 public class RevenueCatUI {
 
     // Java-side callbacks registered from C#; no UnitySendMessage fallback.
-    public interface RevenueCatUICallbacks {
-        void onPaywallResult(String result);
-        void onCustomerCenterResult(String result);
-    }
+    public interface PaywallCallbacks { void onPaywallResult(String result); }
+    public interface CustomerCenterCallbacks { void onCustomerCenterResult(String result); }
 
-    private static volatile RevenueCatUICallbacks callbacks;
+    private static volatile PaywallCallbacks paywallCallbacks;
+    private static volatile CustomerCenterCallbacks customerCenterCallbacks;
 
-    public static void registerCallbacks(RevenueCatUICallbacks cb) {
-        callbacks = cb;
-    }
+    public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }
+    public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
-    public static void unregisterCallbacks() {
-        callbacks = null;
-    }
+    public static void registerCustomerCenterCallbacks(CustomerCenterCallbacks cb) { customerCenterCallbacks = cb; }
+    public static void unregisterCustomerCenterCallbacks() { customerCenterCallbacks = null; }
 
     public static void presentPaywall(String offeringIdentifier) {
         sendPaywallResult("CANCELLED|Stub: no native UI");
@@ -36,14 +33,14 @@ public class RevenueCatUI {
 
     private static void sendPaywallResult(String result) {
         try {
-            RevenueCatUICallbacks cb = callbacks;
+            PaywallCallbacks cb = paywallCallbacks;
             if (cb != null) cb.onPaywallResult(result);
         } catch (Throwable ignored) {}
     }
 
     private static void sendCustomerCenterResult(String result) {
         try {
-            RevenueCatUICallbacks cb = callbacks;
+            CustomerCenterCallbacks cb = customerCenterCallbacks;
             if (cb != null) cb.onCustomerCenterResult(result);
         } catch (Throwable ignored) {}
     }
