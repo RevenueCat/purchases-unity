@@ -30,4 +30,3 @@ namespace RevenueCat.UI.Platforms.Stub
         }
     }
 }
-

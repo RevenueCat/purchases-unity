@@ -120,7 +120,7 @@ Minimal native code is provided as a reference scaffold:
 - iOS functions: `rcui_presentPaywall`, `rcui_presentPaywallIfNeeded`, `rcui_presentCustomerCenter`, `rcui_isSupported`
 
 If/when you add real native UI, update the platform presenters in
-`RevenueCatUI/Runtime/Platforms/{Android,iOS}` to select your implementations.
+`RevenueCatUI/Scripts/Platforms/{Android,iOS}` to select your implementations.
 
 ### Platform Abstraction
 - Factory pattern with `IPaywallPresenter` and `ICustomerCenterPresenter`
