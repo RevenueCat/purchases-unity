@@ -19,7 +19,8 @@ namespace RevenueCat.UI.Platforms
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
-            s_current = new TaskCompletionSource<PaywallResult>();
+            var tcs = new TaskCompletionSource<PaywallResult>();
+            s_current = tcs;
             try
             {
                 rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
@@ -27,14 +28,15 @@ namespace RevenueCat.UI.Platforms
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywall: {e.Message}");
-                s_current.TrySetResult(PaywallResult.Error);
+                tcs.TrySetResult(PaywallResult.Error);
             }
-            return s_current.Task;
+            return tcs.Task;
         }
 
         public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
         {
-            s_current = new TaskCompletionSource<PaywallResult>();
+            var tcs = new TaskCompletionSource<PaywallResult>();
+            s_current = tcs;
             try
             {
                 rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
@@ -42,9 +44,9 @@ namespace RevenueCat.UI.Platforms
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywallIfNeeded: {e.Message}");
-                s_current.TrySetResult(PaywallResult.Error);
+                tcs.TrySetResult(PaywallResult.Error);
             }
-            return s_current.Task;
+            return tcs.Task;
         }
 
         [AOT.MonoPInvokeCallback(typeof(PaywallResultCallback))]

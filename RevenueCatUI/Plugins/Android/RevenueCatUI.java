@@ -16,18 +16,22 @@ public class RevenueCatUI {
     public static void unregisterCustomerCenterCallbacks() { customerCenterCallbacks = null; }
 
     public static void presentPaywall(String offeringIdentifier) {
+        android.util.Log.d("RevenueCatUI", "presentPaywall(offering=" + offeringIdentifier + ")");
         sendPaywallResult("CANCELLED|Stub: no native UI");
     }
 
     public static void presentPaywallIfNeeded(String requiredEntitlementIdentifier, String offeringIdentifier) {
+        android.util.Log.d("RevenueCatUI", "presentPaywallIfNeeded(entitlement=" + requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ")");
         sendPaywallResult("NOT_PRESENTED|Stub: no native UI");
     }
 
     public static void presentCustomerCenter() {
+        android.util.Log.d("RevenueCatUI", "presentCustomerCenter()");
         sendCustomerCenterResult("DONE|Stub: no native UI");
     }
 
     public static boolean isSupported() {
+        android.util.Log.d("RevenueCatUI", "isSupported() -> true (stub)");
         return true;
     }
 
