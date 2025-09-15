@@ -94,10 +94,15 @@ namespace RevenueCat.UI
             {
                 var paywallPresenter = PaywallPresenter.Instance;
                 var customerCenterPresenter = CustomerCenterPresenter.Instance;
-                return paywallPresenter.IsSupported() && customerCenterPresenter.IsSupported();
+                var paywall = paywallPresenter.IsSupported();
+                var customerCenter = customerCenterPresenter.IsSupported();
+                var supported = paywall && customerCenter;
+                Debug.Log($"[RevenueCatUI] IsSupported check -> Paywall={paywall}, CustomerCenter={customerCenter}, Result={supported}");
+                return supported;
             }
             catch
             {
+                Debug.Log("[RevenueCatUI] IsSupported check threw; returning false");
                 return false;
             }
         }

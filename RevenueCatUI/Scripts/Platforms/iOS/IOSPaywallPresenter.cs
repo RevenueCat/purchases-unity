@@ -20,25 +20,52 @@ namespace RevenueCat.UI.Platforms
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
             s_current = new TaskCompletionSource<PaywallResult>();
-            rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+            try
+            {
+                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywall: {e.Message}");
+                s_current.TrySetResult(PaywallResult.Error);
+            }
             return s_current.Task;
         }
 
         public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
         {
             s_current = new TaskCompletionSource<PaywallResult>();
-            rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+            try
+            {
+                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywallIfNeeded: {e.Message}");
+                s_current.TrySetResult(PaywallResult.Error);
+            }
             return s_current.Task;
         }
 
         [AOT.MonoPInvokeCallback(typeof(PaywallResultCallback))]
         private static void OnResult(string result)
         {
-            var token = (result ?? "ERROR");
-            var native = token.Split('|')[0];
-            var type = PaywallResultTypeExtensions.FromNativeString(native);
-            s_current?.TrySetResult(new PaywallResult(type));
-            s_current = null;
+            try
+            {
+                var token = (result ?? "ERROR");
+                var native = token.Split('|')[0];
+                var type = PaywallResultTypeExtensions.FromNativeString(native);
+                s_current?.TrySetResult(new PaywallResult(type));
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Failed to handle paywall result '{result}': {e.Message}. Setting Error.");
+                s_current?.TrySetResult(PaywallResult.Error);
+            }
+            finally
+            {
+                s_current = null;
+            }
         }
     }
 }

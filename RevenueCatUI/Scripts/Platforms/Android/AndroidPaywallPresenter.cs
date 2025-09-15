@@ -31,10 +31,12 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
+                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}'");
                 _plugin.CallStatic("presentPaywall", offering);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Debug.LogError($"[RevenueCatUI][Android] Exception in presentPaywall: {e.Message}");
                 _current.TrySetResult(PaywallResult.Error);
             }
             return _current.Task;
@@ -46,10 +48,12 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
+                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}'");
                 _plugin.CallStatic("presentPaywallIfNeeded", requiredEntitlementIdentifier, offering);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Debug.LogError($"[RevenueCatUI][Android] Exception in presentPaywallIfNeeded: {e.Message}");
                 _current.TrySetResult(PaywallResult.Error);
             }
             return _current.Task;
@@ -65,8 +69,9 @@ namespace RevenueCat.UI.Platforms
                 var type = PaywallResultTypeExtensions.FromNativeString(token);
                 _current.TrySetResult(new PaywallResult(type));
             }
-            catch
+            catch (Exception e)
             {
+                Debug.LogError($"[RevenueCatUI][Android] Failed to handle paywall result '{resultData}': {e.Message}. Setting Error.");
                 _current.TrySetResult(PaywallResult.Error);
             }
         }
