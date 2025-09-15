@@ -19,6 +19,12 @@ namespace RevenueCat.UI.Platforms
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
+            if (s_current != null && !s_current.Task.IsCompleted)
+            {
+                UnityEngine.Debug.LogWarning("[RevenueCatUI][iOS] Paywall presentation already in progress; rejecting new request.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             var tcs = new TaskCompletionSource<PaywallResult>();
             s_current = tcs;
             try
@@ -29,12 +35,19 @@ namespace RevenueCat.UI.Platforms
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywall: {e.Message}");
                 tcs.TrySetResult(PaywallResult.Error);
+                s_current = null;
             }
             return tcs.Task;
         }
 
         public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
         {
+            if (s_current != null && !s_current.Task.IsCompleted)
+            {
+                UnityEngine.Debug.LogWarning("[RevenueCatUI][iOS] Paywall presentation already in progress; rejecting new request.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             var tcs = new TaskCompletionSource<PaywallResult>();
             s_current = tcs;
             try
@@ -45,6 +58,7 @@ namespace RevenueCat.UI.Platforms
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywallIfNeeded: {e.Message}");
                 tcs.TrySetResult(PaywallResult.Error);
+                s_current = null;
             }
             return tcs.Task;
         }

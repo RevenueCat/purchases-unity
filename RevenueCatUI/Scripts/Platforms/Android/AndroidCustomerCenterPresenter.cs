@@ -19,6 +19,11 @@ namespace RevenueCat.UI.Platforms
             try { _plugin.CallStatic("registerCustomerCenterCallbacks", _callbacks); } catch { /* ignore */ }
         }
 
+        ~AndroidCustomerCenterPresenter()
+        {
+            try { _plugin.CallStatic("unregisterCustomerCenterCallbacks"); } catch { }
+        }
+
         public bool IsSupported()
         {
             try { return _plugin.CallStatic<bool>("isSupported"); }
@@ -27,16 +32,23 @@ namespace RevenueCat.UI.Platforms
 
         public Task PresentCustomerCenterAsync()
         {
+            if (_current != null && !_current.Task.IsCompleted)
+            {
+                Debug.LogWarning("[RevenueCatUI][Android] Customer Center already in progress; rejecting new request.");
+                return Task.CompletedTask;
+            }
+
             _current = new TaskCompletionSource<bool>();
             try { _plugin.CallStatic("presentCustomerCenter"); }
-            catch { _current.TrySetResult(false); }
-            return _current.Task;
+            catch { _current.TrySetResult(false); _current = null; }
+            return _current?.Task ?? Task.CompletedTask;
         }
 
         // Called from Java via AndroidJavaProxy
         public void OnCustomerCenterResult(string resultData)
         {
             _current?.TrySetResult(true);
+            _current = null;
         }
 
         private class CallbacksProxy : AndroidJavaProxy

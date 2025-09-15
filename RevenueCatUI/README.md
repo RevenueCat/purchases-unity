@@ -3,9 +3,10 @@
 This package provides the Unity API surface for RevenueCat UI (paywalls and customer center),
 implemented with lightweight stubs so you can wire your flows without native dependencies.
 
-Use this to integrate and test control flow in Editor and on devices. Device builds route
-through minimal native stubs; Editor runs C# fallbacks. When ready, replace the minimal
-native code with your real implementations.
+Use this to integrate and test control flow on devices. Device builds route
+through minimal native stubs; in the Unity Editor the UI is reported as
+unsupported by default (no UI shown). When ready, replace the minimal native
+code with your real implementations.
 
 ## Installation
 
@@ -22,16 +23,16 @@ Add to your Unity project's `Packages/manifest.json`:
 
 ### Requirements
 
-- Unity 2022.3 LTS or later
+- Unity 2022.3 LTS or later (package.json enforces 2022.3)
 - RevenueCat Unity SDK (this package depends on the main RevenueCat package)
 
 ### Dependencies
 
 By default this package runs in stub mode. On iOS/Android device builds, the
 API routes through minimal native stubs that immediately return results (no
-external dependencies). In the Editor and other platforms, C# fallbacks return
-the same immediate results. When you’re ready for real UI, replace the minimal
-native code with your implementation and add dependencies as needed.
+external dependencies). In the Editor and other platforms, the API reports
+unsupported and no UI is presented. When you’re ready for real UI, replace the
+minimal native code with your implementation and add dependencies as needed.
 
 ## Quick Start
 
@@ -85,9 +86,11 @@ public class MySubscriptionManager : MonoBehaviour
 Implemented now (stubbed behavior everywhere):
 - `PresentPaywall()` — returns `Cancelled` immediately
 - `PresentPaywall(PaywallOptions)` — same as above with options
-- `PresentPaywallIfNeeded(string[, PaywallOptions])` — returns `NotNeeded` immediately
+- `PresentPaywallIfNeeded(string[, PaywallOptions])` — returns `NotPresented` immediately
 - `PresentCustomerCenter()` — completes immediately
 - `IsSupported()` — returns `true` on iOS/Android device builds when both Paywall and Customer Center are available; returns `false` on other platforms (Editor, Windows, macOS, WebGL, etc.)
+- `IsPaywallSupported()` — per-feature capability
+- `IsCustomerCenterSupported()` — per-feature capability
 
 ### PaywallOptions
 
@@ -130,10 +133,16 @@ If/when you add real native UI, update the platform presenters in
 - Graceful fallbacks for unsupported platforms
 - Unity-style async/await throughout
 
+### Threading and Logging
+- Callbacks may complete on any thread. If you need to interact with Unity APIs,
+  dispatch back to the main thread (e.g., via a main-thread dispatcher).
+- Logs are verbose in Development builds. Production builds minimize logs; gate
+  additional logging behind your own flags where needed.
+
 ## Platform Support
 
-- Editor / Any platform: C# fallbacks return immediate results (no UI)
 - iOS/Android device: Minimal native stubs return immediate results (no UI)
+- Editor / Other platforms: Reported unsupported (no UI)
 
 ## Examples
 

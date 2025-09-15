@@ -19,6 +19,11 @@ namespace RevenueCat.UI.Platforms
             try { _plugin.CallStatic("registerPaywallCallbacks", _callbacks); } catch { /* ignore */ }
         }
 
+        ~AndroidPaywallPresenter()
+        {
+            try { _plugin.CallStatic("unregisterPaywallCallbacks"); } catch { }
+        }
+
         public bool IsSupported()
         {
             try { return _plugin.CallStatic<bool>("isSupported"); }
@@ -27,6 +32,12 @@ namespace RevenueCat.UI.Platforms
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
+            if (_current != null && !_current.Task.IsCompleted)
+            {
+                Debug.LogWarning("[RevenueCatUI][Android] Paywall presentation already in progress; rejecting new request.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             _current = new TaskCompletionSource<PaywallResult>();
             try
             {
@@ -38,12 +49,19 @@ namespace RevenueCat.UI.Platforms
             {
                 Debug.LogError($"[RevenueCatUI][Android] Exception in presentPaywall: {e.Message}");
                 _current.TrySetResult(PaywallResult.Error);
+                _current = null;
             }
             return _current.Task;
         }
 
         public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
         {
+            if (_current != null && !_current.Task.IsCompleted)
+            {
+                Debug.LogWarning("[RevenueCatUI][Android] Paywall presentation already in progress; rejecting new request.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             _current = new TaskCompletionSource<PaywallResult>();
             try
             {
@@ -55,6 +73,7 @@ namespace RevenueCat.UI.Platforms
             {
                 Debug.LogError($"[RevenueCatUI][Android] Exception in presentPaywallIfNeeded: {e.Message}");
                 _current.TrySetResult(PaywallResult.Error);
+                _current = null;
             }
             return _current.Task;
         }
@@ -73,6 +92,10 @@ namespace RevenueCat.UI.Platforms
             {
                 Debug.LogError($"[RevenueCatUI][Android] Failed to handle paywall result '{resultData}': {e.Message}. Setting Error.");
                 _current.TrySetResult(PaywallResult.Error);
+            }
+            finally
+            {
+                _current = null;
             }
         }
 

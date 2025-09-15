@@ -10,6 +10,7 @@ namespace RevenueCat.UI
     /// </summary>
     public static class RevenueCatUI
     {
+        private static bool? _isSupportedCache;
         /// <summary>
         /// Presents a paywall configured in the RevenueCat dashboard.
         /// </summary>
@@ -90,6 +91,10 @@ namespace RevenueCat.UI
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public static bool IsSupported()
         {
+            if (_isSupportedCache.HasValue)
+            {
+                return _isSupportedCache.Value;
+            }
             try
             {
                 var paywallPresenter = PaywallPresenter.Instance;
@@ -97,14 +102,37 @@ namespace RevenueCat.UI
                 var paywall = paywallPresenter.IsSupported();
                 var customerCenter = customerCenterPresenter.IsSupported();
                 var supported = paywall && customerCenter;
-                Debug.Log($"[RevenueCatUI] IsSupported check -> Paywall={paywall}, CustomerCenter={customerCenter}, Result={supported}");
+                _isSupportedCache = supported;
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}, CustomerCenter={customerCenter}, Result={supported}");
+                }
                 return supported;
             }
             catch
             {
                 Debug.Log("[RevenueCatUI] IsSupported check threw; returning false");
+                _isSupportedCache = false;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Whether the Paywall feature is supported on the current platform.
+        /// </summary>
+        public static bool IsPaywallSupported()
+        {
+            try { return PaywallPresenter.Instance.IsSupported(); }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Whether the Customer Center feature is supported on the current platform.
+        /// </summary>
+        public static bool IsCustomerCenterSupported()
+        {
+            try { return CustomerCenterPresenter.Instance.IsSupported(); }
+            catch { return false; }
         }
     }
 } 

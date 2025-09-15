@@ -17,9 +17,25 @@ namespace RevenueCat.UI.Platforms
 
         public Task PresentCustomerCenterAsync()
         {
-            s_current = new TaskCompletionSource<bool>();
-            rcui_presentCustomerCenter(OnDone);
-            return s_current.Task;
+            if (s_current != null && !s_current.Task.IsCompleted)
+            {
+                UnityEngine.Debug.LogWarning("[RevenueCatUI][iOS] Customer Center already in progress; rejecting new request.");
+                return Task.CompletedTask;
+            }
+
+            var tcs = new TaskCompletionSource<bool>();
+            s_current = tcs;
+            try
+            {
+                rcui_presentCustomerCenter(OnDone);
+            }
+            catch (System.Exception e)
+            {
+                UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentCustomerCenter: {e.Message}");
+                tcs.TrySetResult(false);
+                s_current = null;
+            }
+            return tcs.Task;
         }
 
         [AOT.MonoPInvokeCallback(typeof(CustomerCenterCallback))]
