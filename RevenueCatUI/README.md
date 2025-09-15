@@ -117,6 +117,7 @@ public enum PaywallResultType
 ### Native Implementation (reference only)
 Minimal native code is provided as a reference scaffold:
 - Android class: `com.revenuecat.unity.RevenueCatUI`
+  - Uses pure-code callbacks via a Java interface registered from C# (no GameObject required)
 - iOS functions: `rcui_presentPaywall`, `rcui_presentPaywallIfNeeded`, `rcui_presentCustomerCenter`, `rcui_isSupported`
 
 If/when you add real native UI, update the platform presenters in

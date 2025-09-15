@@ -1,10 +1,22 @@
 package com.revenuecat.unity;
 
-import com.unity3d.player.UnityPlayer;
-
 public class RevenueCatUI {
 
-    private static final String UNITY_CALLBACK_OBJECT = "RevenueCatUI";
+    // Java-side callbacks registered from C#; no UnitySendMessage fallback.
+    public interface RevenueCatUICallbacks {
+        void onPaywallResult(String result);
+        void onCustomerCenterResult(String result);
+    }
+
+    private static volatile RevenueCatUICallbacks callbacks;
+
+    public static void registerCallbacks(RevenueCatUICallbacks cb) {
+        callbacks = cb;
+    }
+
+    public static void unregisterCallbacks() {
+        callbacks = null;
+    }
 
     public static void presentPaywall(String offeringIdentifier) {
         sendPaywallResult("CANCELLED|Stub: no native UI");
@@ -24,14 +36,15 @@ public class RevenueCatUI {
 
     private static void sendPaywallResult(String result) {
         try {
-            UnityPlayer.UnitySendMessage(UNITY_CALLBACK_OBJECT, "OnPaywallResult", result);
+            RevenueCatUICallbacks cb = callbacks;
+            if (cb != null) cb.onPaywallResult(result);
         } catch (Throwable ignored) {}
     }
 
     private static void sendCustomerCenterResult(String result) {
         try {
-            UnityPlayer.UnitySendMessage(UNITY_CALLBACK_OBJECT, "OnCustomerCenterResult", result);
+            RevenueCatUICallbacks cb = callbacks;
+            if (cb != null) cb.onCustomerCenterResult(result);
         } catch (Throwable ignored) {}
     }
 }
-

@@ -9,13 +9,14 @@ namespace RevenueCat.UI.Platforms
     internal class AndroidCustomerCenterPresenter : ICustomerCenterPresenter
     {
         private readonly AndroidJavaClass _plugin;
+        private readonly CallbacksProxy _callbacks;
         private TaskCompletionSource<bool> _current;
 
         public AndroidCustomerCenterPresenter()
         {
             _plugin = new AndroidJavaClass("com.revenuecat.unity.RevenueCatUI");
-            RevenueCatUICallbackHandler.Initialize();
-            RevenueCatUICallbackHandler.SetAndroidCustomerCenterPresenter(this);
+            _callbacks = new CallbacksProxy(this);
+            try { _plugin.CallStatic("registerCallbacks", _callbacks); } catch { /* ignore */ }
         }
 
         public bool IsSupported()
@@ -32,10 +33,29 @@ namespace RevenueCat.UI.Platforms
             return _current.Task;
         }
 
-        // Called from Java via UnitySendMessage
+        // Called from Java via AndroidJavaProxy
         public void OnCustomerCenterResult(string resultData)
         {
             _current?.TrySetResult(true);
+        }
+
+        private class CallbacksProxy : AndroidJavaProxy
+        {
+            private readonly AndroidCustomerCenterPresenter _owner;
+            public CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.unity.RevenueCatUI$RevenueCatUICallbacks")
+            {
+                _owner = owner;
+            }
+
+            public void onPaywallResult(string result)
+            {
+                // No-op for customer center presenter
+            }
+
+            public void onCustomerCenterResult(string result)
+            {
+                _owner.OnCustomerCenterResult(result);
+            }
         }
     }
 }
