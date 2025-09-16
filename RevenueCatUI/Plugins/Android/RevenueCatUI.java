@@ -1,4 +1,4 @@
-package com.revenuecat.unity;
+package com.revenuecat.unity.ui;
 
 public class RevenueCatUI {
 

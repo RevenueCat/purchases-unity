@@ -14,7 +14,7 @@ namespace RevenueCat.UI.Platforms
 
         public AndroidPaywallPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.unity.RevenueCatUI");
+            _plugin = new AndroidJavaClass("com.revenuecat.unity.ui.RevenueCatUI");
             _callbacks = new CallbacksProxy(this);
             try { _plugin.CallStatic("registerPaywallCallbacks", _callbacks); } catch { /* ignore */ }
         }
@@ -102,7 +102,7 @@ namespace RevenueCat.UI.Platforms
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidPaywallPresenter _owner;
-            public CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.unity.RevenueCatUI$PaywallCallbacks")
+            public CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.unity.ui.RevenueCatUI$PaywallCallbacks")
             {
                 _owner = owner;
             }

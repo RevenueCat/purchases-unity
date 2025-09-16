@@ -14,7 +14,7 @@ namespace RevenueCat.UI.Platforms
 
         public AndroidCustomerCenterPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.unity.RevenueCatUI");
+            _plugin = new AndroidJavaClass("com.revenuecat.unity.ui.RevenueCatUI");
             _callbacks = new CallbacksProxy(this);
             try { _plugin.CallStatic("registerCustomerCenterCallbacks", _callbacks); } catch { /* ignore */ }
         }
@@ -54,7 +54,7 @@ namespace RevenueCat.UI.Platforms
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidCustomerCenterPresenter _owner;
-            public CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.unity.RevenueCatUI$CustomerCenterCallbacks")
+            public CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.unity.ui.RevenueCatUI$CustomerCenterCallbacks")
             {
                 _owner = owner;
             }
