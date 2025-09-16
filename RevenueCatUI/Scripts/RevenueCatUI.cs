@@ -11,6 +11,8 @@ namespace RevenueCat.UI
     public static class RevenueCatUI
     {
         private static bool? _isSupportedCache;
+        // Whether the UnitySendMessage fallback receiver is enabled. Disabled by default.
+        private static bool _unityMessageFallbackEnabled;
         /// <summary>
         /// Presents a paywall configured in the RevenueCat dashboard.
         /// </summary>
@@ -21,7 +23,12 @@ namespace RevenueCat.UI
             try 
             {
                 Debug.Log("[RevenueCatUI] Presenting paywall...");
-                
+                // Pure-code path by default. If the optional UnitySendMessage fallback is enabled,
+                // ensure the receiver is registered before presenting (no effect if already added).
+                if (_unityMessageFallbackEnabled)
+                {
+                    PaywallCallbackReceiver.EnsureExists();
+                }
                 // Use the platform-specific implementation
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
@@ -52,7 +59,10 @@ namespace RevenueCat.UI
             try
             {
                 Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
-                
+                if (_unityMessageFallbackEnabled)
+                {
+                    PaywallCallbackReceiver.EnsureExists();
+                }
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
             }
@@ -133,6 +143,29 @@ namespace RevenueCat.UI
         {
             try { return CustomerCenterPresenter.Instance.IsSupported(); }
             catch { return false; }
+        }
+
+        /// <summary>
+        /// Enables an optional UnitySendMessage fallback for receiving native callbacks.
+        /// Disabled by default. When enabled, a persistent receiver GameObject is created.
+        /// Pure-code (delegate) callbacks remain the primary mechanism.
+        /// </summary>
+        /// <param name="receiverName">Optional receiver GameObject name</param>
+        public static void EnableUnityMessageFallback(string receiverName = null)
+        {
+            _unityMessageFallbackEnabled = true;
+            PaywallCallbackReceiver.EnsureExists(receiverName);
+            Debug.Log("[RevenueCatUI] UnitySendMessage fallback enabled");
+        }
+
+        /// <summary>
+        /// Disables the UnitySendMessage fallback and removes the receiver GameObject if present.
+        /// </summary>
+        public static void DisableUnityMessageFallback()
+        {
+            _unityMessageFallbackEnabled = false;
+            PaywallCallbackReceiver.Disable();
+            Debug.Log("[RevenueCatUI] UnitySendMessage fallback disabled");
         }
     }
 } 

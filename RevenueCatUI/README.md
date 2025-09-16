@@ -102,6 +102,29 @@ var options = new PaywallOptions
 };
 ```
 
+### Callbacks and Fallback
+
+- Default: Pure code callbacks. `PresentPaywall(...)` returns a `Task<PaywallResult>` and uses a native function-pointer callback to complete it. No GameObject is created implicitly.
+- Optional fallback: UnitySendMessage. If your environment requires or you prefer a GameObject-based callback, opt in explicitly:
+
+```csharp
+// Optional: enable UnitySendMessage fallback
+RevenueCat.UI.RevenueCatUI.EnableUnityMessageFallback(); // or provide a custom receiver name
+
+// Present
+var result = await RevenueCat.UI.RevenueCatUI.PresentPaywall();
+```
+
+Disable fallback at any time:
+
+```csharp
+RevenueCat.UI.RevenueCatUI.DisableUnityMessageFallback();
+```
+
+Notes:
+- The fallback registers a persistent GameObject to receive callbacks from native via `UnitySendMessage`.
+- Pure-code remains the primary mechanism; fallback is off by default.
+
 ### PaywallResult
 
 ```csharp
