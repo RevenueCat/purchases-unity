@@ -5,7 +5,6 @@
 #import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 typedef void (*RCUIPaywallResultCallback)(const char* result);
-typedef void (*RCUICustomerCenterCallback)(void);
 
 static NSString *RCUINormalizeResult(NSString *resultName) {
     if (resultName == nil) {

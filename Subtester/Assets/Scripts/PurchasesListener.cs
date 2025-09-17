@@ -72,6 +72,50 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.EnableAdServicesAttributionTokenCollection();
     }
 
+    private void PresentPaywall()
+    {
+        StartCoroutine(PresentPaywallRoutine());
+    }
+
+    private System.Collections.IEnumerator PresentPaywallRoutine()
+    {
+        var purchases = GetComponent<Purchases>();
+        Debug.Log("Subtester: launching paywall via RevenueCatUI");
+        if (infoLabel != null) infoLabel.text = "Launching paywall...";
+
+        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.IsFaulted)
+        {
+            Debug.LogError("Subtester: Paywall error: " + task.Exception?.GetBaseException().Message);
+            if (infoLabel != null) infoLabel.text = "Paywall error";
+            yield break;
+        }
+
+        var result = task.Result;
+        var status = $"Paywall result: {result.Result}";
+        if (infoLabel != null) infoLabel.text = status;
+        Debug.Log($"Subtester: {status}");
+
+        if (result.Result == RevenueCat.UI.PaywallResultType.Purchased ||
+            result.Result == RevenueCat.UI.PaywallResultType.Restored)
+        {
+            purchases.GetCustomerInfo((customerInfo, error) =>
+            {
+                if (error != null)
+                {
+                    Debug.LogError("Subtester: Error refreshing customer info after paywall: " + error);
+                }
+                else
+                {
+                    Debug.Log("Subtester: Refreshed customer info after paywall");
+                    DisplayCustomerInfo(customerInfo);
+                }
+            });
+        }
+    }
+
     private void CreateProrationModeButtons()
     {
         foreach (Purchases.ProrationMode mode in Enum.GetValues(typeof(Purchases.ProrationMode)))
