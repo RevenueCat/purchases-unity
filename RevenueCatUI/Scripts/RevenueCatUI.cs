@@ -6,11 +6,11 @@ namespace RevenueCat.UI
 {
     /// <summary>
     /// Main interface for RevenueCat UI components.
-    /// Provides methods to present paywalls and customer center.
+    /// Provides methods to present paywalls.
     /// </summary>
     public static class RevenueCatUI
     {
-        private static bool? _isSupportedCache;
+        
         /// <summary>
         /// Presents a paywall configured in the RevenueCat dashboard.
         /// </summary>
@@ -73,15 +73,10 @@ namespace RevenueCat.UI
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public static bool IsSupported()
         {
-            if (_isSupportedCache.HasValue)
-            {
-                return _isSupportedCache.Value;
-            }
             try
             {
                 var paywallPresenter = PaywallPresenter.Instance;
                 var paywall = paywallPresenter.IsSupported();
-                _isSupportedCache = paywall;
                 if (Debug.isDebugBuild)
                 {
                     Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}");
@@ -91,7 +86,6 @@ namespace RevenueCat.UI
             catch
             {
                 Debug.Log("[RevenueCatUI] IsSupported check threw; returning false");
-                _isSupportedCache = false;
                 return false;
             }
         }
