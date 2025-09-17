@@ -419,83 +419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRuntimeSetup: 0
-  revenueCatAPIKeyApple:
-  revenueCatAPIKeyGoogle: 
-  revenueCatAPIKeyAmazon: 
-  useAmazon: 0
-  autoSyncPurchases: 1
-  appUserID: 
-  productIdentifiers: []
-  listener: {fileID: 559298755}
-  userDefaultsSuiteName: 
-  purchasesAreCompletedBy: 0
-  storeKitVersion: 2
-  shouldShowInAppMessagesAutomatically: 1
-  entitlementVerificationMode: 1
-  pendingTransactionsForPrepaidPlansEnabled: 1
-  proxyURL: 
---- !u!4 &559298754
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 559298752}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.53463364, y: 1.2963469, z: -0.32019186}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &559298755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 559298752}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4d983d93d67c4367bf31ba35790ced8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentPanel: {fileID: 1575378375}
-  buttonPrefab: {fileID: 1696602566380582, guid: 08be051e1286142ac9bb1c2a81c63bc3,
-    type: 3}
-  infoLabel: {fileID: 53425791}
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 559298754}
-  - component: {fileID: 559298755}
-  - component: {fileID: 559298753}
-  m_Layer: 0
-  m_Name: PurchasesManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &559298753
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 559298752}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98e401cc5a2ed4a7ba02f2e6ef35c6f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useRuntimeSetup: 0
-  revenueCatAPIKeyApple: appl_fEVHDkWYraujHYbxopxJknYGNUx
+  revenueCatAPIKeyApple: 
   revenueCatAPIKeyGoogle: 
   revenueCatAPIKeyAmazon: 
   useAmazon: 0
@@ -1072,7 +996,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1016743159}
   m_Direction: 2
   m_Value: 0.90756994
-  m_Size: 0.021009983
+  m_Size: 0.021009987
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1466,8 +1390,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 950935161}
   m_HandleRect: {fileID: 950935160}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.20185497
+  m_Value: 1.0000001
+  m_Size: 0.201855
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
