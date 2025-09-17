@@ -1,5 +1,5 @@
 {
-    "name": "RevenueCat.UI",
+    "name": "RevenueCatUI",
     "rootNamespace": "RevenueCat.UI",
     "references": [
         "revenuecat.purchases-unity"
