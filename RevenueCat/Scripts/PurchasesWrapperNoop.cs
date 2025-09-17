@@ -279,9 +279,5 @@ public partial class Purchases
         public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
         {
         }
-
-        public void PresentPaywall(System.Action<Purchases.PaywallResult> callback)
-        {
-        }
     }
 }

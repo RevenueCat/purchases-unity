@@ -442,10 +442,5 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             return purchases.CallStatic<ReturnType>(methodName, args);
         }
     }
-
-    public void PresentPaywall(System.Action<Purchases.PaywallResult> callback)
-    {
-        CallPurchases("presentPaywall");
-    }
 }
 #endif
