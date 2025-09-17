@@ -419,7 +419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRuntimeSetup: 0
-  revenueCatAPIKeyApple: appl_fEVHDkWYraujHYbxopxJknYGNUx
+  revenueCatAPIKeyApple:
   revenueCatAPIKeyGoogle: 
   revenueCatAPIKeyAmazon: 
   useAmazon: 0
