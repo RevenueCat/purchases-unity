@@ -22,14 +22,12 @@ namespace RevenueCat.UI
             Result = result;
         }
 
-        // Convenient static properties for common results
-        [System.Obsolete("Use NotPresented instead")] 
-        public static PaywallResult NotNeeded => new PaywallResult(PaywallResultType.NotPresented);
-        public static PaywallResult NotPresented => new PaywallResult(PaywallResultType.NotPresented);
-        public static PaywallResult Cancelled => new PaywallResult(PaywallResultType.Cancelled);
-        public static PaywallResult Error => new PaywallResult(PaywallResultType.Error);
-        public static PaywallResult Purchased => new PaywallResult(PaywallResultType.Purchased);
-        public static PaywallResult Restored => new PaywallResult(PaywallResultType.Restored);
+        // Convenient static properties for common results (internal)
+        internal static PaywallResult NotPresented => new PaywallResult(PaywallResultType.NotPresented);
+        internal static PaywallResult Cancelled => new PaywallResult(PaywallResultType.Cancelled);
+        internal static PaywallResult Error => new PaywallResult(PaywallResultType.Error);
+        internal static PaywallResult Purchased => new PaywallResult(PaywallResultType.Purchased);
+        internal static PaywallResult Restored => new PaywallResult(PaywallResultType.Restored);
 
         public override string ToString()
         {

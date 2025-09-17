@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dependencies>
+    <iosPods>
+        <!-- RevenueCat UI for iOS (provides Paywall APIs); keep in sync with PurchasesHybridCommon -->
+        <iosPod name="PurchasesHybridCommonUI" version="17.7.0" minTargetSdk="13.0"/>
+    </iosPods>
+</dependencies>

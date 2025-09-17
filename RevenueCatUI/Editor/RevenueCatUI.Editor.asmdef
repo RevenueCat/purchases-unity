@@ -1,13 +1,11 @@
 {
-    "name": "RevenueCat.UI",
+    "name": "RevenueCatUI.Editor",
     "rootNamespace": "RevenueCat.UI",
     "references": [
-        "revenuecat.purchases-unity"
+        "RevenueCatUI"
     ],
     "includePlatforms": [
-        "Editor",
-        "Android",
-        "iOS"
+        "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -18,3 +16,4 @@
     "versionDefines": [],
     "noEngineReferences": false
 }
+

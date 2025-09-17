@@ -24,7 +24,6 @@ static PaywallProxy *s_rcuiPaywallProxy = nil;
 
 void rcui_presentPaywall(const char* offeringIdentifier, bool displayCloseButton, RCUIPaywallResultCallback callback) {
     if (@available(iOS 15.0, *)) {
-        // Keep a strong reference to the proxy so the handler remains alive until dismissal
         s_rcuiPaywallProxy = [[PaywallProxy alloc] init];
         NSMutableDictionary *options = [NSMutableDictionary new];
         options[@"displayCloseButton"] = @(displayCloseButton);
@@ -34,25 +33,17 @@ void rcui_presentPaywall(const char* offeringIdentifier, bool displayCloseButton
                 options[@"offeringIdentifier"] = offering;
             }
         }
-
         dispatch_async(dispatch_get_main_queue(), ^{
             [s_rcuiPaywallProxy presentPaywallWithOptions:options paywallResultHandler:^(NSString * _Nonnull resultName) {
                 if (callback) {
                     NSString *normalized = RCUINormalizeResult(resultName);
-                    // Allow attaching debug string after pipe if needed
                     callback([normalized UTF8String]);
                 }
-                // Also notify via UnitySendMessage for robustness
-                NSString *normalized2 = RCUINormalizeResult(resultName);
-                UnitySendMessage("RevenueCatUIReceiver", "_rcuiPaywallResult", [normalized2 UTF8String]);
-                // Release retained proxy after result
                 s_rcuiPaywallProxy = nil;
             }];
         });
     } else {
-        const char *fallback = "NOT_PRESENTED";
-        if (callback) { callback(fallback); }
-        UnitySendMessage("RevenueCatUIReceiver", "_rcuiPaywallResult", fallback);
+        if (callback) { callback("NOT_PRESENTED"); }
     }
 }
 
@@ -63,12 +54,7 @@ void rcui_presentPaywallIfNeeded(const char* requiredEntitlementIdentifier, cons
     }
 }
 
-void rcui_presentCustomerCenter(RCUICustomerCenterCallback callback) {
-    // Not implemented in POC; simply invoke callback immediately.
-    if (callback) {
-        callback();
-    }
-}
+// Customer Center not implemented yet in this bridge
 
 bool rcui_isSupported() {
     if (@available(iOS 15.0, *)) {

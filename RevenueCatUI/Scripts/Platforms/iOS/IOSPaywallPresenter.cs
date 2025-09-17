@@ -15,17 +15,7 @@ namespace RevenueCat.UI.Platforms
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
-        // Called from UnitySendMessage fallback path
-        internal static void ReceiveResultFromUnityMessage(string result)
-        {
-            OnResult(result);
-        }
-
         public bool IsSupported() => rcui_isSupported();
-
-        // Presents the paywall using native UI. Primary callback path uses a function-pointer
-        // delegate (OnResult). There is an optional UnitySendMessage fallback that can be enabled
-        // via RevenueCatUI.EnableUnityMessageFallback, which registers a receiver GameObject.
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
             if (s_current != null && !s_current.Task.IsCompleted)
