@@ -1,7 +1,9 @@
 {
-    "name": "RevenueCat.UI.Editor",
+    "name": "RevenueCatUI.Editor",
     "rootNamespace": "RevenueCat.UI",
-    "references": [],
+    "references": [
+        "RevenueCatUI"
+    ],
     "includePlatforms": [
         "Editor"
     ],
