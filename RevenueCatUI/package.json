@@ -3,7 +3,7 @@
   "version": "8.2.3",
   "displayName": "RevenueCat UI SDK for Unity",
   "description": "Unity UI components for RevenueCat paywalls and customer center. Supports iOS and Android.",
-  "documentationUrl": "https://www.revenuecat.com/docs/unity-ui",
+  "documentationUrl": "https://www.revenuecat.com/docs",
   "changelogUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/RevenueCatUI/CHANGELOG.md",
   "licensesUrl": "https://github.com/RevenueCat/purchases-unity/blob/main/LICENSE",
   "author": {
