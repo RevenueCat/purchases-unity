@@ -1,0 +1,20 @@
+{
+    "name": "RevenueCatUI",
+    "rootNamespace": "RevenueCat.UI",
+    "references": [
+        "revenuecat.purchases-unity"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "Android",
+        "iOS"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
