@@ -14,11 +14,6 @@ public class RevenueCatUI {
     public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
     public static void presentPaywall(String offeringIdentifier) {
-        android.app.Activity activity = UnityPlayer.currentActivity;
-        sendPaywallResult("CANCELLED|Stub: no native UI");
-    }
-
-    public static void presentPaywallForResult(@Nullable String offeringIdentifier) {
         try {
             android.app.Activity activity = UnityPlayer.currentActivity;
             Intent intent = new Intent(activity, com.revenuecat.purchasesunity.PaywallProxyActivity.class);
