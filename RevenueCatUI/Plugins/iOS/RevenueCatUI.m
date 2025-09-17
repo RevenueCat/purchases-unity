@@ -3,7 +3,6 @@
 // Minimal native stubs for iOS bridging
 
 typedef void (*RCUIPaywallResultCallback)(const char* result);
-typedef void (*RCUICustomerCenterCallback)(void);
 
 void rcui_presentPaywall(const char* offeringIdentifier, bool displayCloseButton, RCUIPaywallResultCallback callback) {
     NSLog(@"[RevenueCatUI][iOS] presentPaywall(offering=%@, closeButton=%@)",
@@ -24,12 +23,7 @@ void rcui_presentPaywallIfNeeded(const char* requiredEntitlementIdentifier, cons
     }
 }
 
-void rcui_presentCustomerCenter(RCUICustomerCenterCallback callback) {
-    NSLog(@"[RevenueCatUI][iOS] presentCustomerCenter()");
-    if (callback) {
-        callback();
-    }
-}
+// No Customer Center in this stub
 
 bool rcui_isSupported() {
     NSLog(@"[RevenueCatUI][iOS] isSupported() -> true (stub)");

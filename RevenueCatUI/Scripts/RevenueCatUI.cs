@@ -63,30 +63,12 @@ namespace RevenueCat.UI
             }
         }
 
-        /// <summary>
-        /// Presents the customer center where users can manage their subscriptions.
-        /// </summary>
-        /// <returns>A task that completes when the customer center is dismissed</returns>
-        public static async Task PresentCustomerCenter()
-        {
-            try
-            {
-                Debug.Log("[RevenueCatUI] Presenting customer center...");
-                
-                var presenter = CustomerCenterPresenter.Instance;
-                await presenter.PresentCustomerCenterAsync();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI] Error presenting customer center: {e.Message}");
-            }
-        }
+        
 
         /// <summary>
-        /// Checks if RevenueCat UI is available on the current platform.
-        /// Returns true on iOS/Android device builds when both paywall and
-        /// customer center are supported; returns false on other platforms
-        /// (Editor, Windows, macOS, WebGL, etc.).
+        /// Checks if the Paywall UI is available on the current platform.
+        /// Returns true on iOS/Android device builds when paywall is supported;
+        /// returns false on other platforms (Editor, Windows, macOS, WebGL, etc.).
         /// </summary>
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public static bool IsSupported()
@@ -98,16 +80,13 @@ namespace RevenueCat.UI
             try
             {
                 var paywallPresenter = PaywallPresenter.Instance;
-                var customerCenterPresenter = CustomerCenterPresenter.Instance;
                 var paywall = paywallPresenter.IsSupported();
-                var customerCenter = customerCenterPresenter.IsSupported();
-                var supported = paywall && customerCenter;
-                _isSupportedCache = supported;
+                _isSupportedCache = paywall;
                 if (Debug.isDebugBuild)
                 {
-                    Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}, CustomerCenter={customerCenter}, Result={supported}");
+                    Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}");
                 }
-                return supported;
+                return paywall;
             }
             catch
             {
@@ -126,13 +105,6 @@ namespace RevenueCat.UI
             catch { return false; }
         }
 
-        /// <summary>
-        /// Whether the Customer Center feature is supported on the current platform.
-        /// </summary>
-        public static bool IsCustomerCenterSupported()
-        {
-            try { return CustomerCenterPresenter.Instance.IsSupported(); }
-            catch { return false; }
-        }
+        
     }
 } 
