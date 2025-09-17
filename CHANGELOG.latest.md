@@ -5,17 +5,10 @@
 
 ## RevenueCat SDK
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.6.0 (#666) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 9.6.0](https://github.com/RevenueCat/purchases-android/releases/tag/9.6.0)
-  * [iOS 5.38.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.38.2)
-  * [iOS 5.38.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.38.1)
-  * [iOS 5.38.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.38.0)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.5.1 (#663) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 9.6.0](https://github.com/RevenueCat/purchases-android/releases/tag/9.6.0)
-  * [iOS 5.38.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.38.2)
-  * [iOS 5.38.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.38.1)
-  * [iOS 5.38.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.38.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.7.0 (#670) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 9.7.0](https://github.com/RevenueCat/purchases-android/releases/tag/9.7.0)
+  * [iOS 5.39.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.39.0)
 
 ### 🔄 Other Changes
-* Update bundle deps (#667) via Cesar de la Vega (@vegaro)
-* Add 8.2.0 to CHANGELOG (#662) via Toni Rico (@tonidero)
+* Introduce RevenueCatUI empty package (#664) via Facundo Menzella (@facumenzella)
+* Bump fastlane-plugin-revenuecat_internal from `489faef` to `a6dc551` (#669) via dependabot[bot] (@dependabot[bot])
