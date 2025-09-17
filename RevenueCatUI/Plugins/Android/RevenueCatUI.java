@@ -24,7 +24,6 @@ public class RevenueCatUI {
     // No Customer Center in this stub
 
     public static boolean isSupported() {
-        android.util.Log.d("RevenueCatUI", "isSupported() -> true (stub)");
         return true;
     }
 
