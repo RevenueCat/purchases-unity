@@ -16,7 +16,6 @@ namespace RevenueCat.UI.Platforms
         private static TaskCompletionSource<PaywallResult> s_current;
 
         public bool IsSupported() => rcui_isSupported();
-
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
             if (s_current != null && !s_current.Task.IsCompleted)

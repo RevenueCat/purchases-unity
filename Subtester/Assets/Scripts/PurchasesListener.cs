@@ -72,6 +72,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         purchases.EnableAdServicesAttributionTokenCollection();
     }
 
+    
+
     private void CreateProrationModeButtons()
     {
         foreach (Purchases.ProrationMode mode in Enum.GetValues(typeof(Purchases.ProrationMode)))

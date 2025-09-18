@@ -22,7 +22,7 @@ namespace RevenueCat.UI
             Result = result;
         }
 
-        // Convenient static properties for common results
+        // Convenient static properties for common results (internal)
         internal static PaywallResult NotPresented => new PaywallResult(PaywallResultType.NotPresented);
         internal static PaywallResult Cancelled => new PaywallResult(PaywallResultType.Cancelled);
         internal static PaywallResult Error => new PaywallResult(PaywallResultType.Error);

@@ -4,7 +4,6 @@ public class RevenueCatUI {
 
     // Java-side callbacks registered from C#; no UnitySendMessage fallback.
     public interface PaywallCallbacks { void onPaywallResult(String result); }
-
     private static volatile PaywallCallbacks paywallCallbacks;
 
     public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }

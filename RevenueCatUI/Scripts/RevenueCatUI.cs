@@ -10,7 +10,6 @@ namespace RevenueCat.UI
     /// </summary>
     public static class RevenueCatUI
     {
-        
         /// <summary>
         /// Presents a paywall configured in the RevenueCat dashboard.
         /// </summary>
@@ -21,7 +20,6 @@ namespace RevenueCat.UI
             try 
             {
                 Debug.Log("[RevenueCatUI] Presenting paywall...");
-                
                 // Use the platform-specific implementation
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
@@ -52,7 +50,6 @@ namespace RevenueCat.UI
             try
             {
                 Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
-                
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
             }
@@ -62,8 +59,6 @@ namespace RevenueCat.UI
                 return PaywallResult.Error;
             }
         }
-
-        
 
         /// <summary>
         /// Checks if the Paywall UI is available on the current platform.

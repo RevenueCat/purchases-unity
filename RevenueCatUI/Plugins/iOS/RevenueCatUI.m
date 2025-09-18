@@ -1,31 +1,63 @@
+// RevenueCat UI iOS bridge implemented via PurchasesHybridCommonUI
 #import <Foundation/Foundation.h>
-
-// Minimal native stubs for iOS bridging
+@import PurchasesHybridCommonUI;
+// Import Swift interface for direct calls into PaywallProxy
+#import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 typedef void (*RCUIPaywallResultCallback)(const char* result);
 
+static NSString *RCUINormalizeResult(NSString *resultName) {
+    if (resultName == nil) {
+        return @"ERROR";
+    }
+    NSString *lower = [[resultName lowercaseString] stringByReplacingOccurrencesOfString:@"_" withString:@""];
+    if ([lower isEqualToString:@"purchased"]) return @"PURCHASED";
+    if ([lower isEqualToString:@"restored"]) return @"RESTORED";
+    if ([lower isEqualToString:@"cancelled"]) return @"CANCELLED";
+    if ([lower isEqualToString:@"error"]) return @"ERROR";
+    if ([lower isEqualToString:@"notpresented"]) return @"NOT_PRESENTED";
+    return @"ERROR";
+}
+
+static PaywallProxy *s_rcuiPaywallProxy = nil;
+
 void rcui_presentPaywall(const char* offeringIdentifier, bool displayCloseButton, RCUIPaywallResultCallback callback) {
-    NSLog(@"[RevenueCatUI][iOS] presentPaywall(offering=%@, closeButton=%@)",
-          offeringIdentifier ? [NSString stringWithUTF8String:offeringIdentifier] : @"<null>",
-          displayCloseButton ? @"true" : @"false");
-    if (callback) {
-        callback("CANCELLED|Stub: no native UI");
+    if (@available(iOS 15.0, *)) {
+        s_rcuiPaywallProxy = [[PaywallProxy alloc] init];
+        NSMutableDictionary *options = [NSMutableDictionary new];
+        options[@"displayCloseButton"] = @(displayCloseButton);
+        if (offeringIdentifier != NULL) {
+            NSString *offering = [NSString stringWithUTF8String:offeringIdentifier];
+            if (offering.length > 0) {
+                options[@"offeringIdentifier"] = offering;
+            }
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [s_rcuiPaywallProxy presentPaywallWithOptions:options paywallResultHandler:^(NSString * _Nonnull resultName) {
+                if (callback) {
+                    NSString *normalized = RCUINormalizeResult(resultName);
+                    callback([normalized UTF8String]);
+                }
+                s_rcuiPaywallProxy = nil;
+            }];
+        });
+    } else {
+        if (callback) { callback("NOT_PRESENTED"); }
     }
 }
 
 void rcui_presentPaywallIfNeeded(const char* requiredEntitlementIdentifier, const char* offeringIdentifier, bool displayCloseButton, RCUIPaywallResultCallback callback) {
-    NSLog(@"[RevenueCatUI][iOS] presentPaywallIfNeeded(entitlement=%@, offering=%@, closeButton=%@)",
-          requiredEntitlementIdentifier ? [NSString stringWithUTF8String:requiredEntitlementIdentifier] : @"<null>",
-          offeringIdentifier ? [NSString stringWithUTF8String:offeringIdentifier] : @"<null>",
-          displayCloseButton ? @"true" : @"false");
+    // TODO: entitlement check is not wired; return NOT_PRESENTED
     if (callback) {
-        callback("NOT_PRESENTED|Stub: no native UI");
+        callback("NOT_PRESENTED|TODO: entitlement check not implemented");
     }
 }
 
-// No Customer Center in this stub
+// Customer Center not implemented yet in this bridge
 
 bool rcui_isSupported() {
-    NSLog(@"[RevenueCatUI][iOS] isSupported() -> true (stub)");
-    return true;
+    if (@available(iOS 15.0, *)) {
+        return true;
+    }
+    return false;
 }
