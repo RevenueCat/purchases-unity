@@ -1,0 +1,67 @@
+package com.revenuecat.purchasesunity.ui;
+
+import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_GAME_OBJECT;
+import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_METHOD;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
+
+public class RevenueCatUI {
+    public interface PaywallCallbacks { void onPaywallResult(String result); }
+
+    private static final String TAG = "RevenueCatUI";
+    private static volatile PaywallCallbacks paywallCallbacks;
+
+    public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }
+    public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
+
+    public static void presentPaywall(String gameObject, String offeringIdentifier) {
+        try {
+            Activity activity = UnityBridge.currentActivityOrNull();
+            if (activity == null) {
+                Log.e(TAG, "currentActivity is null; cannot launch paywall");
+                UnityBridge.sendMessage(gameObject, "OnPaywallResultFromActivity", "ERROR|NoActivity");
+                return;
+            }
+
+            Intent intent = new Intent(activity, PaywallProxyActivity.class);
+            intent.putExtra(EXTRA_GAME_OBJECT, gameObject);
+            intent.putExtra(EXTRA_METHOD, "OnPaywallResultFromActivity");
+            if (offeringIdentifier != null) {
+                intent.putExtra(PaywallProxyActivity.EXTRA_OFFERING_ID, offeringIdentifier);
+            }
+
+            Log.d(TAG, "Launching PaywallProxyActivity for gameObject=" + gameObject +
+                    ", offering=" + offeringIdentifier);
+            activity.startActivity(intent);
+        } catch (Throwable t) {
+            Log.e(TAG, "Error launching PaywallProxyActivity", t);
+            UnityBridge.sendMessage(gameObject, "OnPaywallResultFromActivity", "ERROR|" + t.getClass().getSimpleName());
+        }
+    }
+
+    public static void presentPaywallIfNeeded(String gameObject, String requiredEntitlementIdentifier, String offeringIdentifier) {
+        Log.d(TAG, "presentPaywallIfNeeded(go=" + gameObject + ", entitlement=" +
+                requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ")");
+        // Stubbed behavior (adjust when you add native logic)
+        UnityBridge.sendMessage(gameObject, "OnPaywallResultFromActivity", "NOT_PRESENTED|Stub: no native UI");
+    }
+
+    public static boolean isSupported() { return true; }
+
+    // Keeps your callback path intact if you use it internally (not used by SendMessage flow)
+    private static void sendPaywallResult(String result) {
+        try {
+            PaywallCallbacks cb = paywallCallbacks;
+            if (cb != null) {
+                Log.d(TAG, "Forwarding result to registered callback: " + result);
+                cb.onPaywallResult(result);
+            } else {
+                Log.w(TAG, "No callback registered to receive paywall result: " + result);
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "Error sending paywall result: " + e.getMessage());
+        }
+    }
+}

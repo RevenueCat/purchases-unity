@@ -7,8 +7,9 @@ namespace RevenueCat.UI
     /// <summary>
     /// Main interface for RevenueCat UI components.
     /// Provides methods to present paywalls.
+    /// Add this component to a GameObject to enable paywall functionality.
     /// </summary>
-    public static class RevenueCatUI
+    public class RevenueCatUI : MonoBehaviour
     {
         
         /// <summary>
@@ -16,15 +17,14 @@ namespace RevenueCat.UI
         /// </summary>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public static async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
+        public async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
         {
             try 
             {
                 Debug.Log("[RevenueCatUI] Presenting paywall...");
                 
-                // Use the platform-specific implementation
                 var presenter = PaywallPresenter.Instance;
-                return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
+                return await presenter.PresentPaywallAsync(gameObject.name, options ?? new PaywallOptions());
             }
             catch (Exception e)
             {
@@ -39,7 +39,7 @@ namespace RevenueCat.UI
         /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting</param>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public static async Task<PaywallResult> PresentPaywallIfNeeded(
+        public async Task<PaywallResult> PresentPaywallIfNeeded(
             string requiredEntitlementIdentifier, 
             PaywallOptions options = null)
         {
@@ -54,7 +54,7 @@ namespace RevenueCat.UI
                 Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
                 
                 var presenter = PaywallPresenter.Instance;
-                return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
+                return await presenter.PresentPaywallIfNeededAsync(gameObject.name, requiredEntitlementIdentifier, options ?? new PaywallOptions());
             }
             catch (Exception e)
             {
@@ -71,7 +71,7 @@ namespace RevenueCat.UI
         /// returns false on other platforms (Editor, Windows, macOS, WebGL, etc.).
         /// </summary>
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
-        public static bool IsSupported()
+        public bool IsSupported()
         {
             try
             {
@@ -90,15 +90,20 @@ namespace RevenueCat.UI
             }
         }
 
-        /// <summary>
-        /// Whether the Paywall feature is supported on the current platform.
-        /// </summary>
-        public static bool IsPaywallSupported()
-        {
-            try { return PaywallPresenter.Instance.IsSupported(); }
-            catch { return false; }
-        }
-
         
+        // Called from PaywallProxyActivity via UnitySendMessage
+        private void OnPaywallResultFromActivity(string resultName)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Convert simple result name to format expected by AndroidPaywallPresenter
+            string formattedResult = resultName.ToUpper();
+            
+            var presenter = PaywallPresenter.Instance;
+            if (presenter is Platforms.AndroidPaywallPresenter androidPresenter)
+            {
+                androidPresenter.OnPaywallResult(formattedResult);
+            }
+#endif
+        }
     }
 } 

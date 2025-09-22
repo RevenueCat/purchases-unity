@@ -1,0 +1,1 @@
+-keep class com.unity3d.player.** { *; }

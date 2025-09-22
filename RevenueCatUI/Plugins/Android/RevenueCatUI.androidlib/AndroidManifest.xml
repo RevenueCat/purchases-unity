@@ -4,7 +4,7 @@
 
     <application>
         <activity
-            android:name="com.revenuecat.purchasesunity.PaywallProxyActivity"
+            android:name=".PaywallProxyActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             tools:node="merge" />
