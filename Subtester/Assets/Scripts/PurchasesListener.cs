@@ -67,6 +67,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
         CreateButton("Get Storefront", GetStorefront);
         CreateButton("Present Paywall", PresentPaywallResult);
+        CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
+        CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -199,64 +201,178 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     void PresentPaywallResult()
     {
-        var purchases = GetComponent<Purchases>();
         Debug.Log("Subtester: launching paywall");
         if (infoLabel != null) infoLabel.text = "Launching paywall...";
-        purchases.PresentPaywall(result =>
+        StartCoroutine(PresentPaywallCoroutine());
+    }
+
+    void PresentPaywallWithOptions()
+    {
+        Debug.Log("Subtester: launching paywall with options");
+        if (infoLabel != null) infoLabel.text = "Launching paywall with options...";
+        StartCoroutine(PresentPaywallWithOptionsCoroutine());
+    }
+
+    void PresentPaywallForOffering()
+    {
+        Debug.Log("Subtester: launching paywall for specific offering");
+        if (infoLabel != null) infoLabel.text = "Launching paywall for offering...";
+        StartCoroutine(PresentPaywallForOfferingCoroutine());
+    }
+
+    private System.Collections.IEnumerator PresentPaywallCoroutine()
+    {
+        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        if (ui == null)
         {
-            Debug.Log("Subtester: paywall result = " + result);
-            if (infoLabel != null)
+            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+        }
+
+        var task = ui.PresentPaywall();
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall result = " + result);
+
+        if (infoLabel != null)
+        {
+            string status = GetPaywallResultStatus(result);
+
+            if (result.Result == RevenueCat.UI.PaywallResultType.Purchased || 
+                result.Result == RevenueCat.UI.PaywallResultType.Restored)
             {
-                string status = "";
-                
-                switch (result)
-                {
-                    case Purchases.PaywallResult.Purchased:
-                        status = "PURCHASED - User completed a purchase";
-                        GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
-                            if (error != null)
-                            {
-                                Debug.LogError("Subtester: Error refreshing customer info after purchase: " + error);
-                            }
-                            else
-                            {
-                                Debug.Log("Subtester: Refreshed customer info after purchase");
-                                DisplayCustomerInfo(customerInfo);
-                            }
-                        });
-                        break;
-                    case Purchases.PaywallResult.Restored:
-                        status = "RESTORED - User restored previous purchases";
-                        GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
-                            if (error != null)
-                            {
-                                Debug.LogError("Subtester: Error refreshing customer info after restore: " + error);
-                            }
-                            else
-                            {
-                                Debug.Log("Subtester: Refreshed customer info after restore");
-                                DisplayCustomerInfo(customerInfo);
-                            }
-                        });
-                        break;
-                    case Purchases.PaywallResult.Cancelled:
-                        status = "CANCELLED - User dismissed the paywall";
-                        break;
-                    case Purchases.PaywallResult.Error:
-                        status = "ERROR - An error occurred during paywall";
-                        break;
-                    case Purchases.PaywallResult.NotPresented:
-                        status = "NOT PRESENTED - Paywall was not needed";
-                        break;
-                    default:
-                        status = $"UNKNOWN - Received: {result}";
-                        break;
-                }
-                
-                infoLabel.text = $"Paywall result: {status}";
-                Debug.Log($"Subtester: {status}");
+                GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
+                    if (error != null)
+                    {
+                        Debug.LogError("Subtester: Error refreshing customer info after " + result.Result + ": " + error);
+                    }
+                    else
+                    {
+                        Debug.Log("Subtester: Refreshed customer info after " + result.Result);
+                        DisplayCustomerInfo(customerInfo);
+                    }
+                });
+            }
+
+            infoLabel.text = $"Paywall result: {status}";
+            Debug.Log($"Subtester: {status}");
+        }
+    }
+
+    private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
+    {
+        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        if (ui == null)
+        {
+            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+        }
+
+        var options = new RevenueCat.UI.PaywallOptions
+        {
+            DisplayCloseButton = false
+        };
+
+        var task = ui.PresentPaywall(options);
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall with options result = " + result);
+
+        if (infoLabel != null)
+        {
+            infoLabel.text = $"Paywall with options result: {GetPaywallResultStatus(result)}";
+        }
+    }
+
+    private System.Collections.IEnumerator PresentPaywallForOfferingCoroutine()
+    {
+        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        if (ui == null)
+        {
+            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+        }
+
+        // First get available offerings to use one as an example
+        var purchases = GetComponent<Purchases>();
+        var offeringsTask = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
+        
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                offeringsTask.SetException(new System.Exception(error.ToString()));
+            }
+            else
+            {
+                offeringsTask.SetResult(offerings);
             }
         });
+
+        while (!offeringsTask.Task.IsCompleted) { yield return null; }
+
+        if (offeringsTask.Task.IsFaulted)
+        {
+            Debug.LogError("Subtester: Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message);
+            if (infoLabel != null)
+            {
+                infoLabel.text = "Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message;
+            }
+            yield break;
+        }
+
+        var offerings = offeringsTask.Task.Result;
+        string offeringId = null;
+
+        // Random offering ID from available offerings
+        if (offerings?.All?.Count > 0)
+        {
+            var allOfferingIds = offerings.All.Keys.ToList();
+            var randomIndex = UnityEngine.Random.Range(0, allOfferingIds.Count);
+            offeringId = allOfferingIds[randomIndex];
+        }
+        else if (offerings?.Current != null)
+        {
+            offeringId = offerings.Current.Identifier;
+        }
+
+        // Create options with specific offering
+        var options = new RevenueCat.UI.PaywallOptions
+        {
+            OfferingIdentifier = offeringId ?? "default",
+            DisplayCloseButton = true
+        };
+
+        Debug.Log($"Subtester: Presenting paywall for offering: {options.OfferingIdentifier}");
+
+        var task = ui.PresentPaywall(options);
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall for offering result = " + result);
+
+        if (infoLabel != null)
+        {
+            infoLabel.text = $"Paywall for offering '{options.OfferingIdentifier}' result: {GetPaywallResultStatus(result)}";
+        }
+    }
+
+    private string GetPaywallResultStatus(RevenueCat.UI.PaywallResult result)
+    {
+        switch (result.Result)
+        {
+            case RevenueCat.UI.PaywallResultType.Purchased:
+                return "PURCHASED - User completed a purchase";
+            case RevenueCat.UI.PaywallResultType.Restored:
+                return "RESTORED - User restored previous purchases";
+            case RevenueCat.UI.PaywallResultType.Cancelled:
+                return "CANCELLED - User dismissed the paywall";
+            case RevenueCat.UI.PaywallResultType.Error:
+                return "ERROR - An error occurred during paywall";
+            case RevenueCat.UI.PaywallResultType.NotPresented:
+                return "NOT PRESENTED - Paywall was not needed";
+            default:
+                return $"UNKNOWN - Received: {result}";
+        }
     }
 
     private void CreateButton(string label, UnityAction action)
