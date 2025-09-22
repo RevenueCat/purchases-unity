@@ -67,8 +67,9 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}'");
-                _plugin.CallStatic("presentPaywallIfNeeded", gameObjectName, requiredEntitlementIdentifier, offering);
+                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                _plugin.CallStatic("presentPaywallIfNeeded", gameObjectName, requiredEntitlementIdentifier, offering, displayCloseButton);
             }
             catch (Exception e)
             {
