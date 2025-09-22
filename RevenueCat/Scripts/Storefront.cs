@@ -1,18 +1,20 @@
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Contains the information about the current store account.
     /// </summary>
-    public class Storefront
+    public sealed class Storefront
     {
         /// <summary>
         /// Country code of the current store account.
         /// </summary>
-        public readonly string CountryCode;
+        [JsonProperty("countryCode")]
+        public string CountryCode { get; }
 
-        public Storefront(string countryCode)
+        [JsonConstructor]
+        internal Storefront([JsonProperty("countryCode")] string countryCode)
         {
             CountryCode = countryCode;
         }

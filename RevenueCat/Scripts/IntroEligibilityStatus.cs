@@ -1,4 +1,4 @@
-public partial class Purchases
+namespace RevenueCat
 {
     public enum IntroEligibilityStatus
     {

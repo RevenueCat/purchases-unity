@@ -1,6 +1,7 @@
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
+using System;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Represents a <see cref="Discount"/> that has been validated and is ready to be used for a purchase.
@@ -10,35 +11,41 @@ public partial class Purchases
         /// <summary>
         /// Identifier of the PromotionalOffer.
         /// </summary>
-        public readonly string Identifier;
-        
+        public string Identifier { get; }
+
         /// <summary>
         ///  A string that identifies the key used to generate the signature.
         /// </summary>
-        public readonly string KeyIdentifier;
-        
+        public string KeyIdentifier { get; }
+
         /// <summary>
         /// A universally unique ID (UUID) value that you define.
         /// </summary>
-        public readonly string Nonce;
-        
+        public string Nonce { get; }
+
         /// <summary>
         /// A string representing the properties of a specific promotional offer, cryptographically signed.
         /// </summary>
-        public readonly string Signature;
-        
-        /// <summary>
-        /// The date and time of the signature's creation in milliseconds, formatted in Unix epoch time.
-        /// </summary>
-        public readonly long Timestamp;
+        public string Signature { get; }
 
-        public PromotionalOffer(JSONNode response)
+        /// <summary>
+        /// The date and time of the signature's creation.
+        /// </summary>
+        public DateTime Timestamp { get; }
+
+        [JsonConstructor]
+        internal PromotionalOffer(
+            [JsonProperty("identifier")] string identifier,
+            [JsonProperty("keyIdentifier")] string keyIdentifier,
+            [JsonProperty("nonce")] string nonce,
+            [JsonProperty("signature")] string signature,
+            [JsonProperty("timestamp")] long timestamp)
         {
-            Identifier = response["identifier"];
-            KeyIdentifier = response["keyIdentifier"];
-            Nonce = response["nonce"];
-            Signature = response["signature"];
-            Timestamp = response["timestamp"];
+            Identifier = identifier;
+            KeyIdentifier = keyIdentifier;
+            Nonce = nonce;
+            Signature = signature;
+            Timestamp = Utilities.FromUnixTimeInMilliseconds(timestamp);
         }
 
         public override string ToString()

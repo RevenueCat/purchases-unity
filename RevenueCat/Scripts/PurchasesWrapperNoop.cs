@@ -1,283 +1,343 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-public partial class Purchases
+namespace RevenueCat
 {
-    private class PurchasesWrapperNoop : IPurchasesWrapper
+    internal class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
-            Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-            bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled)
+#pragma warning disable CS0067 // Event is never used
+        public event Action<CustomerInfo> OnCustomerInfoUpdated;
+        public event Action<RevenueCatLogMessage> OnLogMessage;
+#pragma warning restore CS0067 // Event is never used
+        public void Configure(PurchasesConfiguration configuration)
         {
+            throw new NotImplementedException();
         }
 
-        public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
-            Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-            bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
-            bool pendingTransactionsForPrepaidPlansEnabled)
+        public Task<Storefront> GetStorefrontAsync(CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void GetStorefront()
+        public Task<IReadOnlyList<StoreProduct>> GetProductsAsync(string[] productIdentifiers, string type = "subs", CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void GetProducts(string[] productIdentifiers, string type = "subs")
-        {
-        }
-
-        public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
-        {
-        }
-
-        public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
+        public Task<PurchaseResult> PurchaseProductAsync(
+            string productIdentifier,
+            string type = "subs",
+            string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-            Purchases.PromotionalOffer discount = null)
+            bool googleIsPersonalizedPrice = false,
+            string offeringIdentifier = null,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void PurchasePackage(Package packageToPurchase, string oldSku = null,
+        public Task<PurchaseResult> PurchasePackageAsync(
+            Package packageToPurchase,
+            string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
+            bool googleIsPersonalizedPrice = false,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
-            Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+        public Task<PurchaseResult> PurchaseSubscriptionOptionAsync(SubscriptionOption subscriptionOption, GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
         public void RestorePurchases()
         {
+            throw new NotImplementedException();
         }
 
-        public void LogIn(string appUserId)
+        public Task<CustomerInfo> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
         public void LogOut()
         {
+            throw new NotImplementedException();
         }
 
         public void SetAllowSharingStoreAccount(bool allow)
         {
+            throw new NotImplementedException();
         }
 
-        public string GetAppUserId()
+        public Task<Offerings> GetOfferingsAsync(CancellationToken cancellationToken = default)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
-        public void SetDebugLogsEnabled(bool enabled)
+        public Task<Offering> GetCurrentOfferingForPlacementAsync(string placementIdentifier, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
+        }
+
+        public Task<Offerings> SyncAttributesAndOfferingsIfNeededAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode, double price)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> GetAmazonLWAConsentStatusAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public void SetLogLevel(LogLevel level)
         {
+            throw new NotImplementedException();
         }
 
-        public void SetLogHandler()
+        public void SetDebugLogsEnabled(bool enabled)
         {
+            throw new NotImplementedException();
         }
 
         public void SetProxyURL(string proxyURL)
         {
+            throw new NotImplementedException();
         }
 
-        public void GetCustomerInfo()
+        public string GetAppUserId()
         {
+            throw new NotImplementedException();
         }
 
-        public void GetOfferings()
+        public Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default)
         {
-        }
-
-        public void GetCurrentOfferingForPlacement(string placementIdentifier)
-        {
-        }
-
-        public void SyncAttributesAndOfferingsIfNeeded()
-        {
+            throw new NotImplementedException();
         }
 
         public void SyncPurchases()
         {
-        }
-
-        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
-            string isoCurrencyCode, double price)
-        {
-        }
-        
-        public void GetAmazonLWAConsentStatus()
-        {
+            throw new NotImplementedException();
         }
 
         public void EnableAdServicesAttributionTokenCollection()
         {
+            throw new NotImplementedException();
         }
 
         public bool IsAnonymous()
         {
-            return false;
+            throw new NotImplementedException();
         }
 
         public bool IsConfigured()
         {
-            return false;
+            throw new NotImplementedException();
         }
 
-        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+        public Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
         public void InvalidateCustomerInfoCache()
         {
+            throw new NotImplementedException();
         }
 
         public void PresentCodeRedemptionSheet()
         {
+            throw new NotImplementedException();
         }
 
         public void RecordPurchase(string productID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetSimulatesAskToBuyInSandbox(bool enabled)
         {
+            throw new NotImplementedException();
         }
 
         public void SetAttributes(string attributesJson)
         {
+            throw new NotImplementedException();
         }
 
         public void SetEmail(string email)
         {
+            throw new NotImplementedException();
         }
 
         public void SetPhoneNumber(string phoneNumber)
         {
+            throw new NotImplementedException();
         }
 
         public void SetDisplayName(string displayName)
         {
+            throw new NotImplementedException();
         }
 
         public void SetPushToken(string token)
         {
+            throw new NotImplementedException();
         }
 
         public void SetAdjustID(string adjustID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetAppsflyerID(string appsflyerID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetFBAnonymousID(string fbAnonymousID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetMparticleID(string mparticleID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetOnesignalID(string onesignalID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetAirshipChannelID(string airshipChannelID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetCleverTapID(string cleverTapID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetMixpanelDistinctID(string mixpanelDistinctID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
         {
+            throw new NotImplementedException();
         }
 
         public void SetMediaSource(string mediaSource)
         {
+            throw new NotImplementedException();
         }
 
         public void SetCampaign(string campaign)
         {
+            throw new NotImplementedException();
         }
 
         public void SetAdGroup(string adGroup)
         {
+            throw new NotImplementedException();
         }
 
         public void SetAd(string ad)
         {
+            throw new NotImplementedException();
         }
 
         public void SetKeyword(string keyword)
         {
+            throw new NotImplementedException();
         }
 
         public void SetCreative(string creative)
         {
+            throw new NotImplementedException();
         }
 
         public void CollectDeviceIdentifiers()
         {
+            throw new NotImplementedException();
         }
 
-        public void CanMakePayments(Purchases.BillingFeature[] features)
+        public Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        public Task<PromotionalOffer> GetPromotionalOffer(string productIdentifier, string discountIdentifier)
         {
+            throw new NotImplementedException();
         }
 
-        public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes)
+        public void ShowInAppMessages(InAppMessageType[] messageTypes)
         {
+            throw new NotImplementedException();
         }
 
-        public void ParseAsWebPurchaseRedemption(string urlString)
+        public Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(string urlString, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+        public Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public void GetVirtualCurrencies()
+        public Task<VirtualCurrencies> GetVirtualCurrenciesAsync(CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
         }
 
-        public string GetCachedVirtualCurrencies()
+        public VirtualCurrencies GetCachedVirtualCurrencies()
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public void InvalidateVirtualCurrenciesCache()
         {
+            throw new NotImplementedException();
         }
 
-        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+        public void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct)
         {
+            throw new NotImplementedException();
         }
 
-        public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+        public void GetEligibleWinBackOffersForPackage(Package package)
         {
+            throw new NotImplementedException();
         }
 
-        public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+        public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer)
         {
+            throw new NotImplementedException();
         }
 
-        public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+        public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer)
         {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

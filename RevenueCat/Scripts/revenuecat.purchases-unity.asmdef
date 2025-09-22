@@ -1,6 +1,6 @@
 {
     "name": "revenuecat.purchases-unity",
-    "rootNamespace": "",
+    "rootNamespace": "RevenueCat",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

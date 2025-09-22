@@ -1,90 +1,211 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-public interface IPurchasesWrapper
+namespace RevenueCat
 {
-    void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
-        Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled);
+    internal interface IPurchasesWrapper : IDisposable
+    {
+        event Action<CustomerInfo> OnCustomerInfoUpdated;
+        event Action<RevenueCatLogMessage> OnLogMessage;
 
-    void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
-        Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-        bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
-        bool pendingTransactionsForPrepaidPlansEnabled);
+        void Configure(PurchasesConfiguration configuration);
 
-    void GetStorefront();
-    void GetProducts(string[] productIdentifiers, string type = "subs");
+        Task<Storefront> GetStorefrontAsync(CancellationToken cancellationToken = default);
 
-    void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
-        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-        Purchases.PromotionalOffer discount = null);
+        Task<IReadOnlyList<StoreProduct>> GetProductsAsync(
+            string[] productIdentifiers,
+            string type = "subs",
+            CancellationToken cancellationToken = default);
 
-    void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
-        Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null);
+        /// <summary>
+        /// Initiates a purchase of a <see cref="StoreProduct"/>.
+        /// </summary>
+        /// <remarks>
+        /// Call this method when a user has decided to purchase a product.
+        /// Only call this in direct response to user input.
+        /// Use this function if you are not using the <see cref="Offerings"/> system to purchase a <see cref="StoreProduct"/>.
+        /// If you are using the <see cref="Offerings"/> system, use <see cref="PurchasePackageAsync"/> instead.
+        /// </remarks>
+        Task<PurchaseResult> PurchaseProductAsync(
+            string productIdentifier,
+            string type = "subs",
+            string oldSku = null,
+            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            bool googleIsPersonalizedPrice = false,
+            string offeringIdentifier = null,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default);
 
-    void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
-        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false);
+        /// <summary>
+        /// Initiates a purchase of a <see cref="Package"/>.
+        /// From here the SDK will handle the purchase with <c>StoreKit</c> and call the <c>PurchaseCompletedBlock</c>.
+        /// </summary>
+        /// <remarks>
+        /// Call this method when a user has decided to purchase a product.
+        /// Only call this in direct response to user input.<br/>
+        /// Note: You do not need to finish the transaction yourself in the completion callback, RevenueCat will
+        /// handle this for you.
+        /// </remarks>
+        Task<PurchaseResult> PurchasePackageAsync(
+            Package packageToPurchase,
+            string oldSku = null,
+            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            bool googleIsPersonalizedPrice = false,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default);
 
-    void RestorePurchases();
-    void LogIn(string appUserId);
-    void LogOut();
-    void SetAllowSharingStoreAccount(bool allow);
-    void SetDebugLogsEnabled(bool enabled);
-    void SetLogLevel(Purchases.LogLevel level);
-    void SetLogHandler();
-    void SetProxyURL(string proxyURL);
-    string GetAppUserId();
-    void GetCustomerInfo();
-    void GetOfferings();
-    void GetCurrentOfferingForPlacement(string placementIdentifier);
-    void SyncAttributesAndOfferingsIfNeeded();
-    void SyncPurchases();
+        Task<PurchaseResult> PurchaseSubscriptionOptionAsync(
+            SubscriptionOption subscriptionOption,
+            GoogleProductChangeInfo googleProductChangeInfo = null,
+            bool googleIsPersonalizedPrice = false,
+            CancellationToken cancellationToken = default);
 
-    void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,
-        double price);
+        /// <summary>
+        /// This method will post all purchases associated with the current Store account to RevenueCat and become
+        /// associated with the current <c>appUserID</c>. If the receipt is being used by an existing user, the current
+        /// <c>appUserID</c> will be aliased together with the <c>appUserID</c> of the existing user.
+        ///  Going forward, either <c>appUserID</c> will be able to reference the same user.
+        /// <seealso href="https://docs.revenuecat.com/docs/restoring-purchases"/>
+        /// </summary>
+        /// <remarks>
+        /// You shouldn't use this method if you have your own account system. In that case "restoration" is provided. <br/>
+        /// Note: This may force your users to enter their Store password so should only be performed on request of
+        /// by your app passing the same <c>appUserID</c> used to purchase originally.
+        /// the user. Typically, with a button in settings or near your purchase UI. Use
+        /// <see cref="SyncPurchases"/> if you need to restore transactions programmatically.
+        /// </remarks>
+        void RestorePurchases();
 
-    void GetAmazonLWAConsentStatus();
-    void EnableAdServicesAttributionTokenCollection();
-    bool IsAnonymous();
-    bool IsConfigured();
-    void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
-    void InvalidateCustomerInfoCache();
-    void PresentCodeRedemptionSheet();
-    void RecordPurchase(string productID);
-    void SetSimulatesAskToBuyInSandbox(bool enabled);
-    void SetAttributes(string attributesJson);
-    void SetEmail(string email);
-    void SetPhoneNumber(string phoneNumber);
-    void SetDisplayName(string displayName);
-    void SetPushToken(string token);
-    void SetAdjustID(string adjustID);
-    void SetAppsflyerID(string appsflyerID);
-    void SetFBAnonymousID(string fbAnonymousID);
-    void SetMparticleID(string mparticleID);
-    void SetOnesignalID(string onesignalID);
-    void SetAirshipChannelID(string airshipChannelID);
-    void SetCleverTapID(string cleverTapID);
-    void SetMixpanelDistinctID(string mixpanelDistinctID);
-    void SetFirebaseAppInstanceID(string firebaseAppInstanceID);
-    void SetMediaSource(string mediaSource);
-    void SetCampaign(string campaign);
-    void SetAdGroup(string adGroup);
-    void SetAd(string ad);
-    void SetKeyword(string keyword);
-    void SetCreative(string creative);
-    void CollectDeviceIdentifiers();
-    void CanMakePayments(Purchases.BillingFeature[] features);
-    void GetPromotionalOffer(string productIdentifier, string discountIdentifier);
-    void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes);
-    void ParseAsWebPurchaseRedemption(string urlString);
-    void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption);
-    void GetVirtualCurrencies();
-    string GetCachedVirtualCurrencies();
-    void InvalidateVirtualCurrenciesCache();
-    void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct);
-    void GetEligibleWinBackOffersForPackage(Purchases.Package package);
-    void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer);
-    void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer);
+        /// <summary>
+        /// This function will log in the current user with an <c>appUserID</c>.
+        /// </summary>
+        /// <remarks>
+        /// RevenueCat provides a source of truth for a subscriber's status across different platforms.
+        /// To do this, each subscriber has an App User ID that uniquely identifies them within your application.
+        /// User identity is one of the most important components of many mobile applications,
+        /// and it's extra important to make sure the subscription status RevenueCat is
+        /// tracking gets associated with the correct user.
+        /// The Purchases SDK allows you to specify your own user identifiers or use anonymous identifiers
+        /// generated by RevenueCat. Some apps will use a combination
+        /// of their own identifiers and RevenueCat anonymous Ids - that's okay!
+        /// </remarks>
+        Task<CustomerInfo> LogInAsync(string appUserId, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Logs out the <c>Purchases</c> client, clearing the saved <c>appUserID</c>.
+        /// </summary>
+        /// <remarks>
+        /// This will generate a random user id and save it in the cache.
+        /// If this method is called and the current user is anonymous, it will return an error.
+        /// </remarks>
+        void LogOut();
+
+        void SetAllowSharingStoreAccount(bool allow);
+
+        Task<Offerings> GetOfferingsAsync(CancellationToken cancellationToken = default);
+
+        Task<Offering> GetCurrentOfferingForPlacementAsync(string placementIdentifier, CancellationToken cancellationToken = default);
+
+        Task<Offerings> SyncAttributesAndOfferingsIfNeededAsync(CancellationToken cancellationToken = default);
+
+        void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode, double price);
+
+        Task<bool> GetAmazonLWAConsentStatusAsync(CancellationToken cancellationToken = default);
+
+        void SetLogLevel(LogLevel level);
+
+        void SetDebugLogsEnabled(bool enabled);
+
+        void SetProxyURL(string proxyURL);
+
+        string GetAppUserId();
+
+        Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default);
+
+        void SyncPurchases();
+
+        void EnableAdServicesAttributionTokenCollection();
+
+        bool IsAnonymous();
+
+        bool IsConfigured();
+
+        Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default);
+
+        void InvalidateCustomerInfoCache();
+
+        void PresentCodeRedemptionSheet();
+
+        void RecordPurchase(string productID);
+
+        void SetSimulatesAskToBuyInSandbox(bool enabled);
+
+        void SetAttributes(string attributesJson);
+
+        void SetEmail(string email);
+
+        void SetPhoneNumber(string phoneNumber);
+
+        void SetDisplayName(string displayName);
+
+        void SetPushToken(string token);
+
+        void SetAdjustID(string adjustID);
+
+        void SetAppsflyerID(string appsflyerID);
+
+        void SetFBAnonymousID(string fbAnonymousID);
+
+        void SetMparticleID(string mparticleID);
+
+        void SetOnesignalID(string onesignalID);
+
+        void SetAirshipChannelID(string airshipChannelID);
+
+        void SetCleverTapID(string cleverTapID);
+
+        void SetMixpanelDistinctID(string mixpanelDistinctID);
+
+        void SetFirebaseAppInstanceID(string firebaseAppInstanceID);
+
+        void SetMediaSource(string mediaSource);
+
+        void SetCampaign(string campaign);
+
+        void SetAdGroup(string adGroup);
+
+        void SetAd(string ad);
+
+        void SetKeyword(string keyword);
+
+        void SetCreative(string creative);
+
+        void CollectDeviceIdentifiers();
+
+        Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default);
+
+        Task<PromotionalOffer> GetPromotionalOffer(string productIdentifier, string discountIdentifier);
+
+        void ShowInAppMessages(InAppMessageType[] messageTypes);
+
+        Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(string urlString, CancellationToken cancellationToken = default);
+
+        Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default);
+
+        Task<VirtualCurrencies> GetVirtualCurrenciesAsync(CancellationToken cancellationToken = default);
+
+        VirtualCurrencies GetCachedVirtualCurrencies();
+
+        void InvalidateVirtualCurrenciesCache();
+
+        void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct);
+
+        void GetEligibleWinBackOffersForPackage(Package package);
+
+        void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer);
+
+        void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer);
+    }
 }

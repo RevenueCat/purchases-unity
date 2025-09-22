@@ -1,8 +1,7 @@
+using Newtonsoft.Json.Linq;
 using System;
-using RevenueCat.SimpleJSON;
-using UnityEngine;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// Represents the result of a web purchase redemption process.
     public abstract class WebPurchaseRedemptionResult
@@ -14,7 +13,7 @@ public partial class Purchases
         /// </summary>
         public sealed class Success : WebPurchaseRedemptionResult
         {
-            public readonly CustomerInfo CustomerInfo;
+            public CustomerInfo CustomerInfo;
 
             public Success(CustomerInfo customerInfo) => CustomerInfo = customerInfo;
         }
@@ -24,7 +23,7 @@ public partial class Purchases
         /// </summary>
         public sealed class RedemptionError : WebPurchaseRedemptionResult
         {
-            public readonly Error Error;
+            public Error Error;
 
             public RedemptionError(Error error) => Error = error;
         }
@@ -59,29 +58,24 @@ public partial class Purchases
             public static PurchaseBelongsToOtherUser Instance { get; } = new PurchaseBelongsToOtherUser();
         }
 
-        public static WebPurchaseRedemptionResult FromJson(JSONNode response)
+        public static WebPurchaseRedemptionResult FromJson(JObject response)
         {
-            string resultType = response["result"];
+            var resultType = response["result"].Value<string>();
             switch (resultType)
             {
                 case "SUCCESS":
-                    var customerInfo = new CustomerInfo(response["customerInfo"]);
+                    var customerInfo = response["customerInfo"].ToObject<CustomerInfo>();
                     return new Success(customerInfo);
-
                 case "ERROR":
-                    var errorDetails = new Error(response["error"]);
+                    var errorDetails = response["error"].ToObject<Error>();
                     return new RedemptionError(errorDetails);
-
                 case "INVALID_TOKEN":
                     return InvalidToken.Instance;
-
                 case "EXPIRED":
-                    string obfuscatedEmail = response["obfuscatedEmail"];
+                    var obfuscatedEmail = response["obfuscatedEmail"].Value<string>();
                     return new Expired(obfuscatedEmail);
-
                 case "PURCHASE_BELONGS_TO_OTHER_USER":
                     return PurchaseBelongsToOtherUser.Instance;
-
                 default:
                     throw new ArgumentException($"Invalid result type: {resultType}");
             }

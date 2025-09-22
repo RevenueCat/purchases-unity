@@ -1,7 +1,4 @@
-using System;
-using System.ComponentModel;
-
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Enum of entitlement verification modes.
@@ -11,9 +8,7 @@ public partial class Purchases
         /// <summary>
         /// The SDK will not perform any entitlement verification.
         /// </summary>
-        [Description("DISABLED")]
-        Disabled,
-
+        DISABLED,
         /// <summary>
         /// Enable entitlement verification.
         ///
@@ -24,22 +19,8 @@ public partial class Purchases
         /// This can be useful if you want to handle verification failures to display an error/warning to the user
         /// or to track this situation but still grant access.
         /// </summary>
-        [Description("INFORMATIONAL")]
-        Informational,
-
+        INFORMATIONAL,
         // WIP: Add Enforced mode once its ready.
-        // Enforced
-    }
-}
-
-internal static class EntitlementVerificationModeExtensions
-{
-    internal static string Name(this Purchases.EntitlementVerificationMode verificationMode)
-    {
-        var type = verificationMode.GetType();
-        var memInfo = type.GetMember(verificationMode.ToString());
-        var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-        var stringValue = ((DescriptionAttribute) attributes[0]).Description;
-        return stringValue;
+        // ENFORCED
     }
 }

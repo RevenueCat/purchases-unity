@@ -48,7 +48,7 @@ if [ ! -z "$CI" ]; then
     verbose_echo "CI detected: $CI"
     verbose_echo "Using copy operation instead of symlink for CI compatibility"
     cp -r "$PWD/RevenueCat" "$PROJECT/Assets/"
-    
+
     # Verify copy was successful
     if [ -d "$PROJECT/Assets/RevenueCat" ]; then
         echo "✅ RevenueCat folder copied successfully"
@@ -62,7 +62,7 @@ else
     verbose_echo "Local development environment detected"
     verbose_echo "Using symlink operation for local development"
     ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
-    
+
     # Verify symlink was created successfully
     if [ -L "$PROJECT/Assets/RevenueCat" ]; then
         echo "✅ Symlink created successfully"
@@ -124,7 +124,7 @@ fi
 if [ -d "Assets/PlayServicesResolver" ]; then
     FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/PlayServicesResolver"
     verbose_echo "Found PlayServicesResolver folder"
-fi  
+fi
 if [ -d "Assets/ExternalDependencyManager" ]; then
     FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/ExternalDependencyManager"
     verbose_echo "Found ExternalDependencyManager folder"
@@ -185,10 +185,10 @@ else
     echo "⬇️ Downloading External Dependency Manager..."
     EDM_URL="https://github.com/googlesamples/unity-jar-resolver/raw/master/external-dependency-manager-latest.unitypackage"
     EDM_FILE="$PROJECT/external-dependency-manager-latest.unitypackage"
-    
+
     verbose_echo "Download URL: $EDM_URL"
     verbose_echo "Download destination: $EDM_FILE"
-    
+
     # Try wget first (more reliable in CI), fallback to curl
     if command -v wget >/dev/null 2>&1; then
         verbose_echo "Using wget to download External Dependency Manager"
@@ -201,7 +201,7 @@ else
         rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
         exit 1
     fi
-    
+
     if [ ! -f "$EDM_FILE" ]; then
         echo "❌ Failed to download External Dependency Manager"
         rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null

@@ -1,145 +1,129 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using RevenueCat.SimpleJSON;
-using UnityEngine;
-public partial class Purchases
+using Newtonsoft.Json;
+
+namespace RevenueCat
 {
+    /// <summary>
     /// Contains all details associated with a SubscriptionOption
     /// Used only for Google
-    public class SubscriptionOption
+    /// </summary>
+    public sealed class SubscriptionOption
     {
-        /**
-         * Identifier of the subscription option
-         * If this SubscriptionOption represents a base plan, this will be the basePlanId.
-         * If it represents an offer, it will be {basePlanId}:{offerId}
-         */
-        public readonly string Id;
+        /// <summary>
+        /// Identifier of the subscription option
+        /// If this SubscriptionOption represents a base plan, this will be the basePlanId.
+        /// If it represents an offer, it will be {basePlanId}:{offerId}
+        /// </summary>
+        public string Id { get; }
 
-        /**
-         * Identifier of the StoreProduct associated with this SubscriptionOption
-         * This will be {subId}:{basePlanId}
-         */
-        public readonly string StoreProductId;
+        /// <summary>
+        /// Identifier of the StoreProduct associated with this SubscriptionOption
+        /// This will be {subId}:{basePlanId}
+        /// </summary>
+        public string StoreProductId { get; }
 
-        /**
-         * Identifer of the subscription associated with this SubscriptionOption
-         * This will be {subId}
-         */
-        public readonly string ProductId;
+        /// <summary>
+        /// Identifier of the subscription associated with this SubscriptionOption
+        /// This will be {subId}
+        /// </summary>
+        public string ProductId { get; }
 
-        /**
-         * Pricing phases defining a user's payment plan for the product over time.
-         */
-        public readonly PricingPhase[] PricingPhases;
+        /// <summary>
+        /// Pricing phases defining a user's payment plan for the product over time.
+        /// </summary>
+        public IReadOnlyList<PricingPhase> PricingPhases { get; }
 
-        /**
-         * Tags defined on the base plan or offer. Empty for Amazon.
-         */
-        public readonly string[] Tags;
+        /// <summary>
+        /// Tags defined on the base plan or offer. Empty for Amazon.
+        /// </summary>
+        public IReadOnlyList<string> Tags { get; }
 
-        /**
-         * True if this SubscriptionOption represents a subscription base plan (rather than an offer).
-         */
-        public readonly bool IsBasePlan;
+        /// <summary>
+        /// True if this SubscriptionOption represents a subscription base plan (rather than an offer).
+        /// </summary>
+        public bool IsBasePlan { get; }
 
-        /**
-         * The subscription period of fullPricePhase (after free and intro trials).
-         */
-        public readonly Period BillingPeriod;
+        /// <summary>
+        /// The subscription period of fullPricePhase (after free and intro trials).
+        /// </summary>
+        public Period BillingPeriod { get; }
 
-        /**
-         * True if the subscription is pre-paid.
-         */
-        public readonly bool IsPrepaid;
+        /// <summary>
+        /// True if the subscription is pre-paid.
+        /// </summary>
+        public bool IsPrepaid { get; }
 
-        /**
-         * The full price PricingPhase of the subscription.
-         * Looks for the last price phase of the SubscriptionOption.
-         */
-        [CanBeNull] public readonly PricingPhase FullPricePhase;
+        /// <summary>
+        /// The full price PricingPhase of the subscription.
+        /// Looks for the last price phase of the SubscriptionOption.
+        /// </summary>
+        [CanBeNull]
+        public PricingPhase FullPricePhase { get; }
 
-        /**
-         * The free trial PricingPhase of the subscription.
-         * Looks for the first pricing phase of the SubscriptionOption where amountMicros is 0.
-         * There can be a freeTrialPhase and an introductoryPhase in the same SubscriptionOption.
-         */
-        [CanBeNull] public readonly PricingPhase FreePhase;
+        /// <summary>
+        /// The free trial PricingPhase of the subscription.
+        /// Looks for the first pricing phase of the SubscriptionOption where amountMicros is 0.
+        /// There can be a freeTrialPhase and an introductoryPhase in the same SubscriptionOption.
+        /// </summary>
+        [CanBeNull]
+        public PricingPhase FreePhase { get; }
 
-        /**
-         * The intro trial PricingPhase of the subscription.
-         * Looks for the first pricing phase of the SubscriptionOption where amountMicros is greater than 0.
-         * There can be a freeTrialPhase and an introductoryPhase in the same SubscriptionOption.
-         */
-        [CanBeNull] public readonly PricingPhase IntroPhase;
+        /// <summary>
+        /// The intro trial PricingPhase of the subscription.
+        /// Looks for the first pricing phase of the SubscriptionOption where amountMicros is greater than 0.
+        /// There can be a freeTrialPhase and an introductoryPhase in the same SubscriptionOption.
+        /// </summary>
+        [CanBeNull]
+        public PricingPhase IntroPhase { get; }
 
-        [CanBeNull] public readonly PresentedOfferingContext PresentedOfferingContext;
+        [CanBeNull]
+        public PresentedOfferingContext PresentedOfferingContext { get; }
 
-        /**
-         * Offering identifier the subscription option was presented from
-         */
+        /// <summary>
+        /// Offering identifier the subscription option was presented from
+        /// </summary>
         [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
-        [CanBeNull] public readonly string PresentedOfferingIdentifier;
+        [CanBeNull]
+        [JsonIgnore]
+        public string PresentedOfferingIdentifier => PresentedOfferingContext?.OfferingIdentifier;
 
-        /**
-         * Information about the installment subscription. Currently only supported in Google Play.
-         */
-        [CanBeNull] public readonly InstallmentsInfo OptionInstallmentsInfo;
+        /// <summary>
+        /// Information about the installment subscription. Currently only supported in Google Play.
+        /// </summary>
+        [CanBeNull]
+        public InstallmentsInfo OptionInstallmentsInfo { get; }
 
-        public SubscriptionOption(JSONNode response)
+        [JsonConstructor]
+        internal SubscriptionOption(
+            [JsonProperty("id")] string id,
+            [JsonProperty("storeProductId")] string storeProductId,
+            [JsonProperty("productId")] string productId,
+            [JsonProperty("pricingPhases")] List<PricingPhase> pricingPhases,
+            [JsonProperty("tags")] List<string> tags,
+            [JsonProperty("isBasePlan")] bool isBasePlan,
+            [JsonProperty("billingPeriod")] Period billingPeriod,
+            [JsonProperty("isPrepaid")] bool isPrepaid,
+            [JsonProperty("fullPricePhase")] PricingPhase fullPricePhase,
+            [JsonProperty("freePhase")] PricingPhase freePhase,
+            [JsonProperty("introPhase")] PricingPhase introPhase,
+            [JsonProperty("presentedOfferingContext")] PresentedOfferingContext presentedOfferingContext,
+            [JsonProperty("installmentsInfo")] InstallmentsInfo optionInstallmentsInfo)
         {
-            Id = response["id"];
-            StoreProductId = response["storeProductId"];
-            ProductId = response["productId"];
-            var tagsResponse = response["tags"];
-            var tagsTemporaryList = new List<string>();
-            foreach (var tag in tagsResponse)
-            {
-                tagsTemporaryList.Add(tag.Value);
-            }
-            Tags = tagsTemporaryList.ToArray();
-            IsBasePlan = response["isBasePlan"];
-            BillingPeriod = new Period(response["billingPeriod"]);
-            IsPrepaid = response["isPrepaid"];
-
-            var pricingPhasesNode = response["pricingPhases"];
-            var pricingPhasesTemporaryList = new List<PricingPhase>();
-            if (pricingPhasesNode != null && !pricingPhasesNode.IsNull) {
-                foreach (var phase in pricingPhasesNode)
-                {
-                    pricingPhasesTemporaryList.Add(new PricingPhase(phase));
-                }
-                PricingPhases = pricingPhasesTemporaryList.ToArray();
-            }
-
-
-            var fullPricePhaseNode = response["fullPricePhase"];
-            if (fullPricePhaseNode != null && !fullPricePhaseNode.IsNull)
-            {
-                FullPricePhase = new PricingPhase(fullPricePhaseNode);
-            }
-            var freePhaseNode = response["freePhase"];
-            if (freePhaseNode != null && !freePhaseNode.IsNull)
-            {
-                FreePhase = new PricingPhase(freePhaseNode);
-            }
-            var introPhaseNode = response["introPhase"];
-            if (introPhaseNode != null && !introPhaseNode.IsNull)
-            {
-                IntroPhase = new PricingPhase(introPhaseNode);
-            }
-
-            var presentedOfferingContexNode = response["presentedOfferingContext"];
-            if (presentedOfferingContexNode != null && !presentedOfferingContexNode.IsNull) {
-                PresentedOfferingContext = new PresentedOfferingContext(presentedOfferingContexNode);
-                PresentedOfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
-            }
-
-            var installmentsInfoNode = response["installmentsInfo"];
-            if (installmentsInfoNode != null && !installmentsInfoNode.IsNull)
-            {
-                OptionInstallmentsInfo = new InstallmentsInfo(installmentsInfoNode);
-            }
+            Id = id;
+            StoreProductId = storeProductId;
+            ProductId = productId;
+            PricingPhases = pricingPhases;
+            Tags = tags;
+            IsBasePlan = isBasePlan;
+            BillingPeriod = billingPeriod;
+            IsPrepaid = isPrepaid;
+            FullPricePhase = fullPricePhase;
+            FreePhase = freePhase;
+            IntroPhase = introPhase;
+            PresentedOfferingContext = presentedOfferingContext;
+            OptionInstallmentsInfo = optionInstallmentsInfo;
         }
 
         public override string ToString()
@@ -155,90 +139,96 @@ public partial class Purchases
                    $"{nameof(FullPricePhase)}: {FullPricePhase}\n" +
                    $"{nameof(FreePhase)}: {FreePhase}\n" +
                    $"{nameof(IntroPhase)}: {IntroPhase}\n" +
+#pragma warning disable CS0618 // Type or member is obsolete
                    $"{nameof(PresentedOfferingIdentifier)}: {PresentedOfferingIdentifier}\n" +
+#pragma warning restore CS0618 // Type or member is obsolete
                    $"{nameof(OptionInstallmentsInfo)}: {OptionInstallmentsInfo}\n";
         }
 
-        public class PricingPhase
+        public sealed class PricingPhase
         {
-            /**
-            * Billing period for which the PricingPhase applies
-            */
-            public readonly Period BillingPeriod;
+            /// <summary>
+            /// Billing period for which the PricingPhase applies
+            /// </summary>
+            public Period BillingPeriod { get; }
 
-            /**
-            * Recurrence mode of the PricingPhase
-            */
-            public readonly RecurrenceMode RecurrenceMode;
+            /// <summary>
+            /// Recurrence mode of the PricingPhase
+            /// </summary>
+            public RecurrenceMode RecurrenceMode { get; }
 
-            /**
-            * Number of cycles for which the pricing phase applies.
-            * Null for infiniteRecurring or finiteRecurring recurrence modes.
-            */
-            [CanBeNull] public readonly int BillingCycleCount;
+            /// <summary>
+            /// Number of cycles for which the pricing phase applies.
+            /// Null for infiniteRecurring or finiteRecurring recurrence modes.
+            /// </summary>
+            public int? BillingCycleCount { get; }
 
-            /**
-            * Price of the PricingPhase
-            */
-            public readonly Price Price;
+            /// <summary>
+            /// Price of the PricingPhase
+            /// </summary>
+            public Price Price { get; }
 
-            /**
-            * Indicates how the pricing phase is charged for finiteRecurring pricing phases
-            */
-            [CanBeNull] public readonly OfferPaymentMode OfferPaymentMode;
+            /// <summary>
+            /// Indicates how the pricing phase is charged for finiteRecurring pricing phases
+            /// </summary>
+            public OfferPaymentMode OfferPaymentMode { get; }
 
-            public PricingPhase(JSONNode response)
+            [JsonConstructor]
+            internal PricingPhase(
+                [JsonProperty("billingPeriod")] Period billingPeriod,
+                [JsonProperty("recurrenceMode")] RecurrenceMode recurrenceMode,
+                [JsonProperty("billingCycleCount")] int? billingCycleCount,
+                [JsonProperty("price")] Price price,
+                [JsonProperty("offerPaymentMode")] OfferPaymentMode offerPaymentMode)
             {
-                BillingPeriod = new Period(response["billingPeriod"]);
-                if (!Enum.TryParse(response["recurrenceMode"].Value, out RecurrenceMode))
-                {
-                    RecurrenceMode = RecurrenceMode.UNKNOWN;
-                }
-                if (!Enum.TryParse(response["offerPaymentMode"].Value, out OfferPaymentMode))
-                {
-                    OfferPaymentMode = OfferPaymentMode.UNKNOWN;
-                }
-                BillingCycleCount = response["billingCycleCount"];
-                Price = new Price(response["price"]);
+                BillingPeriod = billingPeriod;
+                RecurrenceMode = recurrenceMode;
+                BillingCycleCount = billingCycleCount;
+                Price = price;
+                OfferPaymentMode = offerPaymentMode;
             }
 
             public override string ToString()
             {
                 return $"{nameof(BillingPeriod)}: {BillingPeriod}\n" +
-                    $"{nameof(RecurrenceMode)}: {RecurrenceMode}\n" +
-                    $"{nameof(BillingCycleCount)}: {BillingCycleCount}\n" +
-                    $"{nameof(Price)}: {Price}\n" +
-                    $"{nameof(OfferPaymentMode)}: {OfferPaymentMode}\n";
+                       $"{nameof(RecurrenceMode)}: {RecurrenceMode}\n" +
+                       $"{nameof(BillingCycleCount)}: {BillingCycleCount}\n" +
+                       $"{nameof(Price)}: {Price}\n" +
+                       $"{nameof(OfferPaymentMode)}: {OfferPaymentMode}\n";
             }
         }
 
-        /**
-        * The number of period units: day, week, month, year, unknown
-        */
-        public class Period
+        /// <summary>
+        /// The number of period units: day, week, month, year, unknown
+        /// </summary>
+        public sealed class Period
         {
-            public readonly PeriodUnit Unit;
+            /// <summary>
+            /// The increment of time that a subscription period is specified in
+            /// </summary>
+            public PeriodUnit Unit { get; }
 
-            /**
-            * The increment of time that a subscription period is specified in
-            */
-            public readonly int Value;
+            /// <summary>
+            /// The increment of time that a subscription period is specified in
+            /// </summary>
+            public int Value { get; }
 
-            /**
-            * Specified in ISO 8601 format. For example, P1W equates to one week,
-            * P1M equates to one month, P3M equates to three months, P6M equates to six months,
-            * and P1Y equates to one year
-            */
-            public readonly string ISO8601;
+            /// <summary>
+            /// Specified in ISO 8601 format. For example, P1W equates to one week,
+            /// P1M equates to one month, P3M equates to three months, P6M equates to six months,
+            /// and P1Y equates to one year
+            /// </summary>
+            public string ISO8601 { get; }
 
-            public Period(JSONNode response)
+            [JsonConstructor]
+            internal Period(
+                [JsonProperty("unit")] PeriodUnit unit,
+                [JsonProperty("value")] int value,
+                [JsonProperty("iso8601")] string iso8601)
             {
-                if (!Enum.TryParse(response["unit"].Value, out Unit))
-                {
-                    Unit = PeriodUnit.UNKNOWN;
-                }
-                Value = (int) response["value"];
-                ISO8601 = response["iso8601"];
+                Unit = unit;
+                Value = value;
+                ISO8601 = iso8601;
             }
 
             public override string ToString()
@@ -249,114 +239,129 @@ public partial class Purchases
             }
         }
 
-        public enum PeriodUnit {
+        /// <summary>
+        /// Period units for a subscription period
+        /// </summary>
+        public enum PeriodUnit
+        {
             DAY = 0,
-
             WEEK = 1,
-
             MONTH = 2,
-
             YEAR = 3,
-
             UNKNOWN = 4
         }
 
-        /**
-        * Recurrence mode for a pricing phase
-        */
-        public enum RecurrenceMode {
-            /**
-            * Pricing phase repeats infinitely until cancellation
-            */
+        /// <summary>
+        /// Recurrence mode for a pricing phase
+        /// </summary>
+        public enum RecurrenceMode
+        {
+            /// <summary>
+            /// Pricing phase repeats infinitely until cancellation
+            /// </summary>
             INFINITE_RECURRING = 1,
-            /**
-            * Pricing phase repeats for a fixed number of billing periods
-            */
+            /// <summary>
+            /// Pricing phase repeats for a fixed number of billing periods
+            /// </summary>
             FINITE_RECURRING = 2,
-            /**
-            * Pricing phase does not repeat
-            */
+            /// <summary>
+            /// Pricing phase does not repeat
+            /// </summary>
             NON_RECURRING = 3,
             UNKNOWN = 4,
         }
 
-        /**
-        * Payment mode for offer pricing phases. Google Play only.
-        */
-        public enum OfferPaymentMode {
-            /**
-            * Subscribers don't pay until the specified period ends
-            */
+        /// <summary>
+        /// Payment mode for offer pricing phases. Google Play only.
+        /// </summary>
+        public enum OfferPaymentMode
+        {
+            /// <summary>
+            /// Subscribers don't pay until the specified period ends
+            /// </summary>
             FREE_TRIAL = 0,
-            /**
-            * Subscribers pay up front for a specified period
-            */
+            /// <summary>
+            /// Subscribers pay up front for a specified period
+            /// </summary>
             SINGLE_PAYMENT = 1,
-            /**
-            * Subscribers pay a discounted amount for a specified number of periods
-            */
+            /// <summary>
+            /// Subscribers pay a discounted amount for a specified number of periods
+            /// </summary>
             DISCOUNTED_RECURRING_PAYMENT = 2,
             UNKNOWN = 3,
         }
 
-        /**
-        * Contains all the details associated with a Price
-        */
-        public class Price {
-            /**
-            * Formatted price of the item, including its currency sign. For example $3.00
-            */
-            public readonly string Formatted;
+        /// <summary>
+        /// Contains all the details associated with a Price
+        /// </summary>
+        public sealed class Price
+        {
+            /// <summary>
+            /// Formatted price of the item, including its currency sign. For example $3.00
+            /// </summary>
+            public string Formatted { get; }
 
-            /**
-            * Price in micro-units, where 1,000,000 micro-units equal one unit of the currency.
-            *
-            * For example, if price is "€7.99", price_amount_micros is 7,990,000. This value represents
-            * the localized, rounded price for a particular currency.
-            */
-            public readonly int AmountMicros;
+            /// <summary>
+            /// Price in micro-units, where 1,000,000 micro-units equal one unit of the currency.
+            /// For example, if price is "€7.99", price_amount_micros is 7,990,000. This value represents
+            /// the localized, rounded price for a particular currency.
+            /// </summary>
+            public int AmountMicros { get; }
 
-            /**
-            * Returns ISO 4217 currency code for price and original price.
-            *
-            * For example, if price is specified in British pounds sterling, price_currency_code is "GBP".
-            * If currency code cannot be determined, currency symbol is returned.
-            */
-            public readonly string CurrencyCode;
+            /// <summary>
+            /// Returns ISO 4217 currency code for price and original price.
+            /// For example, if price is specified in British pounds sterling, price_currency_code is "GBP".
+            /// If currency code cannot be determined, currency symbol is returned.
+            /// </summary>
+            public string CurrencyCode { get; }
 
-            public Price(JSONNode response)
+            [JsonConstructor]
+            internal Price(
+                [JsonProperty("formatted")] string formatted,
+                [JsonProperty("amountMicros")] int amountMicros,
+                [JsonProperty("currencyCode")] string currencyCode)
             {
-                Formatted = response["formatted"];
-                AmountMicros = response["amountMicros"];
-                CurrencyCode = response["currencyCode"];
+                Formatted = formatted;
+                AmountMicros = amountMicros;
+                CurrencyCode = currencyCode;
             }
 
             public override string ToString()
             {
                 return $"{nameof(Formatted)}: {Formatted}\n" +
-                    $"{nameof(AmountMicros)}: {AmountMicros}\n" +
-                    $"{nameof(CurrencyCode)}: {CurrencyCode}\n";
+                       $"{nameof(AmountMicros)}: {AmountMicros}\n" +
+                       $"{nameof(CurrencyCode)}: {CurrencyCode}\n";
             }
         }
 
+        /// <summary>
         /// Type containing information of installment subscriptions. Currently only supported in Google Play.
-        public class InstallmentsInfo {
+        /// </summary>
+        public sealed class InstallmentsInfo
+        {
+            /// <summary>
             /// Number of payments the customer commits to in order to purchase the subscription.
-            public readonly int CommitmentPaymentsCount;
+            /// </summary>
+            public int CommitmentPaymentsCount { get; }
 
+            /// <summary>
             /// After the commitment payments are complete, the number of payments the user commits to upon a renewal.
-            public readonly int RenewalCommitmentPaymentsCount;
+            /// </summary>
+            public int RenewalCommitmentPaymentsCount { get; }
 
-            public InstallmentsInfo(JSONNode response)
+            [JsonConstructor]
+            internal InstallmentsInfo(
+                [JsonProperty("commitmentPaymentsCount")] int commitmentPaymentsCount,
+                [JsonProperty("renewalCommitmentPaymentsCount")] int renewalCommitmentPaymentsCount)
             {
-                CommitmentPaymentsCount = response["commitmentPaymentsCount"];
-                RenewalCommitmentPaymentsCount = response["renewalCommitmentPaymentsCount"];
+                CommitmentPaymentsCount = commitmentPaymentsCount;
+                RenewalCommitmentPaymentsCount = renewalCommitmentPaymentsCount;
             }
 
             public override string ToString()
             {
                 return $"{nameof(CommitmentPaymentsCount)}: {CommitmentPaymentsCount}\n" +
-                    $"{nameof(RenewalCommitmentPaymentsCount)}: {RenewalCommitmentPaymentsCount}\n";
+                       $"{nameof(RenewalCommitmentPaymentsCount)}: {RenewalCommitmentPaymentsCount}\n";
             }
         }
     }

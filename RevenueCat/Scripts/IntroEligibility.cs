@@ -1,20 +1,26 @@
-using System.Collections.Generic;
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     public class IntroEligibility
     {
+        /// <summary>
         /// The introductory price eligibility status
-        public readonly IntroEligibilityStatus Status;
+        /// </summary>
+        public IntroEligibilityStatus Status { get; }
 
+        /// <summary>
         /// Description of the status
-        public readonly string Description;
+        /// </summary>
+        public string Description { get; }
 
-        public IntroEligibility(JSONNode response)
+        [JsonConstructor]
+        internal IntroEligibility(
+            [JsonProperty("status")] IntroEligibilityStatus status,
+            [JsonProperty("description")] string description)
         {
-            Status = (IntroEligibilityStatus) response["status"].AsInt;
-            Description = response["description"];
+            Status = status;
+            Description = description;
         }
 
         public override string ToString()

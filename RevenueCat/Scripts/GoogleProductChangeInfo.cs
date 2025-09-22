@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Holds the information used when upgrading from another sku. For Android use only.
@@ -10,11 +10,11 @@ public partial class Purchases
         /**
         * The old product identifier to change from.
         */
-        public readonly string OldProductIdentifier;
+        public  string OldProductIdentifier;
         /**
         * The ProrationMode to use when upgrading the given oldProductIdentifier.
         */
-        public readonly ProrationMode ProrationMode;
+        public  ProrationMode ProrationMode;
 
         public GoogleProductChangeInfo(string OldProductIdentifier, ProrationMode ProrationMode)
         {
