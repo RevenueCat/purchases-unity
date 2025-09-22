@@ -70,6 +70,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Present Paywall", PresentPaywallResult);
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
+        CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -221,6 +222,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallForOfferingCoroutine());
     }
 
+    void PresentPaywallIfNeeded()
+    {
+        Debug.Log("Subtester: launching paywall if needed for test entitlement");
+        if (infoLabel != null) infoLabel.text = "Checking entitlement and launching paywall if needed...";
+        StartCoroutine(PresentPaywallIfNeededCoroutine());
+    }
+
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
         var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
@@ -354,6 +362,87 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         if (infoLabel != null)
         {
             infoLabel.text = $"Paywall for offering '{options.OfferingIdentifier}' result: {GetPaywallResultStatus(result)}";
+        }
+    }
+
+    private System.Collections.IEnumerator PresentPaywallIfNeededCoroutine()
+    {
+        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        if (ui == null)
+        {
+            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+        }
+
+        // First get available offerings to use one as an example
+        var purchases = GetComponent<Purchases>();
+        var offeringsTask = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
+        
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null)
+            {
+                offeringsTask.SetException(new System.Exception(error.ToString()));
+            }
+            else
+            {
+                offeringsTask.SetResult(offerings);
+            }
+        });
+
+        while (!offeringsTask.Task.IsCompleted) { yield return null; }
+
+        if (offeringsTask.Task.IsFaulted)
+        {
+            Debug.LogError("Subtester: Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message);
+            if (infoLabel != null)
+            {
+                infoLabel.text = "Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message;
+            }
+            yield break;
+        }
+
+        var offerings = offeringsTask.Task.Result;
+        string offeringId = null;
+
+        // Random offering ID from available offerings
+        if (offerings?.All?.Count > 0)
+        {
+            var allOfferingIds = offerings.All.Keys.ToList();
+            var randomIndex = UnityEngine.Random.Range(0, allOfferingIds.Count);
+            offeringId = allOfferingIds[randomIndex];
+        }
+        else if (offerings?.Current != null)
+        {
+            offeringId = offerings.Current.Identifier;
+        }
+
+        // Create options for the test
+        var options = new RevenueCat.UI.PaywallOptions
+        {
+            OfferingIdentifier = offeringId ?? "default",
+            DisplayCloseButton = true // Test with close button enabled
+        };
+
+        // Test with a real entitlement - change this to test different scenarios
+        var testEntitlement = "pro_level_b"; // User should have this, so paywall should NOT be presented
+
+        Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {options.OfferingIdentifier}");
+
+        var task = ui.PresentPaywallIfNeeded(testEntitlement, options);
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall if needed result = " + result);
+
+        if (infoLabel != null)
+        {
+            var status = GetPaywallResultStatus(result);
+            var message = $"PaywallIfNeeded for '{testEntitlement}' result: {status}";
+            if (result.Result == RevenueCat.UI.PaywallResultType.NotPresented)
+            {
+                message += " (User already has entitlement)";
+            }
+            infoLabel.text = message;
         }
     }
 
