@@ -41,8 +41,10 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}'");
-                _plugin.CallStatic("presentPaywall", gameObjectName, offering);
+                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                
+                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                _plugin.CallStatic("presentPaywall", gameObjectName, offering, displayCloseButton);
             }
             catch (Exception e)
             {
