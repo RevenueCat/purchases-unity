@@ -9,11 +9,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
+import com.revenuecat.purchases.PresentedOfferingContext;
 
 public class PaywallProxyActivity extends AppCompatActivity {
     public static final String EXTRA_GAME_OBJECT = "rc_proxy_game_object";
     public static final String EXTRA_METHOD     = "rc_proxy_method";
     public static final String EXTRA_OFFERING_ID = "rc_offering_id";
+    public static final String EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON = "rc_should_display_dismiss_button";
 
     private static final String TAG = "PurchasesUnity";
 
@@ -27,6 +29,8 @@ public class PaywallProxyActivity extends AppCompatActivity {
         final Intent source = getIntent();
         gameObject = source.getStringExtra(EXTRA_GAME_OBJECT);
         method     = source.getStringExtra(EXTRA_METHOD);
+        String offeringId = source.getStringExtra(EXTRA_OFFERING_ID);
+        boolean shouldDisplayDismissButton = source.getBooleanExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, false);
 
         if (gameObject == null || method == null) {
             Log.w(TAG, "Missing gameObject/method extras; finishing.");
@@ -48,8 +52,22 @@ public class PaywallProxyActivity extends AppCompatActivity {
         );
 
         Log.d(TAG, "Launching paywall with PaywallActivityLauncher");
-        // If you ever need to pass an offering, wire it via intent extras and into the launcher
-        launcher.launch(null);
+        Log.d(TAG, "Options - offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
+        
+        if (offeringId != null) {
+            Log.d(TAG, "Launching paywall with offering ID using deprecated method");
+            launcher.launch(offeringId,
+                    new PresentedOfferingContext(offeringId), // TODO: pass PresentedOfferingContext data
+                    null, // fontProvider
+                    shouldDisplayDismissButton);
+        } else {
+            Log.d(TAG, "Launching paywall with standard method");
+            launcher.launch(
+                null, // offering (Offering object, not String)
+                null, // fontProvider
+                shouldDisplayDismissButton
+            );
+        }
     }
 
     private void sendPaywallResult(PaywallResult result) {
@@ -68,7 +86,6 @@ public class PaywallProxyActivity extends AppCompatActivity {
 
         Log.d(TAG, "Sending PaywallResult: " + resultName);
 
-        // UnitySendMessage is safest from the UI thread. We're already on it, but guard anyway.
         runOnUiThread(() -> UnityBridge.sendMessage(gameObject, method, resultName));
     }
 }

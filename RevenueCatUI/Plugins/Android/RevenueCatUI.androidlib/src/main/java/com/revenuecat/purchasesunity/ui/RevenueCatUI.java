@@ -2,6 +2,8 @@ package com.revenuecat.purchasesunity.ui;
 
 import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_GAME_OBJECT;
 import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_METHOD;
+import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_OFFERING_ID;
+import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +18,7 @@ public class RevenueCatUI {
     public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }
     public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
-    public static void presentPaywall(String gameObject, String offeringIdentifier) {
+    public static void presentPaywall(String gameObject, String offeringIdentifier, boolean displayCloseButton) {
         try {
             Activity activity = UnityBridge.currentActivityOrNull();
             if (activity == null) {
@@ -28,12 +30,15 @@ public class RevenueCatUI {
             Intent intent = new Intent(activity, PaywallProxyActivity.class);
             intent.putExtra(EXTRA_GAME_OBJECT, gameObject);
             intent.putExtra(EXTRA_METHOD, "OnPaywallResultFromActivity");
-            if (offeringIdentifier != null) {
-                intent.putExtra(PaywallProxyActivity.EXTRA_OFFERING_ID, offeringIdentifier);
+            
+            if (offeringIdentifier != null && !offeringIdentifier.isEmpty()) {
+                intent.putExtra(EXTRA_OFFERING_ID, offeringIdentifier);
             }
+            
+            intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
 
             Log.d(TAG, "Launching PaywallProxyActivity for gameObject=" + gameObject +
-                    ", offering=" + offeringIdentifier);
+                    ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton);
             activity.startActivity(intent);
         } catch (Throwable t) {
             Log.e(TAG, "Error launching PaywallProxyActivity", t);
