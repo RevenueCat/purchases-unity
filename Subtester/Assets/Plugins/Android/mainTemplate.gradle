@@ -7,8 +7,8 @@ apply from: '../shared/keepUnitySymbols.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 // Android Resolver Dependencies Start
+    implementation 'androidx.activity:activity:1.8.2' // Packages/com.revenuecat.purchases-ui-unity/Plugins/Editor/RevenueCatUIDependencies.xml:5
     implementation 'androidx.annotation:annotation:[1.2.0]' // Packages/com.revenuecat.purchases-unity/Plugins/Editor/RevenueCatDependencies.xml:5
-    implementation 'androidx.appcompat:appcompat:1.6.1' // Packages/com.revenuecat.purchases-ui-unity/Plugins/Editor/RevenueCatUIDependencies.xml:5
     implementation 'com.revenuecat.purchases:purchases-hybrid-common:[17.7.0]' // Packages/com.revenuecat.purchases-unity/Plugins/Editor/RevenueCatDependencies.xml:4
     implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:[17.7.0]' // Packages/com.revenuecat.purchases-ui-unity/Plugins/Editor/RevenueCatUIDependencies.xml:4
 // Android Resolver Dependencies End
@@ -16,7 +16,6 @@ dependencies {
 
 // Android Resolver Exclusions Start
 android {
-    namespace "com.unity3d.player"
     ndkPath "**NDKPATH**"
     ndkVersion "**NDKVERSION**"
   packaging {
@@ -30,6 +29,8 @@ android {
 }
 // Android Resolver Exclusions End
 android {
+    namespace "com.unity3d.player"
+
     compileSdk **APIVERSION**
     buildToolsVersion '**BUILDTOOLS**'
 

@@ -5,13 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.ComponentActivity;
 
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
 import com.revenuecat.purchases.PresentedOfferingContext;
 
-public class PaywallProxyActivity extends AppCompatActivity {
+public class PaywallProxyActivity extends ComponentActivity {
     public static final String EXTRA_GAME_OBJECT = "rc_proxy_game_object";
     public static final String EXTRA_METHOD     = "rc_proxy_method";
     public static final String EXTRA_OFFERING_ID = "rc_offering_id";

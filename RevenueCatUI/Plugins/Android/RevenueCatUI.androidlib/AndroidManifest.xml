@@ -6,7 +6,7 @@
         <activity
             android:name=".PaywallProxyActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@android:style/Theme.NoTitleBar"
             tools:node="merge" />
     </application>
 
