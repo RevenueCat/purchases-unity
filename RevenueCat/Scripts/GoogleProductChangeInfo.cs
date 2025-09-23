@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace RevenueCat
 {
     /// <summary>

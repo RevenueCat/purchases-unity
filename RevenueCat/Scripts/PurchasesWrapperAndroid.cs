@@ -162,9 +162,9 @@ namespace RevenueCat
             CallPurchases("restorePurchases");
         }
 
-        public Task<CustomerInfo> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
+        public Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
+            var callback = new AndroidPurchasesCallback<LoginResult>(cancellationToken);
             CallPurchases("logIn", callback, appUserId);
             return callback.Task;
         }

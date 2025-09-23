@@ -60,7 +60,7 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public Task<CustomerInfo> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
+        public Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

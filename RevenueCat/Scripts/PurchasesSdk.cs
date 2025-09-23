@@ -1,13 +1,10 @@
-﻿using JetBrains.Annotations;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEditor;
 
 namespace RevenueCat
 {
@@ -145,7 +142,7 @@ namespace RevenueCat
                 cancellationToken);
         }
 
-        public static Task PurchaseSubscriptionOptionAsync(
+        public static Task<PurchaseResult> PurchaseSubscriptionOptionAsync(
             SubscriptionOption subscriptionOption,
             GoogleProductChangeInfo googleProductChangeInfo = null,
             bool googleIsPersonalizedPrice = false,
@@ -165,7 +162,7 @@ namespace RevenueCat
             Instance.RestorePurchases();
         }
 
-        public static Task<CustomerInfo> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
+        public static Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
 
@@ -277,7 +274,9 @@ namespace RevenueCat
             return Instance.IsConfigured();
         }
 
-        public static Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default)
+        public static Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(
+            string[] productIdentifiers,
+            CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
             return Instance.CheckTrialOrIntroductoryPriceEligibilityAsync(productIdentifiers, cancellationToken);
@@ -433,13 +432,17 @@ namespace RevenueCat
             Instance.CollectDeviceIdentifiers();
         }
 
-        public static Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default)
+        public static Task<bool> CanMakePaymentsAsync(
+            BillingFeature[] features,
+            CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
             return Instance.CanMakePaymentsAsync(features, cancellationToken);
         }
 
-        public static Task<PromotionalOffer> GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        public static Task<PromotionalOffer> GetPromotionalOffer(
+            string productIdentifier,
+            string discountIdentifier)
         {
             ValidateConfiguration();
             return Instance.GetPromotionalOffer(productIdentifier, discountIdentifier);
@@ -451,13 +454,17 @@ namespace RevenueCat
             Instance.ShowInAppMessages(messageTypes);
         }
 
-        public static Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(string urlString, CancellationToken cancellationToken = default)
+        public static Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(
+            string urlString,
+            CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
             return Instance.ParseAsWebPurchaseRedemptionAsync(urlString, cancellationToken);
         }
 
-        public static Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default)
+        public static Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(
+            WebPurchaseRedemption webPurchaseRedemption,
+            CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
             return Instance.RedeemWebPurchaseAsync(webPurchaseRedemption, cancellationToken);
