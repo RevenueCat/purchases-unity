@@ -196,7 +196,7 @@ namespace RevenueCat
         public Task<Offerings> SyncAttributesAndOfferingsIfNeededAsync(CancellationToken cancellationToken = default)
         {
             var callback = new AndroidPurchasesCallback<Offerings>(cancellationToken);
-            CallPurchases("syncAttributesAndOfferingsIfNeeded");
+            CallPurchases("syncAttributesAndOfferingsIfNeeded", callback);
             return callback.Task;
         }
 
@@ -235,7 +235,7 @@ namespace RevenueCat
         public Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default)
         {
             var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
-            CallPurchases("getCustomerInfo");
+            CallPurchases("getCustomerInfo", callback);
             return callback.Task;
         }
 

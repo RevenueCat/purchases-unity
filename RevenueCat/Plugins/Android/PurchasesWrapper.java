@@ -757,7 +757,7 @@ public class PurchasesWrapper {
     }
 
     @NonNull
-    private static OnResult getCustomerInfoListener(@CanBeNull Callback callback) {
+    private static OnResult getCustomerInfoListener(@Nullable Callback callback) {
         return new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
@@ -774,7 +774,7 @@ public class PurchasesWrapper {
         };
     }
 
-    private static void sendCustomerInfo(Map<String, ?> map, @CanBeNull Callback callback) {
+    private static void sendCustomerInfo(Map<String, ?> map, @Nullable Callback callback) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("customerInfo", MappersHelpersKt.convertToJson(map));
