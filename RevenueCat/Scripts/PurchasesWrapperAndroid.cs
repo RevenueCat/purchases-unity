@@ -1,8 +1,10 @@
 ﻿#if UNITY_ANDROID // && !UNITY_EDITOR
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -687,6 +689,8 @@ namespace RevenueCat
             return Task.FromResult<PurchaseResult>(null);
         }
 
+        #region Native Interop
+
         private const string PurchasesJavaClass = "com.revenuecat.unity.Purchases";
 
         private static void CallPurchases(string methodName, params object[] args)
@@ -704,6 +708,136 @@ namespace RevenueCat
                 return purchases.CallStatic<TReturnType>(methodName, args);
             }
         }
+
+        internal class AndroidPurchasesCallback<TReturnType> : AndroidJavaProxy
+        {
+            private string _callingMethod;
+            private TaskCompletionSource<TReturnType> _tcs;
+
+            public AndroidPurchasesCallback(CancellationToken cancellationToken, [CallerMemberName] string callingMethod = null) : base("com.revenuecat.purchases.unity.PurchasesWrapper$Callback")
+            {
+                _callingMethod = callingMethod;
+                _tcs = new TaskCompletionSource<TReturnType>();
+
+                if (cancellationToken != CancellationToken.None)
+                {
+                    cancellationToken.Register(() => { _tcs.TrySetCanceled(); });
+                }
+            }
+
+            // ReSharper disable once InconsistentNaming
+            // matches name of Java method
+            [UsedImplicitly]
+            public void onReceived(string json)
+            {
+                lock (_lock)
+                {
+                    if (_pendingTasks.TryRemove(_callingMethod, out _))
+                    {
+                        PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
+                        {
+                            try
+                            {
+                                var data = JsonConvert.DeserializeObject<TReturnType>(json);
+                                _tcs.SetResult(data);
+                            }
+                            catch (Exception e)
+                            {
+                                _tcs.SetException(e);
+                            }
+                        }, null);
+                    }
+                }
+            }
+
+            // ReSharper disable once InconsistentNaming
+            // matches name of Java method
+            [UsedImplicitly]
+            public void onError(string json)
+            {
+                lock (_lock)
+                {
+                    if (_pendingTasks.TryRemove(_callingMethod, out _))
+                    {
+                        PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
+                        {
+                            try
+                            {
+                                var error = JsonConvert.DeserializeObject<Error>(json);
+                                _tcs.SetException(new Exception(error.ToString()));
+                            }
+                            catch (Exception e)
+                            {
+                                _tcs.SetException(e);
+                            }
+                        }, null);
+                    }
+                }
+            }
+
+            public Task<TReturnType> Task => _tcs.Task;
+        }
+
+        internal class CustomerInfoHandler : AndroidJavaProxy
+        {
+            private Action<CustomerInfo> _action;
+
+            public CustomerInfoHandler(Action<CustomerInfo> action) : base("com.revenuecat.purchases.unity.PurchasesWrapper$CustomerInfoHandler")
+            {
+                _action = action;
+            }
+
+            // ReSharper disable once InconsistentNaming
+            // matches name of Java method
+            [UsedImplicitly]
+            public void onCustomerReceived(string json)
+            {
+                PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
+                {
+                    try
+                    {
+                        var customerInfo = JsonConvert.DeserializeObject<CustomerInfo>(json, PurchasesSdk.JsonSerializerSettings);
+                        _action?.Invoke(customerInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
+                }, null);
+            }
+
+        }
+
+        internal class LogHandler : AndroidJavaProxy
+        {
+            private Action<RevenueCatLogMessage> _action;
+
+            public LogHandler(Action<RevenueCatLogMessage> action) : base("com.revenuecat.purchases.unity.PurchasesWrapper$LogHandler")
+            {
+                _action = action;
+            }
+
+            // ReSharper disable once InconsistentNaming
+            // matches name of Java method
+            [UsedImplicitly]
+            public void onLogReceived(string json)
+            {
+                PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
+                {
+                    try
+                    {
+                        var logMessage = JsonConvert.DeserializeObject<RevenueCatLogMessage>(json, PurchasesSdk.JsonSerializerSettings);
+                        _action?.Invoke(logMessage);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
+                }, null);
+            }
+        }
+
+        #endregion Native Interop
     }
 }
 #endif // UNITY_ANDROID && !UNITY_EDITOR
