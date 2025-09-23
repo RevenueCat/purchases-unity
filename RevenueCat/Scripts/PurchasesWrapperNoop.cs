@@ -280,7 +280,7 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public Task<PromotionalOffer> GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        public Task<PromotionalOffer> GetPromotionalOfferAsync(string productIdentifier, string discountIdentifier, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
@@ -315,22 +315,22 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct)
+        public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForProductAsync(StoreProduct storeProduct, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public void GetEligibleWinBackOffersForPackage(Package package)
+        public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForPackageAsync(Package package, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer)
+        public Task<PurchaseResult> PurchaseProductWithWinBackOfferAsync(StoreProduct storeProduct, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer)
+        public Task<PurchaseResult> PurchasePackageWithWinBackOfferAsync(Package package, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -186,7 +186,7 @@ namespace RevenueCat
 
         Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default);
 
-        Task<PromotionalOffer> GetPromotionalOffer(string productIdentifier, string discountIdentifier);
+        Task<PromotionalOffer> GetPromotionalOfferAsync(string productIdentifier, string discountIdentifier, CancellationToken cancellationToken = default);
 
         void ShowInAppMessages(InAppMessageType[] messageTypes);
 
@@ -200,12 +200,12 @@ namespace RevenueCat
 
         void InvalidateVirtualCurrenciesCache();
 
-        void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct);
+        Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForProductAsync(StoreProduct storeProduct, CancellationToken cancellationToken = default);
 
-        void GetEligibleWinBackOffersForPackage(Package package);
+        Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForPackageAsync(Package package, CancellationToken cancellationToken = default);
 
-        void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer);
+        Task<PurchaseResult> PurchaseProductWithWinBackOfferAsync(StoreProduct storeProduct, WinBackOffer winBackOffer, CancellationToken cancellationToken = default);
 
-        void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer);
+        Task<PurchaseResult> PurchasePackageWithWinBackOfferAsync(Package package, WinBackOffer winBackOffer, CancellationToken cancellationToken = default);
     }
 }

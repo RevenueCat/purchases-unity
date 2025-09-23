@@ -1,6 +1,7 @@
 ﻿#if UNITY_ANDROID // && !UNITY_EDITOR
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,11 +11,26 @@ namespace RevenueCat
 {
     public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
+        private static readonly object _lock = new object();
+        private static ConcurrentDictionary<string, object> _pendingTasks = new ConcurrentDictionary<string, object>();
+
         private LogHandler _logHandler;
         private CustomerInfoHandler _customerInfoHandler;
 
         public event Action<CustomerInfo> OnCustomerInfoUpdated;
         public event Action<RevenueCatLogMessage> OnLogMessage;
+
+        ~PurchasesWrapperAndroid()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            // clear event handlers to clean up memory
+            OnCustomerInfoUpdated = null;
+            OnLogMessage = null;
+        }
 
         public void Configure(PurchasesConfiguration configuration)
         {
@@ -36,9 +52,18 @@ namespace RevenueCat
 
         public Task<Storefront> GetStorefrontAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<Storefront>(cancellationToken);
-            CallPurchases("getStorefront", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetStorefrontAsync), out var value) &&
+                    value is AndroidPurchasesCallback<Storefront> pending)
+                {
+                    return pending.Task;
+                }
+                var callback = new AndroidPurchasesCallback<Storefront>(cancellationToken);
+                _pendingTasks[nameof(GetStorefrontAsync)] = callback;
+                CallPurchases("getStorefront", callback);
+                return callback.Task;
+            }
         }
 
         public Task<IReadOnlyList<StoreProduct>> GetProductsAsync(
@@ -46,9 +71,18 @@ namespace RevenueCat
             string type = "subs",
             CancellationToken cancellation = default)
         {
-            var callback = new AndroidPurchasesCallback<IReadOnlyList<StoreProduct>>(cancellation);
-            CallPurchases("getProducts", callback, JsonConvert.SerializeObject(new { productIdentifiers }), type);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetProductsAsync), out var value) &&
+                    value is AndroidPurchasesCallback<IReadOnlyList<StoreProduct>> pending)
+                {
+                    return pending.Task;
+                }
+                var callback = new AndroidPurchasesCallback<IReadOnlyList<StoreProduct>>(cancellation);
+                _pendingTasks[nameof(GetProductsAsync)] = callback;
+                CallPurchases("getProducts", callback, JsonConvert.SerializeObject(new { productIdentifiers }), type);
+                return callback.Task;
+            }
         }
 
         public Task<PurchaseResult> PurchaseProductAsync(
@@ -61,30 +95,40 @@ namespace RevenueCat
             PromotionalOffer discount = null,
             CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
-
-            if (oldSku == null)
+            lock (_lock)
             {
-                CallPurchases(
-                    "purchaseProduct",
-                    callback,
-                    productIdentifier,
-                    type);
-            }
-            else
-            {
-                CallPurchases(
-                    "purchaseProduct",
-                    callback,
-                    productIdentifier,
-                    type,
-                    oldSku,
-                    (int)prorationMode,
-                    googleIsPersonalizedPrice,
-                    JsonConvert.SerializeObject(new { offeringIdentifier }));
-            }
+                if (_pendingTasks.TryGetValue(nameof(PurchaseProductAsync), out var value) &&
+                    value is AndroidPurchasesCallback<PurchaseResult> pending)
+                {
+                    return pending.Task;
+                }
 
-            return callback.Task;
+                var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
+                _pendingTasks[nameof(PurchaseProductAsync)] = callback;
+
+                if (oldSku == null)
+                {
+                    CallPurchases(
+                        "purchaseProduct",
+                        callback,
+                        productIdentifier,
+                        type);
+                }
+                else
+                {
+                    CallPurchases(
+                        "purchaseProduct",
+                        callback,
+                        productIdentifier,
+                        type,
+                        oldSku,
+                        (int)prorationMode,
+                        googleIsPersonalizedPrice,
+                        JsonConvert.SerializeObject(new { offeringIdentifier }));
+                }
+
+                return callback.Task;
+            }
         }
 
         public Task<PurchaseResult> PurchasePackageAsync(
@@ -95,29 +139,38 @@ namespace RevenueCat
             PromotionalOffer discount = null,
             CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
-            var presentedOfferingContextJSON = JsonConvert.SerializeObject(packageToPurchase.PresentedOfferingContext);
-
-            if (oldSku == null)
+            lock (_lock)
             {
-                CallPurchases(
-                    "purchasePackage",
-                    callback,
-                    packageToPurchase.Identifier,
-                    presentedOfferingContextJSON);
-            }
-            else
-            {
-                CallPurchases("purchasePackage",
-                    callback,
-                    packageToPurchase.Identifier,
-                    presentedOfferingContextJSON,
-                    oldSku,
-                    (int)prorationMode,
-                    googleIsPersonalizedPrice);
-            }
+                if (_pendingTasks.TryGetValue(nameof(PurchasePackageAsync), out var value) &&
+                    value is AndroidPurchasesCallback<PurchaseResult> pending)
+                {
+                    return pending.Task;
+                }
 
-            return callback.Task;
+                var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
+                _pendingTasks[nameof(PurchasePackageAsync)] = callback;
+
+                if (oldSku == null)
+                {
+                    CallPurchases(
+                        "purchasePackage",
+                        callback,
+                        packageToPurchase.Identifier,
+                        JsonConvert.SerializeObject(packageToPurchase.PresentedOfferingContext));
+                }
+                else
+                {
+                    CallPurchases("purchasePackage",
+                        callback,
+                        packageToPurchase.Identifier,
+                        JsonConvert.SerializeObject(packageToPurchase.PresentedOfferingContext),
+                        oldSku,
+                        (int)prorationMode,
+                        googleIsPersonalizedPrice);
+                }
+
+                return callback.Task;
+            }
         }
 
 
@@ -127,55 +180,93 @@ namespace RevenueCat
             bool googleIsPersonalizedPrice = false,
             CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
-            var presentedOfferingContextJSON = JsonConvert.SerializeObject(subscriptionOption.PresentedOfferingContext);
-
-            if (googleProductChangeInfo == null)
+            lock (_lock)
             {
-                CallPurchases("purchaseSubscriptionOption",
-                    callback,
-                    subscriptionOption.ProductId,
-                    subscriptionOption.Id,
-                    null,
-                    0,
-                    googleIsPersonalizedPrice,
-                    presentedOfferingContextJSON);
-            }
-            else
-            {
-                CallPurchases("purchaseSubscriptionOption",
-                    callback,
-                    subscriptionOption.ProductId,
-                    subscriptionOption.Id,
-                    googleProductChangeInfo.OldProductIdentifier,
-                    (int)googleProductChangeInfo.ProrationMode,
-                    googleIsPersonalizedPrice,
-                    presentedOfferingContextJSON);
-            }
+                if (_pendingTasks.TryGetValue(nameof(PurchaseSubscriptionOptionAsync), out var value) &&
+                    value is AndroidPurchasesCallback<PurchaseResult> pending)
+                {
+                    return pending.Task;
+                }
 
-            return callback.Task;
+                var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
+                _pendingTasks[nameof(PurchaseSubscriptionOptionAsync)] = callback;
+
+                if (googleProductChangeInfo == null)
+                {
+                    CallPurchases("purchaseSubscriptionOption",
+                        callback,
+                        subscriptionOption.ProductId,
+                        subscriptionOption.Id,
+                        null,
+                        0,
+                        googleIsPersonalizedPrice,
+                        JsonConvert.SerializeObject(subscriptionOption.PresentedOfferingContext));
+                }
+                else
+                {
+                    CallPurchases("purchaseSubscriptionOption",
+                        callback,
+                        subscriptionOption.ProductId,
+                        subscriptionOption.Id,
+                        googleProductChangeInfo.OldProductIdentifier,
+                        (int)googleProductChangeInfo.ProrationMode,
+                        googleIsPersonalizedPrice,
+                        JsonConvert.SerializeObject(subscriptionOption.PresentedOfferingContext));
+                }
+
+                return callback.Task;
+            }
         }
-
 
         public Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
-            CallPurchases("restorePurchases", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(RestorePurchasesAsync), out var value) &&
+                    value is AndroidPurchasesCallback<CustomerInfo> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
+                _pendingTasks[nameof(RestorePurchasesAsync)] = callback;
+                CallPurchases("restorePurchases", callback);
+                return callback.Task;
+            }
         }
 
         public Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<LoginResult>(cancellationToken);
-            CallPurchases("logIn", callback, appUserId);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(LogInAsync), out var value) &&
+                    value is AndroidPurchasesCallback<LoginResult> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<LoginResult>(cancellationToken);
+                _pendingTasks[nameof(LogInAsync)] = callback;
+                CallPurchases("logIn", callback, appUserId);
+                return callback.Task;
+            }
         }
 
         public Task<CustomerInfo> LogOutAsync()
         {
-            var callback = new AndroidPurchasesCallback<CustomerInfo>(CancellationToken.None);
-            CallPurchases("logOut", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(LogOutAsync), out var value) &&
+                    value is AndroidPurchasesCallback<CustomerInfo> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<CustomerInfo>(CancellationToken.None);
+                _pendingTasks[nameof(LogOutAsync)] = callback;
+                CallPurchases("logOut", callback);
+                return callback.Task;
+            }
         }
 
         public void SetAllowSharingStoreAccount(bool allow)
@@ -185,23 +276,53 @@ namespace RevenueCat
 
         public Task<Offerings> GetOfferingsAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<Offerings>(cancellationToken);
-            CallPurchases("getOfferings", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetOfferingsAsync), out var value) &&
+                    value is AndroidPurchasesCallback<Offerings> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<Offerings>(cancellationToken);
+                _pendingTasks[nameof(GetOfferingsAsync)] = callback;
+                CallPurchases("getOfferings", callback);
+                return callback.Task;
+            }
         }
 
         public Task<Offering> GetCurrentOfferingForPlacementAsync(string placementIdentifier, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<Offering>(cancellationToken);
-            CallPurchases("getCurrentOfferingForPlacement", callback, placementIdentifier);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetCurrentOfferingForPlacementAsync), out var value) &&
+                    value is AndroidPurchasesCallback<Offering> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<Offering>(cancellationToken);
+                _pendingTasks[nameof(GetCurrentOfferingForPlacementAsync)] = callback;
+                CallPurchases("getCurrentOfferingForPlacement", callback, placementIdentifier);
+                return callback.Task;
+            }
         }
 
         public Task<Offerings> SyncAttributesAndOfferingsIfNeededAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<Offerings>(cancellationToken);
-            CallPurchases("syncAttributesAndOfferingsIfNeeded", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(SyncAttributesAndOfferingsIfNeededAsync), out var value) &&
+                    value is AndroidPurchasesCallback<Offerings> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<Offerings>(cancellationToken);
+                _pendingTasks[nameof(SyncAttributesAndOfferingsIfNeededAsync)] = callback;
+                CallPurchases("syncAttributesAndOfferingsIfNeeded", callback);
+                return callback.Task;
+            }
         }
 
         public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode, double price)
@@ -211,9 +332,19 @@ namespace RevenueCat
 
         public Task<bool> GetAmazonLWAConsentStatusAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<bool>(cancellationToken);
-            CallPurchases("getAmazonLWAConsentStatus", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetAmazonLWAConsentStatusAsync), out var value) &&
+                    value is AndroidPurchasesCallback<bool> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<bool>(cancellationToken);
+                _pendingTasks[nameof(GetAmazonLWAConsentStatusAsync)] = callback;
+                CallPurchases("getAmazonLWAConsentStatus", callback);
+                return callback.Task;
+            }
         }
 
         public void SetLogLevel(LogLevel level)
@@ -233,21 +364,49 @@ namespace RevenueCat
 
         public string GetAppUserId()
         {
-            return CallPurchases<string>("getAppUserID");
+            try
+            {
+                return CallPurchases<string>("getAppUserID");
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return null;
+            }
         }
 
         public Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
-            CallPurchases("getCustomerInfo", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetCustomerInfoAsync), out var value) &&
+                    value is AndroidPurchasesCallback<CustomerInfo> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
+                _pendingTasks[nameof(GetCustomerInfoAsync)] = callback;
+                CallPurchases("getCustomerInfo", callback);
+                return callback.Task;
+            }
         }
 
         public Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
-            CallPurchases("syncPurchases", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(SyncPurchasesAsync), out var value) &&
+                    value is AndroidPurchasesCallback<CustomerInfo> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
+                _pendingTasks[nameof(SyncPurchasesAsync)] = callback;
+                CallPurchases("syncPurchases", callback);
+                return callback.Task;
+            }
         }
 
         public void EnableAdServicesAttributionTokenCollection()
@@ -257,12 +416,28 @@ namespace RevenueCat
 
         public bool IsAnonymous()
         {
-            return CallPurchases<bool>("isAnonymous");
+            try
+            {
+                return CallPurchases<bool>("isAnonymous");
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return false;
+            }
         }
 
         public bool IsConfigured()
         {
-            return CallPurchases<bool>("isConfigured");
+            try
+            {
+                return CallPurchases<bool>("isConfigured");
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return false;
+            }
         }
 
         public Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default)
@@ -399,12 +574,22 @@ namespace RevenueCat
 
         public Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<bool>(cancellationToken);
-            CallPurchases("canMakePayments", callback, JsonConvert.SerializeObject(new { features }));
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(CanMakePaymentsAsync), out var value) &&
+                    value is AndroidPurchasesCallback<bool> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<bool>(cancellationToken);
+                _pendingTasks[nameof(CanMakePaymentsAsync)] = callback;
+                CallPurchases("canMakePayments", callback, JsonConvert.SerializeObject(new { features }));
+                return callback.Task;
+            }
         }
 
-        public Task<PromotionalOffer> GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        public Task<PromotionalOffer> GetPromotionalOfferAsync(string productIdentifier, string discountIdentifier, CancellationToken cancellationToken = default)
         {
             // TODO verify NOOP ?
             // CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier);
@@ -425,24 +610,52 @@ namespace RevenueCat
 
         public Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<WebPurchaseRedemptionResult>(cancellationToken);
-            CallPurchases("redeemWebPurchase", callback, webPurchaseRedemption.RedemptionLink);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(RedeemWebPurchaseAsync), out var value) &&
+                    value is AndroidPurchasesCallback<WebPurchaseRedemptionResult> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<WebPurchaseRedemptionResult>(cancellationToken);
+                _pendingTasks[nameof(RedeemWebPurchaseAsync)] = callback;
+                CallPurchases("redeemWebPurchase", callback, webPurchaseRedemption.RedemptionLink);
+                return callback.Task;
+            }
         }
 
         public Task<VirtualCurrencies> GetVirtualCurrenciesAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<VirtualCurrencies>(cancellationToken);
-            CallPurchases("getVirtualCurrencies", callback);
-            return callback.Task;
+            lock (_lock)
+            {
+                if (_pendingTasks.TryGetValue(nameof(GetVirtualCurrenciesAsync), out var value) &&
+                    value is AndroidPurchasesCallback<VirtualCurrencies> pending)
+                {
+                    return pending.Task;
+                }
+
+                var callback = new AndroidPurchasesCallback<VirtualCurrencies>(cancellationToken);
+                _pendingTasks[nameof(GetVirtualCurrenciesAsync)] = callback;
+                CallPurchases("getVirtualCurrencies", callback);
+                return callback.Task;
+            }
         }
 
         public VirtualCurrencies GetCachedVirtualCurrencies()
         {
-            var json = CallPurchases<string>("getCachedVirtualCurrencies");
-            return !string.IsNullOrWhiteSpace(json)
-                ? JsonConvert.DeserializeObject<VirtualCurrencies>(json)
-                : null;
+            try
+            {
+                var json = CallPurchases<string>("getCachedVirtualCurrencies");
+                return !string.IsNullOrWhiteSpace(json)
+                    ? JsonConvert.DeserializeObject<VirtualCurrencies>(json)
+                    : null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return null;
+            }
         }
 
         public void InvalidateVirtualCurrenciesCache()
@@ -450,24 +663,28 @@ namespace RevenueCat
             CallPurchases("invalidateVirtualCurrenciesCache");
         }
 
-        public void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct)
+        public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForProductAsync(StoreProduct storeProduct, CancellationToken cancellationToken = default)
         {
             // NOOP
+            return Task.FromResult<IReadOnlyList<WinBackOffer>>(null);
         }
 
-        public void GetEligibleWinBackOffersForPackage(Package package)
+        public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForPackageAsync(Package package, CancellationToken cancellationToken = default)
         {
             // NOOP
+            return Task.FromResult<IReadOnlyList<WinBackOffer>>(null);
         }
 
-        public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer)
+        public Task<PurchaseResult> PurchaseProductWithWinBackOfferAsync(StoreProduct storeProduct, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
             // NOOP
+            return Task.FromResult<PurchaseResult>(null);
         }
 
-        public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer)
+        public Task<PurchaseResult> PurchasePackageWithWinBackOfferAsync(Package package, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
             // NOOP
+            return Task.FromResult<PurchaseResult>(null);
         }
 
         private const string PurchasesJavaClass = "com.revenuecat.unity.Purchases";
@@ -486,13 +703,6 @@ namespace RevenueCat
             {
                 return purchases.CallStatic<TReturnType>(methodName, args);
             }
-        }
-
-        public void Dispose()
-        {
-            // clear event handlers to clean up memory
-            OnCustomerInfoUpdated = null;
-            OnLogMessage = null;
         }
     }
 }

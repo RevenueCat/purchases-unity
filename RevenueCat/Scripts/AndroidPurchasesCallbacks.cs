@@ -27,15 +27,18 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onReceived(string json)
         {
-            try
+            PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
             {
-                var data = JsonConvert.DeserializeObject<TReturnType>(json);
-                _tcs.SetResult(data);
-            }
-            catch (Exception e)
-            {
-                _tcs.SetException(e);
-            }
+                try
+                {
+                    var data = JsonConvert.DeserializeObject<TReturnType>(json);
+                    _tcs.SetResult(data);
+                }
+                catch (Exception e)
+                {
+                    _tcs.SetException(e);
+                }
+            }, null);
         }
 
         // ReSharper disable once InconsistentNaming
@@ -43,15 +46,18 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onError(string json)
         {
-            try
+            PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
             {
-                var error = JsonConvert.DeserializeObject<Error>(json);
-                _tcs.SetException(new Exception(error.ToString()));
-            }
-            catch (Exception e)
-            {
-                _tcs.SetException(e);
-            }
+                try
+                {
+                    var error = JsonConvert.DeserializeObject<Error>(json);
+                    _tcs.SetException(new Exception(error.ToString()));
+                }
+                catch (Exception e)
+                {
+                    _tcs.SetException(e);
+                }
+            }, null);
         }
 
         public Task<TReturnType> Task => _tcs.Task;
@@ -71,15 +77,18 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onCustomerReceived(string json)
         {
-            try
+            PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
             {
-                var customerInfo = JsonConvert.DeserializeObject<CustomerInfo>(json, PurchasesSdk.JsonSerializerSettings);
-                _action?.Invoke(customerInfo);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
+                try
+                {
+                    var customerInfo = JsonConvert.DeserializeObject<CustomerInfo>(json, PurchasesSdk.JsonSerializerSettings);
+                    _action?.Invoke(customerInfo);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }, null);
         }
 
     }
@@ -98,15 +107,18 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onLogReceived(string json)
         {
-            try
+            PurchasesSdk.MainThreadSynchronizationContext.Post(_ =>
             {
-                var logMessage = JsonConvert.DeserializeObject<RevenueCatLogMessage>(json, PurchasesSdk.JsonSerializerSettings);
-                _action?.Invoke(logMessage);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
+                try
+                {
+                    var logMessage = JsonConvert.DeserializeObject<RevenueCatLogMessage>(json, PurchasesSdk.JsonSerializerSettings);
+                    _action?.Invoke(logMessage);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }, null);
         }
     }
 }

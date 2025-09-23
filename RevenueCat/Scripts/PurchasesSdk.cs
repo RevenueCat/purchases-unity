@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace RevenueCat
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class PurchasesSdk
     {
         #region Instance
@@ -39,6 +42,22 @@ namespace RevenueCat
 
         #endregion Instance
 
+        #region Concurrency
+
+        internal static SynchronizationContext MainThreadSynchronizationContext { get; private set; }
+
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        internal static void SetMainThreadSynchronizationContext()
+        {
+            MainThreadSynchronizationContext = SynchronizationContext.Current;
+        }
+
+        #endregion Concurrency
+
         internal static JsonSerializerSettings JsonSerializerSettings { get; } = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -54,18 +73,28 @@ namespace RevenueCat
 
         public static PurchasesConfiguration Configuration { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static event Action<CustomerInfo> OnCustomerInfoUpdated
         {
             add => Instance.OnCustomerInfoUpdated += value;
             remove => Instance.OnCustomerInfoUpdated -= value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static event Action<RevenueCatLogMessage> OnLogMessage
         {
             add => Instance.OnLogMessage += value;
             remove => Instance.OnLogMessage -= value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
         public static void Configure(PurchasesConfiguration configuration)
         {
             configuration ??= new PurchasesConfiguration();
@@ -79,6 +108,10 @@ namespace RevenueCat
             Instance.Configure(Configuration);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
         public static void Configure(string userId)
         {
             if (Configuration != null)
@@ -107,10 +140,22 @@ namespace RevenueCat
         /// This method is called automatically with products pre-configured through Unity IDE UI.
         /// You can optionally call this if you want to fetch more products.
         /// </summary>
-        /// <param name="productIdentifiers"></param>
-        /// <param name="type"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <param name="productIdentifiers">
+        /// A set of product identifiers for in-app purchases setup via AppStoreConnect.
+        /// This should be either hard coded in your application, from a file, or from a custom endpoint if 
+        /// you want to be able to deploy new IAPs without an app update.
+        /// </param>
+        /// <param name="type"> Android only. The type of product to purchase.</param>
+        /// <param name="cancellationToken">Optional, <see cref="CancellationToken"/>.</param>
+        /// <returns>A list of <see cref="StoreProduct"/>s.</returns>
+        /// <remarks>
+        /// completion may be called without <see cref="StoreProduct"/>s that you are expecting.
+        /// This is usually caused by iTunesConnect configuration errors.
+        /// Ensure your IAPs have the “Ready to Submit” status in iTunesConnect.
+        /// Also ensure that you have an active developer program subscription, and you have signed the
+        /// latest paid application agreements.<br/>
+        /// If you’re having trouble, <see href="https://rev.cat/how-to-configure-products"/>
+        /// </remarks>
         public static Task<IReadOnlyList<StoreProduct>> GetProductsAsync(
             string[] productIdentifiers,
             string type = "subs",
@@ -468,12 +513,13 @@ namespace RevenueCat
             return Instance.CanMakePaymentsAsync(features, cancellationToken);
         }
 
-        public static Task<PromotionalOffer> GetPromotionalOffer(
+        public static Task<PromotionalOffer> GetPromotionalOfferAsync(
             string productIdentifier,
-            string discountIdentifier)
+            string discountIdentifier,
+            CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            return Instance.GetPromotionalOffer(productIdentifier, discountIdentifier);
+            return Instance.GetPromotionalOfferAsync(productIdentifier, discountIdentifier, cancellationToken);
         }
 
         public static void ShowInAppMessages(InAppMessageType[] messageTypes)
@@ -516,28 +562,28 @@ namespace RevenueCat
             Instance.InvalidateVirtualCurrenciesCache();
         }
 
-        public static void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct)
+        public static Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForProductAsync(StoreProduct storeProduct, CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            Instance.GetEligibleWinBackOffersForProduct(storeProduct);
+            return Instance.GetEligibleWinBackOffersForProductAsync(storeProduct, cancellationToken);
         }
 
-        public static void GetEligibleWinBackOffersForPackage(Package package)
+        public static Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForPackageAsync(Package package, CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            Instance.GetEligibleWinBackOffersForPackage(package);
+            return Instance.GetEligibleWinBackOffersForPackageAsync(package, cancellationToken);
         }
 
-        public static void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer)
+        public static Task<PurchaseResult> PurchaseProductWithWinBackOfferAsync(StoreProduct storeProduct, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            Instance.PurchaseProductWithWinBackOffer(storeProduct, winBackOffer);
+            return Instance.PurchaseProductWithWinBackOfferAsync(storeProduct, winBackOffer, cancellationToken);
         }
 
-        public static void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer)
+        public static Task<PurchaseResult> PurchasePackageWithWinBackOfferAsync(Package package, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            Instance.PurchasePackageWithWinBackOffer(package, winBackOffer);
+            return Instance.PurchasePackageWithWinBackOfferAsync(package, winBackOffer, cancellationToken);
         }
 
         private static void ValidateConfiguration()

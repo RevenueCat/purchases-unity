@@ -247,7 +247,7 @@
 //    public void RestorePurchases(CustomerInfoFunc callback)
 //    {
 //        RestorePurchasesCallback = callback;
-//        _wrapper.RestorePurchases();
+//        _wrapper.RestorePurchasesAsync();
 //    }
 
 //    [Obsolete("Deprecated, use set<NetworkId> methods instead.", true)]
@@ -317,7 +317,7 @@
 //    public void LogOut(CustomerInfoFunc callback)
 //    {
 //        LogOutCallback = callback;
-//        _wrapper.LogOut();
+//        _wrapper.LogOutAsync();
 //    }
 
 //    // ReSharper disable once UnusedMember.Global
@@ -480,7 +480,7 @@
 //    ///
 //    public void SyncPurchases()
 //    {
-//        _wrapper.SyncPurchases();
+//        _wrapper.SyncPurchasesAsync();
 //    }
 
 //    private CustomerInfoFunc SyncPurchasesCallback { get; set; }
@@ -510,7 +510,7 @@
 //    public void SyncPurchases(CustomerInfoFunc callback)
 //    {
 //        SyncPurchasesCallback = callback;
-//        _wrapper.SyncPurchases();
+//        _wrapper.SyncPurchasesAsync();
 //    }
 
 //    /// <summary>
@@ -673,20 +673,7 @@
 //    /// <param name="attributes"> Map of attributes by key. Set the value as an empty string to delete an attribute. </param>
 //    public void SetAttributes(Dictionary<string, string> attributes)
 //    {
-//        var jsonObject = new JObject();
-//        foreach (var keyValuePair in attributes)
-//        {
-//            if (keyValuePair.Value == null)
-//            {
-//                jsonObject[keyValuePair.Key] = JToken.Parse("null");
-//            }
-//            else
-//            {
-//                jsonObject[keyValuePair.Key] = keyValuePair.Value;
-//            }
-//        }
-
-//        _wrapper.SetAttributes(jsonObject.ToString());
+//        _wrapper.SetAttributes(attributes);
 //    }
 
 //    ///
@@ -958,7 +945,7 @@
 //    public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback)
 //    {
 //        CanMakePaymentsCallback = callback;
-//        _wrapper.CanMakePaymentsAsync(features == null ? new BillingFeature[] { } : features);
+//        _wrapper.CanMakePaymentsAsync(features ?? new BillingFeature[] { });
 //    }
 
 //    /// <summary>
@@ -1020,7 +1007,7 @@
 //    public void GetPromotionalOffer(StoreProduct storeProduct, Discount discount, GetPromotionalOfferFunc callback)
 //    {
 //        GetPromotionalOfferCallback = callback;
-//        _wrapper.GetPromotionalOffer(storeProduct.Identifier, discount.Identifier);
+//        _wrapper.GetPromotionalOfferAsync(storeProduct.Identifier, discount.Identifier);
 //    }
 
 //    /// Displays the specified store in-app message types to the user if there are any available to be shown.
@@ -1105,7 +1092,7 @@
 //    public void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct, GetEligibleWinBackOffersForProductFunc callback)
 //    {
 //        GetEligibleWinBackOffersForProductCallback = callback;
-//        _wrapper.GetEligibleWinBackOffersForProduct(storeProduct);
+//        _wrapper.GetEligibleWinBackOffersForProductAsync(storeProduct);
 //    }
 
 //    public delegate void GetEligibleWinBackOffersForPackageFunc(WinBackOffer[] winBackOffers, Error error);
@@ -1121,7 +1108,7 @@
 //    public void GetEligibleWinBackOffersForPackage(Package package, GetEligibleWinBackOffersForPackageFunc callback)
 //    {
 //        GetEligibleWinBackOffersForPackageCallback = callback;
-//        _wrapper.GetEligibleWinBackOffersForPackage(package);
+//        _wrapper.GetEligibleWinBackOffersForPackageAsync(package);
 //    }
 
 //    /// <summary>
@@ -1134,7 +1121,7 @@
 //    public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer, MakePurchaseFunc callback)
 //    {
 //        MakePurchaseCallback = callback;
-//        _wrapper.PurchaseProductWithWinBackOffer(storeProduct, winBackOffer);
+//        _wrapper.PurchaseProductWithWinBackOfferAsync(storeProduct, winBackOffer);
 //    }
 
 //    /// <summary>
@@ -1147,7 +1134,7 @@
 //    public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer, MakePurchaseFunc callback)
 //    {
 //        MakePurchaseCallback = callback;
-//        _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer);
+//        _wrapper.PurchasePackageWithWinBackOfferAsync(package, winBackOffer);
 //    }
 
 //    private void _receiveStorefront(string storefrontJson)
