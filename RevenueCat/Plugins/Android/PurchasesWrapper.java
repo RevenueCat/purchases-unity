@@ -61,7 +61,7 @@ public class PurchasesWrapper {
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "9.0.0";
 
-    private static CustomerInfoHandler customerInfoHandler = null;
+    private static volatile CustomerInfoHandler customerInfoHandler = null;
 
     public static void configure(
             CustomerInfoHandler customerInfoHandler,
@@ -307,8 +307,8 @@ public class PurchasesWrapper {
         }
     }
 
-    public static void restorePurchases() {
-        CommonKt.restorePurchases(getCustomerInfoListener(null));
+    public static void restorePurchases(Callback callback) {
+        CommonKt.restorePurchases(getCustomerInfoListener(callback));
     }
 
     public static void logIn(Callback callback, String appUserId) {
@@ -340,8 +340,8 @@ public class PurchasesWrapper {
         });
     }
 
-    public static void logOut() {
-        CommonKt.logOut(getCustomerInfoListener(null));
+    public static void logOut(Callback callback) {
+        CommonKt.logOut(getCustomerInfoListener(callback));
     }
 
     public static void setAllowSharingStoreAccount(boolean allowSharingStoreAccount) {
@@ -467,8 +467,8 @@ public class PurchasesWrapper {
         CommonKt.getCustomerInfo(getCustomerInfoListener(callback));
     }
 
-    public static void syncPurchases() {
-        CommonKt.syncPurchases(getCustomerInfoListener(null));
+    public static void syncPurchases(Callback callback) {
+        CommonKt.syncPurchases(getCustomerInfoListener(callback));
     }
 
     public static boolean isAnonymous() {
@@ -676,7 +676,7 @@ public class PurchasesWrapper {
         CommonKt.redeemWebPurchase(redemptionLink, new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                callback.onReceived(MappersHelpersKt.convertToJson(map));
+                callback.onReceived(MappersHelpersKt.convertToJson(map).toString());
             }
 
             @Override
@@ -690,7 +690,7 @@ public class PurchasesWrapper {
         CommonKt.getVirtualCurrencies(new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                callback.onReceived(MappersHelpersKt.convertToJson(map));
+                callback.onReceived(MappersHelpersKt.convertToJson(map).toString());
             }
 
             @Override
@@ -705,8 +705,7 @@ public class PurchasesWrapper {
         Map<String, ?> map = CommonKt.getCachedVirtualCurrencies();
 
         if (map != null) {
-            JSONObject cachedVirtualCurrencies = MappersHelpersKt.convertToJson(map);
-            return cachedVirtualCurrencies.toString();
+            return MappersHelpersKt.convertToJson(map).toString();
         }
 
         return null;
@@ -757,7 +756,7 @@ public class PurchasesWrapper {
     }
 
     @NonNull
-    private static OnResult getCustomerInfoListener(@Nullable Callback callback) {
+    private static OnResult getCustomerInfoListener(Callback callback) {
         return new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
@@ -781,7 +780,10 @@ public class PurchasesWrapper {
         } catch (JSONException e) {
             logJSONException(e);
         }
-        customerInfoHandler.onReceived(jsonObject.toString());
+
+        if (PurchasesWrapper.customerInfoHandler != null) {
+            PurchasesWrapper.customerInfoHandler.onReceived(jsonObject.toString());
+        }
 
         if (callback != null) {
             callback.onReceived(jsonObject.toString());

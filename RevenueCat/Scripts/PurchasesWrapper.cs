@@ -74,9 +74,9 @@ namespace RevenueCat
         /// Note: This may force your users to enter their Store password so should only be performed on request of
         /// by your app passing the same <c>appUserID</c> used to purchase originally.
         /// the user. Typically, with a button in settings or near your purchase UI. Use
-        /// <see cref="SyncPurchases"/> if you need to restore transactions programmatically.
+        /// <see cref="SyncPurchasesAsync"/> if you need to restore transactions programmatically.
         /// </remarks>
-        void RestorePurchases();
+        Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// This function will log in the current user with an <c>appUserID</c>.
@@ -98,9 +98,9 @@ namespace RevenueCat
         /// </summary>
         /// <remarks>
         /// This will generate a random user id and save it in the cache.
-        /// If this method is called and the current user is anonymous, it will return an error.
+        /// If this method is called and the current user is anonymous, it will throw an exception.
         /// </remarks>
-        void LogOut();
+        Task<CustomerInfo> LogOutAsync();
 
         void SetAllowSharingStoreAccount(bool allow);
 
@@ -124,7 +124,7 @@ namespace RevenueCat
 
         Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default);
 
-        void SyncPurchases();
+        Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default);
 
         void EnableAdServicesAttributionTokenCollection();
 

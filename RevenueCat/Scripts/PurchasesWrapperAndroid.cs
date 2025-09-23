@@ -157,9 +157,11 @@ namespace RevenueCat
         }
 
 
-        public void RestorePurchases()
+        public Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default)
         {
-            CallPurchases("restorePurchases");
+            var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
+            CallPurchases("restorePurchases", callback);
+            return callback.Task;
         }
 
         public Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
@@ -169,9 +171,11 @@ namespace RevenueCat
             return callback.Task;
         }
 
-        public void LogOut()
+        public Task<CustomerInfo> LogOutAsync()
         {
-            CallPurchases("logOut");
+            var callback = new AndroidPurchasesCallback<CustomerInfo>(CancellationToken.None);
+            CallPurchases("logOut", callback);
+            return callback.Task;
         }
 
         public void SetAllowSharingStoreAccount(bool allow)
@@ -239,9 +243,11 @@ namespace RevenueCat
             return callback.Task;
         }
 
-        public void SyncPurchases()
+        public Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default)
         {
-            CallPurchases("syncPurchases");
+            var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
+            CallPurchases("syncPurchases", callback);
+            return callback.Task;
         }
 
         public void EnableAdServicesAttributionTokenCollection()
@@ -434,7 +440,9 @@ namespace RevenueCat
         public VirtualCurrencies GetCachedVirtualCurrencies()
         {
             var json = CallPurchases<string>("getCachedVirtualCurrencies");
-            return JsonConvert.DeserializeObject<VirtualCurrencies>(json);
+            return !string.IsNullOrWhiteSpace(json)
+                ? JsonConvert.DeserializeObject<VirtualCurrencies>(json)
+                : null;
         }
 
         public void InvalidateVirtualCurrenciesCache()
@@ -482,6 +490,9 @@ namespace RevenueCat
 
         public void Dispose()
         {
+            // clear event handlers to clean up memory
+            OnCustomerInfoUpdated = null;
+            OnLogMessage = null;
         }
     }
 }

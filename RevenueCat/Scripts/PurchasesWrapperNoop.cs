@@ -55,7 +55,7 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public void RestorePurchases()
+        public Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
@@ -65,7 +65,7 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public void LogOut()
+        public Task<CustomerInfo> LogOutAsync()
         {
             throw new NotImplementedException();
         }
@@ -125,7 +125,7 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public void SyncPurchases()
+        public Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -18,10 +18,7 @@ namespace RevenueCat
 
             if (cancellationToken != CancellationToken.None)
             {
-                cancellationToken.Register(() =>
-                {
-                    _tcs.TrySetCanceled();
-                });
+                cancellationToken.Register(() => { _tcs.TrySetCanceled(); });
             }
         }
 
@@ -30,8 +27,15 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onReceived(string json)
         {
-            var data = JsonConvert.DeserializeObject<TReturnType>(json);
-            _tcs.SetResult(data);
+            try
+            {
+                var data = JsonConvert.DeserializeObject<TReturnType>(json);
+                _tcs.SetResult(data);
+            }
+            catch (Exception e)
+            {
+                _tcs.SetException(e);
+            }
         }
 
         // ReSharper disable once InconsistentNaming
@@ -39,9 +43,15 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onError(string json)
         {
-            // deserialize json
-            var error = JsonConvert.DeserializeObject<Error>(json);
-            _tcs.SetException(new Exception(error.ToString()));
+            try
+            {
+                var error = JsonConvert.DeserializeObject<Error>(json);
+                _tcs.SetException(new Exception(error.ToString()));
+            }
+            catch (Exception e)
+            {
+                _tcs.SetException(e);
+            }
         }
 
         public Task<TReturnType> Task => _tcs.Task;
@@ -61,14 +71,23 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onCustomerReceived(string json)
         {
-            var customerInfo = JsonConvert.DeserializeObject<CustomerInfo>(json, PurchasesSdk.JsonSerializerSettings);
-            _action?.Invoke(customerInfo);
+            try
+            {
+                var customerInfo = JsonConvert.DeserializeObject<CustomerInfo>(json, PurchasesSdk.JsonSerializerSettings);
+                _action?.Invoke(customerInfo);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
+
     }
 
     internal class LogHandler : AndroidJavaProxy
     {
         private Action<RevenueCatLogMessage> _action;
+
         public LogHandler(Action<RevenueCatLogMessage> action) : base("com.revenuecat.purchases.unity.PurchasesWrapper$LogHandler")
         {
             _action = action;
@@ -79,8 +98,15 @@ namespace RevenueCat
         [UsedImplicitly]
         public void onLogReceived(string json)
         {
-            var logMessage = JsonConvert.DeserializeObject<RevenueCatLogMessage>(json, PurchasesSdk.JsonSerializerSettings);
-            _action?.Invoke(logMessage);
+            try
+            {
+                var logMessage = JsonConvert.DeserializeObject<RevenueCatLogMessage>(json, PurchasesSdk.JsonSerializerSettings);
+                _action?.Invoke(logMessage);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
     }
 }

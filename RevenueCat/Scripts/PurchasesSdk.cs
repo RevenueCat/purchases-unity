@@ -142,6 +142,34 @@ namespace RevenueCat
                 cancellationToken);
         }
 
+        public static Task<PurchaseResult> PurchaseDiscountedProductAsync(string productIdentifier, PromotionalOffer discount, CancellationToken cancellationToken)
+        {
+            return PurchaseProductAsync(productIdentifier, discount: discount, cancellationToken: cancellationToken);
+        }
+
+        public static Task<PurchaseResult> PurchasePackageAsync(
+            Package packageToPurchase,
+            string oldSku = null,
+            ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
+            bool googleIsPersonalizedPrice = false,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default)
+        {
+            ValidateConfiguration();
+            return Instance.PurchasePackageAsync(
+                packageToPurchase,
+                oldSku,
+                prorationMode,
+                googleIsPersonalizedPrice,
+                discount,
+                cancellationToken);
+        }
+
+        public static Task<PurchaseResult> PurchaseDiscountedPackage(Package packageToPurchase, PromotionalOffer discount, CancellationToken cancellationToken = default)
+        {
+            return PurchasePackageAsync(packageToPurchase, discount: discount, cancellationToken: cancellationToken);
+        }
+
         public static Task<PurchaseResult> PurchaseSubscriptionOptionAsync(
             SubscriptionOption subscriptionOption,
             GoogleProductChangeInfo googleProductChangeInfo = null,
@@ -156,10 +184,10 @@ namespace RevenueCat
                 cancellationToken);
         }
 
-        public static void RestorePurchases()
+        public static Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            Instance.RestorePurchases();
+            return Instance.RestorePurchasesAsync(cancellationToken);
         }
 
         public static Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
@@ -174,10 +202,10 @@ namespace RevenueCat
             return Instance.LogInAsync(appUserId, cancellationToken);
         }
 
-        public static void LogOut()
+        public static Task<CustomerInfo> LogOutAsync()
         {
             ValidateConfiguration();
-            Instance.LogOut();
+            return Instance.LogOutAsync();
         }
 
         [Obsolete("Configure behavior through the RevenueCat dashboard instead. " +
@@ -250,10 +278,10 @@ namespace RevenueCat
             return Instance.GetCustomerInfoAsync(cancellationToken);
         }
 
-        public static void SyncPurchases()
+        public static Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
-            Instance.SyncPurchases();
+            return Instance.SyncPurchasesAsync(cancellationToken);
         }
 
         public static void EnableAdServicesAttributionTokenCollection()
