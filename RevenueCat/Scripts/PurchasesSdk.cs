@@ -310,7 +310,7 @@ namespace RevenueCat
             return Instance.CheckTrialOrIntroductoryPriceEligibilityAsync(productIdentifiers, cancellationToken);
         }
 
-        public static void InvalidateCustomInfoCache()
+        public static void InvalidateCustomerInfoCache()
         {
             ValidateConfiguration();
             Instance.InvalidateCustomerInfoCache();
@@ -334,10 +334,10 @@ namespace RevenueCat
             Instance.SetSimulatesAskToBuyInSandbox(enabled);
         }
 
-        public static void SetAttributes(string attributesJson)
+        public static void SetAttributes(Dictionary<string, string> attributes)
         {
             ValidateConfiguration();
-            Instance.SetAttributes(attributesJson);
+            Instance.SetAttributes(attributes);
         }
 
         public static void SetEmail(string email)

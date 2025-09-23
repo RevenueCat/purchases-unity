@@ -142,7 +142,7 @@ namespace RevenueCat
 
         void SetSimulatesAskToBuyInSandbox(bool enabled);
 
-        void SetAttributes(string attributesJson);
+        void SetAttributes(Dictionary<string, string> attributes);
 
         void SetEmail(string email);
 

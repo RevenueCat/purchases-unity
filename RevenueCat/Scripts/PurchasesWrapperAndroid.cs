@@ -292,9 +292,9 @@ namespace RevenueCat
             // NOOP
         }
 
-        public void SetAttributes(string attributesJson)
+        public void SetAttributes(Dictionary<string, string> attributes)
         {
-            CallPurchases("setAttributes", attributesJson);
+            CallPurchases("setAttributes", JsonConvert.SerializeObject(attributes));
         }
 
         public void SetEmail(string email)

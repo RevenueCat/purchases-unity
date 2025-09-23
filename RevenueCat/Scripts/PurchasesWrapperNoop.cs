@@ -170,7 +170,7 @@ namespace RevenueCat
             throw new NotImplementedException();
         }
 
-        public void SetAttributes(string attributesJson)
+        public void SetAttributes(Dictionary<string, string> attributes)
         {
             throw new NotImplementedException();
         }
