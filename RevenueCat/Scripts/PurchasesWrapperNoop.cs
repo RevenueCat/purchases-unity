@@ -11,19 +11,19 @@ namespace RevenueCat
         public event Action<CustomerInfo> OnCustomerInfoUpdated;
         public event Action<RevenueCatLogMessage> OnLogMessage;
 #pragma warning restore CS0067 // Event is never used
+
         public void Configure(PurchasesConfiguration configuration)
         {
-            throw new NotImplementedException();
         }
 
         public Task<Storefront> GetStorefrontAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<Storefront>(null);
         }
 
         public Task<IReadOnlyList<StoreProduct>> GetProductsAsync(string[] productIdentifiers, string type = "subs", CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IReadOnlyList<StoreProduct>>(Array.Empty<StoreProduct>());
         }
 
         public Task<PurchaseResult> PurchaseProductAsync(
@@ -36,7 +36,7 @@ namespace RevenueCat
             PromotionalOffer discount = null,
             CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<PurchaseResult>(null);
         }
 
         public Task<PurchaseResult> PurchasePackageAsync(
@@ -47,297 +47,263 @@ namespace RevenueCat
             PromotionalOffer discount = null,
             CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<PurchaseResult>(null);
         }
 
         public Task<PurchaseResult> PurchaseSubscriptionOptionAsync(SubscriptionOption subscriptionOption, GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<PurchaseResult>(null);
         }
 
         public Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<CustomerInfo>(null);
         }
 
         public Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<LoginResult>(null);
         }
 
         public Task<CustomerInfo> LogOutAsync()
         {
-            throw new NotImplementedException();
+            return Task.FromResult<CustomerInfo>(null);
         }
 
         public void SetAllowSharingStoreAccount(bool allow)
         {
-            throw new NotImplementedException();
         }
 
         public Task<Offerings> GetOfferingsAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<Offerings>(null);
         }
 
         public Task<Offering> GetCurrentOfferingForPlacementAsync(string placementIdentifier, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<Offering>(null);
         }
 
         public Task<Offerings> SyncAttributesAndOfferingsIfNeededAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<Offerings>(null);
         }
 
         public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode, double price)
         {
-            throw new NotImplementedException();
         }
 
         public Task<bool> GetAmazonLWAConsentStatusAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         public void SetLogLevel(LogLevel level)
         {
-            throw new NotImplementedException();
         }
 
         public void SetDebugLogsEnabled(bool enabled)
         {
-            throw new NotImplementedException();
         }
 
         public void SetProxyURL(string proxyURL)
         {
-            throw new NotImplementedException();
         }
 
         public string GetAppUserId()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<CustomerInfo>(null);
         }
 
         public Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<CustomerInfo>(null);
         }
 
         public void EnableAdServicesAttributionTokenCollection()
         {
-            throw new NotImplementedException();
         }
 
         public bool IsAnonymous()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool IsConfigured()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IReadOnlyDictionary<string, IntroEligibility>>(new Dictionary<string, IntroEligibility>());
         }
 
         public void InvalidateCustomerInfoCache()
         {
-            throw new NotImplementedException();
         }
 
         public void PresentCodeRedemptionSheet()
         {
-            throw new NotImplementedException();
         }
 
         public void RecordPurchase(string productID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetSimulatesAskToBuyInSandbox(bool enabled)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAttributes(Dictionary<string, string> attributes)
         {
-            throw new NotImplementedException();
         }
 
         public void SetEmail(string email)
         {
-            throw new NotImplementedException();
         }
 
         public void SetPhoneNumber(string phoneNumber)
         {
-            throw new NotImplementedException();
         }
 
         public void SetDisplayName(string displayName)
         {
-            throw new NotImplementedException();
         }
 
         public void SetPushToken(string token)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAdjustID(string adjustID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAppsflyerID(string appsflyerID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetFBAnonymousID(string fbAnonymousID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetMparticleID(string mparticleID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetOnesignalID(string onesignalID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAirshipChannelID(string airshipChannelID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetCleverTapID(string cleverTapID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetMixpanelDistinctID(string mixpanelDistinctID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetFirebaseAppInstanceID(string firebaseAppInstanceID)
         {
-            throw new NotImplementedException();
         }
 
         public void SetMediaSource(string mediaSource)
         {
-            throw new NotImplementedException();
         }
 
         public void SetCampaign(string campaign)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAdGroup(string adGroup)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAd(string ad)
         {
-            throw new NotImplementedException();
         }
 
         public void SetKeyword(string keyword)
         {
-            throw new NotImplementedException();
         }
 
         public void SetCreative(string creative)
         {
-            throw new NotImplementedException();
         }
 
         public void CollectDeviceIdentifiers()
         {
-            throw new NotImplementedException();
         }
 
         public Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         public Task<PromotionalOffer> GetPromotionalOfferAsync(string productIdentifier, string discountIdentifier, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<PromotionalOffer>(null);
         }
 
         public void ShowInAppMessages(InAppMessageType[] messageTypes)
         {
-            throw new NotImplementedException();
         }
 
         public Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(string urlString, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<WebPurchaseRedemption>(null);
         }
 
         public Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<WebPurchaseRedemptionResult>(null);
         }
 
         public Task<VirtualCurrencies> GetVirtualCurrenciesAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<VirtualCurrencies>(null);
         }
 
         public VirtualCurrencies GetCachedVirtualCurrencies()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void InvalidateVirtualCurrenciesCache()
         {
-            throw new NotImplementedException();
         }
 
         public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForProductAsync(StoreProduct storeProduct, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IReadOnlyList<WinBackOffer>>(Array.Empty<WinBackOffer>());
         }
 
         public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForPackageAsync(Package package, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IReadOnlyList<WinBackOffer>>(Array.Empty<WinBackOffer>());
         }
 
         public Task<PurchaseResult> PurchaseProductWithWinBackOfferAsync(StoreProduct storeProduct, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<PurchaseResult>(null);
         }
 
         public Task<PurchaseResult> PurchasePackageWithWinBackOfferAsync(Package package, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<PurchaseResult>(null);
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
     }
 }

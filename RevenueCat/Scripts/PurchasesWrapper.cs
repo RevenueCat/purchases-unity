@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,7 +8,10 @@ namespace RevenueCat
 {
     internal interface IPurchasesWrapper : IDisposable
     {
+        [SuppressMessage("ReSharper", "EventNeverInvoked.Global")]
         event Action<CustomerInfo> OnCustomerInfoUpdated;
+
+        [SuppressMessage("ReSharper", "EventNeverInvoked.Global")]
         event Action<RevenueCatLogMessage> OnLogMessage;
 
         void Configure(PurchasesConfiguration configuration);
