@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ namespace RevenueCat
         private void OnValidate()
         {
             // always make sure an instance of this config exists when the Editor loads
-            Assert.NotNull(Instance);
+            NUnit.Framework.Assert.NotNull(Instance);
         }
 #endif // UNITY_EDITOR
 
