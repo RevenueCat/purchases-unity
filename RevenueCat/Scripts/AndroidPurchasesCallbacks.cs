@@ -12,7 +12,7 @@ namespace RevenueCat
     {
         private TaskCompletionSource<TReturnType> _tcs;
 
-        public AndroidPurchasesCallback(CancellationToken cancellationToken = default) : base("com.revenuecat.purchases.unity.PurchasesWrapper$Callback")
+        public AndroidPurchasesCallback(CancellationToken cancellationToken) : base("com.revenuecat.purchases.unity.PurchasesWrapper$Callback")
         {
             _tcs = new TaskCompletionSource<TReturnType>();
 
@@ -28,7 +28,7 @@ namespace RevenueCat
         // ReSharper disable once InconsistentNaming
         // matches name of Java method
         [UsedImplicitly]
-        public void onCompleted(string json)
+        public void onReceived(string json)
         {
             var data = JsonConvert.DeserializeObject<TReturnType>(json);
             _tcs.SetResult(data);
@@ -59,7 +59,7 @@ namespace RevenueCat
         // ReSharper disable once InconsistentNaming
         // matches name of Java method
         [UsedImplicitly]
-        public void onReceived(string json)
+        public void onCustomerReceived(string json)
         {
             var customerInfo = JsonConvert.DeserializeObject<CustomerInfo>(json, PurchasesSdk.JsonSerializerSettings);
             _action?.Invoke(customerInfo);
@@ -73,10 +73,11 @@ namespace RevenueCat
         {
             _action = action;
         }
+
         // ReSharper disable once InconsistentNaming
         // matches name of Java method
         [UsedImplicitly]
-        public void onLog(string json)
+        public void onLogReceived(string json)
         {
             var logMessage = JsonConvert.DeserializeObject<RevenueCatLogMessage>(json, PurchasesSdk.JsonSerializerSettings);
             _action?.Invoke(logMessage);

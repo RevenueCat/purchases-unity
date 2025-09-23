@@ -1,4 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
+﻿#if UNITY_ANDROID // && !UNITY_EDITOR
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -93,9 +93,9 @@ namespace RevenueCat
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
             bool googleIsPersonalizedPrice = false,
             PromotionalOffer discount = null,
-            CancellationToken cnCancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<PurchaseResult>();
+            var callback = new AndroidPurchasesCallback<PurchaseResult>(cancellationToken);
             var presentedOfferingContextJSON = JsonConvert.SerializeObject(packageToPurchase.PresentedOfferingContext);
 
             if (oldSku == null)
@@ -165,7 +165,7 @@ namespace RevenueCat
         public Task<CustomerInfo> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
             var callback = new AndroidPurchasesCallback<CustomerInfo>(cancellationToken);
-            CallPurchases("logIn", appUserId);
+            CallPurchases("logIn", callback, appUserId);
             return callback.Task;
         }
 
@@ -181,7 +181,7 @@ namespace RevenueCat
 
         public Task<Offerings> GetOfferingsAsync(CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<Offerings>();
+            var callback = new AndroidPurchasesCallback<Offerings>(cancellationToken);
             CallPurchases("getOfferings", callback);
             return callback.Task;
         }
@@ -261,7 +261,7 @@ namespace RevenueCat
 
         public Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<IReadOnlyDictionary<string, IntroEligibility>>();
+            var callback = new AndroidPurchasesCallback<IReadOnlyDictionary<string, IntroEligibility>>(cancellationToken);
             CallPurchases("checkTrialOrIntroductoryPriceEligibility", callback, JsonConvert.SerializeObject(new { productIdentifiers }));
             return callback.Task;
         }
@@ -402,7 +402,7 @@ namespace RevenueCat
         {
             // TODO verify NOOP ?
             // CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier);
-            return null;
+            return Task.FromResult<PromotionalOffer>(null);
         }
 
         public void ShowInAppMessages(InAppMessageType[] messageTypes)
@@ -413,21 +413,21 @@ namespace RevenueCat
         public Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(string urlString, CancellationToken cancellationToken = default)
         {
             var callback = new AndroidPurchasesCallback<WebPurchaseRedemption>(cancellationToken);
-            CallPurchases("parseAsWebPurchaseRedemption", urlString);
+            CallPurchases("parseAsWebPurchaseRedemption", callback, urlString);
             return callback.Task;
         }
 
         public Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default)
         {
-            var callback = new AndroidPurchasesCallback<WebPurchaseRedemptionResult>();
-            CallPurchases("redeemWebPurchase", webPurchaseRedemption.RedemptionLink);
+            var callback = new AndroidPurchasesCallback<WebPurchaseRedemptionResult>(cancellationToken);
+            CallPurchases("redeemWebPurchase", callback, webPurchaseRedemption.RedemptionLink);
             return callback.Task;
         }
 
         public Task<VirtualCurrencies> GetVirtualCurrenciesAsync(CancellationToken cancellationToken = default)
         {
             var callback = new AndroidPurchasesCallback<VirtualCurrencies>(cancellationToken);
-            CallPurchases("getVirtualCurrencies");
+            CallPurchases("getVirtualCurrencies", callback);
             return callback.Task;
         }
 

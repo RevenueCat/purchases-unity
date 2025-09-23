@@ -41,7 +41,7 @@ public class PurchasesWrapper {
     // Java-side callbacks registered from C#; no UnitySendMessage fallback.
     public interface Callback {
         /** Called when the operation completes successfully. */
-        void onCompleted(String json);
+        void onReceived(String json);
 
         /** Called when the operation fails with an error. */
         void onError(String json);
@@ -120,9 +120,9 @@ public class PurchasesWrapper {
         try {
             CommonKt.getStorefront(storefrontMap -> {
                 if (storefrontMap != null) {
-                    callback.onCompleted(MappersHelpersKt.convertToJson(storefrontMap).toString());
+                    callback.onReceived(MappersHelpersKt.convertToJson(storefrontMap).toString());
                 } else {
-                    callback.onCompleted("{}");
+                    callback.onReceived("{}");
                 }
                 return null;
             });
@@ -149,7 +149,7 @@ public class PurchasesWrapper {
                     try {
                         JSONObject object = new JSONObject();
                         object.put("products", MappersHelpersKt.convertToJsonArray(map));
-                        callback.onCompleted(object.toString());
+                        callback.onReceived(object.toString());
                     } catch (JSONException e) {
                         logJSONException(e);
                         callback.onError("{\"error\":\"" + e.getLocalizedMessage() + "\"}");
@@ -199,7 +199,7 @@ public class PurchasesWrapper {
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
-                        callback.onCompleted(MappersHelpersKt.convertToJson(map).toString());
+                        callback.onReceived(MappersHelpersKt.convertToJson(map).toString());
                     }
 
                     @Override
@@ -234,7 +234,7 @@ public class PurchasesWrapper {
                     new OnResult() {
                         @Override
                         public void onReceived(Map<String, ?> map) {
-                            callback.onCompleted(MappersHelpersKt.convertToJson(map).toString());
+                            callback.onReceived(MappersHelpersKt.convertToJson(map).toString());
                         }
 
                         @Override
@@ -292,7 +292,7 @@ public class PurchasesWrapper {
                     new OnResult() {
                         @Override
                         public void onReceived(Map<String, ?> map) {
-                            callback.onCompleted(MappersHelpersKt.convertToJson(map).toString());
+                            callback.onReceived(MappersHelpersKt.convertToJson(map).toString());
                         }
 
                         @Override
@@ -330,7 +330,7 @@ public class PurchasesWrapper {
                     callback.onError("{\"error\":\"" + e.getLocalizedMessage() + "\"}");
                     return;
                 }
-                callback.onCompleted(jsonObject.toString());
+                callback.onReceived(jsonObject.toString());
             }
 
             @Override
@@ -355,7 +355,7 @@ public class PurchasesWrapper {
                 try {
                     JSONObject object = new JSONObject();
                     object.put("offerings", MappersHelpersKt.convertToJson(map));
-                    callback.onCompleted(object.toString());
+                    callback.onReceived(object.toString());
                 } catch (JSONException e) {
                     logJSONException(e);
                     callback.onError("{\"error\":\"" + e.getLocalizedMessage() + "\"}");
@@ -381,7 +381,7 @@ public class PurchasesWrapper {
 
                     JSONObject object = new JSONObject();
                     object.put("offering", offering);
-                    callback.onCompleted(object.toString());
+                    callback.onReceived(object.toString());
                 } catch (JSONException e) {
                     logJSONException(e);
                     callback.onError("{\"error\":\"" + e.getLocalizedMessage() + "\"}");
@@ -402,7 +402,7 @@ public class PurchasesWrapper {
                 try {
                     JSONObject object = new JSONObject();
                     object.put("offerings", MappersHelpersKt.convertToJson(map));
-                    callback.onCompleted(object.toString());
+                    callback.onReceived(object.toString());
                 } catch (JSONException e) {
                     logJSONException(e);
                     callback.onError("{\"error\":\"" + e.getLocalizedMessage() + "\"}");
@@ -437,7 +437,7 @@ public class PurchasesWrapper {
                     callback.onError("{\"error\":\"" + e.getLocalizedMessage() + "\"}");
                     return;
                 }
-                callback.onCompleted(object.toString());
+                callback.onReceived(object.toString());
             }
 
             @Override
@@ -490,7 +490,7 @@ public class PurchasesWrapper {
             }
 
             Map<String, Map<String, Object>> map = CommonKt.checkTrialOrIntroductoryPriceEligibility(productIds);
-            callback.onCompleted(MappersHelpersKt.convertToJson(map).toString());
+            callback.onReceived(MappersHelpersKt.convertToJson(map).toString());
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
             callback.onError("{\"error\":\"Failure parsing product identifiers " + jsonProducts + "\"}");
@@ -609,7 +609,7 @@ public class PurchasesWrapper {
                     } catch (JSONException e) {
                         logJSONException(e);
                     }
-                    callback.onCompleted(object.toString());
+                    callback.onReceived(object.toString());
                 }
 
                 @Override
@@ -669,14 +669,14 @@ public class PurchasesWrapper {
                 return;
             }
         }
-        callback.onCompleted(object.toString());
+        callback.onReceived(object.toString());
     }
 
     public static void redeemWebPurchase(Callback callback, String redemptionLink) {
         CommonKt.redeemWebPurchase(redemptionLink, new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                callback.onCompleted(MappersHelpersKt.convertToJson(map));
+                callback.onReceived(MappersHelpersKt.convertToJson(map));
             }
 
             @Override
@@ -690,7 +690,7 @@ public class PurchasesWrapper {
         CommonKt.getVirtualCurrencies(new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                callback.onCompleted(MappersHelpersKt.convertToJson(map));
+                callback.onReceived(MappersHelpersKt.convertToJson(map));
             }
 
             @Override
@@ -781,10 +781,10 @@ public class PurchasesWrapper {
         } catch (JSONException e) {
             logJSONException(e);
         }
-        customerInfoHandler.onCompleted(jsonObject.toString());
+        customerInfoHandler.onReceived(jsonObject.toString());
 
         if (callback != null) {
-            callback.onCompleted(jsonObject.toString());
+            callback.onReceived(jsonObject.toString());
         }
     }
 }

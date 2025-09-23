@@ -29,9 +29,15 @@ namespace RevenueCat
         public string Signature { get; }
 
         /// <summary>
+        /// The date and time of the signature's creation, represented as milliseconds since the Unix epoch.
+        /// </summary>
+        public long TimestampUnixMilliseconds { get; }
+
+        /// <summary>
         /// The date and time of the signature's creation.
         /// </summary>
-        public DateTime Timestamp { get; }
+        public DateTime Timestamp
+            => Utilities.FromUnixTimeInMilliseconds(TimestampUnixMilliseconds);
 
         [JsonConstructor]
         internal PromotionalOffer(
@@ -45,7 +51,7 @@ namespace RevenueCat
             KeyIdentifier = keyIdentifier;
             Nonce = nonce;
             Signature = signature;
-            Timestamp = Utilities.FromUnixTimeInMilliseconds(timestamp);
+            TimestampUnixMilliseconds = timestamp;
         }
 
         public override string ToString()

@@ -247,7 +247,7 @@ namespace RevenueCat
             return Instance.GetAppUserId();
         }
 
-        public static Task<CustomerInfo> GetCustomInfoAsync(CancellationToken cancellationToken = default)
+        public static Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default)
         {
             ValidateConfiguration();
             return Instance.GetCustomerInfoAsync(cancellationToken);
