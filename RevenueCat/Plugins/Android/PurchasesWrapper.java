@@ -54,7 +54,7 @@ public class PurchasesWrapper {
     }
 
     public interface LogHandler {
-        /** Called when a log is received. */
+        /** Called when a Log is received. */
         void onLogReceived(String json);
     }
 
@@ -681,7 +681,7 @@ public class PurchasesWrapper {
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                callback.onError(errorContainer);
+                callback.onError(getError(errorContainer));
             }
         });
     }
@@ -718,19 +718,19 @@ public class PurchasesWrapper {
 
     public static void getEligibleWinBackOffersForProduct(String productIdentifier) {
         // NOOP
-        log.e("Purchases", "Win-back offers are not supported on Android.");
+        Log.e("Purchases", "Win-back offers are not supported on Android.");
     }
 
     // This function accepts a product identifier since the PHC code only fetches
     // eligible win-back offers for products
     public static void getEligibleWinBackOffersForPackage(String productIdentifier) {
         // NOOP
-        log.e("Purchases", "Win-back offers are not supported on Android.");
+        Log.e("Purchases", "Win-back offers are not supported on Android.");
     }
 
     public static void purchaseProductWithWinBackOffer(String productIdentifier, String winBackOfferIdentifier) {
         // NOOP
-        log.e("Purchases", "Win-back offers are not supported on Android.");
+        Log.e("Purchases", "Win-back offers are not supported on Android.");
     }
 
     public static void purchasePackageWithWinBackOffer(
@@ -738,7 +738,7 @@ public class PurchasesWrapper {
             String presentedOfferingContextJson,
             String winBackOfferIdentifier) {
         // NOOP
-        log.e("Purchases", "Win-back offers are not supported on Android.");
+        Log.e("Purchases", "Win-back offers are not supported on Android.");
     }
 
     private static void logJSONException(JSONException e) {
