@@ -5,7 +5,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using RevenueCat.UI;
+using RevenueCat;
+using RevenueCat.UIPresentation;
 
 public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 {
@@ -68,6 +69,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
         CreateButton("Get Storefront", GetStorefront);
         CreateButton("Present Paywall", PresentPaywallResult);
+        CreateButton("Present Paywall (static)", PresentPaywallStaticResult);
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
@@ -208,6 +210,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallCoroutine());
     }
 
+    void PresentPaywallStaticResult()
+    {
+        Debug.Log("Subtester: launching paywall using static API");
+        if (infoLabel != null) infoLabel.text = "Launching paywall (static API)...";
+        StartCoroutine(PresentPaywallStaticCoroutine());
+    }
+
     void PresentPaywallWithOptions()
     {
         Debug.Log("Subtester: launching paywall with options");
@@ -231,10 +240,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        var ui = GetComponent<UIBehaviour>();
         if (ui == null)
         {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+            ui = gameObject.AddComponent<UIBehaviour>();
         }
 
         var task = ui.PresentPaywall();
@@ -247,8 +256,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         {
             string status = GetPaywallResultStatus(result);
 
-            if (result.Result == RevenueCat.UI.PaywallResultType.Purchased || 
-                result.Result == RevenueCat.UI.PaywallResultType.Restored)
+            if (result.Result == PaywallResultType.Purchased || 
+                result.Result == PaywallResultType.Restored)
             {
                 GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
                     if (error != null)
@@ -268,15 +277,30 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
     }
 
+    private System.Collections.IEnumerator PresentPaywallStaticCoroutine()
+    {
+        var task = UI.PresentPaywallAsync();
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall (static) result = " + result);
+
+        if (infoLabel != null)
+        {
+            string status = GetPaywallResultStatus(result);
+            infoLabel.text = status + " (static API)";
+        }
+    }
+
     private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        var ui = GetComponent<UIBehaviour>();
         if (ui == null)
         {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+            ui = gameObject.AddComponent<UIBehaviour>();
         }
 
-        var options = new RevenueCat.UI.PaywallOptions
+        var options = new PaywallOptions
         {
             DisplayCloseButton = false
         };
@@ -295,10 +319,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallForOfferingCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        var ui = GetComponent<UIBehaviour>();
         if (ui == null)
         {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+            ui = gameObject.AddComponent<UIBehaviour>();
         }
 
         // First get available offerings to use one as an example
@@ -345,7 +369,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
 
         // Create options with specific offering
-        var options = new RevenueCat.UI.PaywallOptions
+        var options = new PaywallOptions
         {
             OfferingIdentifier = offeringId ?? "default",
             DisplayCloseButton = true
@@ -367,10 +391,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallIfNeededCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
+        var ui = GetComponent<UIBehaviour>();
         if (ui == null)
         {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
+            ui = gameObject.AddComponent<UIBehaviour>();
         }
 
         // First get available offerings to use one as an example
@@ -417,7 +441,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
 
         // Create options for the test
-        var options = new RevenueCat.UI.PaywallOptions
+        var options = new PaywallOptions
         {
             OfferingIdentifier = offeringId ?? "default",
             DisplayCloseButton = true // Test with close button enabled
@@ -438,7 +462,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         {
             var status = GetPaywallResultStatus(result);
             var message = $"PaywallIfNeeded for '{testEntitlement}' result: {status}";
-            if (result.Result == RevenueCat.UI.PaywallResultType.NotPresented)
+            if (result.Result == PaywallResultType.NotPresented)
             {
                 message += " (User already has entitlement)";
             }
@@ -446,19 +470,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
     }
 
-    private string GetPaywallResultStatus(RevenueCat.UI.PaywallResult result)
+    private string GetPaywallResultStatus(PaywallResult result)
     {
         switch (result.Result)
         {
-            case RevenueCat.UI.PaywallResultType.Purchased:
+            case PaywallResultType.Purchased:
                 return "PURCHASED - User completed a purchase";
-            case RevenueCat.UI.PaywallResultType.Restored:
+            case PaywallResultType.Restored:
                 return "RESTORED - User restored previous purchases";
-            case RevenueCat.UI.PaywallResultType.Cancelled:
+            case PaywallResultType.Cancelled:
                 return "CANCELLED - User dismissed the paywall";
-            case RevenueCat.UI.PaywallResultType.Error:
+            case PaywallResultType.Error:
                 return "ERROR - An error occurred during paywall";
-            case RevenueCat.UI.PaywallResultType.NotPresented:
+            case PaywallResultType.NotPresented:
                 return "NOT PRESENTED - Paywall was not needed";
             default:
                 return $"UNKNOWN - Received: {result}";

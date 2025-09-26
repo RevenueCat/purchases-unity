@@ -3,7 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace RevenueCat.UnityUI.Platforms
+namespace RevenueCat.UIInternal.Platforms
 {
     internal class IOSPaywallPresenter : IPaywallPresenter
     {

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using UnityEngine;
-using RevenueCat.UnityUI;
+using RevenueCat.UIInternal;
 
 namespace RevenueCat
 {

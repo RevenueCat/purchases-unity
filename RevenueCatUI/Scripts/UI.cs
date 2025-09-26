@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using RevenueCat.UnityUI;
+using RevenueCat.UIInternal;
 
 namespace RevenueCat
 {
@@ -47,7 +47,7 @@ namespace RevenueCat
         {
             try
             {
-                return PaywallPresenter.Instance.IsSupported();
+            return PaywallPresenter.Instance.IsSupported();
             }
             catch (Exception e)
             {
