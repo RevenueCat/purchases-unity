@@ -1,6 +1,6 @@
 using System;
 
-namespace RevenueCat.UI
+namespace RevenueCat.UnityUI
 {
     /// <summary>
     /// Represents the result of a paywall presentation.

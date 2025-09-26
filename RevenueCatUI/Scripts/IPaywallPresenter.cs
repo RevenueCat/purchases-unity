@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace RevenueCat.UI
+namespace RevenueCat.UnityUI
 {
     /// <summary>
     /// Internal interface for presenting paywalls.

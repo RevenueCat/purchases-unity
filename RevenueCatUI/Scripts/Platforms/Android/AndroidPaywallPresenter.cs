@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace RevenueCat.UI.Platforms
+namespace RevenueCat.UnityUI.Platforms
 {
     internal class AndroidPaywallPresenter : IPaywallPresenter
     {
