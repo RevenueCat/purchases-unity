@@ -90,20 +90,5 @@ namespace RevenueCat.UI
             }
         }
 
-        
-        // Called from PaywallTrampolineActivity via UnitySendMessage
-        private void OnPaywallResultFromActivity(string resultName)
-        {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            // Convert simple result name to format expected by AndroidPaywallPresenter
-            string formattedResult = resultName.ToUpper();
-            
-            var presenter = PaywallPresenter.Instance;
-            if (presenter is Platforms.AndroidPaywallPresenter androidPresenter)
-            {
-                androidPresenter.OnPaywallResult(formattedResult);
-            }
-#endif
-        }
     }
 } 
