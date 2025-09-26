@@ -9,9 +9,10 @@ import androidx.activity.ComponentActivity;
 
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler;
 import com.revenuecat.purchases.PresentedOfferingContext;
 
-public class PaywallProxyActivity extends ComponentActivity {
+public class PaywallProxyActivity extends ComponentActivity implements PaywallResultHandler {
     public static final String EXTRA_GAME_OBJECT = "rc_proxy_game_object";
     public static final String EXTRA_METHOD     = "rc_proxy_method";
     public static final String EXTRA_OFFERING_ID = "rc_offering_id";
@@ -22,6 +23,7 @@ public class PaywallProxyActivity extends ComponentActivity {
 
     private String gameObject;
     private String method;
+    private PaywallActivityLauncher launcher;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,18 +42,7 @@ public class PaywallProxyActivity extends ComponentActivity {
             return;
         }
 
-        PaywallActivityLauncher launcher = new PaywallActivityLauncher(
-            this,
-            result -> {
-                try {
-                    if (result != null) {
-                        sendPaywallResult(result);
-                    }
-                } finally {
-                    finish();
-                }
-            }
-        );
+        launcher = new PaywallActivityLauncher(this, this);
 
         if (requiredEntitlementIdentifier != null) {
             Log.d(TAG, "Using launchIfNeeded for entitlement '" + requiredEntitlementIdentifier + "'");
@@ -107,6 +98,17 @@ public class PaywallProxyActivity extends ComponentActivity {
                 null, // fontProvider
                 shouldDisplayDismissButton
             );
+        }
+    }
+
+    @Override
+    public void onActivityResult(PaywallResult result) {
+        try {
+            if (result != null) {
+                sendPaywallResult(result);
+            }
+        } finally {
+            finish();
         }
     }
 
