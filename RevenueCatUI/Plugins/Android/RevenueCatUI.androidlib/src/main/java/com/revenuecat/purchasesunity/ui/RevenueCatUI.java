@@ -81,7 +81,6 @@ public class RevenueCatUI {
 
     public static boolean isSupported() { return true; }
 
-    // Keeps your callback path intact if you use it internally (not used by SendMessage flow)
     private static void sendPaywallResult(String result) {
         try {
             PaywallCallbacks cb = paywallCallbacks;
