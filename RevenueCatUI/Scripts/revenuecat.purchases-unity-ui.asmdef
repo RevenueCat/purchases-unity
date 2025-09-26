@@ -1,6 +1,6 @@
 {
     "name": "revenuecat.purchases-unity-ui",
-    "rootNamespace": "RevenueCat.UI",
+    "rootNamespace": "RevenueCat.UIInternal",
     "references": [
         "revenuecat.purchases-unity"
     ],
@@ -14,5 +14,3 @@
     "versionDefines": [],
     "noEngineReferences": false
 }
-
-
