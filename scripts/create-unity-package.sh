@@ -49,11 +49,23 @@ if [ ! -z "$CI" ]; then
     verbose_echo "Using copy operation instead of symlink for CI compatibility"
     cp -r "$PWD/RevenueCat" "$PROJECT/Assets/"
     
+    # Also copy RevenueCatUI folder for compilation (not exported yet)
+    echo "🔧 Copying RevenueCatUI folder for compilation"
+    verbose_echo "Copying: $PWD/RevenueCatUI → $PROJECT/Assets/RevenueCatUI"
+    cp -r "$PWD/RevenueCatUI" "$PROJECT/Assets/"
+    
     # Verify copy was successful
     if [ -d "$PROJECT/Assets/RevenueCat" ]; then
         echo "✅ RevenueCat folder copied successfully"
     else
         echo "❌ Failed to copy RevenueCat folder!"
+        exit 1
+    fi
+    
+    if [ -d "$PROJECT/Assets/RevenueCatUI" ]; then
+        echo "✅ RevenueCatUI folder copied successfully"
+    else
+        echo "❌ Failed to copy RevenueCatUI folder!"
         exit 1
     fi
 else
@@ -63,12 +75,24 @@ else
     verbose_echo "Using symlink operation for local development"
     ln -s "$PWD/RevenueCat" "$PROJECT/Assets/"
     
+    # Also create symlink for RevenueCatUI folder for compilation (not exported yet)
+    verbose_echo "Creating symlink: $PWD/RevenueCatUI → $PROJECT/Assets/RevenueCatUI"
+    ln -s "$PWD/RevenueCatUI" "$PROJECT/Assets/"
+    
     # Verify symlink was created successfully
     if [ -L "$PROJECT/Assets/RevenueCat" ]; then
-        echo "✅ Symlink created successfully"
+        echo "✅ RevenueCat symlink created successfully"
     else
-        echo "❌ Failed to create symlink!"
+        echo "❌ Failed to create RevenueCat symlink!"
         rm -f $SYMBOLIC_LINK_PATH
+        exit 1
+    fi
+    
+    if [ -L "$PROJECT/Assets/RevenueCatUI" ]; then
+        echo "✅ RevenueCatUI symlink created successfully"
+    else
+        echo "❌ Failed to create RevenueCatUI symlink!"
+        rm -f "$PROJECT/Assets/RevenueCatUI"
         exit 1
     fi
 fi
@@ -96,7 +120,7 @@ if [ -d "$PROJECT/Assets/RevenueCat" ]; then
     fi
 else
     echo "❌ Failed to access RevenueCat folder!"
-    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
+    rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" 2>/dev/null
     exit 1
 fi
 
@@ -142,7 +166,7 @@ PLUGINS_FOLDER="$PWD/RevenueCat/Plugins"
 
 if ! [ -d "$PROJECT" ]; then
     echo "Run this script from the root folder of the repository (e.g. ./scripts/create-unity-package.sh)."
-    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
+    rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" 2>/dev/null
     exit 1
 fi
 
@@ -153,7 +177,7 @@ if [ -z "$UNITY_BIN" ]; then
     echo "  -u <unity_path>  Path to Unity binary"
     echo "  -v              Enable verbose output"
     echo "Note: This script is optimized for Unity 6.2 (6000.2.x) but should work with Unity 2021.3+ versions"
-    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
+    rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" 2>/dev/null
     exit 1
 fi
 
@@ -161,7 +185,7 @@ fi
 verbose_echo "Checking Unity binary at: $UNITY_BIN"
 if [ ! -x "$UNITY_BIN" ]; then
     echo "😞 Unity binary not found or not executable at: $UNITY_BIN"
-    rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
+    rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" 2>/dev/null
     exit 1
 fi
 verbose_echo "Unity binary verified successfully"
@@ -198,13 +222,13 @@ else
         curl -L "$EDM_URL" -o "$EDM_FILE"
     else
         echo "❌ Neither wget nor curl found. Please install one of them."
-        rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
+        rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" 2>/dev/null
         exit 1
     fi
     
     if [ ! -f "$EDM_FILE" ]; then
         echo "❌ Failed to download External Dependency Manager"
-        rm -rf "$PROJECT/Assets/RevenueCat" 2>/dev/null
+        rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" 2>/dev/null
         exit 1
     fi
 fi
@@ -255,12 +279,14 @@ else
     if [ ! -f "$PACKAGE" ]; then
         echo "   Package file not found: $PACKAGE"
     fi
-    verbose_echo "Cleaning up RevenueCat folder/symlink due to failure"
-    # Cleanup RevenueCat folder/symlink
+    verbose_echo "Cleaning up RevenueCat and RevenueCatUI folders/symlinks due to failure"
+    # Cleanup RevenueCat and RevenueCatUI folders/symlinks
     rm -rf "$PROJECT/Assets/RevenueCat"
+    rm -rf "$PROJECT/Assets/RevenueCatUI"
     exit 1
 fi
 
-# Cleanup RevenueCat folder/symlink
-verbose_echo "Cleaning up RevenueCat folder/symlink after successful package creation"
+# Cleanup RevenueCat and RevenueCatUI folders/symlinks
+verbose_echo "Cleaning up RevenueCat and RevenueCatUI folders/symlinks after successful package creation"
 rm -rf "$PROJECT/Assets/RevenueCat"
+rm -rf "$PROJECT/Assets/RevenueCatUI"

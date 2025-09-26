@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-// No Internal handler needed; Android uses direct callbacks via AndroidJavaProxy
 
 namespace RevenueCat.UI.Platforms
 {
@@ -14,7 +13,7 @@ namespace RevenueCat.UI.Platforms
 
         public AndroidPaywallPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.unity.ui.RevenueCatUI");
+            _plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
             _callbacks = new CallbacksProxy(this);
             try { _plugin.CallStatic("registerPaywallCallbacks", _callbacks); } catch { /* ignore */ }
         }
@@ -30,7 +29,7 @@ namespace RevenueCat.UI.Platforms
             catch { return false; }
         }
 
-        public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options)
         {
             if (_current != null && !_current.Task.IsCompleted)
             {
@@ -42,8 +41,10 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}'");
-                _plugin.CallStatic("presentPaywall", offering);
+                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                
+                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                _plugin.CallStatic("presentPaywall", gameObjectName, offering, displayCloseButton);
             }
             catch (Exception e)
             {
@@ -54,7 +55,7 @@ namespace RevenueCat.UI.Platforms
             return _current.Task;
         }
 
-        public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallIfNeededAsync(string gameObjectName, string requiredEntitlementIdentifier, PaywallOptions options)
         {
             if (_current != null && !_current.Task.IsCompleted)
             {
@@ -66,8 +67,9 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}'");
-                _plugin.CallStatic("presentPaywallIfNeeded", requiredEntitlementIdentifier, offering);
+                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                _plugin.CallStatic("presentPaywallIfNeeded", gameObjectName, requiredEntitlementIdentifier, offering, displayCloseButton);
             }
             catch (Exception e)
             {
@@ -78,7 +80,7 @@ namespace RevenueCat.UI.Platforms
             return _current.Task;
         }
 
-        // Called from Java via AndroidJavaProxy
+        // Called from RevenueCatUI MonoBehaviour or Java via AndroidJavaProxy
         public void OnPaywallResult(string resultData)
         {
             if (_current == null) return;
@@ -102,7 +104,7 @@ namespace RevenueCat.UI.Platforms
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidPaywallPresenter _owner;
-            public CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.unity.ui.RevenueCatUI$PaywallCallbacks")
+            public CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$PaywallCallbacks")
             {
                 _owner = owner;
             }

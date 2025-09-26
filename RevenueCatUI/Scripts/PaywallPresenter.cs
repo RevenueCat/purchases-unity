@@ -43,13 +43,13 @@ namespace RevenueCat.UI
     /// </summary>
     internal class UnsupportedPaywallPresenter : IPaywallPresenter
     {
-        public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options)
         {
             Debug.LogWarning("[RevenueCatUI] Paywall presentation is not supported on this platform.");
             return Task.FromResult(PaywallResult.Error);
         }
 
-        public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallIfNeededAsync(string gameObjectName, string requiredEntitlementIdentifier, PaywallOptions options)
         {
             Debug.LogWarning("[RevenueCatUI] Paywall presentation is not supported on this platform.");
             return Task.FromResult(PaywallResult.Error);

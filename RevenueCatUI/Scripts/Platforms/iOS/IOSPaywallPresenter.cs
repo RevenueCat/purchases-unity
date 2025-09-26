@@ -17,7 +17,7 @@ namespace RevenueCat.UI.Platforms
 
         public bool IsSupported() => rcui_isSupported();
 
-        public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options)
         {
             if (s_current != null && !s_current.Task.IsCompleted)
             {
@@ -40,7 +40,7 @@ namespace RevenueCat.UI.Platforms
             return tcs.Task;
         }
 
-        public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallIfNeededAsync(string gameObjectName, string requiredEntitlementIdentifier, PaywallOptions options)
         {
             if (s_current != null && !s_current.Task.IsCompleted)
             {

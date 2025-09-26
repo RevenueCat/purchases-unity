@@ -1499,7 +1499,6 @@ public partial class Purchases : MonoBehaviour
         LogHandler(logLevel, messageInResponse);
     }
 
-
     // ReSharper disable once UnusedMember.Local
     private void _restorePurchases(string customerInfoJson)
     {
