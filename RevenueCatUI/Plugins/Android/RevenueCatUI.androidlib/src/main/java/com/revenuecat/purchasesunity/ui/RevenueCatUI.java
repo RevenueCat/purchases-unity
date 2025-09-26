@@ -38,6 +38,7 @@ public class RevenueCatUI {
             
             intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
 
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Launching PaywallTrampolineActivity for gameObject=" + gameObject +
                     ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton);
             activity.startActivity(intent);
@@ -48,6 +49,7 @@ public class RevenueCatUI {
     }
 
     public static void presentPaywallIfNeeded(String gameObject, String requiredEntitlementIdentifier, String offeringIdentifier, boolean displayCloseButton) {
+        // TODO: Remove debug log before shipping
         Log.d(TAG, "presentPaywallIfNeeded(go=" + gameObject + ", entitlement=" +
                 requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton + ")");
         
@@ -70,6 +72,7 @@ public class RevenueCatUI {
             
             intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
 
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Launching PaywallTrampolineActivity for presentPaywallIfNeeded gameObject=" + gameObject +
                     ", entitlement=" + requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton);
             activity.startActivity(intent);
@@ -85,9 +88,11 @@ public class RevenueCatUI {
         try {
             PaywallCallbacks cb = paywallCallbacks;
             if (cb != null) {
+                // TODO: Remove debug log before shipping
                 Log.d(TAG, "Forwarding result to registered callback: " + result);
                 cb.onPaywallResult(result);
             } else {
+                // TODO: Review - keep this warning or remove before shipping?
                 Log.w(TAG, "No callback registered to receive paywall result: " + result);
             }
         } catch (Throwable e) {

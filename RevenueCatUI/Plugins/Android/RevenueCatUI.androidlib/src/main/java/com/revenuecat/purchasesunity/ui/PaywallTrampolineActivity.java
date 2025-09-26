@@ -45,19 +45,23 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         launcher = new PaywallActivityLauncher(this, this);
 
         if (requiredEntitlementIdentifier != null) {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Using launchIfNeeded for entitlement '" + requiredEntitlementIdentifier + "'");
             launchPaywallIfNeeded(launcher, requiredEntitlementIdentifier, offeringId, shouldDisplayDismissButton);
         } else {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "No entitlement check required, presenting paywall directly");
             launchPaywall(launcher, offeringId, shouldDisplayDismissButton);
         }
     }
 
     private void launchPaywallIfNeeded(PaywallActivityLauncher launcher, String requiredEntitlementIdentifier, String offeringId, boolean shouldDisplayDismissButton) {
+        // TODO: Remove debug logs before shipping
         Log.d(TAG, "Launching paywall if needed with PaywallActivityLauncher");
         Log.d(TAG, "Options - entitlement: " + requiredEntitlementIdentifier + ", offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
         
         if (offeringId != null) {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Using launchIfNeeded with offering ID");
             launcher.launchIfNeeded(
                 requiredEntitlementIdentifier,
@@ -68,6 +72,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
                 false, // edgeToEdge
                 paywallDisplayResult -> {
                     if (!paywallDisplayResult) {
+                        // TODO: Remove debug log before shipping
                         Log.d(TAG, "PaywallDisplayCallback: paywall not needed");
                         sendResult("NOT_PRESENTED");
                         finish();
@@ -82,16 +87,19 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     }
 
     private void launchPaywall(PaywallActivityLauncher launcher, String offeringId, boolean shouldDisplayDismissButton) {
+        // TODO: Remove debug logs before shipping
         Log.d(TAG, "Launching paywall with PaywallActivityLauncher");
         Log.d(TAG, "Options - offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
         
         if (offeringId != null) {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Launching paywall with offering ID");
             launcher.launch(offeringId,
                     new PresentedOfferingContext(offeringId), // TODO: pass PresentedOfferingContext data
                     null, // fontProvider
                     shouldDisplayDismissButton);
         } else {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Launching paywall with standard method");
             launcher.launch(
                 null, // offering (Offering object, not String)
@@ -113,6 +121,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     }
 
     private void sendResult(String resultName) {
+        // TODO: Remove debug log before shipping
         Log.d(TAG, "Sending result: " + resultName);
         runOnUiThread(() -> UnityBridge.sendMessage(gameObject, method, resultName));
     }
