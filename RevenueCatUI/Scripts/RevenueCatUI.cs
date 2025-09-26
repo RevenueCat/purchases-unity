@@ -91,7 +91,7 @@ namespace RevenueCat.UI
         }
 
         
-        // Called from PaywallProxyActivity via UnitySendMessage
+        // Called from PaywallTrampolineActivity via UnitySendMessage
         private void OnPaywallResultFromActivity(string resultName)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR

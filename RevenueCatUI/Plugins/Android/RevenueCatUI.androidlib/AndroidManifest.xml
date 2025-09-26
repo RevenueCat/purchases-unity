@@ -4,9 +4,9 @@
 
     <application>
         <activity
-            android:name=".PaywallProxyActivity"
+            android:name=".PaywallTrampolineActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:node="merge" />
     </application>
 

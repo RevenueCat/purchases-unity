@@ -1,10 +1,10 @@
 package com.revenuecat.purchasesunity.ui;
 
-import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_GAME_OBJECT;
-import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_METHOD;
-import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_OFFERING_ID;
-import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON;
-import static com.revenuecat.purchasesunity.ui.PaywallProxyActivity.EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER;
+import static com.revenuecat.purchasesunity.ui.PaywallTrampolineActivity.EXTRA_GAME_OBJECT;
+import static com.revenuecat.purchasesunity.ui.PaywallTrampolineActivity.EXTRA_METHOD;
+import static com.revenuecat.purchasesunity.ui.PaywallTrampolineActivity.EXTRA_OFFERING_ID;
+import static com.revenuecat.purchasesunity.ui.PaywallTrampolineActivity.EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON;
+import static com.revenuecat.purchasesunity.ui.PaywallTrampolineActivity.EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,7 +28,7 @@ public class RevenueCatUI {
                 return;
             }
 
-            Intent intent = new Intent(activity, PaywallProxyActivity.class);
+            Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
             intent.putExtra(EXTRA_GAME_OBJECT, gameObject);
             intent.putExtra(EXTRA_METHOD, "OnPaywallResultFromActivity");
             
@@ -38,11 +38,11 @@ public class RevenueCatUI {
             
             intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
 
-            Log.d(TAG, "Launching PaywallProxyActivity for gameObject=" + gameObject +
+            Log.d(TAG, "Launching PaywallTrampolineActivity for gameObject=" + gameObject +
                     ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton);
             activity.startActivity(intent);
         } catch (Throwable t) {
-            Log.e(TAG, "Error launching PaywallProxyActivity", t);
+            Log.e(TAG, "Error launching PaywallTrampolineActivity", t);
             UnityBridge.sendMessage(gameObject, "OnPaywallResultFromActivity", "ERROR|" + t.getClass().getSimpleName());
         }
     }
@@ -59,7 +59,7 @@ public class RevenueCatUI {
                 return;
             }
 
-            Intent intent = new Intent(activity, PaywallProxyActivity.class);
+            Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
             intent.putExtra(EXTRA_GAME_OBJECT, gameObject);
             intent.putExtra(EXTRA_METHOD, "OnPaywallResultFromActivity");
             intent.putExtra(EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER, requiredEntitlementIdentifier);
@@ -70,11 +70,11 @@ public class RevenueCatUI {
             
             intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
 
-            Log.d(TAG, "Launching PaywallProxyActivity for presentPaywallIfNeeded gameObject=" + gameObject +
+            Log.d(TAG, "Launching PaywallTrampolineActivity for presentPaywallIfNeeded gameObject=" + gameObject +
                     ", entitlement=" + requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton);
             activity.startActivity(intent);
         } catch (Throwable t) {
-            Log.e(TAG, "Error launching PaywallProxyActivity for presentPaywallIfNeeded", t);
+            Log.e(TAG, "Error launching PaywallTrampolineActivity for presentPaywallIfNeeded", t);
             UnityBridge.sendMessage(gameObject, "OnPaywallResultFromActivity", "ERROR|" + t.getClass().getSimpleName());
         }
     }

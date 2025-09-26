@@ -12,7 +12,7 @@ import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler;
 import com.revenuecat.purchases.PresentedOfferingContext;
 
-public class PaywallProxyActivity extends ComponentActivity implements PaywallResultHandler {
+public class PaywallTrampolineActivity extends ComponentActivity implements PaywallResultHandler {
     public static final String EXTRA_GAME_OBJECT = "rc_proxy_game_object";
     public static final String EXTRA_METHOD     = "rc_proxy_method";
     public static final String EXTRA_OFFERING_ID = "rc_offering_id";
