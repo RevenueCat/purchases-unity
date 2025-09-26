@@ -9,64 +9,47 @@ import androidx.activity.ComponentActivity;
 
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler;
 import com.revenuecat.purchases.PresentedOfferingContext;
 
-public class PaywallProxyActivity extends ComponentActivity {
-    public static final String EXTRA_GAME_OBJECT = "rc_proxy_game_object";
-    public static final String EXTRA_METHOD     = "rc_proxy_method";
+public class PaywallTrampolineActivity extends ComponentActivity implements PaywallResultHandler {
     public static final String EXTRA_OFFERING_ID = "rc_offering_id";
     public static final String EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON = "rc_should_display_dismiss_button";
     public static final String EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER = "rc_required_entitlement_identifier";
 
     private static final String TAG = "PurchasesUnity";
 
-    private String gameObject;
-    private String method;
+    private PaywallActivityLauncher launcher;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final Intent source = getIntent();
-        gameObject = source.getStringExtra(EXTRA_GAME_OBJECT);
-        method     = source.getStringExtra(EXTRA_METHOD);
         String offeringId = source.getStringExtra(EXTRA_OFFERING_ID);
         boolean shouldDisplayDismissButton = source.getBooleanExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, false);
         String requiredEntitlementIdentifier = source.getStringExtra(EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER);
 
-        if (gameObject == null || method == null) {
-            Log.w(TAG, "Missing gameObject/method extras; finishing.");
-            finish();
-            return;
-        }
-
-        PaywallActivityLauncher launcher = new PaywallActivityLauncher(
-            this,
-            result -> {
-                try {
-                    if (result != null) {
-                        sendPaywallResult(result);
-                    }
-                } finally {
-                    finish();
-                }
-            }
-        );
+        launcher = new PaywallActivityLauncher(this, this);
 
         if (requiredEntitlementIdentifier != null) {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Using launchIfNeeded for entitlement '" + requiredEntitlementIdentifier + "'");
-            launchPaywallIfNeeded(launcher, requiredEntitlementIdentifier, offeringId, shouldDisplayDismissButton);
+            launchPaywallIfNeeded(requiredEntitlementIdentifier, offeringId, shouldDisplayDismissButton);
         } else {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "No entitlement check required, presenting paywall directly");
-            launchPaywall(launcher, offeringId, shouldDisplayDismissButton);
+            launchPaywall(offeringId, shouldDisplayDismissButton);
         }
     }
 
-    private void launchPaywallIfNeeded(PaywallActivityLauncher launcher, String requiredEntitlementIdentifier, String offeringId, boolean shouldDisplayDismissButton) {
+    private void launchPaywallIfNeeded(String requiredEntitlementIdentifier, String offeringId, boolean shouldDisplayDismissButton) {
+        // TODO: Remove debug logs before shipping
         Log.d(TAG, "Launching paywall if needed with PaywallActivityLauncher");
         Log.d(TAG, "Options - entitlement: " + requiredEntitlementIdentifier + ", offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
         
         if (offeringId != null) {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Using launchIfNeeded with offering ID");
             launcher.launchIfNeeded(
                 requiredEntitlementIdentifier,
@@ -77,8 +60,9 @@ public class PaywallProxyActivity extends ComponentActivity {
                 false, // edgeToEdge
                 paywallDisplayResult -> {
                     if (!paywallDisplayResult) {
+                        // TODO: Remove debug log before shipping
                         Log.d(TAG, "PaywallDisplayCallback: paywall not needed");
-                        sendResult("NOT_PRESENTED");
+                        RevenueCatUI.sendPaywallResult("NOT_PRESENTED");
                         finish();
                     }
                     // If paywallDisplayResult is true, the paywall will be shown and result will come through normal callback
@@ -86,21 +70,24 @@ public class PaywallProxyActivity extends ComponentActivity {
             );
         } else {
             Log.w(TAG, "launchIfNeeded requires an offering ID, falling back to regular launch");
-            launchPaywall(launcher, offeringId, shouldDisplayDismissButton);
+            launchPaywall(offeringId, shouldDisplayDismissButton);
         }
     }
 
-    private void launchPaywall(PaywallActivityLauncher launcher, String offeringId, boolean shouldDisplayDismissButton) {
+    private void launchPaywall(String offeringId, boolean shouldDisplayDismissButton) {
+        // TODO: Remove debug logs before shipping
         Log.d(TAG, "Launching paywall with PaywallActivityLauncher");
         Log.d(TAG, "Options - offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
         
         if (offeringId != null) {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Launching paywall with offering ID");
             launcher.launch(offeringId,
                     new PresentedOfferingContext(offeringId), // TODO: pass PresentedOfferingContext data
                     null, // fontProvider
                     shouldDisplayDismissButton);
         } else {
+            // TODO: Remove debug log before shipping
             Log.d(TAG, "Launching paywall with standard method");
             launcher.launch(
                 null, // offering (Offering object, not String)
@@ -110,25 +97,32 @@ public class PaywallProxyActivity extends ComponentActivity {
         }
     }
 
-    private void sendResult(String resultName) {
-        Log.d(TAG, "Sending result: " + resultName);
-        runOnUiThread(() -> UnityBridge.sendMessage(gameObject, method, resultName));
+    @Override
+    public void onActivityResult(PaywallResult result) {
+        try {
+            if (result != null) {
+                sendPaywallResult(result);
+            }
+        } finally {
+            finish();
+        }
     }
+
 
     private void sendPaywallResult(PaywallResult result) {
         final String resultName;
         if (result instanceof PaywallResult.Purchased) {
-            resultName = "purchased";
+            resultName = "PURCHASED";
         } else if (result instanceof PaywallResult.Restored) {
-            resultName = "restored";
+            resultName = "RESTORED";
         } else if (result instanceof PaywallResult.Cancelled) {
-            resultName = "cancelled";
+            resultName = "CANCELLED";
         } else if (result instanceof PaywallResult.Error) {
-            resultName = "error";
+            resultName = "ERROR";
         } else {
-            resultName = "cancelled";
+            resultName = "CANCELLED";
         }
 
-        sendResult(resultName);
+        RevenueCatUI.sendPaywallResult(resultName);
     }
 }
