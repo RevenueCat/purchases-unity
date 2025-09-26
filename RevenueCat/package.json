@@ -1,6 +1,6 @@
 {
   "name": "com.revenuecat.purchases-unity",
-  "version": "8.2.4",
+  "version": "9.0.0",
   "displayName": "RevenueCat SDK for Unity",
   "description": "Unity in-app purchases and subscriptions made easy. Supports iOS and Android.",
   "documentationUrl": "https://www.revenuecat.com/docs",
@@ -22,5 +22,8 @@
   ],
   "repoUrl": "https://github.com/RevenueCat/purchases-unity",
   "dependencies": {
-  }
+    "com.google.external-dependency-manager": "1.2.186",
+    "com.unity.nuget.newtonsoft-json": "1.3.2"
+  },
+  "unity": "2022.3"
 }

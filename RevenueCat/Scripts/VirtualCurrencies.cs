@@ -1,26 +1,23 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// The VirtualCurrencies object contains all the virtual currencies associated to the user.
     /// </summary>
-    public class VirtualCurrencies
+    public sealed class VirtualCurrencies
     {
         /// <summary>
         /// Map of all VirtualCurrency objects keyed by virtual currency code.
         /// </summary>
-        public readonly Dictionary<string, VirtualCurrency> All;
+        public IReadOnlyDictionary<string, VirtualCurrency> All { get; }
 
-        public VirtualCurrencies(JSONNode response)
+        [JsonConstructor]
+        internal VirtualCurrencies([JsonProperty("all")] Dictionary<string, VirtualCurrency> all)
         {
-            All = new Dictionary<string, VirtualCurrency>();
-            foreach (var keyValuePair in response["all"])
-            {
-                All.Add(keyValuePair.Key, new VirtualCurrency(keyValuePair.Value));
-            }
+            All = all;
         }
 
         public override string ToString()

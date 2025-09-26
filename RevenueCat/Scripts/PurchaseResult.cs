@@ -1,72 +1,49 @@
-using System;
-using RevenueCat.SimpleJSON;
-using static RevenueCat.Utilities;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 
-
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Class containing the data of the result of a purchase.
     /// </summary>
-    public class PurchaseResult
+    public sealed class PurchaseResult
     {
-        /**
-         * <summary>
-         * The updated <see cref="CustomerInfo"/> object after the successful purchase.
-         * </summary>
-         */
-        public readonly CustomerInfo CustomerInfo;
+        /// <summary>
+        /// The updated <see cref="CustomerInfo"/> object after the successful purchase.
+        /// </summary>
+        [JsonProperty("customerInfo")]
+        public  CustomerInfo CustomerInfo;
 
-        /**
-         * <summary>
-         * The product identifier for which the purchase was attempted.
-         * </summary>
-         */
-        public readonly string ProductIdentifier;
+        /// <summary>
+        /// The product identifier for which the purchase was attempted.
+        /// </summary>
+        [JsonIgnore]
+        public  string ProductIdentifier;
 
-        /**
-         * <summary>
-         * A boolean that indicates whether the purchase was cancelled by the user.
-         * </summary>
-         */
-        public readonly bool UserCancelled;
+        /// <summary>
+        /// A boolean that indicates whether the purchase was cancelled by the user.
+        /// </summary>
+        public  bool UserCancelled;
 
-        /**
-         * <summary>
-         * An error, if one occurred. Null if the purchase was successful.
-         * </summary>
-         */
-        public readonly Error Error;
+        /// <summary>
+        /// An error, if one occurred.Null if the purchase was successful.
+        /// </summary>
+        [CanBeNull]
+        public  Error Error;
 
-        /**
-         * <summary>
-         * The <see cref="StoreTransaction"/> object for the purchase that just happened. Null if the purchase was not successful.
-         * </summary>
-         */
-        public readonly StoreTransaction StoreTransaction;
+        /// <summary>
+        /// The<see cref = "StoreTransaction" /> object for the purchase that just happened.Null if the purchase was not successful.
+        /// </summary>
+        public  StoreTransaction StoreTransaction;
 
-        public PurchaseResult(JSONNode response)
+        [JsonConstructor]
+        internal PurchaseResult(CustomerInfo customerInfo, bool userCancelled, Error error, StoreTransaction storeTransaction)
         {
-            if (response["customerInfo"] != null)
-            {
-                CustomerInfo = new CustomerInfo(response["customerInfo"]);
-            }
-
-            if (response["transaction"] != null)
-            {
-                StoreTransaction = new StoreTransaction(response["transaction"]);
-                ProductIdentifier = StoreTransaction.ProductIdentifier;
-            }
-
-            if (response["userCancelled"] != null)
-            {
-                UserCancelled = response["userCancelled"].AsBool;
-            }
-
-            if (response["error"] != null)
-            {
-                Error = new Error(response["error"]);
-            }
+            CustomerInfo = customerInfo;
+            StoreTransaction = storeTransaction;
+            ProductIdentifier = storeTransaction.ProductIdentifier;
+            UserCancelled = userCancelled;
+            Error = error;
         }
 
         public override string ToString()

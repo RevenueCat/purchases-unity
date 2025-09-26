@@ -1,18 +1,19 @@
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Represents a web redemption link, that can be redeemed using `Purchases.redeemWebPurchase`.
     /// </summary>
-    public class WebPurchaseRedemption
+    public sealed class WebPurchaseRedemption
     {
         /// <summary>
         /// Actual Redemption Link used.
         /// </summary>
-        public readonly string RedemptionLink;
+        public string RedemptionLink { get; }
 
-        public WebPurchaseRedemption(string redemptionLink)
+        [JsonConstructor]
+        internal WebPurchaseRedemption([JsonProperty("redemption_link")] string redemptionLink)
         {
             RedemptionLink = redemptionLink;
         }

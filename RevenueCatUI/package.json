@@ -25,6 +25,7 @@
   ],
   "repoUrl": "https://github.com/RevenueCat/purchases-unity",
   "dependencies": {
-    "com.revenuecat.purchases-unity": "file:../RevenueCat"
-  }
-} 
+    "com.revenuecat.purchases-unity": "9.0.0"
+  },
+  "unity": "2022.3"
+}

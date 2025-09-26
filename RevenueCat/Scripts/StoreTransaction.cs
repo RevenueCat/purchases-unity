@@ -1,9 +1,8 @@
+using Newtonsoft.Json;
 using System;
-using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
-
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Abstract class that provides access to properties of a transaction. StoreTransactions can represent
@@ -12,32 +11,37 @@ public partial class Purchases
     /// </summary>
     public class StoreTransaction
     {
-        /**
-         * <summary>
-         * Id associated with the transaction in RevenueCat.
-         * </summary>
-         */
-        public readonly string TransactionIdentifier;
+        /// <summary>
+        /// Id associated with the transaction in RevenueCat.
+        /// </summary>
+        [JsonProperty("transactionIdentifier")]
+        public string TransactionIdentifier { get; }
 
-        /**
-         * <summary>
-         * Product Id associated with the transaction.
-         * </summary>
-         */
-        public readonly string ProductIdentifier;
+        /// <summary>
+        /// Product Id associated with the transaction.
+        /// </summary>
+        [JsonProperty("productIdentifier")]
+        public string ProductIdentifier { get; }
 
-        /**
-         * <summary>
-         * Purchase date of the transaction in UTC, be sure to compare them with DateTime.UtcNow
-         * </summary>
-         */
-        public readonly DateTime PurchaseDate;
+        [JsonProperty("purchaseDate")]
+        public long PurchaseDateUnixTimeMilliseconds { get; }
 
-        public StoreTransaction(JSONNode response)
+        /// <summary>
+        /// Purchase date of the transaction in UTC, be sure to compare them with DateTime.UtcNow
+        /// </summary>
+        [JsonIgnore]
+        public DateTime PurchaseDate { get; }
+
+        [JsonConstructor]
+        internal StoreTransaction(
+            [JsonProperty("transactionIdentifier")] string transactionIdentifier,
+            [JsonProperty("productIdentifier")] string productIdentifier,
+            [JsonProperty("purchaseDate")] long purchaseDate)
         {
-            TransactionIdentifier = response["transactionIdentifier"];
-            ProductIdentifier = response["productIdentifier"];
-            PurchaseDate = FromUnixTimeInMilliseconds(response["purchaseDateMillis"].AsLong);
+            TransactionIdentifier = transactionIdentifier;
+            ProductIdentifier = productIdentifier;
+            PurchaseDateUnixTimeMilliseconds = purchaseDate;
+            PurchaseDate = FromUnixTimeInMilliseconds(purchaseDate);
         }
 
         public override string ToString()

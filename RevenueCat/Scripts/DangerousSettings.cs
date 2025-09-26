@@ -1,26 +1,19 @@
-using System;
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Advanced settings. Use only after contacting RevenueCat support and making sure you understand them.
     /// </summary>
-    [Serializable]
-    public class DangerousSettings
+    public sealed class DangerousSettings
     {
-        public readonly bool AutoSyncPurchases;
+        [JsonProperty]
+        public bool AutoSyncPurchases { get; }
 
-        public DangerousSettings(bool autoSyncPurchases)
+        [JsonConstructor]
+        public DangerousSettings(bool autoSyncPurchases = true)
         {
             AutoSyncPurchases = autoSyncPurchases;
-        }
-
-        public JSONNode Serialize()
-        {
-            var n = new JSONObject();
-            n["AutoSyncPurchases"] = AutoSyncPurchases;
-            return n;
         }
 
         public override string ToString()

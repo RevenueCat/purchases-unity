@@ -1,7 +1,6 @@
-using System;
 using System.ComponentModel;
 
-public partial class Purchases
+namespace RevenueCat
 {
     public enum StoreKitVersion
     {
@@ -19,16 +18,16 @@ public partial class Purchases
         [Description("DEFAULT")]
         Default,
     }
-}
 
-internal static class StoreKitVersionExtensions
-{
-    internal static string Name(this Purchases.StoreKitVersion storeKitVersion)
+    internal static class StoreKitVersionExtensions
     {
-        var type = storeKitVersion.GetType();
-        var memInfo = type.GetMember(storeKitVersion.ToString());
-        var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-        var stringValue = ((DescriptionAttribute) attributes[0]).Description;
-        return stringValue;
+        internal static string Name(this StoreKitVersion storeKitVersion)
+        {
+            var type = storeKitVersion.GetType();
+            var memInfo = type.GetMember(storeKitVersion.ToString());
+            var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+            var stringValue = ((DescriptionAttribute)attributes[0]).Description;
+            return stringValue;
+        }
     }
 }

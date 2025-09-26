@@ -1,68 +1,69 @@
+using Newtonsoft.Json;
 using System;
-using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
-
-public partial class Purchases
+namespace RevenueCat
 {
-    
     /// <summary>
     /// The EntitlementInfo object gives you access to all of the information about the status of a user entitlement.
     /// </summary>
-    public class EntitlementInfo
+    public sealed class EntitlementInfo
     {
-        public readonly string Identifier;
-        public readonly bool IsActive;
-        public readonly bool WillRenew;
-        public readonly string PeriodType;
-        public readonly DateTime LatestPurchaseDate;
-        public readonly DateTime OriginalPurchaseDate;
-        public readonly DateTime? ExpirationDate;
-        public readonly string Store;
-        public readonly string ProductIdentifier;
-        public readonly bool IsSandbox;
-        public readonly DateTime? UnsubscribeDetectedAt;
-        public readonly DateTime? BillingIssueDetectedAt;
-        public readonly VerificationResult Verification;
+        public string Identifier { get; }
 
-        public EntitlementInfo(JSONNode response)
+        public bool IsActive { get; }
+
+        public bool WillRenew { get; }
+
+        public string PeriodType { get; }
+
+        public DateTime LatestPurchaseDate { get; }
+
+        public DateTime OriginalPurchaseDate { get; }
+
+        public DateTime? ExpirationDate { get; }
+
+        public string Store { get; }
+
+        public string ProductIdentifier { get; }
+
+        public bool IsSandbox { get; }
+
+        public DateTime? UnsubscribeDetectedAt { get; }
+
+        public DateTime? BillingIssueDetectedAt { get; }
+
+        public VerificationResult Verification { get; }
+
+        [JsonConstructor]
+        public EntitlementInfo(
+            [JsonProperty("identifier")] string identifier,
+            [JsonProperty("isActive")] bool isActive,
+            [JsonProperty("willRenew")] bool willRenew,
+            [JsonProperty("periodType")] string periodType,
+            [JsonProperty("latestPurchaseDateMillis")] long latestPurchaseDateMillis,
+            [JsonProperty("originalPurchaseDateMillis")] long originalPurchaseDateMillis,
+            [JsonProperty("expirationDateMillis")] long? expirationDateMillis,
+            [JsonProperty("store")] string store,
+            [JsonProperty("productIdentifier")] string productIdentifier,
+            [JsonProperty("isSandbox")] bool isSandbox,
+            [JsonProperty("unsubscribeDetectedAtMillis")] long? unsubscribeDetectedAtMillis,
+            [JsonProperty("billingIssueDetectedAtMillis")] long? billingIssueDetectedAtMillis,
+            [JsonProperty("verification")] VerificationResult verification)
         {
-            Identifier = response["identifier"];
-            IsActive = response["isActive"].AsBool;
-            WillRenew = response["willRenew"].AsBool;
-            PeriodType = response["periodType"];
-            LatestPurchaseDate = FromUnixTimeInMilliseconds(response["latestPurchaseDateMillis"].AsLong);
-            OriginalPurchaseDate = FromUnixTimeInMilliseconds(response["originalPurchaseDateMillis"].AsLong);
-
-            var expirationDateJson = response["expirationDateMillis"];
-            var hasExpirationDate = expirationDateJson != null && !expirationDateJson.IsNull &&
-                                    expirationDateJson.AsLong != 0L;
-            if (hasExpirationDate)
-            {
-                ExpirationDate = FromUnixTimeInMilliseconds(expirationDateJson.AsLong);
-            }
-
-            Store = response["store"];
-            ProductIdentifier = response["productIdentifier"];
-            IsSandbox = response["isSandbox"].AsBool;
-
-            var unsubscribeDetectedJson = response["unsubscribeDetectedAtMillis"];
-            var hasUnsubscribeDetected = unsubscribeDetectedJson != null && !unsubscribeDetectedJson.IsNull &&
-                                         unsubscribeDetectedJson.AsLong != 0L;
-            if (hasUnsubscribeDetected)
-            {
-                UnsubscribeDetectedAt = FromUnixTimeInMilliseconds(unsubscribeDetectedJson.AsLong);
-            }
-
-            var billingIssueJson = response["billingIssueDetectedAtMillis"];
-            var hasBillingIssue = billingIssueJson != null && !billingIssueJson.IsNull &&
-                                  billingIssueJson.AsLong != 0L;
-            if (hasBillingIssue)
-            {
-                BillingIssueDetectedAt = FromUnixTimeInMilliseconds(billingIssueJson.AsLong);
-            }
-
-            Verification = VerificationResultExtensions.ParseVerificationResultByName(response["verification"]);
+            Identifier = identifier;
+            IsActive = isActive;
+            WillRenew = willRenew;
+            PeriodType = periodType;
+            LatestPurchaseDate = FromUnixTimeInMilliseconds(latestPurchaseDateMillis);
+            OriginalPurchaseDate = FromUnixTimeInMilliseconds(originalPurchaseDateMillis);
+            ExpirationDate = FromOptionalUnixTimeInMilliseconds(expirationDateMillis);
+            Store = store;
+            ProductIdentifier = productIdentifier;
+            IsSandbox = isSandbox;
+            UnsubscribeDetectedAt = FromOptionalUnixTimeInMilliseconds(unsubscribeDetectedAtMillis);
+            BillingIssueDetectedAt = FromOptionalUnixTimeInMilliseconds(billingIssueDetectedAtMillis);
+            Verification = verification;
         }
 
         public override string ToString()
