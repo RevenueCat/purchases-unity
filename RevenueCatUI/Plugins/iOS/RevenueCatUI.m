@@ -8,9 +8,7 @@ typedef void (*RCUIPaywallResultCallback)(const char *result);
 
 static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEntitlementIdentifier";
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
-static NSString *const kRCUIOptionPresentedOfferingContext = @"presentedOfferingContext";
 static NSString *const kRCUIOptionDisplayCloseButton = @"displayCloseButton";
-static NSString *const kRCUIPresentedOfferingIdentifierKey = @"offeringIdentifier";
 
 static NSString *RCUIStringFromCString(const char *string) {
     if (string == NULL) {
@@ -24,27 +22,25 @@ static NSString *RCUINormalizedResultToken(NSString *resultName) {
         return @"ERROR";
     }
 
-    NSString *normalized = [[[resultName stringByReplacingOccurrencesOfString:@"_" withString:@""]
-                                       stringByReplacingOccurrencesOfString:@"-" withString:@""]
-                                      lowercaseString];
+    NSString *token = [resultName uppercaseString];
 
-    if ([normalized isEqualToString:@"purchased"]) {
+    if ([token isEqualToString:@"PURCHASED"]) {
         return @"PURCHASED";
     }
-    if ([normalized isEqualToString:@"restored"]) {
+    if ([token isEqualToString:@"RESTORED"]) {
         return @"RESTORED";
     }
-    if ([normalized isEqualToString:@"cancelled"] || [normalized isEqualToString:@"usercancelled"]) {
+    if ([token isEqualToString:@"CANCELLED"] || [token isEqualToString:@"USER_CANCELLED"]) {
         return @"CANCELLED";
     }
-    if ([normalized isEqualToString:@"notpresented"] || [normalized isEqualToString:@"notshown"]) {
+    if ([token isEqualToString:@"NOT_PRESENTED"]) {
         return @"NOT_PRESENTED";
     }
-    if ([normalized isEqualToString:@"error"] || [normalized isEqualToString:@"failed"]) {
+    if ([token isEqualToString:@"ERROR"] || [token isEqualToString:@"FAILED"]) {
         return @"ERROR";
     }
 
-    return [resultName uppercaseString];
+    return token;
 }
 
 static BOOL RCUIRuntimeSupportsPaywalls(void) {
@@ -59,13 +55,10 @@ static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *tok
         return;
     }
 
-    NSString *payload = token ?: @"ERROR";
-    if (message.length > 0) {
-        payload = [payload stringByAppendingFormat:@"|%@", message];
-    }
+    const char *payload = (token ?: @"ERROR").UTF8String;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        callback([payload UTF8String]);
+        callback(payload);
     });
 }
 
@@ -89,7 +82,6 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
 
     if (offeringIdentifier.length > 0) {
         options[kRCUIOptionOfferingIdentifier] = offeringIdentifier;
-        options[kRCUIOptionPresentedOfferingContext] = @{ kRCUIPresentedOfferingIdentifierKey: offeringIdentifier };
     }
 
     return options;
