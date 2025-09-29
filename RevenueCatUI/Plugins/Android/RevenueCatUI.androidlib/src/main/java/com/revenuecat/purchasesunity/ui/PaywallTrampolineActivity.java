@@ -14,9 +14,7 @@ import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler;
 import com.revenuecat.purchases.PresentedOfferingContext;
 
 public class PaywallTrampolineActivity extends ComponentActivity implements PaywallResultHandler {
-    public static final String EXTRA_OFFERING_ID = "rc_offering_id";
-    public static final String EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON = "rc_should_display_dismiss_button";
-    public static final String EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER = "rc_required_entitlement_identifier";
+    public static final String EXTRA_PAYWALL_OPTIONS = "rc_paywall_options";
 
     private static final String TAG = "PurchasesUnity";
 
@@ -27,9 +25,18 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         super.onCreate(savedInstanceState);
 
         final Intent source = getIntent();
-        String offeringId = source.getStringExtra(EXTRA_OFFERING_ID);
-        boolean shouldDisplayDismissButton = source.getBooleanExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, false);
-        String requiredEntitlementIdentifier = source.getStringExtra(EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER);
+        PaywallUnityOptions options = source.getParcelableExtra(EXTRA_PAYWALL_OPTIONS);
+
+        if (options == null) {
+            Log.e(TAG, "PaywallUnityOptions is null; cannot launch paywall");
+            RevenueCatUI.sendPaywallResult("ERROR");
+            finish();
+            return;
+        }
+
+        String offeringId = options.getOfferingId();
+        boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
+        String requiredEntitlementIdentifier = options.getRequiredEntitlementIdentifier();
 
         launcher = new PaywallActivityLauncher(this, this);
 
@@ -134,13 +141,10 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             return;
         }
 
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null);
+
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
-        
-        if (offeringIdentifier != null && !offeringIdentifier.isEmpty()) {
-            intent.putExtra(EXTRA_OFFERING_ID, offeringIdentifier);
-        }
-        
-        intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
+        intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);
 
         try {
             activity.startActivity(intent);
@@ -163,14 +167,10 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             return;
         }
 
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier);
+
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
-        intent.putExtra(EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER, requiredEntitlementIdentifier);
-        
-        if (offeringIdentifier != null && !offeringIdentifier.isEmpty()) {
-            intent.putExtra(EXTRA_OFFERING_ID, offeringIdentifier);
-        }
-        
-        intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
+        intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);
 
         try {
             activity.startActivity(intent);
