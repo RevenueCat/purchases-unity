@@ -34,25 +34,25 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             return;
         }
 
-        String offeringId = options.getOfferingId();
-        boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
-        String requiredEntitlementIdentifier = options.getRequiredEntitlementIdentifier();
-
         launcher = new PaywallActivityLauncher(this, this);
 
-        if (requiredEntitlementIdentifier != null) {
+        if (options.getRequiredEntitlementIdentifier() != null) {
             // TODO: Remove debug log before shipping
-            Log.d(TAG, "Using launchIfNeeded for entitlement '" + requiredEntitlementIdentifier + "'");
-            launchPaywallIfNeeded(requiredEntitlementIdentifier, offeringId, shouldDisplayDismissButton);
+            Log.d(TAG, "Using launchIfNeeded for entitlement '" + options.getRequiredEntitlementIdentifier() + "'");
+            launchPaywallIfNeeded(options);
         } else {
             // TODO: Remove debug log before shipping
             Log.d(TAG, "No entitlement check required, presenting paywall directly");
-            launchPaywall(offeringId, shouldDisplayDismissButton);
+            launchPaywall(options);
         }
     }
 
-    private void launchPaywallIfNeeded(String requiredEntitlementIdentifier, String offeringId, boolean shouldDisplayDismissButton) {
-        // TODO: Remove debug logs before shipping
+    private void launchPaywallIfNeeded(PaywallUnityOptions options) {
+        String requiredEntitlementIdentifier = options.getRequiredEntitlementIdentifier();
+        String offeringId = options.getOfferingId();
+        boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
+
+        // TODO: Remove debug log before shipping
         Log.d(TAG, "Launching paywall if needed with PaywallActivityLauncher");
         Log.d(TAG, "Options - entitlement: " + requiredEntitlementIdentifier + ", offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
         
@@ -78,12 +78,15 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             );
         } else {
             Log.w(TAG, "launchIfNeeded requires an offering ID, falling back to regular launch");
-            launchPaywall(offeringId, shouldDisplayDismissButton);
+            launchPaywall(options);
         }
     }
 
-    private void launchPaywall(String offeringId, boolean shouldDisplayDismissButton) {
-        // TODO: Remove debug logs before shipping
+    private void launchPaywall(PaywallUnityOptions options) {
+        String offeringId = options.getOfferingId();
+        boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
+
+        // TODO: Remove debug log before shipping
         Log.d(TAG, "Launching paywall with PaywallActivityLauncher");
         Log.d(TAG, "Options - offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
         
