@@ -1,5 +1,6 @@
 package com.revenuecat.purchasesunity.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -124,5 +125,58 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         }
 
         RevenueCatUI.sendPaywallResult(resultName);
+    }
+
+    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, boolean displayCloseButton) {
+        if (activity == null) {
+            Log.e(TAG, "Activity is null; cannot launch paywall");
+            RevenueCatUI.sendPaywallResult("ERROR");
+            return;
+        }
+
+        Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
+        
+        if (offeringIdentifier != null && !offeringIdentifier.isEmpty()) {
+            intent.putExtra(EXTRA_OFFERING_ID, offeringIdentifier);
+        }
+        
+        intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
+
+        try {
+            activity.startActivity(intent);
+        } catch (Throwable t) {
+            Log.e(TAG, "Error launching PaywallTrampolineActivity", t);
+            RevenueCatUI.sendPaywallResult("ERROR");
+        }
+    }
+
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, boolean displayCloseButton) {
+        if (activity == null) {
+            Log.e(TAG, "Activity is null; cannot launch paywall");
+            RevenueCatUI.sendPaywallResult("ERROR");
+            return;
+        }
+
+        if (requiredEntitlementIdentifier == null) {
+            Log.e(TAG, "Required entitlement identifier is null; cannot launch paywall if needed");
+            RevenueCatUI.sendPaywallResult("ERROR");
+            return;
+        }
+
+        Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
+        intent.putExtra(EXTRA_REQUIRED_ENTITLEMENT_IDENTIFIER, requiredEntitlementIdentifier);
+        
+        if (offeringIdentifier != null && !offeringIdentifier.isEmpty()) {
+            intent.putExtra(EXTRA_OFFERING_ID, offeringIdentifier);
+        }
+        
+        intent.putExtra(EXTRA_SHOULD_DISPLAY_DISMISS_BUTTON, displayCloseButton);
+
+        try {
+            activity.startActivity(intent);
+        } catch (Throwable t) {
+            Log.e(TAG, "Error launching PaywallTrampolineActivity for presentPaywallIfNeeded", t);
+            RevenueCatUI.sendPaywallResult("ERROR");
+        }
     }
 }
