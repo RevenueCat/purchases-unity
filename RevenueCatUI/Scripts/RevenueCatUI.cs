@@ -9,7 +9,7 @@ namespace RevenueCat.UI
     /// Provides methods to present paywalls.
     /// Add this component to a GameObject to enable paywall functionality.
     /// </summary>
-    public class RevenueCatUI : MonoBehaviour
+    public sealed class RevenueCatUI : MonoBehaviour
     {
         
         /// <summary>

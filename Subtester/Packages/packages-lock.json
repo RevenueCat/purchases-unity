@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.revenuecat.purchases-ui-unity": {
+      "version": "file:../../RevenueCatUI",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.revenuecat.purchases-unity": "file:../RevenueCat"
+      }
+    },
     "com.revenuecat.purchases-unity": {
       "version": "file:../../RevenueCat",
       "depth": 0,
