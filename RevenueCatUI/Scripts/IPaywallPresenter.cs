@@ -11,19 +11,17 @@ namespace RevenueCat.UI
         /// <summary>
         /// Presents a paywall with the given options.
         /// </summary>
-        /// <param name="gameObjectName">Name of GameObject to receive callbacks</param>
         /// <param name="options">Paywall presentation options</param>
         /// <returns>Result of the paywall presentation</returns>
-        Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options);
+        Task<PaywallResult> PresentPaywallAsync(PaywallOptions options);
 
         /// <summary>
         /// Presents a paywall only if the user does not have the specified entitlement.
         /// </summary>
-        /// <param name="gameObjectName">Name of GameObject to receive callbacks</param>
         /// <param name="requiredEntitlementIdentifier">Required entitlement identifier</param>
         /// <param name="options">Paywall presentation options</param>
         /// <returns>Result of the paywall presentation</returns>
-        Task<PaywallResult> PresentPaywallIfNeededAsync(string gameObjectName, string requiredEntitlementIdentifier, PaywallOptions options);
+        Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options);
 
         /// <summary>
         /// Whether paywall presentation is supported on this platform.
