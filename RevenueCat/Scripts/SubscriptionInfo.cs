@@ -1,54 +1,87 @@
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 using System;
-using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
-
-public partial class Purchases
+namespace RevenueCat
 {
-    
     /// <summary>
     /// The SubscriptionInfo object gives you access to all of the information about the status of a subscription.
     /// </summary>
     public class SubscriptionInfo
     {
-        public readonly string ProductIdentifier;
-        public readonly DateTime PurchaseDate;
-        public readonly DateTime? OriginalPurchaseDate;
-        public readonly DateTime? ExpiresDate;
-        public readonly string Store;
-        public readonly DateTime? UnsubscribeDetectedAt;
-        public readonly bool IsSandbox;
-        public readonly DateTime? BillingIssuesDetectedAt;
-        public readonly DateTime? GracePeriodExpiresDate;
-        public readonly string OwnershipType;
-        public readonly string PeriodType;
-        public readonly DateTime? RefundedAt;
-        public readonly string? StoreTransactionId;
-        public readonly bool IsActive;
-        public readonly bool WillRenew;
+        public string ProductIdentifier { get; }
 
-        public SubscriptionInfo(JSONNode response)
+        public DateTime PurchaseDate { get; }
+
+        public DateTime? OriginalPurchaseDate { get; }
+
+        public DateTime? ExpiresDate { get; }
+
+        public string Store { get; }
+
+        public DateTime? UnsubscribeDetectedAt { get; }
+
+        public bool IsSandbox { get; }
+
+        public DateTime? BillingIssuesDetectedAt { get; }
+
+        public DateTime? GracePeriodExpiresDate { get; }
+
+        public string OwnershipType { get; }
+
+        public string PeriodType { get; }
+
+        public DateTime? RefundedAt { get; }
+
+        [CanBeNull]
+        public string StoreTransactionId { get; }
+
+        public bool IsActive { get; }
+
+        public bool WillRenew { get; }
+
+        [JsonConstructor]
+        internal SubscriptionInfo(
+            [JsonProperty("productIdentifier")] string productIdentifier,
+            [JsonProperty("purchaseDate")] string purchaseDate,
+            [JsonProperty("originalPurchaseDate")] string originalPurchaseDate,
+            [JsonProperty("expiresDate")] string expiresDate,
+            [JsonProperty("store")] string store,
+            [JsonProperty("unsubscribeDetectedAt")] string unsubscribeDetectedAt,
+            [JsonProperty("isSandbox")] bool isSandbox,
+            [JsonProperty("billingIssuesDetectedAt")] string billingIssuesDetectedAt,
+            [JsonProperty("gracePeriodExpiresDate")] string gracePeriodExpiresDate,
+            [JsonProperty("ownershipType")] string ownershipType,
+            [JsonProperty("periodType")] string periodType,
+            [JsonProperty("refundedAt")] string refundedAt,
+            [JsonProperty("storeTransactionId")] string storeTransactionId,
+            [JsonProperty("isActive")] bool isActive,
+            [JsonProperty("willRenew")] bool willRenew)
         {
-            ProductIdentifier = response["productIdentifier"];
-            var purchaseDateTime = FromISO8601(response["purchaseDate"]);
-            if (purchaseDateTime == null) {
+            ProductIdentifier = productIdentifier;
+            var purchaseDateTime = FromISO8601(purchaseDate);
+
+            if (purchaseDateTime == null)
+            {
                 Debug.LogError("Purchase date is null or has an invalid format. Defaulting to 1970-01-01.");
             }
+
             PurchaseDate = purchaseDateTime ?? new DateTime(1970, 1, 1);
-            OriginalPurchaseDate = FromResponseISO8601String(response, "originalPurchaseDate");
-            ExpiresDate = FromResponseISO8601String(response, "expiresDate");
-            Store = response["store"];
-            UnsubscribeDetectedAt = FromResponseISO8601String(response, "unsubscribeDetectedAt");
-            IsSandbox = response["isSandbox"].AsBool;
-            BillingIssuesDetectedAt = FromResponseISO8601String(response, "billingIssuesDetectedAt");
-            GracePeriodExpiresDate = FromResponseISO8601String(response, "gracePeriodExpiresDate");
-            OwnershipType = response["ownershipType"];
-            PeriodType = response["periodType"];
-            RefundedAt = FromResponseISO8601String(response, "refundedAt");
-            StoreTransactionId = response["storeTransactionId"];
-            IsActive = response["isActive"].AsBool;
-            WillRenew = response["willRenew"].AsBool;
+            OriginalPurchaseDate = FromISO8601(originalPurchaseDate);
+            ExpiresDate = FromISO8601(expiresDate);
+            Store = store;
+            UnsubscribeDetectedAt = FromISO8601(unsubscribeDetectedAt);
+            IsSandbox = isSandbox;
+            BillingIssuesDetectedAt = FromISO8601(billingIssuesDetectedAt);
+            GracePeriodExpiresDate = FromISO8601(gracePeriodExpiresDate);
+            OwnershipType = ownershipType;
+            PeriodType = periodType;
+            RefundedAt = FromISO8601(refundedAt);
+            StoreTransactionId = storeTransactionId;
+            IsActive = isActive;
+            WillRenew = willRenew;
         }
 
         public override string ToString()
@@ -69,20 +102,6 @@ public partial class Purchases
                 $"{nameof(StoreTransactionId)}: {StoreTransactionId}\n" +
                 $"{nameof(IsActive)}: {IsActive}\n" +
                 $"{nameof(WillRenew)}: {WillRenew}";
-        }
-
-        private DateTime? FromResponseISO8601String(JSONNode response, string key)
-        {
-            var dateJson = response[key];
-            var hasDate = dateJson != null && !dateJson.IsNull;
-            if (hasDate)
-            {
-                return FromISO8601(dateJson);
-            }
-            else
-            {
-                return null;
-            }
         }
     }
 }

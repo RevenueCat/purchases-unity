@@ -1,65 +1,112 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-public partial class Purchases
+namespace RevenueCat
 {
-    private class PurchasesWrapperNoop : IPurchasesWrapper
+    internal class PurchasesWrapperNoop : IPurchasesWrapper
     {
-        public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
-            Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-            bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled)
+#pragma warning disable CS0067 // Event is never used
+        public event Action<CustomerInfo> OnCustomerInfoUpdated;
+        public event Action<RevenueCatLogMessage> OnLogMessage;
+#pragma warning restore CS0067 // Event is never used
+
+        public void Configure(PurchasesConfiguration configuration)
         {
         }
 
-        public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
-            Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-            bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
-            bool pendingTransactionsForPrepaidPlansEnabled)
+        public Task<Storefront> GetStorefrontAsync(CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<Storefront>(null);
         }
 
-        public void GetStorefront()
+        public Task<IReadOnlyList<StoreProduct>> GetProductsAsync(string[] productIdentifiers, string type = "subs", CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<IReadOnlyList<StoreProduct>>(Array.Empty<StoreProduct>());
         }
 
-        public void GetProducts(string[] productIdentifiers, string type = "subs")
-        {
-        }
-
-        public void MakePurchase(string productIdentifier, string type = "subs", string oldSku = null)
-        {
-        }
-
-        public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
+        public Task<PurchaseResult> PurchaseProductAsync(
+            string productIdentifier,
+            string type = "subs",
+            string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-            Purchases.PromotionalOffer discount = null)
+            bool googleIsPersonalizedPrice = false,
+            string offeringIdentifier = null,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<PurchaseResult>(null);
         }
 
-        public void PurchasePackage(Package packageToPurchase, string oldSku = null,
+        public Task<PurchaseResult> PurchasePackageAsync(
+            Package packageToPurchase,
+            string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
+            bool googleIsPersonalizedPrice = false,
+            PromotionalOffer discount = null,
+            CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<PurchaseResult>(null);
         }
 
-        public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
-            Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+        public Task<PurchaseResult> PurchaseSubscriptionOptionAsync(SubscriptionOption subscriptionOption, GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<PurchaseResult>(null);
         }
 
-        public void RestorePurchases()
+        public Task<CustomerInfo> RestorePurchasesAsync(CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<CustomerInfo>(null);
         }
 
-        public void LogIn(string appUserId)
+        public Task<LoginResult> LogInAsync(string appUserId, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<LoginResult>(null);
         }
 
-        public void LogOut()
+        public Task<CustomerInfo> LogOutAsync()
         {
+            return Task.FromResult<CustomerInfo>(null);
         }
 
         public void SetAllowSharingStoreAccount(bool allow)
+        {
+        }
+
+        public Task<Offerings> GetOfferingsAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Offerings>(null);
+        }
+
+        public Task<Offering> GetCurrentOfferingForPlacementAsync(string placementIdentifier, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Offering>(null);
+        }
+
+        public Task<Offerings> SyncAttributesAndOfferingsIfNeededAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Offerings>(null);
+        }
+
+        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode, double price)
+        {
+        }
+
+        public Task<bool> GetAmazonLWAConsentStatusAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public void SetLogLevel(LogLevel level)
+        {
+        }
+
+        public void SetDebugLogsEnabled(bool enabled)
+        {
+        }
+
+        public void SetProxyURL(string proxyURL)
         {
         }
 
@@ -68,49 +115,14 @@ public partial class Purchases
             return null;
         }
 
-        public void SetDebugLogsEnabled(bool enabled)
+        public Task<CustomerInfo> GetCustomerInfoAsync(CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<CustomerInfo>(null);
         }
 
-        public void SetLogLevel(LogLevel level)
+        public Task<CustomerInfo> SyncPurchasesAsync(CancellationToken cancellationToken = default)
         {
-        }
-
-        public void SetLogHandler()
-        {
-        }
-
-        public void SetProxyURL(string proxyURL)
-        {
-        }
-
-        public void GetCustomerInfo()
-        {
-        }
-
-        public void GetOfferings()
-        {
-        }
-
-        public void GetCurrentOfferingForPlacement(string placementIdentifier)
-        {
-        }
-
-        public void SyncAttributesAndOfferingsIfNeeded()
-        {
-        }
-
-        public void SyncPurchases()
-        {
-        }
-
-        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
-            string isoCurrencyCode, double price)
-        {
-        }
-        
-        public void GetAmazonLWAConsentStatus()
-        {
+            return Task.FromResult<CustomerInfo>(null);
         }
 
         public void EnableAdServicesAttributionTokenCollection()
@@ -127,8 +139,9 @@ public partial class Purchases
             return false;
         }
 
-        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+        public Task<IReadOnlyDictionary<string, IntroEligibility>> CheckTrialOrIntroductoryPriceEligibilityAsync(string[] productIdentifiers, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<IReadOnlyDictionary<string, IntroEligibility>>(new Dictionary<string, IntroEligibility>());
         }
 
         public void InvalidateCustomerInfoCache()
@@ -147,7 +160,7 @@ public partial class Purchases
         {
         }
 
-        public void SetAttributes(string attributesJson)
+        public void SetAttributes(Dictionary<string, string> attributes)
         {
         }
 
@@ -231,31 +244,36 @@ public partial class Purchases
         {
         }
 
-        public void CanMakePayments(Purchases.BillingFeature[] features)
+        public Task<bool> CanMakePaymentsAsync(BillingFeature[] features, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<PromotionalOffer> GetPromotionalOfferAsync(string productIdentifier, string discountIdentifier, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<PromotionalOffer>(null);
+        }
+
+        public void ShowInAppMessages(InAppMessageType[] messageTypes)
         {
         }
 
-        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        public Task<WebPurchaseRedemption> ParseAsWebPurchaseRedemptionAsync(string urlString, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<WebPurchaseRedemption>(null);
         }
 
-        public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes)
+        public Task<WebPurchaseRedemptionResult> RedeemWebPurchaseAsync(WebPurchaseRedemption webPurchaseRedemption, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<WebPurchaseRedemptionResult>(null);
         }
 
-        public void ParseAsWebPurchaseRedemption(string urlString)
+        public Task<VirtualCurrencies> GetVirtualCurrenciesAsync(CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<VirtualCurrencies>(null);
         }
 
-        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
-        {
-        }
-
-        public void GetVirtualCurrencies()
-        {
-        }
-
-        public string GetCachedVirtualCurrencies()
+        public VirtualCurrencies GetCachedVirtualCurrencies()
         {
             return null;
         }
@@ -264,19 +282,27 @@ public partial class Purchases
         {
         }
 
-        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+        public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForProductAsync(StoreProduct storeProduct, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<IReadOnlyList<WinBackOffer>>(Array.Empty<WinBackOffer>());
         }
 
-        public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+        public Task<IReadOnlyList<WinBackOffer>> GetEligibleWinBackOffersForPackageAsync(Package package, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<IReadOnlyList<WinBackOffer>>(Array.Empty<WinBackOffer>());
         }
 
-        public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+        public Task<PurchaseResult> PurchaseProductWithWinBackOfferAsync(StoreProduct storeProduct, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
         {
+            return Task.FromResult<PurchaseResult>(null);
         }
 
-        public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+        public Task<PurchaseResult> PurchasePackageWithWinBackOfferAsync(Package package, WinBackOffer winBackOffer, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<PurchaseResult>(null);
+        }
+
+        public void Dispose()
         {
         }
     }

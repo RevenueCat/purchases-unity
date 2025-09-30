@@ -1,53 +1,40 @@
-using System.Collections.Generic;
 using JetBrains.Annotations;
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Stores context about the offering a package was presented from.
     /// </summary>
     public class PresentedOfferingContext
     {
-        public readonly string OfferingIdentifier;
-        [CanBeNull] public readonly string PlacementIdentifier;
-        [CanBeNull] public readonly PresentedOfferingTargetingContext TargetingContext;
+        [JsonProperty("offeringIdentifier")]
+        public string OfferingIdentifier { get; }
 
-        public PresentedOfferingContext(JSONNode response)
+        [CanBeNull]
+        [JsonProperty("placementIdentifier")]
+        public string PlacementIdentifier { get; }
+
+        [CanBeNull]
+        [JsonProperty("targetingContext")]
+        public PresentedOfferingTargetingContext TargetingContext { get; }
+
+        [JsonConstructor]
+        internal PresentedOfferingContext(
+            [JsonProperty("offeringIdentifier")] string offeringIdentifier,
+            [JsonProperty("placementIdentifier")] string placementIdentifier,
+            [JsonProperty("targetingContext")] PresentedOfferingTargetingContext targetingContext)
         {
-            OfferingIdentifier = response["offeringIdentifier"];
-            PlacementIdentifier = response["placementIdentifier"];
-
-            var targetingContextNode = response["targetingContext"];
-            if (targetingContextNode != null && !targetingContextNode.IsNull) {
-                TargetingContext = new PresentedOfferingTargetingContext(targetingContextNode);
-            }
+            OfferingIdentifier = offeringIdentifier;
+            PlacementIdentifier = placementIdentifier;
+            TargetingContext = targetingContext;
         }
 
         public override string ToString()
         {
             return $"{nameof(OfferingIdentifier)}: {OfferingIdentifier}\n" +
-                   $"{nameof(PlacementIdentifier)}: {PlacementIdentifier}\n" + 
+                   $"{nameof(PlacementIdentifier)}: {PlacementIdentifier}\n" +
                    $"{nameof(TargetingContext)}: {TargetingContext}";
-        }
-
-        public string ToJsonString()
-        {
-            var contextDict = new JSONObject();
-            contextDict["offeringIdentifier"] = OfferingIdentifier;
-            if (PlacementIdentifier != null) {
-                contextDict["placementIdentifier"] = PlacementIdentifier;
-            }
-
-            if (TargetingContext != null) {
-                var targetingDict = new JSONObject();
-                targetingDict["revision"] = TargetingContext.Revision;
-                targetingDict["ruleId"] = TargetingContext.RuleId;
-
-                contextDict["targetingContext"] = targetingDict;
-            }
-            
-            return contextDict.ToString();
         }
     }
 
@@ -56,13 +43,19 @@ public partial class Purchases
     /// </summary>
     public class PresentedOfferingTargetingContext
     {
-        public readonly int Revision;
-        public readonly string RuleId;
+        [JsonProperty("revision")]
+        public int Revision { get; }
 
-        public PresentedOfferingTargetingContext(JSONNode response)
+        [JsonProperty("ruleId")]
+        public string RuleId { get; }
+
+        [JsonConstructor]
+        internal PresentedOfferingTargetingContext(
+            [JsonProperty("revision")] int revision,
+            [JsonProperty("ruleId")] string ruleId)
         {
-            Revision = response["revision"];
-            RuleId = response["ruleId"];
+            Revision = revision;
+            RuleId = ruleId;
         }
 
         public override string ToString()

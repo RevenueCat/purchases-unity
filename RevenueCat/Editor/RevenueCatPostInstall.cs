@@ -1,7 +1,5 @@
 
-#if UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
-
-using System.IO;
+#if UNITY_IOS || UNITY_VISIONOS
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -13,9 +11,9 @@ public static class XcodeSwiftVersionPostProcess
     [PostProcessBuild(999)]
     public static void OnPostProcessBuild(BuildTarget buildTarget, string path)
     {
-        if (buildTarget == BuildTarget.iOS)
+        if (buildTarget == BuildTarget.iOS || buildTarget == BuildTarget.VisionOS)
         {
-            Debug.Log("Installing for iOS. Setting ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES and ENABLE_BITCODE to NO and adding StoreKit");
+            Debug.Log($"RevenueCat OnPostProcessBuild {buildTarget}: Setting ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES and ENABLE_BITCODE to NO and adding StoreKit");
             ModifyFrameworks(path);
             AddStoreKitFramework(path);
         }
@@ -23,11 +21,11 @@ public static class XcodeSwiftVersionPostProcess
 
     private static void ModifyFrameworks(string path)
     {
-        string projPath = PBXProject.GetPBXProjectPath(path);
+        var projPath = PBXProject.GetPBXProjectPath(path);
         var project = new PBXProject();
         project.ReadFromFile(projPath);
 
-        string mainTargetGuid = project.GetUnityMainTargetGuid();
+        var mainTargetGuid = project.GetUnityMainTargetGuid();
 
         foreach (var targetGuid in new[] { mainTargetGuid, project.GetUnityFrameworkTargetGuid() })
         {
@@ -38,21 +36,17 @@ public static class XcodeSwiftVersionPostProcess
         }
 
         project.SetBuildProperty(mainTargetGuid, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "YES");
-
         project.WriteToFile(projPath);
     }
 
     private static void AddStoreKitFramework(string path)
     {
-        string projPath = PBXProject.GetPBXProjectPath(path);
+        var projPath = PBXProject.GetPBXProjectPath(path);
         var project = new PBXProject();
         project.ReadFromFile(projPath);
-
-        string mainTargetGUID = project.GetUnityMainTargetGuid();
-        project.AddFrameworkToProject(mainTargetGUID, "StoreKit.framework", false);
-
+        project.AddFrameworkToProject(project.GetUnityMainTargetGuid(), "StoreKit.framework", false);
         project.WriteToFile(projPath);
     }
 
 }
-#endif
+#endif // UNITY_IOS || UNITY_VISIONOS

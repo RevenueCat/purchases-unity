@@ -1,6 +1,7 @@
-using RevenueCat.SimpleJSON;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// The VirtualCurrency object represents information about a virtual currency in the app.
@@ -11,29 +12,39 @@ public partial class Purchases
         /// <summary>
         /// The virtual currency's balance.
         /// </summary>
-        public readonly int Balance;
+        [JsonProperty("balance")]
+        public int Balance { get; }
 
         /// <summary>
         /// The virtual currency's name.
         /// </summary>
-        public readonly string Name;
+        [JsonProperty("name")]
+        public string Name { get; }
 
         /// <summary>
         /// The virtual currency's code.
         /// </summary>
-        public readonly string Code;
+        [JsonProperty("code")]
+        public string Code { get; }
 
         /// <summary>
         /// The virtual currency's description defined in the RevenueCat dashboard.
         /// </summary>
-        public readonly string? ServerDescription;
+        [CanBeNull]
+        [JsonProperty("serverDescription")]
+        public string ServerDescription { get; }
 
-        public VirtualCurrency(JSONNode response)
+        [JsonConstructor]
+        internal VirtualCurrency(
+            [JsonProperty("balance")] int balance,
+            [JsonProperty("name")] string name,
+            [JsonProperty("code")] string code,
+            [JsonProperty("serverDescription")] string serverDescription)
         {
-            Balance = response["balance"];
-            Name = response["name"];
-            Code = response["code"];
-            ServerDescription = response["serverDescription"];
+            Balance = balance;
+            Name = name;
+            Code = code;
+            ServerDescription = serverDescription;
         }
 
         public override string ToString()

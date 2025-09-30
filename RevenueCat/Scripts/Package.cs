@@ -1,9 +1,7 @@
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using RevenueCat.SimpleJSON;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// Packages help abstract platform-specific products by grouping equivalent products across iOS, Android, and web.
@@ -11,21 +9,25 @@ public partial class Purchases
     /// </summary>
     public class Package
     {
-        public readonly string Identifier;
-        public readonly string PackageType;
-        public readonly StoreProduct StoreProduct;
-        public readonly PresentedOfferingContext PresentedOfferingContext;
+        public string Identifier { get; }
+        public string PackageType { get; }
+        public StoreProduct StoreProduct { get; }
+        public PresentedOfferingContext PresentedOfferingContext { get; }
 
         [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
-        public readonly string OfferingIdentifier;
+        public string OfferingIdentifier => PresentedOfferingContext?.OfferingIdentifier;
 
-        public Package(JSONNode response)
+        [JsonConstructor]
+        internal Package(
+            [JsonProperty("identifier")] string identifier,
+            [JsonProperty("packageType")] string packageType,
+            [JsonProperty("product")] StoreProduct storeProduct,
+            [JsonProperty("presentedOfferingContext")] PresentedOfferingContext presentedOfferingContext)
         {
-            Identifier = response["identifier"];
-            PackageType = response["packageType"];
-            StoreProduct = new StoreProduct(response["product"]);
-            PresentedOfferingContext = new PresentedOfferingContext(response["presentedOfferingContext"]);
-            OfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
+            Identifier = identifier;
+            PackageType = packageType;
+            StoreProduct = storeProduct;
+            PresentedOfferingContext = presentedOfferingContext;
         }
 
         public override string ToString()

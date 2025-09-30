@@ -1,56 +1,64 @@
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// iOS only. Requires StoreKit 2 and iOS 18.0+. Describes a win-back offer that you configured in App Store Connect.
     /// </summary>
-    public class WinBackOffer
+    public sealed class WinBackOffer
     {
         /// <summary>
         /// Identifier of the discount.
         /// </summary>
-        public readonly string Identifier;
+        public string Identifier { get; }
 
         /// <summary>
         /// Price in the local currency.
         /// </summary>
-        public readonly float Price;
+        public float Price { get; }
 
         /// <summary>
         /// Formatted price, including its currency sign, such as €3.99.
         /// </summary>
-        public readonly string PriceString;
+        public string PriceString { get; }
 
         /// <summary>
         /// Number of subscription billing periods for which the user will be given the discount, such as 3.
         /// </summary>
-        public readonly int Cycles;
+        public int Cycles { get; }
 
         /// <summary>
         /// Billing period of the discount, specified in ISO 8601 format.
         /// </summary>
-        public readonly string Period;
+        public string Period { get; }
 
         /// <summary>
         /// Unit for the billing period of the discount, can be DAY, WEEK, MONTH or YEAR.
         /// </summary>
-        public readonly string PeriodUnit;
+        public string PeriodUnit { get; }
 
         /// <summary>
         /// Number of units for the billing period of the discount.
         /// </summary>
-        public readonly int PeriodNumberOfUnits;
+        public int PeriodNumberOfUnits { get; }
 
-        public WinBackOffer(JSONNode response)
+        [JsonConstructor]
+        internal WinBackOffer(
+            [JsonProperty("identifier")] string identifier,
+            [JsonProperty("price")] float price,
+            [JsonProperty("priceString")] string priceString,
+            [JsonProperty("cycles")] int cycles,
+            [JsonProperty("period")] string period,
+            [JsonProperty("periodUnit")] string periodUnit,
+            [JsonProperty("periodNumberOfUnits")] int periodNumberOfUnits)
         {
-            Identifier = response["identifier"];
-            Price = response["price"];
-            PriceString = response["priceString"];
-            Cycles = response["cycles"];
-            Period = response["period"];
-            PeriodUnit = response["periodUnit"];
-            PeriodNumberOfUnits = response["periodNumberOfUnits"];
+            Identifier = identifier;
+            Price = price;
+            PriceString = priceString;
+            Cycles = cycles;
+            Period = period;
+            PeriodUnit = periodUnit;
+            PeriodNumberOfUnits = periodNumberOfUnits;
         }
 
         public override string ToString()

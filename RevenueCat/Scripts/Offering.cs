@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using JetBrains.Annotations;
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using static RevenueCat.Utilities;
 
-public partial class Purchases
+namespace RevenueCat
 {
     /// <summary>
     /// An offering is a collection of <see cref="Package"/>, and they let you control which products
@@ -11,71 +11,60 @@ public partial class Purchases
     /// </summary>
     public class Offering
     {
-        public readonly string Identifier;
-        public readonly string ServerDescription;
-        public readonly List<Package> AvailablePackages;
-        [CanBeNull] public readonly Dictionary<string, object> Metadata;
-        [CanBeNull] public readonly Package Lifetime;
-        [CanBeNull] public readonly Package Annual;
-        [CanBeNull] public readonly Package SixMonth;
-        [CanBeNull] public readonly Package ThreeMonth;
-        [CanBeNull] public readonly Package TwoMonth;
-        [CanBeNull] public readonly Package Monthly;
-        [CanBeNull] public readonly Package Weekly;
-        
-        public Offering(JSONNode response)
+        public string Identifier { get; }
+
+        public string ServerDescription { get; }
+
+        public IReadOnlyList<Package> AvailablePackages { get; }
+
+        [CanBeNull]
+        public IReadOnlyDictionary<string, object> Metadata { get; }
+
+        [CanBeNull]
+        public Package Lifetime { get; }
+
+        [CanBeNull]
+        public Package Annual { get; }
+
+        [CanBeNull]
+        public Package SixMonth { get; }
+
+        [CanBeNull]
+        public Package ThreeMonth { get; }
+
+        [CanBeNull]
+        public Package TwoMonth { get; }
+        [CanBeNull]
+        public Package Monthly { get; }
+
+        [CanBeNull]
+        public Package Weekly { get; }
+
+        [JsonConstructor]
+        internal Offering(
+            [JsonProperty("identifier")] string identifier,
+            [JsonProperty("serverDescription")] string serverDescription,
+            [JsonProperty("availablePackages")] List<Package> availablePackages,
+            [JsonProperty("metadata")] Dictionary<string, object> metadata = null,
+            [JsonProperty("lifetime")] Package lifetime = null,
+            [JsonProperty("annual")] Package annual = null,
+            [JsonProperty("sixMonth")] Package sixMonth = null,
+            [JsonProperty("threeMonth")] Package threeMonth = null,
+            [JsonProperty("twoMonth")] Package twoMonth = null,
+            [JsonProperty("monthly")] Package monthly = null,
+            [JsonProperty("weekly")] Package weekly = null)
         {
-            Identifier = response["identifier"];
-            ServerDescription = response["serverDescription"];
-            AvailablePackages = new List<Package>();
-            
-            foreach (JSONNode packageResponse in response["availablePackages"])
-            {
-                AvailablePackages.Add(new Package(packageResponse));
-            }
-
-            if (response["lifetime"] != null && !response["lifetime"].IsNull)
-            {
-                Lifetime = new Package(response["lifetime"]);
-            }
-
-            if (response["annual"] != null && !response["annual"].IsNull)
-            {
-                Annual = new Package(response["annual"]);
-            }
-
-            if (response["sixMonth"] != null && !response["sixMonth"].IsNull)
-            {
-                SixMonth = new Package(response["sixMonth"]);
-            }
-
-            if (response["threeMonth"] != null && !response["threeMonth"].IsNull)
-            {
-                ThreeMonth = new Package(response["threeMonth"]);
-            }
-
-            if (response["twoMonth"] != null && !response["twoMonth"].IsNull)
-            {
-                TwoMonth = new Package(response["twoMonth"]);
-            }
-
-            if (response["monthly"] != null && !response["monthly"].IsNull)
-            {
-                Monthly = new Package(response["monthly"]);
-            }
-            if (response["weekly"] != null && !response["weekly"].IsNull)
-            {
-                Weekly = new Package(response["weekly"]);
-            }
-            Metadata = new Dictionary<string, object>();
-            if (response["metadata"] != null && !response["metadata"].IsNull)
-            {
-                foreach(var metadataEntry in response["metadata"])
-                {
-                    object value = ParseJsonValue(metadataEntry.Value);
-                    Metadata.Add(metadataEntry.Key, value);
-                }
-            }
+            Identifier = identifier;
+            ServerDescription = serverDescription;
+            AvailablePackages = availablePackages;
+            Metadata = metadata;
+            Lifetime = lifetime;
+            Annual = annual;
+            SixMonth = sixMonth;
+            ThreeMonth = threeMonth;
+            TwoMonth = twoMonth;
+            Monthly = monthly;
+            Weekly = weekly;
         }
 
         public override string ToString()
@@ -91,35 +80,6 @@ public partial class Purchases
                    $"{nameof(TwoMonth)}: {TwoMonth}\n" +
                    $"{nameof(Monthly)}: {Monthly}\n" +
                    $"{nameof(Weekly)}: {Weekly}";
-        }
-
-        private object ParseJsonValue(JSONNode jsonValue)
-        {
-            if (jsonValue.IsString) return jsonValue.Value;
-            if (jsonValue.IsNumber) return jsonValue.AsFloat;
-            if (jsonValue.IsBoolean) return jsonValue.AsBool;
-            
-            if (jsonValue.IsObject)
-            {
-                var dict = new Dictionary<string, object>();
-                foreach (var kvp in jsonValue.AsObject)
-                {
-                    dict[kvp.Key] = ParseJsonValue(kvp.Value);
-                }
-                return dict;
-            }
-            
-            if (jsonValue.IsArray)
-            {
-                var list = new List<object>();
-                foreach (var item in jsonValue.AsArray)
-                {
-                    list.Add(ParseJsonValue(item));
-                }
-                return list;
-            }
-            
-            return null;
         }
     }
 }

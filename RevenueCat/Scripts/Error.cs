@@ -1,25 +1,32 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using RevenueCat.SimpleJSON;
+using Newtonsoft.Json;
 
-public partial class Purchases
+namespace RevenueCat
 {
-    [Serializable]
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     public class Error
     {
-        public readonly string Message;
-        public readonly int Code;
-        public readonly string UnderlyingErrorMessage;
-        public readonly string ReadableErrorCode;
+        [JsonProperty("message")]
+        public  string Message;
 
-        public Error(JSONNode response)
+        [JsonProperty("code")]
+        public  int Code;
+
+        [JsonProperty("underlyingErrorMessage")]
+        public  string UnderlyingErrorMessage;
+
+        [JsonProperty("readableErrorCode")]
+        public  string ReadableErrorCode;
+
+        [JsonConstructor]
+        internal Error(
+            [JsonProperty("message")] string message,
+            [JsonProperty("code")] int code,
+            [JsonProperty("underlyingErrorMessage")] string underlyingErrorMessage,
+            [JsonProperty("readableErrorCode")] string readableErrorCode)
         {
-            Message = response["message"];
-            Code = (int) response["code"];
-            UnderlyingErrorMessage = response["underlyingErrorMessage"];
-            ReadableErrorCode = response["readableErrorCode"];
+            Message = message;
+            Code = code;
+            UnderlyingErrorMessage = underlyingErrorMessage;
+            ReadableErrorCode = readableErrorCode;
         }
 
         public override string ToString()

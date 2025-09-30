@@ -1,109 +1,136 @@
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
-using RevenueCat.SimpleJSON;
 using static RevenueCat.Utilities;
 
-public partial class Purchases
+namespace RevenueCat
 {
-    ///
     /// <summary>
     /// CustomerInfo encapsulates the current status of subscriber. 
     /// Use it to determine which entitlements to unlock, typically by checking 
     /// ActiveSubscriptions or via LatestExpirationDate.
     /// </summary> 
-    /// 
     /// <remarks>
     /// All DateTimes are in UTC, be sure to compare them with <c>DateTime.UtcNow</c>
     /// </remarks>
-    ///
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public class CustomerInfo
+    public sealed class CustomerInfo
     {
-        public EntitlementInfos Entitlements;
-        public List<string> ActiveSubscriptions;
-        public List<string> AllPurchasedProductIdentifiers;
-        public DateTime? LatestExpirationDate;
-        public DateTime FirstSeen;
-        public string OriginalAppUserId;
-        public DateTime RequestDate;
-        public DateTime? OriginalPurchaseDate;
-        public Dictionary<string, DateTime?> AllExpirationDates;
-        public Dictionary<string, DateTime?> AllPurchaseDates;
-        [CanBeNull] public string OriginalApplicationVersion;
-        [CanBeNull] public string ManagementURL;
-        public List<StoreTransaction> NonSubscriptionTransactions;
-        public Dictionary<string, SubscriptionInfo> SubscriptionsByProductIdentifier;
+        [JsonProperty("entitlements")]
+        public EntitlementInfos Entitlements { get; }
 
-        public CustomerInfo(JSONNode response)
+        [JsonProperty("activeSubscriptions")]
+        public IReadOnlyList<string> ActiveSubscriptions { get; }
+
+        [JsonProperty("allPurchasedProductIdentifiers")]
+        public IReadOnlyList<string> AllPurchasedProductIdentifiers { get; }
+
+        [JsonProperty("latestExpirationDateMillis")]
+        public long? LatestExpirationDateMillis { get; }
+
+        [JsonIgnore]
+        public DateTime? LatestExpirationDate
+            => FromOptionalUnixTimeInMilliseconds(LatestExpirationDateMillis);
+
+        [JsonProperty("firstSeenMillis")]
+        public long FirstSeenMillis { get; }
+
+        [JsonIgnore]
+        public DateTime FirstSeen
+            => FromUnixTimeInMilliseconds(FirstSeenMillis);
+
+        [JsonProperty("originalAppUserId")]
+        public string OriginalAppUserId { get; }
+
+        [JsonProperty("requestDateMillis")]
+        public long RequestDateMillis { get; }
+
+        [JsonIgnore]
+        public DateTime RequestDate
+            => FromUnixTimeInMilliseconds(RequestDateMillis);
+
+        [JsonProperty("originalPurchaseDateMillis")]
+        public long? OriginalPurchaseDateMillis { get; }
+
+        [JsonIgnore]
+        public DateTime? OriginalPurchaseDate
+            => FromOptionalUnixTimeInMilliseconds(OriginalPurchaseDateMillis);
+
+        [JsonProperty("allExpirationDatesMillis")]
+        public IReadOnlyDictionary<string, long?> AllExpirationDatesMillis { get; }
+
+        [JsonIgnore]
+        public IReadOnlyDictionary<string, DateTime?> AllExpirationDates { get; }
+
+        [JsonProperty("allPurchaseDatesMillis")]
+        public IReadOnlyDictionary<string, long?> AllPurchaseDatesMillis { get; }
+
+        [JsonIgnore]
+        public IReadOnlyDictionary<string, DateTime?> AllPurchaseDates { get; }
+
+        [CanBeNull]
+        [JsonProperty("originalApplicationVersion")]
+        public string OriginalApplicationVersion { get; }
+
+        [CanBeNull]
+        [JsonProperty("managementURL")]
+        public string ManagementURL { get; }
+
+        [JsonProperty("nonSubscriptionTransactions")]
+        public IReadOnlyList<StoreTransaction> NonSubscriptionTransactions { get; }
+
+        [JsonProperty("subscriptionsByProductIdentifier")]
+        public IReadOnlyDictionary<string, SubscriptionInfo> SubscriptionsByProductIdentifier { get; }
+
+        [JsonConstructor]
+        internal CustomerInfo(
+            [JsonProperty("entitlements")] EntitlementInfos entitlements,
+            [JsonProperty("activeSubscriptions")] List<string> activeSubscriptions,
+            [JsonProperty("allPurchasedProductIdentifiers")] List<string> allPurchasedProductIdentifiers,
+            [JsonProperty("latestExpirationDateMillis")] long? latestExpirationDateMillis,
+            [JsonProperty("firstSeenMillis")] long firstSeenMillis,
+            [JsonProperty("originalAppUserId")] string originalAppUserId,
+            [JsonProperty("requestDateMillis")] long requestDateMillis,
+            [JsonProperty("originalPurchaseDateMillis")] long? originalPurchaseDateMillis,
+            [JsonProperty("allExpirationDatesMillis")] Dictionary<string, long?> allExpirationDatesMillis,
+            [JsonProperty("allPurchaseDatesMillis")] Dictionary<string, long?> allPurchaseDatesMillis,
+            [JsonProperty("originalApplicationVersion")] string originalApplicationVersion,
+            [JsonProperty("managementURL")] string managementURL,
+            [JsonProperty("nonSubscriptionTransactions")] List<StoreTransaction> nonSubscriptionTransactions,
+            [JsonProperty("subscriptionsByProductIdentifier")] Dictionary<string, SubscriptionInfo> subscriptionsByProductIdentifier)
         {
-            Entitlements = new EntitlementInfos(response["entitlements"]);
-            ActiveSubscriptions = new List<string>();
-            foreach (JSONNode subscription in response["activeSubscriptions"])
+            Entitlements = entitlements;
+            ActiveSubscriptions = activeSubscriptions;
+            AllPurchasedProductIdentifiers = allPurchasedProductIdentifiers;
+            LatestExpirationDateMillis = latestExpirationDateMillis;
+            FirstSeenMillis = firstSeenMillis;
+            OriginalAppUserId = originalAppUserId;
+            RequestDateMillis = requestDateMillis;
+            OriginalPurchaseDateMillis = originalPurchaseDateMillis;
+            AllExpirationDatesMillis = allExpirationDatesMillis;
+
+            var allExpirationDates = new Dictionary<string, DateTime?>();
+
+            foreach (var (productId, value) in allExpirationDatesMillis)
             {
-                ActiveSubscriptions.Add(subscription);
+                allExpirationDates.Add(productId, FromOptionalUnixTimeInMilliseconds(value));
             }
 
-            AllPurchasedProductIdentifiers = new List<string>();
-            foreach (JSONNode productIdentifier in response["allPurchasedProductIdentifiers"])
+            AllExpirationDates = allExpirationDates;
+
+            var allPurchaseDates = new Dictionary<string, DateTime?>();
+            AllPurchaseDatesMillis = allPurchaseDatesMillis;
+
+            foreach (var (productId, value) in allPurchaseDatesMillis)
             {
-                AllPurchasedProductIdentifiers.Add(productIdentifier);
+                allExpirationDates.Add(productId, FromOptionalUnixTimeInMilliseconds(value));
             }
 
-            FirstSeen = FromUnixTimeInMilliseconds(response["firstSeenMillis"].AsLong);
-            OriginalAppUserId = response["originalAppUserId"];
-            RequestDate = FromUnixTimeInMilliseconds(response["requestDateMillis"].AsLong);
-            OriginalPurchaseDate =
-                FromOptionalUnixTimeInMilliseconds(response["originalPurchaseDateMillis"].AsLong);
-            LatestExpirationDate =
-                FromOptionalUnixTimeInMilliseconds(response["latestExpirationDateMillis"].AsLong);
-            ManagementURL = response["managementURL"];
-            AllExpirationDates = new Dictionary<string, DateTime?>();
-            foreach (var keyValue in response["allExpirationDatesMillis"])
-            {
-                var productID = keyValue.Key;
-                var expirationDateJSON = keyValue.Value;
-                if (expirationDateJSON != null && !expirationDateJSON.IsNull && expirationDateJSON.AsLong != 0L)
-                {
-                    AllExpirationDates.Add(productID, FromUnixTimeInMilliseconds(expirationDateJSON.AsLong));
-                }
-                else
-                {
-                    AllExpirationDates.Add(productID, null);
-                }
-            }
-
-            AllPurchaseDates = new Dictionary<string, DateTime?>();
-            foreach (var keyValue in response["allPurchaseDatesMillis"])
-            {
-                var productID = keyValue.Key;
-                var purchaseDateJSON = keyValue.Value;
-                if (purchaseDateJSON != null && !purchaseDateJSON.IsNull && purchaseDateJSON.AsLong != 0L)
-                {
-                    AllPurchaseDates.Add(productID, FromUnixTimeInMilliseconds(purchaseDateJSON.AsLong));
-                }
-                else
-                {
-                    AllPurchaseDates.Add(productID, null);
-                }
-            }
-
-            OriginalApplicationVersion = response["originalApplicationVersion"];
-            
-            NonSubscriptionTransactions = new List<StoreTransaction>();
-            foreach (JSONNode transactionResponse in response["nonSubscriptionTransactions"])
-            {
-                NonSubscriptionTransactions.Add(new StoreTransaction(transactionResponse));
-            }
-
-            SubscriptionsByProductIdentifier = new Dictionary<string, SubscriptionInfo>();
-            foreach (var keyValue in response["subscriptionsByProductIdentifier"])
-            {
-                var productID = keyValue.Key;
-                var subscriptionInfoJSON = keyValue.Value;
-                SubscriptionsByProductIdentifier.Add(productID, new SubscriptionInfo(subscriptionInfoJSON));
-            }
+            AllExpirationDates = allPurchaseDates;
+            OriginalApplicationVersion = originalApplicationVersion;
+            ManagementURL = managementURL;
+            NonSubscriptionTransactions = nonSubscriptionTransactions;
+            SubscriptionsByProductIdentifier = subscriptionsByProductIdentifier;
         }
 
         public override string ToString()
