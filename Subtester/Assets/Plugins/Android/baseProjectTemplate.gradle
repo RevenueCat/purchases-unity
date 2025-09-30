@@ -1,30 +1,14 @@
-allprojects {
-    buildscript {
-        repositories {**ARTIFACTORYREPOSITORY**
-            google()
-            mavenCentral()
-        }
-
-        dependencies {
-            // If you are changing the Android Gradle Plugin version, make sure it is compatible with the Gradle version preinstalled with Unity
-            // See which Gradle version is preinstalled with Unity here https://docs.unity3d.com/Manual/android-gradle-overview.html
-            // See official Gradle and Android Gradle Plugin compatibility table here https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
-            // To specify a custom Gradle version in Unity, go do "Preferences > External Tools", uncheck "Gradle Installed with Unity (recommended)" and specify a path to a custom Gradle version
-            // 8.8.2 is the latest version that is compatible with Unity 6000.2.2f1 which comes with Gradle 8.11 embedded
-            classpath 'com.android.tools.build:gradle:8.8.2'
-            **BUILD_SCRIPT_DEPS**
-        }
-    }
-
-    repositories {**ARTIFACTORYREPOSITORY**
-        google()
-        mavenCentral()
-        flatDir {
-            dirs "${project(':unityLibrary').projectDir}/libs"
-        }
-    }
+plugins {
+    // If you are changing the Android Gradle Plugin version, make sure it is compatible with the Gradle version preinstalled with Unity
+    // See which Gradle version is preinstalled with Unity here https://docs.unity3d.com/Manual/android-gradle-overview.html
+    // See official Gradle and Android Gradle Plugin compatibility table here https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
+    // To specify a custom Gradle version in Unity, go do "Preferences > External Tools", uncheck "Gradle Installed with Unity (recommended)" and specify a path to a custom Gradle version
+    // 8.8.2 is the latest version that is compatible with Unity 6000.2.2f1 which comes with Gradle 8.11 embedded
+    id 'com.android.application' version '8.8.2' apply false
+    id 'com.android.library' version '8.8.2' apply false
+    **BUILD_SCRIPT_DEPS**
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
 }
