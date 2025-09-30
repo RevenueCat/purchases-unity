@@ -134,6 +134,17 @@ The result of the purchase methods is now a PurchaseResult object instead of a c
   * [Android 9.0.0](https://github.com/RevenueCat/purchases-android/releases/tag/9.0.0)
   * [iOS 5.33.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.33.0)
 
+## 7.8.0
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Updates purchases-hybrid-common to 14.3.0  (#684) via Antonio Pallares (@ajpallares)
+  * [Android 8.24.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.24.0)
+  * [Android 8.23.0](https://github.com/RevenueCat/purchases-android/releases/tag/8.23.0)
+  * [Android 8.22.1](https://github.com/RevenueCat/purchases-android/releases/tag/8.22.1)
+
+### 🔄 Other Changes
+* [v7] Prepare for next release (#685) via Antonio Pallares (@ajpallares)
+
 ## 7.7.8
 ## RevenueCat SDK
 ### 🐞 Bugfixes

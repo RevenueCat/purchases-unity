@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@2.2.0
+  revenuecat: revenuecat/sdks-common-config@3.7.0
   unity: game-ci/unity@1.7.1
 
 executors:
