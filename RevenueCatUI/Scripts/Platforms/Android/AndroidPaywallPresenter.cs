@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Android;
 
 namespace RevenueCat.UI.Platforms
 {
@@ -44,11 +45,8 @@ namespace RevenueCat.UI.Platforms
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
-                using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                {
-                    var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-                    _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
-                }
+                var currentActivity = AndroidApplication.currentActivity;
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
             }
             catch (Exception e)
             {
@@ -73,11 +71,8 @@ namespace RevenueCat.UI.Platforms
                 var offering = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
-                using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                {
-                    var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-                    _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
-                }
+                var currentActivity = AndroidApplication.currentActivity;
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
             }
             catch (Exception e)
             {
