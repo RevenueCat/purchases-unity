@@ -87,7 +87,9 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
     return options;
 }
 
-static void RCUIPresentPaywallInternal(NSString *offeringIdentifier, BOOL displayCloseButton, RCUIPaywallResultCallback callback) {
+static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
+                                       BOOL displayCloseButton,
+                                       RCUIPaywallResultCallback callback) {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (@available(iOS 15.0, *)) {
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
@@ -95,11 +97,11 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier, BOOL displa
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, displayCloseButton);
 
             [proxy presentPaywallWithOptions:options
-                         paywallResultHandler:^(NSString * _Nonnull resultName) {
-                NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(callback, token, nil);
-                proxy = nil;
-            }];
+                        paywallResultHandler:^(NSString * _Nonnull resultName) {
+                            NSString *token = RCUINormalizedResultToken(resultName);
+                            RCUIInvokeCallback(callback, token, nil);
+                            proxy = nil;
+                        }];
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -118,11 +120,11 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
             [proxy presentPaywallIfNeededWithOptions:options
-                                  paywallResultHandler:^(NSString * _Nonnull resultName) {
-                NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(callback, token, nil);
-                proxy = nil;
-            }];
+                                paywallResultHandler:^(NSString * _Nonnull resultName) {
+                                    NSString *token = RCUINormalizedResultToken(resultName);
+                                    RCUIInvokeCallback(callback, token, nil);
+                                    proxy = nil;
+                                }];
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
