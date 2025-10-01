@@ -347,7 +347,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         // Create options with specific offering
         var options = new RevenueCat.UI.PaywallOptions
         {
-            OfferingIdentifier = offeringId ?? "default",
+            OfferingIdentifier = offeringId,
             DisplayCloseButton = true
         };
 
@@ -419,7 +419,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         // Create options for the test
         var options = new RevenueCat.UI.PaywallOptions
         {
-            OfferingIdentifier = offeringId ?? "default",
+            OfferingIdentifier = offeringId,
             DisplayCloseButton = true // Test with close button enabled
         };
 
