@@ -41,7 +41,7 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                var displayCloseButton = options?.DisplayCloseButton ?? true;
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
@@ -71,7 +71,7 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                var displayCloseButton = options?.DisplayCloseButton ?? true;
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
                 {
