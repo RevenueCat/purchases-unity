@@ -2,6 +2,7 @@ package com.revenuecat.purchasesunity.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.activity.ComponentActivity;
 
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher;
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallDisplayCallback;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler;
 import com.revenuecat.purchases.PresentedOfferingContext;
@@ -17,6 +19,12 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     public static final String EXTRA_PAYWALL_OPTIONS = "rc_paywall_options";
 
     private static final String TAG = "PurchasesUnity";
+
+    private static final String RESULT_PURCHASED = "PURCHASED";
+    private static final String RESULT_RESTORED = "RESTORED";
+    private static final String RESULT_CANCELLED = "CANCELLED";
+    private static final String RESULT_ERROR = "ERROR";
+    private static final String RESULT_NOT_PRESENTED = "NOT_PRESENTED";
 
     private PaywallActivityLauncher launcher;
 
@@ -29,7 +37,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
 
         if (options == null) {
             Log.e(TAG, "PaywallUnityOptions is null; cannot launch paywall");
-            RevenueCatUI.sendPaywallResult("ERROR");
+            RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             finish();
             return;
         }
@@ -37,12 +45,8 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         launcher = new PaywallActivityLauncher(this, this);
 
         if (options.getRequiredEntitlementIdentifier() != null) {
-            // TODO: Remove debug log before shipping
-            Log.d(TAG, "Using launchIfNeeded for entitlement '" + options.getRequiredEntitlementIdentifier() + "'");
             launchPaywallIfNeeded(options);
         } else {
-            // TODO: Remove debug log before shipping
-            Log.d(TAG, "No entitlement check required, presenting paywall directly");
             launchPaywall(options);
         }
     }
@@ -52,33 +56,35 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
 
-        // TODO: Remove debug log before shipping
-        Log.d(TAG, "Launching paywall if needed with PaywallActivityLauncher");
-        Log.d(TAG, "Options - entitlement: " + requiredEntitlementIdentifier + ", offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
-        
-        if (offeringId != null) {
-            // TODO: Remove debug log before shipping
-            Log.d(TAG, "Using launchIfNeeded with offering ID");
+        if (offeringId == null) {
             launcher.launchIfNeeded(
-                requiredEntitlementIdentifier,
-                offeringId,
-                new PresentedOfferingContext(offeringId), // TODO: pass PresentedOfferingContext data
-                null, // fontProvider
-                shouldDisplayDismissButton,
-                false, // edgeToEdge
-                paywallDisplayResult -> {
-                    if (!paywallDisplayResult) {
-                        // TODO: Remove debug log before shipping
-                        Log.d(TAG, "PaywallDisplayCallback: paywall not needed");
-                        RevenueCatUI.sendPaywallResult("NOT_PRESENTED");
-                        finish();
+                    requiredEntitlementIdentifier,
+                    null,
+                    null,
+                    shouldDisplayDismissButton,
+                    Build.VERSION.SDK_INT >= 35,
+                    paywallDisplayResult -> {
+                        if (!paywallDisplayResult) {
+                            RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
+                            finish();
+                        }
                     }
-                    // If paywallDisplayResult is true, the paywall will be shown and result will come through normal callback
-                }
             );
         } else {
-            Log.w(TAG, "launchIfNeeded requires an offering ID, falling back to regular launch");
-            launchPaywall(options);
+            launcher.launchIfNeededWithOfferingId(
+                    requiredEntitlementIdentifier,
+                    offeringId,
+                    new PresentedOfferingContext(offeringId),
+                    null,
+                    shouldDisplayDismissButton,
+                    Build.VERSION.SDK_INT >= 35,
+                    paywallDisplayResult -> {
+                        if (!paywallDisplayResult) {
+                            RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
+                            finish();
+                        }
+                    }
+            );
         }
     }
 
@@ -86,23 +92,18 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
 
-        // TODO: Remove debug log before shipping
-        Log.d(TAG, "Launching paywall with PaywallActivityLauncher");
-        Log.d(TAG, "Options - offering: " + offeringId + ", dismissButton: " + shouldDisplayDismissButton);
-        
+        // TODO: add support for edge to edge, fonts, and offering context
         if (offeringId != null) {
-            // TODO: Remove debug log before shipping
-            Log.d(TAG, "Launching paywall with offering ID");
-            launcher.launch(offeringId,
-                    new PresentedOfferingContext(offeringId), // TODO: pass PresentedOfferingContext data
-                    null, // fontProvider
-                    shouldDisplayDismissButton);
+            launcher.launchWithOfferingId(
+                    offeringId,
+                    new PresentedOfferingContext(offeringId), // TODO: support passing context
+                    null,
+                    shouldDisplayDismissButton
+            );
         } else {
-            // TODO: Remove debug log before shipping
-            Log.d(TAG, "Launching paywall with standard method");
             launcher.launch(
-                null, // offering (Offering object, not String)
-                null, // fontProvider
+                null,
+                null,
                 shouldDisplayDismissButton
             );
         }
@@ -123,15 +124,15 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     private void sendPaywallResult(PaywallResult result) {
         final String resultName;
         if (result instanceof PaywallResult.Purchased) {
-            resultName = "PURCHASED";
+            resultName = RESULT_PURCHASED;
         } else if (result instanceof PaywallResult.Restored) {
-            resultName = "RESTORED";
+            resultName = RESULT_RESTORED;
         } else if (result instanceof PaywallResult.Cancelled) {
-            resultName = "CANCELLED";
+            resultName = RESULT_CANCELLED;
         } else if (result instanceof PaywallResult.Error) {
-            resultName = "ERROR";
+            resultName = RESULT_ERROR;
         } else {
-            resultName = "CANCELLED";
+            resultName = RESULT_CANCELLED;
         }
 
         RevenueCatUI.sendPaywallResult(resultName);
@@ -140,7 +141,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, boolean displayCloseButton) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
-            RevenueCatUI.sendPaywallResult("ERROR");
+            RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             return;
         }
 
@@ -153,20 +154,20 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             activity.startActivity(intent);
         } catch (Throwable t) {
             Log.e(TAG, "Error launching PaywallTrampolineActivity", t);
-            RevenueCatUI.sendPaywallResult("ERROR");
+            RevenueCatUI.sendPaywallResult(RESULT_ERROR);
         }
     }
 
     public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, boolean displayCloseButton) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
-            RevenueCatUI.sendPaywallResult("ERROR");
+            RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             return;
         }
 
         if (requiredEntitlementIdentifier == null) {
             Log.e(TAG, "Required entitlement identifier is null; cannot launch paywall if needed");
-            RevenueCatUI.sendPaywallResult("ERROR");
+            RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             return;
         }
 
@@ -179,7 +180,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             activity.startActivity(intent);
         } catch (Throwable t) {
             Log.e(TAG, "Error launching PaywallTrampolineActivity for presentPaywallIfNeeded", t);
-            RevenueCatUI.sendPaywallResult("ERROR");
+            RevenueCatUI.sendPaywallResult(RESULT_ERROR);
         }
     }
 }
