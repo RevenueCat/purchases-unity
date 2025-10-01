@@ -6,10 +6,9 @@ namespace RevenueCat.UI
 {
     /// <summary>
     /// Main interface for RevenueCat UI components.
-    /// Provides methods to present paywalls.
-    /// Add this component to a GameObject to enable paywall functionality.
+    /// Provides static methods to present paywalls.
     /// </summary>
-    public sealed class RevenueCatUI : MonoBehaviour
+    public static class RevenueCatUI
     {
         
         /// <summary>
@@ -17,7 +16,7 @@ namespace RevenueCat.UI
         /// </summary>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
+        public static async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
         {
             try 
             {
@@ -39,7 +38,7 @@ namespace RevenueCat.UI
         /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting</param>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public async Task<PaywallResult> PresentPaywallIfNeeded(
+        public static async Task<PaywallResult> PresentPaywallIfNeeded(
             string requiredEntitlementIdentifier, 
             PaywallOptions options = null)
         {
@@ -71,7 +70,7 @@ namespace RevenueCat.UI
         /// returns false on other platforms (Editor, Windows, macOS, WebGL, etc.).
         /// </summary>
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
-        public bool IsSupported()
+        public static bool IsSupported()
         {
             try
             {
