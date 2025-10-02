@@ -94,7 +94,7 @@ public partial class Purchases
 
             public PurchasesConfiguration Build()
             {
-                _dangerousSettings = _dangerousSettings ?? new DangerousSettings(false);
+                _dangerousSettings = _dangerousSettings ?? new DangerousSettings(true);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically, 
                     _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled);
