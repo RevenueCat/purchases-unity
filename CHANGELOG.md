@@ -6,7 +6,7 @@
 
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Change default of `autoSyncPurchases` to `true` on runtime setups (#693) via Cesar de la Vega (@vegaro)
+* **BEHAVIOR CHANGE** Change wrong default of `autoSyncPurchases` to `true` on runtime setups (#693) via Cesar de la Vega (@vegaro)
 ### 📦 Dependency Updates
 * [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.8.0 (#678) via RevenueCat Git Bot (@RCGitBot)
   * [Android 9.7.2](https://github.com/RevenueCat/purchases-android/releases/tag/9.7.2)
