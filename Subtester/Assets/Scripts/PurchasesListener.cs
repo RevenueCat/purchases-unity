@@ -231,13 +231,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
-        if (ui == null)
-        {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
-        }
-
-        var task = ui.PresentPaywall();
+        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall();
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -270,18 +264,12 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
-        if (ui == null)
-        {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
-        }
-
         var options = new RevenueCat.UI.PaywallOptions
         {
             DisplayCloseButton = false
         };
 
-        var task = ui.PresentPaywall(options);
+        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall(options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -295,12 +283,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallForOfferingCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
-        if (ui == null)
-        {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
-        }
-
         // First get available offerings to use one as an example
         var purchases = GetComponent<Purchases>();
         var offeringsTask = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
@@ -353,7 +335,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         Debug.Log($"Subtester: Presenting paywall for offering: {options.OfferingIdentifier}");
 
-        var task = ui.PresentPaywall(options);
+        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall(options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -367,12 +349,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallIfNeededCoroutine()
     {
-        var ui = GetComponent<RevenueCat.UI.RevenueCatUI>();
-        if (ui == null)
-        {
-            ui = gameObject.AddComponent<RevenueCat.UI.RevenueCatUI>();
-        }
-
         // First get available offerings to use one as an example
         var purchases = GetComponent<Purchases>();
         var offeringsTask = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
@@ -428,7 +404,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {options.OfferingIdentifier}");
 
-        var task = ui.PresentPaywallIfNeeded(testEntitlement, options);
+        var task = RevenueCat.UI.RevenueCatUI.PresentPaywallIfNeeded(testEntitlement, options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
