@@ -167,6 +167,55 @@ commands:
             cp -r IntegrationTests/Assets/APITests/*.cs Subtester/Assets/APITests/
             cp IntegrationTests/Assets/Editor/CIEditorScript.cs Subtester/Assets/Editor/CIEditorScript.cs
 
+  run-unity-tests:
+    description: "Run Unity tests"
+    parameters:
+      project:
+        type: string
+      test-platform:
+        type: string
+        default: "EditMode"
+      test-results-path:
+        type: string
+        default: "test-results.xml"
+      test-filter:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Run Unity tests
+          command: |
+            set -euo pipefail
+            FILTER_ARGS=""
+            if [ -n "<< parameters.test-filter >>" ]; then
+              FILTER_ARGS="-assemblyNames << parameters.test-filter >>"
+            fi
+            /opt/unity/Editor/Unity \
+              -projectPath << parameters.project >> \
+              -runTests \
+              -testPlatform << parameters.test-platform >> \
+              -testResults << parameters.test-results-path >> \
+              $FILTER_ARGS \
+              -logFile /dev/stdout \
+              -batchmode \
+              -nographics \
+              -quit \
+              -disable-assembly-updater
+      - run:
+          name: Display test results
+          command: |
+            if [ -f << parameters.test-results-path >> ]; then
+              echo "Test results found, displaying summary:"
+              cat << parameters.test-results-path >>
+            else
+              echo "No test results file found at << parameters.test-results-path >>"
+            fi
+          when: always
+      - store_test_results:
+          path: << parameters.test-results-path >>
+      - store_artifacts:
+          path: << parameters.test-results-path >>
+
 jobs:
   export-package:
     executor: unity
@@ -190,6 +239,60 @@ jobs:
 
       - store_artifacts:
           path: Purchases.unitypackage
+
+  test-revenuecat-ui:
+    executor: unity
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - unity/prepare-env:
+          project-path: IntegrationTests
+
+      - import-package
+
+      - run-unity-tests:
+          project: IntegrationTests
+          test-platform: EditMode
+          test-results-path: ui-test-results.xml
+          test-filter: "revenuecat.purchases-unity-ui.Tests"
+
+  test-integration-edit-mode:
+    executor: unity
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - unity/prepare-env:
+          project-path: IntegrationTests
+
+      - import-package
+
+      - run-unity-tests:
+          project: IntegrationTests
+          test-platform: EditMode
+          test-results-path: integration-edit-mode-results.xml
+          test-filter: "APITests"
+
+  test-integration-play-mode:
+    executor: unity
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - unity/prepare-env:
+          project-path: IntegrationTests
+
+      - import-package
+
+      - run-unity-tests:
+          project: IntegrationTests
+          test-platform: PlayMode
+          test-results-path: integration-play-mode-results.xml
+          test-filter: "APITests"
 
   build-subtester-android:
     resource_class: large
@@ -393,18 +496,36 @@ workflows:
     jobs:
       - export-package:
           context: unity
+      - test-revenuecat-ui:
+          context: unity
+          requires:
+            - export-package
+      - test-integration-edit-mode:
+          context: unity
+          requires:
+            - export-package
+      - test-integration-play-mode:
+          context: unity
+          requires:
+            - export-package
       - build-subtester-android:
           context: unity
+          requires:
+            - test-revenuecat-ui
       - build-subtester-ios:
           context: unity
+          requires:
+            - test-revenuecat-ui
       - build-integration-tests-android:
           context: unity
           requires:
-            - export-package
+            - test-integration-edit-mode
+            - test-integration-play-mode
       - build-integration-tests-ios:
           context: unity
           requires:
-            - export-package
+            - test-integration-edit-mode
+            - test-integration-play-mode
       - archive-ios:
           requires:
             - build-integration-tests-ios
