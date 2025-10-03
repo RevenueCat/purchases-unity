@@ -72,73 +72,16 @@ public class ConditionalPaywallExample
 }
 ```
 
-## MonoBehaviour helper (for scene-driven UI)
-
-Use `RevenueCatUI/PaywallsBehaviour` directly from your scene and wire it to UI events.
-
-Steps:
-
-1. Add `PaywallsBehaviour` to a GameObject in your scene.
-2. Add your own script (e.g., `SubscribeButton`) and reference the `PaywallsBehaviour` via the Inspector.
-3. Wire your script's handler to a `Button.onClick`.
-
-Awaiting the result in your handler:
-
-```csharp
-using System.Threading.Tasks;
-using RevenueCatUI;
-using UnityEngine;
-using UnityEngine.UI;
-
-public class SubscribeButton : MonoBehaviour
-{
-    [SerializeField] private PaywallsBehaviour paywalls;
-    [SerializeField] private Button button;
-
-    private void Awake()
-    {
-        if (button != null)
-            button.interactable = paywalls != null && paywalls.IsSupported();
-    }
-
-    public async void OnClick()
-    {
-        var result = await paywalls.PresentPaywall(new PaywallOptions("default", true));
-    }
-}
-```
-
-Fire-and-forget (no await), if you don't need the result immediately:
-
-```csharp
-using RevenueCatUI;
-using UnityEngine;
-
-public class SubscribeButton : MonoBehaviour
-{
-    [SerializeField] private PaywallsBehaviour paywalls;
-
-    public void OnClick()
-    {
-        _ = paywalls.PresentPaywall();
-    }
-}
-```
-
 ## API reference
 
 - `RevenueCatUI.PaywallsPresenter.IsSupported()` → `bool`
 - `RevenueCatUI.PaywallsPresenter.Present(PaywallOptions options = null)` → `Task<PaywallResult>`
 - `RevenueCatUI.PaywallsPresenter.PresentIfNeeded(string requiredEntitlementIdentifier, PaywallOptions options = null)` → `Task<PaywallResult>`
-- `RevenueCatUI.PaywallsBehaviour` MonoBehaviour helper with:
-  - `PresentPaywall(PaywallOptions options = null)` → `Task<PaywallResult>`
-  - `PresentPaywallIfNeeded(string requiredEntitlementIdentifier, PaywallOptions options = null)` → `Task<PaywallResult>`
-  - `IsSupported()` → `bool`
 
 `PaywallOptions`:
 
 - `OfferingIdentifier` (string, optional): offering to present. If omitted, the current offering is used.
-- `DisplayCloseButton` (bool): only applies to original template paywalls. Ignored for Paywalls V2.
+- `DisplayCloseButton` (bool, default: true): only applies to original template paywalls. Ignored for Paywalls V2.
 
 `PaywallResult.Result` values:
 
@@ -163,4 +106,3 @@ public class SubscribeButton : MonoBehaviour
 - Documentation: [RevenueCat docs](https://www.revenuecat.com/docs)
 - Changelog: `CHANGELOG.md`
 - License: `LICENSE`
-
