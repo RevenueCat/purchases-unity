@@ -190,9 +190,10 @@ jobs:
             - PurchasesUI.unitypackage
 
       - store_artifacts:
-          paths:
-            - Purchases.unitypackage
-            - PurchasesUI.unitypackage
+          path: Purchases.unitypackage
+
+      - store_artifacts:
+          path: PurchasesUI.unitypackage
 
   build-subtester-android:
     resource_class: large

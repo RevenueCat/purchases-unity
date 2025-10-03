@@ -148,9 +148,13 @@ if [ -d "Assets/RevenueCat" ]; then
     verbose_echo "Found RevenueCat folders: $REVENUECAT_FOLDERS"
 fi
 if [ -d "Assets/RevenueCatUI" ]; then
-    REVENUECAT_UI_FOLDERS=$(find Assets/RevenueCatUI/* -type d -prune 2>/dev/null | tr '\n' ' ')
+    REVENUECAT_UI_FOLDERS=$(find Assets/RevenueCatUI/* -type d -prune 2>/dev/null | grep -v '/build$' | tr '\n' ' ')
     UI_FOLDERS_TO_EXPORT="$UI_FOLDERS_TO_EXPORT $REVENUECAT_UI_FOLDERS"
     verbose_echo "Found RevenueCatUI folders: $REVENUECAT_UI_FOLDERS"
+    
+    # Clean up .DS_Store files before export
+    verbose_echo "Removing .DS_Store files from RevenueCatUI"
+    find Assets/RevenueCatUI -name ".DS_Store" -type f -delete 2>/dev/null
 fi
 if [ -d "Assets/PlayServicesResolver" ]; then
     FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/PlayServicesResolver"
