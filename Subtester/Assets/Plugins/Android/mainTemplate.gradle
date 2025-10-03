@@ -9,8 +9,8 @@ dependencies {
 // Android Resolver Dependencies Start
     implementation 'androidx.activity:activity:1.8.2' // Packages/com.revenuecat.purchases-ui-unity/Plugins/Editor/RevenueCatUIDependencies.xml:6
     implementation 'androidx.annotation:annotation:[1.2.0]' // Packages/com.revenuecat.purchases-unity/Plugins/Editor/RevenueCatDependencies.xml:5
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[17.8.0]' // Packages/com.revenuecat.purchases-unity/Plugins/Editor/RevenueCatDependencies.xml:4
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:[17.8.0]' // Packages/com.revenuecat.purchases-ui-unity/Plugins/Editor/RevenueCatUIDependencies.xml:5
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[17.9.0]' // Packages/com.revenuecat.purchases-unity/Plugins/Editor/RevenueCatDependencies.xml:4
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:[17.9.0]' // Packages/com.revenuecat.purchases-ui-unity/Plugins/Editor/RevenueCatUIDependencies.xml:5
 // Android Resolver Dependencies End
 **DEPS**}
 
