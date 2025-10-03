@@ -57,7 +57,7 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                var displayCloseButton = options?.DisplayCloseButton ?? true;
+                var displayCloseButton = options?.DisplayCloseButton ?? false;
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidApplication.currentActivity;

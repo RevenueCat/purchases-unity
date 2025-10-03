@@ -30,7 +30,7 @@ namespace RevenueCatUI.Platforms
             s_current = tcs;
             try
             {
-                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? true, OnResult);
+                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
             }
             catch (Exception e)
             {
