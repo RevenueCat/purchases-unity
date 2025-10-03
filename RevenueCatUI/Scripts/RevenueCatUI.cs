@@ -16,20 +16,9 @@ namespace RevenueCat.UI
         /// </summary>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public static async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
+        public static Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
         {
-            try 
-            {
-                Debug.Log("[RevenueCatUI] Presenting paywall...");
-                
-                var presenter = PaywallPresenter.Instance;
-                return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI] Error presenting paywall: {e.Message}");
-                return PaywallResult.Error;
-            }
+            return RevenueCat.UIPresentation.PresentPaywallAsync(options);
         }
 
         /// <summary>
@@ -38,28 +27,11 @@ namespace RevenueCat.UI
         /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting</param>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public static async Task<PaywallResult> PresentPaywallIfNeeded(
+        public static Task<PaywallResult> PresentPaywallIfNeeded(
             string requiredEntitlementIdentifier, 
             PaywallOptions options = null)
         {
-            if (string.IsNullOrEmpty(requiredEntitlementIdentifier))
-            {
-                Debug.LogError("[RevenueCatUI] Required entitlement identifier cannot be null or empty");
-                return PaywallResult.Error;
-            }
-
-            try
-            {
-                Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
-                
-                var presenter = PaywallPresenter.Instance;
-                return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI] Error presenting paywall if needed: {e.Message}");
-                return PaywallResult.Error;
-            }
+            return RevenueCat.UIPresentation.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options);
         }
 
         
@@ -72,21 +44,7 @@ namespace RevenueCat.UI
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public static bool IsSupported()
         {
-            try
-            {
-                var paywallPresenter = PaywallPresenter.Instance;
-                var paywall = paywallPresenter.IsSupported();
-                if (Debug.isDebugBuild)
-                {
-                    Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}");
-                }
-                return paywall;
-            }
-            catch
-            {
-                Debug.Log("[RevenueCatUI] IsSupported check threw; returning false");
-                return false;
-            }
+            return RevenueCat.UIPresentation.IsSupported();
         }
 
     }
