@@ -72,22 +72,55 @@ public class ConditionalPaywallExample
 }
 ```
 
-## MonoBehaviour helper (no async/await required on caller)
+## MonoBehaviour helper (for scene-driven UI)
 
-Attach `RevenueCatUI/PaywallsBehaviour` to a GameObject and invoke its methods from UI events or other scripts.
+Use `RevenueCatUI/PaywallsBehaviour` directly from your scene and wire it to UI events.
+
+Steps:
+
+1. Add `PaywallsBehaviour` to a GameObject in your scene.
+2. Add your own script (e.g., `SubscribeButton`) and reference the `PaywallsBehaviour` via the Inspector.
+3. Wire your script's handler to a `Button.onClick`.
+
+Awaiting the result in your handler:
 
 ```csharp
 using System.Threading.Tasks;
 using RevenueCatUI;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class UIBehaviourExample : MonoBehaviour
+public class SubscribeButton : MonoBehaviour
 {
-    public PaywallsBehaviour revenueCatUIBehaviour;
+    [SerializeField] private PaywallsBehaviour paywalls;
+    [SerializeField] private Button button;
 
-    public async void OnSubscribeButton()
+    private void Awake()
     {
-        var result = await revenueCatUIBehaviour.PresentPaywall(new PaywallOptions("default", true));
+        if (button != null)
+            button.interactable = paywalls != null && paywalls.IsSupported();
+    }
+
+    public async void OnClick()
+    {
+        var result = await paywalls.PresentPaywall(new PaywallOptions("default", true));
+    }
+}
+```
+
+Fire-and-forget (no await), if you don't need the result immediately:
+
+```csharp
+using RevenueCatUI;
+using UnityEngine;
+
+public class SubscribeButton : MonoBehaviour
+{
+    [SerializeField] private PaywallsBehaviour paywalls;
+
+    public void OnClick()
+    {
+        _ = paywalls.PresentPaywall();
     }
 }
 ```
