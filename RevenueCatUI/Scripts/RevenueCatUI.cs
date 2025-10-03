@@ -23,7 +23,7 @@ namespace RevenueCat.UI
                 Debug.Log("[RevenueCatUI] Presenting paywall...");
                 
                 var presenter = PaywallPresenter.Instance;
-                return await presenter.PresentPaywallAsync(null, options ?? new PaywallOptions());
+                return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
             }
             catch (Exception e)
             {
@@ -53,7 +53,7 @@ namespace RevenueCat.UI
                 Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
                 
                 var presenter = PaywallPresenter.Instance;
-                return await presenter.PresentPaywallIfNeededAsync(null, requiredEntitlementIdentifier, options ?? new PaywallOptions());
+                return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
             }
             catch (Exception e)
             {

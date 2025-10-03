@@ -17,7 +17,7 @@ namespace RevenueCat
         /// <returns><see cref="PaywallResult"/> describing the outcome.</returns>
         public static Task<PaywallResult> PresentPaywallAsync(PaywallOptions options = null)
         {
-            return PresentPaywallAsyncInternal(null, options);
+            return PresentPaywallAsyncInternal(options);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace RevenueCat
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            return PresentPaywallIfNeededAsyncInternal(null, requiredEntitlementIdentifier, options);
+            return PresentPaywallIfNeededAsyncInternal(requiredEntitlementIdentifier, options);
         }
 
         /// <summary>
@@ -56,26 +56,8 @@ namespace RevenueCat
             }
         }
 
-        internal static Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options = null)
-        {
-            return PresentPaywallAsyncInternal(gameObjectName, options);
-        }
 
-        internal static Task<PaywallResult> PresentPaywallIfNeededAsync(
-            string gameObjectName,
-            string requiredEntitlementIdentifier,
-            PaywallOptions options = null)
-        {
-            if (string.IsNullOrEmpty(requiredEntitlementIdentifier))
-            {
-                Debug.LogError("[RevenueCatUI] Required entitlement identifier cannot be null or empty");
-                return Task.FromResult(PaywallResult.Error);
-            }
-
-            return PresentPaywallIfNeededAsyncInternal(gameObjectName, requiredEntitlementIdentifier, options);
-        }
-
-        private static Task<PaywallResult> PresentPaywallAsyncInternal(string gameObjectName, PaywallOptions options)
+        private static Task<PaywallResult> PresentPaywallAsyncInternal(PaywallOptions options)
         {
             try
             {
@@ -84,7 +66,7 @@ namespace RevenueCat
                     Debug.Log("[RevenueCatUI] Presenting paywall...");
                 }
 
-                return PaywallPresenter.Instance.PresentPaywallAsync(gameObjectName, options ?? new PaywallOptions());
+                return PaywallPresenter.Instance.PresentPaywallAsync(options ?? new PaywallOptions());
             }
             catch (Exception e)
             {
@@ -94,7 +76,6 @@ namespace RevenueCat
         }
 
         private static Task<PaywallResult> PresentPaywallIfNeededAsyncInternal(
-            string gameObjectName,
             string requiredEntitlementIdentifier,
             PaywallOptions options)
         {
@@ -106,7 +87,6 @@ namespace RevenueCat
                 }
 
                 return PaywallPresenter.Instance.PresentPaywallIfNeededAsync(
-                    gameObjectName,
                     requiredEntitlementIdentifier,
                     options ?? new PaywallOptions());
             }

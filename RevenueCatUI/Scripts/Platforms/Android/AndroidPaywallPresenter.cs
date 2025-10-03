@@ -38,7 +38,7 @@ namespace RevenueCat.UI.Platforms
             catch { return false; }
         }
 
-        public Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
             if (_plugin == null)
             {
@@ -71,7 +71,7 @@ namespace RevenueCat.UI.Platforms
             return _current.Task;
         }
 
-        public Task<PaywallResult> PresentPaywallIfNeededAsync(string gameObjectName, string requiredEntitlementIdentifier, PaywallOptions options)
+        public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
         {
             if (_plugin == null)
             {

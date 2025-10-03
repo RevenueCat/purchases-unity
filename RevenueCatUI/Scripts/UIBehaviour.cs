@@ -16,7 +16,7 @@ namespace RevenueCat
         /// <returns>A <see cref="PaywallResult"/> describing the outcome.</returns>
         public Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
         {
-            return UIPresentation.PresentPaywallAsync(gameObject?.name, options);
+            return UIPresentation.PresentPaywallAsync(options);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace RevenueCat
         /// <returns>A <see cref="PaywallResult"/> describing the outcome.</returns>
         public Task<PaywallResult> PresentPaywallIfNeeded(string requiredEntitlementIdentifier, PaywallOptions options = null)
         {
-            return UIPresentation.PresentPaywallIfNeededAsync(gameObject?.name, requiredEntitlementIdentifier, options);
+            return UIPresentation.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options);
         }
 
         /// <summary>
