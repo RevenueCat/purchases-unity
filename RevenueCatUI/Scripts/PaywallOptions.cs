@@ -21,6 +21,12 @@ namespace RevenueCat.UI
         public bool DisplayCloseButton { get; set; } = false;
 
         /// <summary>
+        /// Context about the offering the package was presented from.
+        /// If provided, it will be forwarded to the native paywall to improve attribution and analytics.
+        /// </summary>
+        public Purchases.PresentedOfferingContext PresentedOfferingContext { get; set; }
+
+        /// <summary>
         /// Creates a new PaywallOptions instance.
         /// </summary>
         public PaywallOptions()
@@ -45,6 +51,19 @@ namespace RevenueCat.UI
         {
             OfferingIdentifier = offeringIdentifier;
             DisplayCloseButton = displayCloseButton;
+        }
+
+        /// <summary>
+        /// Creates a new PaywallOptions instance with the specified offering identifier, close button option and context.
+        /// </summary>
+        /// <param name="offeringIdentifier">The offering identifier to present</param>
+        /// <param name="displayCloseButton">Whether to display a close button</param>
+        /// <param name="presentedOfferingContext">Presented offering context to pass to the paywall</param>
+        public PaywallOptions(string offeringIdentifier, bool displayCloseButton, Purchases.PresentedOfferingContext presentedOfferingContext)
+        {
+            OfferingIdentifier = offeringIdentifier;
+            DisplayCloseButton = displayCloseButton;
+            PresentedOfferingContext = presentedOfferingContext;
         }
     }
 } 

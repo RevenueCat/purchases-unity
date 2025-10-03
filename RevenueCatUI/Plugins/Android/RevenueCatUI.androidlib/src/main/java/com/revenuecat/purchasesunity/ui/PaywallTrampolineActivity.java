@@ -2,6 +2,8 @@ package com.revenuecat.purchasesunity.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import org.json.JSONObject;
+import org.json.JSONException;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -55,6 +57,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         String requiredEntitlementIdentifier = options.getRequiredEntitlementIdentifier();
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
+        String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
 
         if (offeringId == null) {
             launcher.launchIfNeeded(
@@ -71,10 +74,11 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
                     }
             );
         } else {
+            PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
             launcher.launchIfNeededWithOfferingId(
                     requiredEntitlementIdentifier,
                     offeringId,
-                    new PresentedOfferingContext(offeringId),
+                    presentedOfferingContext,
                     null,
                     shouldDisplayDismissButton,
                     Build.VERSION.SDK_INT >= 35,
@@ -91,12 +95,13 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     private void launchPaywall(PaywallUnityOptions options) {
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
+        String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
 
-        // TODO: add support for edge to edge, fonts, and offering context
         if (offeringId != null) {
+            PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
             launcher.launchWithOfferingId(
                     offeringId,
-                    new PresentedOfferingContext(offeringId), // TODO: support passing context
+                    presentedOfferingContext,
                     null,
                     shouldDisplayDismissButton
             );
@@ -106,6 +111,36 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
                 null,
                 shouldDisplayDismissButton
             );
+        }
+    }
+
+    @Nullable
+    private PresentedOfferingContext mapPresentedOfferingContext(@Nullable String jsonString, @Nullable String fallbackOfferingId) {
+        if (jsonString == null) {
+            if (fallbackOfferingId == null) return null;
+            return new PresentedOfferingContext(fallbackOfferingId);
+        }
+        try {
+            JSONObject map = new JSONObject(jsonString);
+            String offeringIdentifier = map.optString("offeringIdentifier", fallbackOfferingId);
+            if (offeringIdentifier == null) return null;
+
+            String placementIdentifier = map.optString("placementIdentifier", null);
+            PresentedOfferingContext.TargetingContext targetingContext = null;
+
+            JSONObject targetingMap = map.optJSONObject("targetingContext");
+            if (targetingMap != null && targetingMap.has("revision") && targetingMap.has("ruleId")) {
+                int revision = targetingMap.optInt("revision");
+                String ruleId = targetingMap.optString("ruleId", null);
+                if (ruleId != null) {
+                    targetingContext = new PresentedOfferingContext.TargetingContext(revision, ruleId);
+                }
+            }
+
+            return new PresentedOfferingContext(offeringIdentifier, placementIdentifier, targetingContext);
+        } catch (JSONException e) {
+            if (fallbackOfferingId == null) return null;
+            return new PresentedOfferingContext(fallbackOfferingId);
         }
     }
 
@@ -138,14 +173,14 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         RevenueCatUI.sendPaywallResult(resultName);
     }
 
-    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, boolean displayCloseButton) {
+    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
             RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             return;
         }
 
-        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null);
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null, presentedOfferingContextJson);
 
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
         intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);
@@ -158,7 +193,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         }
     }
 
-    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, boolean displayCloseButton) {
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
             RevenueCatUI.sendPaywallResult(RESULT_ERROR);
@@ -171,7 +206,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             return;
         }
 
-        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier);
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier, presentedOfferingContextJson);
 
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
         intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);

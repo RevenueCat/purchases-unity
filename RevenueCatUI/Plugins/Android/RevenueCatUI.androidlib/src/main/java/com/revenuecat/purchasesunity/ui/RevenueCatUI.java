@@ -12,16 +12,16 @@ public class RevenueCatUI {
     public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }
     public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
-    public static void presentPaywall(Activity activity, String offeringIdentifier, boolean displayCloseButton) {
+    public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
         // TODO: Remove debug log before shipping
         Log.d(TAG, "presentPaywall(offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton + ")");
-        PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, displayCloseButton);
+        PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
     }
 
-    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, boolean displayCloseButton) {
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
         // TODO: Remove debug log before shipping
         Log.d(TAG, "presentPaywallIfNeeded(entitlement=" + requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton + ")");
-        PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, displayCloseButton);
+        PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
     }
 
     public static boolean isSupported() { return true; }
