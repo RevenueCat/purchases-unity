@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dependencies>
+  <androidPackages>
+    // TODO: Automatically update this to the latest version
+    <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common-ui:[17.9.0]" />
+    <androidPackage spec="androidx.activity:activity:1.8.2" />
+  </androidPackages>
+  
+  <iosPods>
+    <iosPod name="PurchasesHybridCommonUI" version="~> 17.9.0" />
+  </iosPods>
+</dependencies> 

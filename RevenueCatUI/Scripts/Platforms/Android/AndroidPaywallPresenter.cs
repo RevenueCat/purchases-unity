@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-// No Internal handler needed; Android uses direct callbacks via AndroidJavaProxy
+using UnityEngine.Android;
 
 namespace RevenueCat.UI.Platforms
 {
@@ -14,24 +14,38 @@ namespace RevenueCat.UI.Platforms
 
         public AndroidPaywallPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.unity.ui.RevenueCatUI");
-            _callbacks = new CallbacksProxy(this);
-            try { _plugin.CallStatic("registerPaywallCallbacks", _callbacks); } catch { /* ignore */ }
+            try
+            {
+                _plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
+                _callbacks = new CallbacksProxy(this);
+                _plugin.CallStatic("registerPaywallCallbacks", _callbacks);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI][Android] Failed to initialize RevenueCatUI plugin: {e.Message}");
+            }
         }
 
         ~AndroidPaywallPresenter()
         {
-            try { _plugin.CallStatic("unregisterPaywallCallbacks"); } catch { }
+            try { _plugin?.CallStatic("unregisterPaywallCallbacks"); } catch { }
         }
 
         public bool IsSupported()
         {
+            if (_plugin == null) return false;
             try { return _plugin.CallStatic<bool>("isSupported"); }
             catch { return false; }
         }
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
+            if (_plugin == null)
+            {
+                Debug.LogError("[RevenueCatUI][Android] Plugin not initialized. Cannot present paywall.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             if (_current != null && !_current.Task.IsCompleted)
             {
                 Debug.LogWarning("[RevenueCatUI][Android] Paywall presentation already in progress; rejecting new request.");
@@ -42,8 +56,11 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}'");
-                _plugin.CallStatic("presentPaywall", offering);
+                var displayCloseButton = options?.DisplayCloseButton ?? true;
+                
+                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                var currentActivity = AndroidApplication.currentActivity;
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
             }
             catch (Exception e)
             {
@@ -56,6 +73,12 @@ namespace RevenueCat.UI.Platforms
 
         public Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options)
         {
+            if (_plugin == null)
+            {
+                Debug.LogError("[RevenueCatUI][Android] Plugin not initialized. Cannot present paywall.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             if (_current != null && !_current.Task.IsCompleted)
             {
                 Debug.LogWarning("[RevenueCatUI][Android] Paywall presentation already in progress; rejecting new request.");
@@ -66,8 +89,10 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}'");
-                _plugin.CallStatic("presentPaywallIfNeeded", requiredEntitlementIdentifier, offering);
+                var displayCloseButton = options?.DisplayCloseButton ?? true;
+                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                var currentActivity = AndroidApplication.currentActivity;
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
             }
             catch (Exception e)
             {
@@ -78,7 +103,7 @@ namespace RevenueCat.UI.Platforms
             return _current.Task;
         }
 
-        // Called from Java via AndroidJavaProxy
+        // Called from RevenueCatUI MonoBehaviour or Java via AndroidJavaProxy
         public void OnPaywallResult(string resultData)
         {
             if (_current == null) return;
@@ -102,7 +127,7 @@ namespace RevenueCat.UI.Platforms
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidPaywallPresenter _owner;
-            public CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.unity.ui.RevenueCatUI$PaywallCallbacks")
+            public CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$PaywallCallbacks")
             {
                 _owner = owner;
             }

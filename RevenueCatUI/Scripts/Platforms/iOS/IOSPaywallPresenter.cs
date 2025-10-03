@@ -29,7 +29,7 @@ namespace RevenueCat.UI.Platforms
             s_current = tcs;
             try
             {
-                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? true, OnResult);
             }
             catch (Exception e)
             {
@@ -52,7 +52,7 @@ namespace RevenueCat.UI.Platforms
             s_current = tcs;
             try
             {
-                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? true, OnResult);
             }
             catch (Exception e)
             {

@@ -27,3 +27,4 @@ fastlane/.env
 # CircleCI folders
 vendor/
 .bundle/
+RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build

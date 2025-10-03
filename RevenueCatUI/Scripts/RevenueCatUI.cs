@@ -6,7 +6,7 @@ namespace RevenueCat.UI
 {
     /// <summary>
     /// Main interface for RevenueCat UI components.
-    /// Provides methods to present paywalls.
+    /// Provides static methods to present paywalls.
     /// </summary>
     public static class RevenueCatUI
     {
@@ -22,7 +22,6 @@ namespace RevenueCat.UI
             {
                 Debug.Log("[RevenueCatUI] Presenting paywall...");
                 
-                // Use the platform-specific implementation
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
             }
@@ -90,15 +89,5 @@ namespace RevenueCat.UI
             }
         }
 
-        /// <summary>
-        /// Whether the Paywall feature is supported on the current platform.
-        /// </summary>
-        public static bool IsPaywallSupported()
-        {
-            try { return PaywallPresenter.Instance.IsSupported(); }
-            catch { return false; }
-        }
-
-        
     }
 } 

@@ -1,7 +1,9 @@
 <dependencies>
   <packages>
+    <package>androidx.activity:activity:1.8.2</package>
     <package>androidx.annotation:annotation:[1.2.0]</package>
     <package>com.revenuecat.purchases:purchases-hybrid-common:[17.9.0]</package>
+    <package>com.revenuecat.purchases:purchases-hybrid-common-ui:[17.9.0]</package>
   </packages>
   <files />
   <settings>
@@ -17,6 +19,8 @@
     <setting name="patchAndroidManifest" value="True" />
     <setting name="patchMainTemplateGradle" value="True" />
     <setting name="projectExportEnabled" value="True" />
+    <setting name="useFullCustomMavenRepoPathWhenExport" value="True" />
+    <setting name="useFullCustomMavenRepoPathWhenNotExport" value="False" />
     <setting name="useJetifier" value="True" />
   </settings>
 </dependencies>
