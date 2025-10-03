@@ -1,100 +1,94 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using RevenueCat.UI;
+using RevenueCat.Internal.UI;
 
 namespace RevenueCat
 {
     /// <summary>
-    /// Static entry point for presenting RevenueCat paywalls without requiring a MonoBehaviour component.
+    /// Main interface for RevenueCat UI components.
+    /// Provides static methods to present paywalls.
     /// </summary>
-    public static class UIPresentation
+    public static class UI
     {
+        
         /// <summary>
-        /// Presents a paywall configured in the RevenueCat dashboard using the default presenter.
+        /// Presents a paywall configured in the RevenueCat dashboard.
         /// </summary>
-        /// <param name="options">Optional presentation options.</param>
-        /// <returns><see cref="PaywallResult"/> describing the outcome.</returns>
-        public static Task<PaywallResult> PresentPaywallAsync(PaywallOptions options = null)
+        /// <param name="options">Options for presenting the paywall</param>
+        /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
+        public static async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
         {
-            return PresentPaywallAsyncInternal(options);
+            try 
+            {
+                Debug.Log("[RevenueCat.UI] Presenting paywall...");
+                
+                var presenter = PaywallPresenter.Instance;
+                return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCat.UI] Error presenting paywall: {e.Message}");
+                return PaywallResult.Error;
+            }
         }
 
         /// <summary>
-        /// Presents a paywall only if the user lacks the specified entitlement.
+        /// Presents a paywall only if the user does not have the specified entitlement.
         /// </summary>
-        /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting.</param>
-        /// <param name="options">Optional presentation options.</param>
-        /// <returns><see cref="PaywallResult"/> describing the outcome.</returns>
-        public static Task<PaywallResult> PresentPaywallIfNeededAsync(
-            string requiredEntitlementIdentifier,
+        /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting</param>
+        /// <param name="options">Options for presenting the paywall</param>
+        /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
+        public static async Task<PaywallResult> PresentPaywallIfNeeded(
+            string requiredEntitlementIdentifier, 
             PaywallOptions options = null)
         {
             if (string.IsNullOrEmpty(requiredEntitlementIdentifier))
             {
-                Debug.LogError("[RevenueCatUI] Required entitlement identifier cannot be null or empty");
-                return Task.FromResult(PaywallResult.Error);
+                Debug.LogError("[RevenueCat.UI] Required entitlement identifier cannot be null or empty");
+                return PaywallResult.Error;
             }
 
-            return PresentPaywallIfNeededAsyncInternal(requiredEntitlementIdentifier, options);
+            try
+            {
+                Debug.Log($"[RevenueCat.UI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
+                
+                var presenter = PaywallPresenter.Instance;
+                return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCat.UI] Error presenting paywall if needed: {e.Message}");
+                return PaywallResult.Error;
+            }
         }
 
+        
+
         /// <summary>
-        /// Checks whether paywalls are supported on the current platform.
+        /// Checks if the Paywall UI is available on the current platform.
+        /// Returns true on iOS/Android device builds when paywall is supported;
+        /// returns false on other platforms (Editor, Windows, macOS, WebGL, etc.).
         /// </summary>
-        /// <returns>True if supported, otherwise false.</returns>
+        /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public static bool IsSupported()
         {
             try
             {
-            return PaywallPresenter.Instance.IsSupported();
+                var paywallPresenter = PaywallPresenter.Instance;
+                var paywall = paywallPresenter.IsSupported();
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"[RevenueCat.UI] IsSupported -> Paywall={paywall}");
+                }
+                return paywall;
             }
-            catch (Exception e)
+            catch
             {
-                Debug.LogError($"[RevenueCatUI] Error checking paywall support: {e.Message}");
+                Debug.Log("[RevenueCat.UI] IsSupported check threw; returning false");
                 return false;
             }
         }
 
-
-        private static Task<PaywallResult> PresentPaywallAsyncInternal(PaywallOptions options)
-        {
-            try
-            {
-                if (Debug.isDebugBuild)
-                {
-                    Debug.Log("[RevenueCatUI] Presenting paywall...");
-                }
-
-                return PaywallPresenter.Instance.PresentPaywallAsync(options ?? new PaywallOptions());
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI] Error presenting paywall: {e.Message}");
-                return Task.FromResult(PaywallResult.Error);
-            }
-        }
-
-        private static Task<PaywallResult> PresentPaywallIfNeededAsyncInternal(
-            string requiredEntitlementIdentifier,
-            PaywallOptions options)
-        {
-            try
-            {
-                if (Debug.isDebugBuild)
-                {
-                    Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
-                }
-
-                return PaywallPresenter.Instance.PresentPaywallIfNeededAsync(
-                    requiredEntitlementIdentifier,
-                    options ?? new PaywallOptions());
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI] Error presenting paywall if needed: {e.Message}");
-                return Task.FromResult(PaywallResult.Error);
-            }
-        }
     }
-}
+} 

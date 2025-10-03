@@ -1,6 +1,6 @@
 using System;
 
-namespace RevenueCat.UI
+namespace RevenueCat
 {
     /// <summary>
     /// Options for configuring paywall presentation.
