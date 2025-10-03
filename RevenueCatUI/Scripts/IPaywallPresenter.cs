@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace RevenueCat.UI
+namespace RevenueCatUI.Internal
 {
     /// <summary>
     /// Internal interface for presenting paywalls.
@@ -13,7 +13,7 @@ namespace RevenueCat.UI
         /// </summary>
         /// <param name="options">Paywall presentation options</param>
         /// <returns>Result of the paywall presentation</returns>
-        Task<PaywallResult> PresentPaywallAsync(PaywallOptions options);
+        Task<RevenueCatUI.PaywallResult> PresentPaywallAsync(RevenueCatUI.PaywallOptions options);
 
         /// <summary>
         /// Presents a paywall only if the user does not have the specified entitlement.
@@ -21,7 +21,7 @@ namespace RevenueCat.UI
         /// <param name="requiredEntitlementIdentifier">Required entitlement identifier</param>
         /// <param name="options">Paywall presentation options</param>
         /// <returns>Result of the paywall presentation</returns>
-        Task<PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, PaywallOptions options);
+        Task<RevenueCatUI.PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, RevenueCatUI.PaywallOptions options);
 
         /// <summary>
         /// Whether paywall presentation is supported on this platform.
