@@ -21,14 +21,14 @@ namespace RevenueCatUI
         {
             try 
             {
-                Debug.Log("[RevenueCat.UI] Presenting paywall...");
+                Debug.Log("[RevenueCatUI] Presenting paywall...");
                 
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
             }
             catch (Exception e)
             {
-                Debug.LogError($"[RevenueCat.UI] Error presenting paywall: {e.Message}");
+                Debug.LogError($"[RevenueCatUI] Error presenting paywall: {e.Message}");
                 return PaywallResult.Error;
             }
         }
@@ -45,20 +45,20 @@ namespace RevenueCatUI
         {
             if (string.IsNullOrEmpty(requiredEntitlementIdentifier))
             {
-                Debug.LogError("[RevenueCat.UI] Required entitlement identifier cannot be null or empty");
+                Debug.LogError("[RevenueCatUI] Required entitlement identifier cannot be null or empty");
                 return PaywallResult.Error;
             }
 
             try
             {
-                Debug.Log($"[RevenueCat.UI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
+                Debug.Log($"[RevenueCatUI] Presenting paywall if needed for entitlement: {requiredEntitlementIdentifier}");
                 
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallIfNeededAsync(requiredEntitlementIdentifier, options ?? new PaywallOptions());
             }
             catch (Exception e)
             {
-                Debug.LogError($"[RevenueCat.UI] Error presenting paywall if needed: {e.Message}");
+                Debug.LogError($"[RevenueCatUI] Error presenting paywall if needed: {e.Message}");
                 return PaywallResult.Error;
             }
         }
@@ -79,13 +79,13 @@ namespace RevenueCatUI
                 var paywall = paywallPresenter.IsSupported();
                 if (Debug.isDebugBuild)
                 {
-                    Debug.Log($"[RevenueCat.UI] IsSupported -> Paywall={paywall}");
+                    Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}");
                 }
                 return paywall;
             }
             catch
             {
-                Debug.Log("[RevenueCat.UI] IsSupported check threw; returning false");
+                Debug.Log("[RevenueCatUI] IsSupported check threw; returning false");
                 return false;
             }
         }
