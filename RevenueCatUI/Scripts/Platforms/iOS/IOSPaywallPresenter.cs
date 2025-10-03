@@ -3,7 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace RevenueCat.UIInternal.Platforms
+namespace RevenueCat.UI.Platforms
 {
     internal class IOSPaywallPresenter : IPaywallPresenter
     {
@@ -29,7 +29,7 @@ namespace RevenueCat.UIInternal.Platforms
             s_current = tcs;
             try
             {
-                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+                rcui_presentPaywall(options?.OfferingIdentifier, options?.DisplayCloseButton ?? true, OnResult);
             }
             catch (Exception e)
             {
@@ -52,7 +52,7 @@ namespace RevenueCat.UIInternal.Platforms
             s_current = tcs;
             try
             {
-                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? false, OnResult);
+                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, options?.DisplayCloseButton ?? true, OnResult);
             }
             catch (Exception e)
             {

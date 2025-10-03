@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace RevenueCat.UIInternal
+namespace RevenueCat.UI
 {
     /// <summary>
     /// Platform-agnostic factory for paywall presenters.

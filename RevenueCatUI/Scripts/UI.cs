@@ -1,14 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using RevenueCat.UIInternal;
+using RevenueCat.UI;
 
 namespace RevenueCat
 {
     /// <summary>
     /// Static entry point for presenting RevenueCat paywalls without requiring a MonoBehaviour component.
     /// </summary>
-    public static class UI
+    public static class UIPresentation
     {
         /// <summary>
         /// Presents a paywall configured in the RevenueCat dashboard using the default presenter.

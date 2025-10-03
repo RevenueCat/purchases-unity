@@ -2,8 +2,9 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Android;
 
-namespace RevenueCat.UIInternal.Platforms
+namespace RevenueCat.UI.Platforms
 {
     internal class AndroidPaywallPresenter : IPaywallPresenter
     {
@@ -13,24 +14,38 @@ namespace RevenueCat.UIInternal.Platforms
 
         public AndroidPaywallPresenter()
         {
-            _plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
-            _callbacks = new CallbacksProxy(this);
-            try { _plugin.CallStatic("registerPaywallCallbacks", _callbacks); } catch { /* ignore */ }
+            try
+            {
+                _plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
+                _callbacks = new CallbacksProxy(this);
+                _plugin.CallStatic("registerPaywallCallbacks", _callbacks);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI][Android] Failed to initialize RevenueCatUI plugin: {e.Message}");
+            }
         }
 
         ~AndroidPaywallPresenter()
         {
-            try { _plugin.CallStatic("unregisterPaywallCallbacks"); } catch { }
+            try { _plugin?.CallStatic("unregisterPaywallCallbacks"); } catch { }
         }
 
         public bool IsSupported()
         {
+            if (_plugin == null) return false;
             try { return _plugin.CallStatic<bool>("isSupported"); }
             catch { return false; }
         }
 
         public Task<PaywallResult> PresentPaywallAsync(string gameObjectName, PaywallOptions options)
         {
+            if (_plugin == null)
+            {
+                Debug.LogError("[RevenueCatUI][Android] Plugin not initialized. Cannot present paywall.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             if (_current != null && !_current.Task.IsCompleted)
             {
                 Debug.LogWarning("[RevenueCatUI][Android] Paywall presentation already in progress; rejecting new request.");
@@ -41,14 +56,11 @@ namespace RevenueCat.UIInternal.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                var displayCloseButton = options?.DisplayCloseButton ?? true;
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
-                using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                {
-                    var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-                    _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
-                }
+                var currentActivity = AndroidApplication.currentActivity;
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
             }
             catch (Exception e)
             {
@@ -61,6 +73,12 @@ namespace RevenueCat.UIInternal.Platforms
 
         public Task<PaywallResult> PresentPaywallIfNeededAsync(string gameObjectName, string requiredEntitlementIdentifier, PaywallOptions options)
         {
+            if (_plugin == null)
+            {
+                Debug.LogError("[RevenueCatUI][Android] Plugin not initialized. Cannot present paywall.");
+                return Task.FromResult(PaywallResult.Error);
+            }
+
             if (_current != null && !_current.Task.IsCompleted)
             {
                 Debug.LogWarning("[RevenueCatUI][Android] Paywall presentation already in progress; rejecting new request.");
@@ -71,13 +89,10 @@ namespace RevenueCat.UIInternal.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                var displayCloseButton = options?.DisplayCloseButton ?? false;
+                var displayCloseButton = options?.DisplayCloseButton ?? true;
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
-                using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                {
-                    var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-                    _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
-                }
+                var currentActivity = AndroidApplication.currentActivity;
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
             }
             catch (Exception e)
             {
