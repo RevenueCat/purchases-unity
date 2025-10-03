@@ -38,7 +38,7 @@ orbs:
 executors:
   unity:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-base-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-base-3
         environment:
           TAR_OPTIONS: --no-same-owner
           # Unity 6.2 compatibility: Set cache root for package manager
@@ -47,14 +47,14 @@ executors:
 
   unity-android:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-android-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-android-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
 
   unity-ios:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-ios-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-ios-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
