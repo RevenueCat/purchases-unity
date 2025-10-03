@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace RevenueCat.Internal.UI
+namespace RevenueCatUI.Internal
 {
     /// <summary>
     /// Platform-agnostic factory for paywall presenters.
@@ -43,16 +43,16 @@ namespace RevenueCat.Internal.UI
     /// </summary>
     internal class UnsupportedPaywallPresenter : IPaywallPresenter
     {
-        public Task<RevenueCat.PaywallResult> PresentPaywallAsync(RevenueCat.PaywallOptions options)
+        public Task<RevenueCatUI.PaywallResult> PresentPaywallAsync(RevenueCatUI.PaywallOptions options)
         {
             Debug.LogWarning("[RevenueCatUI] Paywall presentation is not supported on this platform.");
-            return Task.FromResult(RevenueCat.PaywallResult.Error);
+            return Task.FromResult(RevenueCatUI.PaywallResult.Error);
         }
 
-        public Task<RevenueCat.PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, RevenueCat.PaywallOptions options)
+        public Task<RevenueCatUI.PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, RevenueCatUI.PaywallOptions options)
         {
             Debug.LogWarning("[RevenueCatUI] Paywall presentation is not supported on this platform.");
-            return Task.FromResult(RevenueCat.PaywallResult.Error);
+            return Task.FromResult(RevenueCatUI.PaywallResult.Error);
         }
 
         public bool IsSupported()

@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace RevenueCat
+namespace RevenueCatUI
 {
     /// <summary>
-    /// MonoBehaviour helper that forwards to the static UI API so paywalls can be driven from scenes.
+    /// MonoBehaviour helper that forwards to the static PaywallsPresenter API so paywalls can be driven from scenes.
     /// </summary>
-    public class UIBehaviour : MonoBehaviour
+    public class PaywallsBehaviour : MonoBehaviour
     {
         /// <summary>
         /// Presents a paywall configured in the RevenueCat dashboard.
@@ -15,7 +15,7 @@ namespace RevenueCat
         /// <returns>A <see cref="PaywallResult"/> describing the outcome.</returns>
         public async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
         {
-            return await UI.PresentPaywall(options);
+            return await PaywallsPresenter.Present(options);
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace RevenueCat
         /// <returns>A <see cref="PaywallResult"/> describing the outcome.</returns>
         public async Task<PaywallResult> PresentPaywallIfNeeded(string requiredEntitlementIdentifier, PaywallOptions options = null)
         {
-            return await UI.PresentPaywallIfNeeded(requiredEntitlementIdentifier, options);
+            return await PaywallsPresenter.PresentIfNeeded(requiredEntitlementIdentifier, options);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace RevenueCat
         /// <returns>True if UI is supported on this platform, otherwise false.</returns>
         public bool IsSupported()
         {
-            return UI.IsSupported();
+            return PaywallsPresenter.IsSupported();
         }
     }
 }

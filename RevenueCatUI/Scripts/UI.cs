@@ -1,15 +1,15 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using RevenueCat.Internal.UI;
+using RevenueCatUI.Internal;
 
-namespace RevenueCat
+namespace RevenueCatUI
 {
     /// <summary>
-    /// Main interface for RevenueCat UI components.
+    /// Main interface for RevenueCatUI paywall presentation.
     /// Provides static methods to present paywalls.
     /// </summary>
-    public static class UI
+    public static class PaywallsPresenter
     {
         
         /// <summary>
@@ -17,7 +17,7 @@ namespace RevenueCat
         /// </summary>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public static async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
+        public static async Task<PaywallResult> Present(PaywallOptions options = null)
         {
             try 
             {
@@ -39,7 +39,7 @@ namespace RevenueCat
         /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting</param>
         /// <param name="options">Options for presenting the paywall</param>
         /// <returns>A PaywallResult indicating what happened during the paywall presentation</returns>
-        public static async Task<PaywallResult> PresentPaywallIfNeeded(
+        public static async Task<PaywallResult> PresentIfNeeded(
             string requiredEntitlementIdentifier, 
             PaywallOptions options = null)
         {

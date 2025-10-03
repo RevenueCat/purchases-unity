@@ -1,6 +1,6 @@
 using System;
 
-namespace RevenueCat
+namespace RevenueCatUI
 {
     /// <summary>
     /// Represents the result of a paywall presentation.
