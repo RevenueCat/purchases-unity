@@ -96,7 +96,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         if (offeringId != null) {
             launcher.launchWithOfferingId(
                     offeringId,
-                    new PresentedOfferingContext(offeringId), // TODO: support passing context
+                    new PresentedOfferingContext(offeringId),
                     null,
                     shouldDisplayDismissButton
             );

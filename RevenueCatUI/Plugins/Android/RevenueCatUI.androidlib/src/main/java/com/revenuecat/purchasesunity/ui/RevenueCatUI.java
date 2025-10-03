@@ -13,14 +13,10 @@ public class RevenueCatUI {
     public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
     public static void presentPaywall(Activity activity, String offeringIdentifier, boolean displayCloseButton) {
-        // TODO: Remove debug log before shipping
-        Log.d(TAG, "presentPaywall(offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton + ")");
         PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, displayCloseButton);
     }
 
     public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, boolean displayCloseButton) {
-        // TODO: Remove debug log before shipping
-        Log.d(TAG, "presentPaywallIfNeeded(entitlement=" + requiredEntitlementIdentifier + ", offering=" + offeringIdentifier + ", displayCloseButton=" + displayCloseButton + ")");
         PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, displayCloseButton);
     }
 
@@ -30,11 +26,8 @@ public class RevenueCatUI {
         try {
             PaywallCallbacks cb = paywallCallbacks;
             if (cb != null) {
-                // TODO: Remove debug log before shipping
-                Log.d(TAG, "Forwarding result to registered callback: " + result);
                 cb.onPaywallResult(result);
             } else {
-                // TODO: Review - keep this warning or remove before shipping?
                 Log.w(TAG, "No callback registered to receive paywall result: " + result);
             }
         } catch (Throwable e) {
