@@ -38,7 +38,7 @@ orbs:
 executors:
   unity:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-base-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-base-3
         environment:
           TAR_OPTIONS: --no-same-owner
           # Unity 6.2 compatibility: Set cache root for package manager
@@ -47,14 +47,14 @@ executors:
 
   unity-android:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-android-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-android-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
 
   unity-ios:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-ios-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-ios-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
@@ -308,8 +308,7 @@ jobs:
   archive-ios:
     description: "Run iOS integration tests for Unity"
     macos:
-      # 14.3.x requires macOS 13.0 which this image doesn't currently have.
-      xcode: 14.1.0
+      xcode: 16.4.0
     steps:
       - checkout
       - attach_workspace:
@@ -346,7 +345,7 @@ jobs:
   github-release:
     description: "Creates a github release"
     docker:
-      - image: cimg/ruby:3.1.2
+      - image: cimg/ruby:3.2.0
     steps:
       - checkout
       - attach_workspace:
@@ -362,7 +361,7 @@ jobs:
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
-      - image: cimg/ruby:3.1.2
+      - image: cimg/ruby:3.2.0
     steps:
       - checkout
       - revenuecat/install-gem-mac-dependencies:
@@ -384,7 +383,8 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - revenuecat/danger
+      - revenuecat/danger:
+          ruby_version: "3.2.0"
 
   deploy-check:
     when:
