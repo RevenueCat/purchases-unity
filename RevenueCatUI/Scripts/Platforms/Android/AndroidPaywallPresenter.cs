@@ -32,13 +32,6 @@ namespace RevenueCatUI.Platforms
             try { _plugin?.CallStatic("unregisterPaywallCallbacks"); } catch { }
         }
 
-        public bool IsSupported()
-        {
-            if (_plugin == null) return false;
-            try { return _plugin.CallStatic<bool>("isSupported"); }
-            catch { return false; }
-        }
-
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
             if (_plugin == null)

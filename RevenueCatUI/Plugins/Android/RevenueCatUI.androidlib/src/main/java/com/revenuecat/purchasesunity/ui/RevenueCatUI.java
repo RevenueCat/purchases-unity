@@ -20,8 +20,6 @@ public class RevenueCatUI {
         PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, displayCloseButton);
     }
 
-    public static boolean isSupported() { return true; }
-
     public static void sendPaywallResult(String result) {
         try {
             PaywallCallbacks cb = paywallCallbacks;

@@ -54,10 +54,5 @@ namespace RevenueCatUI.Internal
             Debug.LogWarning("[RevenueCatUI] Paywall presentation is not supported on this platform.");
             return Task.FromResult(RevenueCatUI.PaywallResult.Error);
         }
-
-        public bool IsSupported()
-        {
-            return false;
-        }
     }
 }
