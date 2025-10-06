@@ -62,33 +62,5 @@ namespace RevenueCatUI
                 return PaywallResult.Error;
             }
         }
-
-        
-
-        /// <summary>
-        /// Checks if the Paywall UI is available on the current platform.
-        /// Returns true on iOS/Android device builds when paywall is supported;
-        /// returns false on other platforms (Editor, Windows, macOS, WebGL, etc.).
-        /// </summary>
-        /// <returns>True if UI is supported on this platform, otherwise false.</returns>
-        public static bool IsSupported()
-        {
-            try
-            {
-                var paywallPresenter = PaywallPresenter.Instance;
-                var paywall = paywallPresenter.IsSupported();
-                if (Debug.isDebugBuild)
-                {
-                    Debug.Log($"[RevenueCatUI] IsSupported -> Paywall={paywall}");
-                }
-                return paywall;
-            }
-            catch
-            {
-                Debug.Log("[RevenueCatUI] IsSupported check threw; returning false");
-                return false;
-            }
-        }
-
     }
 } 

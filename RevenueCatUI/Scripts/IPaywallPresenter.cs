@@ -22,13 +22,5 @@ namespace RevenueCatUI.Internal
         /// <param name="options">Paywall presentation options</param>
         /// <returns>Result of the paywall presentation</returns>
         Task<RevenueCatUI.PaywallResult> PresentPaywallIfNeededAsync(string requiredEntitlementIdentifier, RevenueCatUI.PaywallOptions options);
-
-        /// <summary>
-        /// Whether paywall presentation is supported on this platform.
-        /// Returns true on iOS/Android device builds; false on other platforms
-        /// (Editor, Windows, macOS, WebGL, etc.).
-        /// </summary>
-        /// <returns>True if supported on the current platform, otherwise false.</returns>
-        bool IsSupported();
     }
 }

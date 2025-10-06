@@ -12,11 +12,8 @@ namespace RevenueCatUI.Platforms
 
         [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, bool displayCloseButton, PaywallResultCallback cb);
         [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, bool displayCloseButton, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern bool rcui_isSupported();
 
         private static TaskCompletionSource<PaywallResult> s_current;
-
-        public bool IsSupported() => rcui_isSupported();
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {

@@ -28,15 +28,5 @@ namespace RevenueCatUI
         {
             return await PaywallsPresenter.PresentIfNeeded(requiredEntitlementIdentifier, options);
         }
-
-        /// <summary>
-        /// Checks if the Paywall UI is available on the current platform.
-        /// Returns true on iOS/Android device builds when paywall is supported; otherwise false.
-        /// </summary>
-        /// <returns>True if UI is supported on this platform, otherwise false.</returns>
-        public bool IsSupported()
-        {
-            return PaywallsPresenter.IsSupported();
-        }
     }
 }
