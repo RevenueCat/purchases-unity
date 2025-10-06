@@ -1,32 +1,192 @@
-using System.Threading.Tasks;
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace RevenueCatUI
 {
     /// <summary>
-    /// MonoBehaviour helper that forwards to the static PaywallsPresenter API so paywalls can be driven from scenes.
+    /// MonoBehaviour component for presenting RevenueCat paywalls from the Unity Editor.
+    /// Provides an alternative to PaywallsPresenter for developers who prefer configuring
+    /// paywalls through Unity's Inspector interface.
     /// </summary>
+    [AddComponentMenu("RevenueCat/Paywalls Behaviour")]
     public class PaywallsBehaviour : MonoBehaviour
     {
-        /// <summary>
-        /// Presents a paywall configured in the RevenueCat dashboard.
-        /// </summary>
-        /// <param name="options">Options for presenting the paywall.</param>
-        /// <returns>A <see cref="PaywallResult"/> describing the outcome.</returns>
-        public async Task<PaywallResult> PresentPaywall(PaywallOptions options = null)
+        [Header("Paywall Options")]
+        [Tooltip("The identifier of the offering to present. Leave empty to use the current offering.")]
+        [SerializeField] private string offeringIdentifier;
+        
+        [Tooltip("Whether to display a close button on the paywall (only for original template paywalls).")]
+        [SerializeField] private bool displayCloseButton = false;
+
+        [Header("Conditional Presentation")]
+        [Tooltip("If set, the paywall will only be presented if the user doesn't have this entitlement.")]
+        [SerializeField] private string requiredEntitlementIdentifier;
+
+        [Header("Auto Presentation")]
+        [Tooltip("Automatically present the paywall when this component starts.")]
+        [SerializeField] private bool presentOnStart = false;
+
+        [Header("Events")]
+        [Tooltip("Invoked when the user completes a purchase.")]
+        public UnityEvent OnPurchased = new UnityEvent();
+        
+        [Tooltip("Invoked when the user restores purchases.")]
+        public UnityEvent OnRestored = new UnityEvent();
+        
+        [Tooltip("Invoked when the user cancels the paywall.")]
+        public UnityEvent OnCancelled = new UnityEvent();
+        
+        [Tooltip("Invoked when the paywall was not presented (user already has entitlement).")]
+        public UnityEvent OnNotPresented = new UnityEvent();
+        
+        [Tooltip("Invoked when an error occurs.")]
+        public UnityEvent OnError = new UnityEvent();
+
+        private bool isPresenting = false;
+
+        public string OfferingIdentifier
         {
-            return await PaywallsPresenter.Present(options);
+            get => offeringIdentifier;
+            set => offeringIdentifier = value;
+        }
+
+        public bool DisplayCloseButton
+        {
+            get => displayCloseButton;
+            set => displayCloseButton = value;
+        }
+
+        public string RequiredEntitlementIdentifier
+        {
+            get => requiredEntitlementIdentifier;
+            set => requiredEntitlementIdentifier = value;
+        }
+
+        private void Start()
+        {
+            if (presentOnStart)
+            {
+                PresentPaywall();
+            }
+        }
+
+        /// <summary>
+        /// Presents the paywall with the configured options.
+        /// Can be called from Unity UI buttons or programmatically.
+        /// </summary>
+        public async void PresentPaywall()
+        {
+            if (isPresenting)
+            {
+                Debug.LogWarning("[RevenueCatUI] Paywall is already being presented.");
+                return;
+            }
+
+            isPresenting = true;
+
+            try
+            {
+                var options = CreateOptions();
+                PaywallResult result;
+
+                if (!string.IsNullOrEmpty(requiredEntitlementIdentifier))
+                {
+                    result = await PaywallsPresenter.PresentIfNeeded(requiredEntitlementIdentifier, options);
+                }
+                else
+                {
+                    result = await PaywallsPresenter.Present(options);
+                }
+
+                HandleResult(result);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI] Exception in PaywallsBehaviour: {e.Message}");
+                HandleResult(PaywallResult.Error);
+            }
+            finally
+            {
+                isPresenting = false;
+            }
         }
 
         /// <summary>
         /// Presents a paywall only if the user does not have the specified entitlement.
         /// </summary>
-        /// <param name="requiredEntitlementIdentifier">Entitlement identifier to check before presenting.</param>
-        /// <param name="options">Options for presenting the paywall.</param>
-        /// <returns>A <see cref="PaywallResult"/> describing the outcome.</returns>
-        public async Task<PaywallResult> PresentPaywallIfNeeded(string requiredEntitlementIdentifier, PaywallOptions options = null)
+        /// <param name="entitlementIdentifier">Entitlement identifier to check before presenting</param>
+        public async void PresentPaywallIfNeeded(string entitlementIdentifier)
         {
-            return await PaywallsPresenter.PresentIfNeeded(requiredEntitlementIdentifier, options);
+            if (string.IsNullOrEmpty(entitlementIdentifier))
+            {
+                Debug.LogError("[RevenueCatUI] Entitlement identifier cannot be null or empty.");
+                HandleResult(PaywallResult.Error);
+                return;
+            }
+
+            if (isPresenting)
+            {
+                Debug.LogWarning("[RevenueCatUI] Paywall is already being presented.");
+                return;
+            }
+
+            isPresenting = true;
+
+            try
+            {
+                var options = CreateOptions();
+                var result = await PaywallsPresenter.PresentIfNeeded(entitlementIdentifier, options);
+                HandleResult(result);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI] Exception in PaywallsBehaviour: {e.Message}");
+                HandleResult(PaywallResult.Error);
+            }
+            finally
+            {
+                isPresenting = false;
+            }
+        }
+
+        private PaywallOptions CreateOptions()
+        {
+            return new PaywallOptions
+            {
+                OfferingIdentifier = string.IsNullOrEmpty(offeringIdentifier) ? null : offeringIdentifier,
+                DisplayCloseButton = displayCloseButton
+            };
+        }
+
+        private void HandleResult(PaywallResult result)
+        {
+            if (result == null)
+            {
+                Debug.LogError("[RevenueCatUI] Received null PaywallResult.");
+                OnError?.Invoke();
+                return;
+            }
+
+            switch (result.Result)
+            {
+                case PaywallResultType.Purchased:
+                    OnPurchased?.Invoke();
+                    break;
+                case PaywallResultType.Restored:
+                    OnRestored?.Invoke();
+                    break;
+                case PaywallResultType.Cancelled:
+                    OnCancelled?.Invoke();
+                    break;
+                case PaywallResultType.NotPresented:
+                    OnNotPresented?.Invoke();
+                    break;
+                case PaywallResultType.Error:
+                    OnError?.Invoke();
+                    break;
+            }
         }
     }
 }
+
