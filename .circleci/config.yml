@@ -167,6 +167,41 @@ commands:
             cp -r IntegrationTests/Assets/APITests/*.cs Subtester/Assets/APITests/
             cp IntegrationTests/Assets/Editor/CIEditorScript.cs Subtester/Assets/Editor/CIEditorScript.cs
 
+  install-bundle-dependencies:
+    parameters:
+      directory:
+        type: string
+        default: .
+    steps:
+      - restore_cache:
+          keys:
+            # This cache key should be updated whenever we change the Ruby version
+            - v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+      - run:
+          # We're using Ruby 3.2.0 here to avoid an issue that caused a crash with Fastlane and Ruby 3.4.0
+          # https://github.com/fastlane/fastlane/issues/21942
+          name: Set Ruby 3.2.0
+          command: |
+            eval "$(rbenv init -)"
+            rbenv install -s 3.2.0
+            rbenv global 3.2.0
+            rbenv rehash
+      - run:
+          name: Verify Ruby version
+          command: ruby -v
+      - run:
+          name: Bundle install
+          working_directory: << parameters.directory >>
+          command: |
+            bundle config set --local clean 'true'
+            bundle config set --local path 'vendor/bundle'
+            bundle install
+      - save_cache:
+          # This cache key should be updated whenever we change the Ruby version
+          key: v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+          paths:
+            - vendor/bundle
+            - ~/.rbenv/versions/3.2.0
 jobs:
   export-package:
     executor: unity
@@ -313,10 +348,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-
-      - revenuecat/install-gem-mac-dependencies:
-          working_directory: IntegrationTests
-          cache-version: v1
+      
+      - install-bundle-dependencies:
+          directory: IntegrationTests
 
       - restore_cache:
           key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
