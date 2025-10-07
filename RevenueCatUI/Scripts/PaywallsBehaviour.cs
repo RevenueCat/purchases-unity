@@ -5,9 +5,9 @@ using UnityEngine.Events;
 namespace RevenueCatUI
 {
     /// <summary>
-    /// MonoBehaviour component for presenting RevenueCat paywalls from the Unity Editor.
+    /// MonoBehaviour component for presenting RevenueCat Paywalls from the Unity Editor.
     /// Provides an alternative to PaywallsPresenter for developers who prefer configuring
-    /// paywalls through Unity's Inspector interface.
+    /// Paywalls through Unity's Inspector interface.
     /// </summary>
     [AddComponentMenu("RevenueCat/Paywalls Behaviour")]
     public class PaywallsBehaviour : MonoBehaviour
@@ -16,7 +16,7 @@ namespace RevenueCatUI
         [Tooltip("The identifier of the offering to present. Leave empty to use the current offering.")]
         [SerializeField] private string offeringIdentifier;
         
-        [Tooltip("Whether to display a close button on the paywall (only for original template paywalls).")]
+        [Tooltip("Whether to display a close button on the paywall (only for original template RevenueCat Paywalls).")]
         [SerializeField] private bool displayCloseButton = false;
 
         [Header("Conditional Presentation")]
