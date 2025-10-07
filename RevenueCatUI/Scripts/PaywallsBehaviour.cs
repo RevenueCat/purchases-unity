@@ -24,16 +24,16 @@ namespace RevenueCatUI
         [SerializeField] private string requiredEntitlementIdentifier;
 
         [Header("Events")]
-        [Tooltip("Invoked when the user completes a purchase.")]
+        [Tooltip("Invoked when the user completes a purchase and the paywall is dismissed.")]
         public UnityEvent OnPurchased = new UnityEvent();
         
-        [Tooltip("Invoked when the user restores purchases.")]
+        [Tooltip("Invoked when the user restores purchases and the paywall is dismissed.")]
         public UnityEvent OnRestored = new UnityEvent();
         
-        [Tooltip("Invoked when the user cancels the paywall.")]
+        [Tooltip("Invoked when the user cancels the paywall and the paywall is dismissed.")]
         public UnityEvent OnCancelled = new UnityEvent();
         
-        [Tooltip("Invoked when the paywall was not presented (user already has entitlement).")]
+        [Tooltip("Invoked when the paywall was not presented, for example when the user already has the required entitlement).")]
         public UnityEvent OnNotPresented = new UnityEvent();
         
         [Tooltip("Invoked when an error occurs.")]
