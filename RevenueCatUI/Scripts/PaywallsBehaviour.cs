@@ -23,10 +23,6 @@ namespace RevenueCatUI
         [Tooltip("If set, the paywall will only be presented if the user doesn't have this entitlement.")]
         [SerializeField] private string requiredEntitlementIdentifier;
 
-        [Header("Auto Presentation")]
-        [Tooltip("Automatically present the paywall when this component starts.")]
-        [SerializeField] private bool presentOnStart = false;
-
         [Header("Events")]
         [Tooltip("Invoked when the user completes a purchase.")]
         public UnityEvent OnPurchased = new UnityEvent();
@@ -61,14 +57,6 @@ namespace RevenueCatUI
         {
             get => requiredEntitlementIdentifier;
             set => requiredEntitlementIdentifier = value;
-        }
-
-        private void Start()
-        {
-            if (presentOnStart)
-            {
-                PresentPaywall();
-            }
         }
 
         /// <summary>
