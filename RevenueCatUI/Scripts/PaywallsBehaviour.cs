@@ -100,11 +100,7 @@ namespace RevenueCatUI
             }
         }
 
-        /// <summary>
-        /// Presents a paywall only if the user does not have the specified entitlement.
-        /// </summary>
-        /// <param name="entitlementIdentifier">Entitlement identifier to check before presenting</param>
-        public async void PresentPaywallIfNeeded(string entitlementIdentifier)
+        private async void PresentPaywallIfNeeded(string entitlementIdentifier)
         {
             if (string.IsNullOrEmpty(entitlementIdentifier))
             {
@@ -159,18 +155,38 @@ namespace RevenueCatUI
             switch (result.Result)
             {
                 case PaywallResultType.Purchased:
+                    if (OnPurchased.GetPersistentEventCount() == 0)
+                    {
+                        Debug.LogWarning("[RevenueCatUI] Paywall purchase completed but OnPurchased event has no listeners.");
+                    }
                     OnPurchased?.Invoke();
                     break;
                 case PaywallResultType.Restored:
+                    if (OnRestored.GetPersistentEventCount() == 0)
+                    {
+                        Debug.LogWarning("[RevenueCatUI] Paywall restore completed but OnRestored event has no listeners.");
+                    }
                     OnRestored?.Invoke();
                     break;
                 case PaywallResultType.Cancelled:
+                    if (OnCancelled.GetPersistentEventCount() == 0)
+                    {
+                        Debug.LogWarning("[RevenueCatUI] Paywall cancelled but OnCancelled event has no listeners.");
+                    }
                     OnCancelled?.Invoke();
                     break;
                 case PaywallResultType.NotPresented:
+                    if (OnNotPresented.GetPersistentEventCount() == 0)
+                    {
+                        Debug.LogWarning("[RevenueCatUI] Paywall not presented but OnNotPresented event has no listeners.");
+                    }
                     OnNotPresented?.Invoke();
                     break;
                 case PaywallResultType.Error:
+                    if (OnError.GetPersistentEventCount() == 0)
+                    {
+                        Debug.LogWarning("[RevenueCatUI] Paywall error occurred but OnError event has no listeners.");
+                    }
                     OnError?.Invoke();
                     break;
             }
