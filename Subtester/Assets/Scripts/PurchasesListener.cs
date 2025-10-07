@@ -5,7 +5,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using RevenueCat.UI;
 
 public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 {
@@ -231,7 +230,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
-        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall();
+        var task = RevenueCatUI.PaywallsPresenter.Present();
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -241,8 +240,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         {
             string status = GetPaywallResultStatus(result);
 
-            if (result.Result == RevenueCat.UI.PaywallResultType.Purchased || 
-                result.Result == RevenueCat.UI.PaywallResultType.Restored)
+            if (result.Result == RevenueCatUI.PaywallResultType.Purchased || 
+                result.Result == RevenueCatUI.PaywallResultType.Restored)
             {
                 GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
                     if (error != null)
@@ -264,12 +263,12 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
     {
-        var options = new RevenueCat.UI.PaywallOptions
+        var options = new RevenueCatUI.PaywallOptions
         {
             DisplayCloseButton = false
         };
 
-        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall(options);
+        var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -327,7 +326,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
 
         // Create options with specific offering
-        var options = new RevenueCat.UI.PaywallOptions
+        var options = new RevenueCatUI.PaywallOptions
         {
             OfferingIdentifier = offeringId,
             DisplayCloseButton = true
@@ -335,7 +334,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         Debug.Log($"Subtester: Presenting paywall for offering: {options.OfferingIdentifier}");
 
-        var task = RevenueCat.UI.RevenueCatUI.PresentPaywall(options);
+        var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -393,7 +392,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
 
         // Create options for the test
-        var options = new RevenueCat.UI.PaywallOptions
+        var options = new RevenueCatUI.PaywallOptions
         {
             OfferingIdentifier = offeringId,
             DisplayCloseButton = true // Test with close button enabled
@@ -404,7 +403,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {options.OfferingIdentifier}");
 
-        var task = RevenueCat.UI.RevenueCatUI.PresentPaywallIfNeeded(testEntitlement, options);
+        var task = RevenueCatUI.PaywallsPresenter.PresentIfNeeded(testEntitlement, options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -414,7 +413,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         {
             var status = GetPaywallResultStatus(result);
             var message = $"PaywallIfNeeded for '{testEntitlement}' result: {status}";
-            if (result.Result == RevenueCat.UI.PaywallResultType.NotPresented)
+            if (result.Result == RevenueCatUI.PaywallResultType.NotPresented)
             {
                 message += " (User already has entitlement)";
             }
@@ -422,19 +421,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
     }
 
-    private string GetPaywallResultStatus(RevenueCat.UI.PaywallResult result)
+    private string GetPaywallResultStatus(RevenueCatUI.PaywallResult result)
     {
         switch (result.Result)
         {
-            case RevenueCat.UI.PaywallResultType.Purchased:
+            case RevenueCatUI.PaywallResultType.Purchased:
                 return "PURCHASED - User completed a purchase";
-            case RevenueCat.UI.PaywallResultType.Restored:
+            case RevenueCatUI.PaywallResultType.Restored:
                 return "RESTORED - User restored previous purchases";
-            case RevenueCat.UI.PaywallResultType.Cancelled:
+            case RevenueCatUI.PaywallResultType.Cancelled:
                 return "CANCELLED - User dismissed the paywall";
-            case RevenueCat.UI.PaywallResultType.Error:
+            case RevenueCatUI.PaywallResultType.Error:
                 return "ERROR - An error occurred during paywall";
-            case RevenueCat.UI.PaywallResultType.NotPresented:
+            case RevenueCatUI.PaywallResultType.NotPresented:
                 return "NOT PRESENTED - Paywall was not needed";
             default:
                 return $"UNKNOWN - Received: {result}";

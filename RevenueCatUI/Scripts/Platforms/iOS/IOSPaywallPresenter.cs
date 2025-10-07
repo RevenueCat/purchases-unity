@@ -2,8 +2,9 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using RevenueCatUI.Internal;
 
-namespace RevenueCat.UI.Platforms
+namespace RevenueCatUI.Platforms
 {
     internal class IOSPaywallPresenter : IPaywallPresenter
     {
@@ -11,11 +12,8 @@ namespace RevenueCat.UI.Platforms
 
         [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
         [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern bool rcui_isSupported();
 
         private static TaskCompletionSource<PaywallResult> s_current;
-
-        public bool IsSupported() => rcui_isSupported();
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
@@ -30,7 +28,7 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, OnResult);
+                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, OnResult);
             }
             catch (Exception e)
             {

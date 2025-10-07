@@ -44,13 +44,6 @@ static NSString *RCUINormalizedResultToken(NSString *resultName) {
     return token;
 }
 
-static BOOL RCUIRuntimeSupportsPaywalls(void) {
-    if (@available(iOS 15.0, *)) {
-        return YES;
-    }
-    return NO;
-}
-
 static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *token, NSString *message) {
     if (callback == NULL) {
         return;
@@ -64,11 +57,6 @@ static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *tok
 }
 
 static BOOL RCUIEnsureReady(RCUIPaywallResultCallback callback) {
-    if (!RCUIRuntimeSupportsPaywalls()) {
-        RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
-        return NO;
-    }
-
     if (!RCPurchases.isConfigured) {
         RCUIInvokeCallback(callback, @"ERROR", @"PurchasesNotConfigured");
         return NO;
@@ -182,8 +170,4 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
     }
 
     RCUIPresentPaywallIfNeededInternal(entitlement, offering, contextJson, displayCloseButton ? YES : NO, callback);
-}
-
-bool rcui_isSupported(void) {
-    return RCUIRuntimeSupportsPaywalls();
 }

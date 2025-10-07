@@ -3,8 +3,9 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Android;
+using RevenueCatUI.Internal;
 
-namespace RevenueCat.UI.Platforms
+namespace RevenueCatUI.Platforms
 {
     internal class AndroidPaywallPresenter : IPaywallPresenter
     {
@@ -31,13 +32,6 @@ namespace RevenueCat.UI.Platforms
             try { _plugin?.CallStatic("unregisterPaywallCallbacks"); } catch { }
         }
 
-        public bool IsSupported()
-        {
-            if (_plugin == null) return false;
-            try { return _plugin.CallStatic<bool>("isSupported"); }
-            catch { return false; }
-        }
-
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
         {
             if (_plugin == null)
@@ -56,7 +50,7 @@ namespace RevenueCat.UI.Platforms
             try
             {
                 var offering = options?.OfferingIdentifier;
-                var displayCloseButton = options?.DisplayCloseButton ?? true;
+                var displayCloseButton = options?.DisplayCloseButton ?? false;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");

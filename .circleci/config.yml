@@ -38,7 +38,7 @@ orbs:
 executors:
   unity:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-base-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-base-3
         environment:
           TAR_OPTIONS: --no-same-owner
           # Unity 6.2 compatibility: Set cache root for package manager
@@ -47,14 +47,14 @@ executors:
 
   unity-android:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-android-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-android-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
 
   unity-ios:
     docker:
-      - image: unityci/editor:ubuntu-6000.2.2f1-ios-3
+      - image: unityci/editor:ubuntu-6000.2.6f2-ios-3
         environment:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
@@ -167,6 +167,41 @@ commands:
             cp -r IntegrationTests/Assets/APITests/*.cs Subtester/Assets/APITests/
             cp IntegrationTests/Assets/Editor/CIEditorScript.cs Subtester/Assets/Editor/CIEditorScript.cs
 
+  install-bundle-dependencies:
+    parameters:
+      directory:
+        type: string
+        default: .
+    steps:
+      - restore_cache:
+          keys:
+            # This cache key should be updated whenever we change the Ruby version
+            - v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+      - run:
+          # We're using Ruby 3.2.0 here to avoid an issue that caused a crash with Fastlane and Ruby 3.4.0
+          # https://github.com/fastlane/fastlane/issues/21942
+          name: Set Ruby 3.2.0
+          command: |
+            eval "$(rbenv init -)"
+            rbenv install -s 3.2.0
+            rbenv global 3.2.0
+            rbenv rehash
+      - run:
+          name: Verify Ruby version
+          command: ruby -v
+      - run:
+          name: Bundle install
+          working_directory: << parameters.directory >>
+          command: |
+            bundle config set --local clean 'true'
+            bundle config set --local path 'vendor/bundle'
+            bundle install
+      - save_cache:
+          # This cache key should be updated whenever we change the Ruby version
+          key: v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+          paths:
+            - vendor/bundle
+            - ~/.rbenv/versions/3.2.0
 jobs:
   export-package:
     executor: unity
@@ -308,16 +343,14 @@ jobs:
   archive-ios:
     description: "Run iOS integration tests for Unity"
     macos:
-      # 14.3.x requires macOS 13.0 which this image doesn't currently have.
-      xcode: 14.1.0
+      xcode: 16.4.0
     steps:
       - checkout
       - attach_workspace:
           at: .
-
-      - revenuecat/install-gem-mac-dependencies:
-          working_directory: IntegrationTests
-          cache-version: v1
+      
+      - install-bundle-dependencies:
+          directory: IntegrationTests
 
       - restore_cache:
           key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
@@ -325,7 +358,7 @@ jobs:
       - run:
           name: Install Pods
           working_directory: IntegrationTests/buildiOS
-          command: pod install --repo-update --verbose
+          command: bundle exec pod install --repo-update --verbose
 
       - save_cache:
           key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
@@ -346,7 +379,7 @@ jobs:
   github-release:
     description: "Creates a github release"
     docker:
-      - image: cimg/ruby:3.1.2
+      - image: cimg/ruby:3.2.0
     steps:
       - checkout
       - attach_workspace:
@@ -362,7 +395,7 @@ jobs:
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
-      - image: cimg/ruby:3.1.2
+      - image: cimg/ruby:3.2.0
     steps:
       - checkout
       - revenuecat/install-gem-mac-dependencies:
@@ -384,7 +417,8 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - revenuecat/danger
+      - revenuecat/danger:
+          ruby_version: "3.2.0"
 
   deploy-check:
     when:
