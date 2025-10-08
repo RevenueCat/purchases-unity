@@ -139,6 +139,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
 
             return new PresentedOfferingContext(offeringIdentifier, placementIdentifier, targetingContext);
         } catch (JSONException e) {
+            Log.w(TAG, "Failed to parse PresentedOfferingContext JSON: " + jsonString, e);
             if (fallbackOfferingId == null) return null;
             return new PresentedOfferingContext(fallbackOfferingId);
         }
