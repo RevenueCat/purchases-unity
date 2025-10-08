@@ -40,11 +40,11 @@ namespace RevenueCatUI
         /// <summary>
         /// Creates a new PaywallOptions instance from an Offering object.
         /// </summary>
-        /// <param name="offering">The offering to present</param>
+        /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
         public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false)
         {
-            Offering = offering ?? throw new ArgumentNullException(nameof(offering));
+            Offering = offering;
             DisplayCloseButton = displayCloseButton;
         }
     }
