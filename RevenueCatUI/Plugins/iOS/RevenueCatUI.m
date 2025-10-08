@@ -5,6 +5,7 @@
 #import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 typedef void (*RCUIPaywallResultCallback)(const char *result);
+typedef void (*RCUICustomerCenterCallback)(const char *result);
 
 static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEntitlementIdentifier";
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
@@ -55,6 +56,16 @@ static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *tok
     });
 }
 
+static void RCUICustomerCenterInvokeCallback(RCUICustomerCenterCallback callback, NSString *token) {
+    if (callback == NULL) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        callback((token ?: @"ERROR").UTF8String);
+    });
+}
+
 static BOOL RCUIEnsureReady(RCUIPaywallResultCallback callback) {
     if (!RCPurchases.isConfigured) {
         RCUIInvokeCallback(callback, @"ERROR", @"PurchasesNotConfigured");
@@ -73,6 +84,15 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
     }
 
     return options;
+}
+
+static BOOL RCUICustomerCenterEnsureReady(RCUICustomerCenterCallback callback) {
+    if (!RCPurchases.isConfigured) {
+        RCUICustomerCenterInvokeCallback(callback, @"ERROR");
+        return NO;
+    }
+
+    return YES;
 }
 
 static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
@@ -145,4 +165,24 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
     }
 
     RCUIPresentPaywallIfNeededInternal(entitlement, offering, displayCloseButton ? YES : NO, callback);
+}
+
+void rcui_presentCustomerCenter(RCUICustomerCenterCallback callback) {
+    if (!RCUICustomerCenterEnsureReady(callback)) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (@available(iOS 15.0, *)) {
+            __block CustomerCenterProxy *proxy = [[CustomerCenterProxy alloc] init];
+            proxy.shouldShowCloseButton = YES;
+
+            [proxy presentWithResultHandler:^{
+                RCUICustomerCenterInvokeCallback(callback, @"DISMISSED");
+                proxy = nil;
+            }];
+        } else {
+            RCUICustomerCenterInvokeCallback(callback, @"NOT_PRESENTED");
+        }
+    });
 }

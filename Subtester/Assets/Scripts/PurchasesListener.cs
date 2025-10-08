@@ -70,6 +70,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
+        CreateButton("Present Customer Center", PresentCustomerCenter);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -228,6 +229,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallIfNeededCoroutine());
     }
 
+    void PresentCustomerCenter()
+    {
+        Debug.Log("Subtester: launching customer center");
+        if (infoLabel != null) infoLabel.text = "Launching Customer Center...";
+        StartCoroutine(PresentCustomerCenterCoroutine());
+    }
+
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
         var task = RevenueCatUI.PaywallsPresenter.Present();
@@ -258,6 +266,20 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
             infoLabel.text = $"Paywall result: {status}";
             Debug.Log($"Subtester: {status}");
+        }
+    }
+
+    private System.Collections.IEnumerator PresentCustomerCenterCoroutine()
+    {
+        var task = RevenueCatUI.CustomerCenterPresenter.Present();
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: customer center result = " + result);
+
+        if (infoLabel != null)
+        {
+            infoLabel.text = $"Customer Center result: {GetCustomerCenterResultStatus(result)}";
         }
     }
 
@@ -418,6 +440,21 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 message += " (User already has entitlement)";
             }
             infoLabel.text = message;
+        }
+    }
+
+    private string GetCustomerCenterResultStatus(RevenueCatUI.CustomerCenterResult result)
+    {
+        switch (result.Result)
+        {
+            case RevenueCatUI.CustomerCenterResultType.Dismissed:
+                return "DISMISSED - Customer Center closed";
+            case RevenueCatUI.CustomerCenterResultType.NotPresented:
+                return "NOT PRESENTED - Customer Center unavailable";
+            case RevenueCatUI.CustomerCenterResultType.Error:
+                return "ERROR - Customer Center failed to present";
+            default:
+                return $"UNKNOWN - Received: {result}";
         }
     }
 
