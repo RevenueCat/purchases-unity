@@ -24,6 +24,13 @@ public partial class Purchases
             }
         }
 
+        public PresentedOfferingContext(string offeringIdentifier)
+        {
+            OfferingIdentifier = offeringIdentifier;
+            PlacementIdentifier = null;
+            TargetingContext = null;
+        }
+
         public override string ToString()
         {
             return $"{nameof(OfferingIdentifier)}: {OfferingIdentifier}\n" +

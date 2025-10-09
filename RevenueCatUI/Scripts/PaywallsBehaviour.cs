@@ -76,7 +76,7 @@ namespace RevenueCatUI
 
             try
             {
-                var options = await CreateOptionsAsync();
+                var options = CreateOptions();
                 PaywallResult result;
 
                 if (!string.IsNullOrEmpty(requiredEntitlementIdentifier))
@@ -120,7 +120,7 @@ namespace RevenueCatUI
 
             try
             {
-                var options = await CreateOptionsAsync();
+                var options = CreateOptions();
                 var result = await PaywallsPresenter.PresentIfNeeded(entitlementIdentifier, options);
                 HandleResult(result);
             }
@@ -135,48 +135,14 @@ namespace RevenueCatUI
             }
         }
 
-        private async Task<Purchases.Offerings> GetOfferingsAsync()
+        private PaywallOptions CreateOptions()
         {
-            var purchases = GetComponent<Purchases>();
-            if (purchases == null)
+            if (string.IsNullOrEmpty(offeringIdentifier))
             {
-                Debug.LogWarning($"[RevenueCatUI] Purchases component not found.");
-                return null;
-            }
-
-            var tcs = new TaskCompletionSource<Purchases.Offerings>();
-            
-            purchases.GetOfferings((offerings, error) =>
-            {
-                if (error != null)
-                {
-                    Debug.LogWarning($"[RevenueCatUI] Error getting offerings: {error}");
-                    tcs.SetResult(null);
-                }
-                else
-                {
-                    tcs.SetResult(offerings);
-                }
-            });
-
-            return await tcs.Task;
-        }
-
-        private async Task<PaywallOptions> CreateOptionsAsync()
-        {
-            if (!string.IsNullOrEmpty(offeringIdentifier))
-            {
-                var offerings = await GetOfferingsAsync();
-                
-                if (offerings?.All != null && offerings.All.ContainsKey(offeringIdentifier))
-                {
-                    return new PaywallOptions(offerings.All[offeringIdentifier], displayCloseButton);
-                }
-                
-                Debug.LogWarning($"[RevenueCatUI] Offering '{offeringIdentifier}' not found. Using offering identifier only.");
                 return new PaywallOptions(displayCloseButton);
             }
-            return new PaywallOptions(displayCloseButton);
+
+            return new PaywallOptions(offeringIdentifier, displayCloseButton);
         }
 
         private void HandleResult(PaywallResult result)

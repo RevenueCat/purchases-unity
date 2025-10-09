@@ -49,7 +49,7 @@ namespace RevenueCatUI.Platforms
             _current = new TaskCompletionSource<PaywallResult>();
             try
             {
-                var offeringIdentifier = options?.Offering.Identifier;
+                var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? false;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 
@@ -84,7 +84,7 @@ namespace RevenueCatUI.Platforms
             _current = new TaskCompletionSource<PaywallResult>();
             try
             {
-                var offeringIdentifier = options?.Offering.Identifier;
+                var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', '" +
