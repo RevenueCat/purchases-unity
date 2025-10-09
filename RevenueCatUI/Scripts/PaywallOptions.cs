@@ -20,8 +20,6 @@ namespace RevenueCatUI
         /// </summary>
         public bool DisplayCloseButton { get; set; } = false;
 
-        internal string OfferingIdentifier => Offering?.Identifier;
-        
         internal Purchases.PresentedOfferingContext PresentedOfferingContext => 
             Offering?.AvailablePackages != null && Offering.AvailablePackages.Count > 0 
                 ? Offering.AvailablePackages[0].PresentedOfferingContext 
