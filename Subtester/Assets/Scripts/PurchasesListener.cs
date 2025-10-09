@@ -263,10 +263,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
     {
-        var options = new RevenueCatUI.PaywallOptions
-        {
-            DisplayCloseButton = false
-        };
+        var options = new RevenueCatUI.PaywallOptions(displayCloseButton: false);
 
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
