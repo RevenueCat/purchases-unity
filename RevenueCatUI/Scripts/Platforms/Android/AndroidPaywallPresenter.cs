@@ -51,10 +51,11 @@ namespace RevenueCatUI.Platforms
             {
                 var offering = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? false;
+                var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidApplication.currentActivity;
-                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, presentedOfferingContextJson, displayCloseButton });
             }
             catch (Exception e)
             {
@@ -84,9 +85,10 @@ namespace RevenueCatUI.Platforms
             {
                 var offering = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
+                var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidApplication.currentActivity;
-                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, presentedOfferingContextJson, displayCloseButton });
             }
             catch (Exception e)
             {
