@@ -6,9 +6,9 @@ namespace RevenueCatUI
     {
         internal sealed class OfferingType : OfferingSelection
         {
-            public Purchases.Offering Offering { get; }
+            internal Purchases.Offering Offering { get; }
 
-            public OfferingType(Purchases.Offering offering)
+            internal OfferingType(Purchases.Offering offering)
             {
                 Offering = offering;
             }
@@ -23,14 +23,15 @@ namespace RevenueCatUI
 
         internal sealed class IdentifierType : OfferingSelection
         {
-            public string OfferingId { get; }
-            private Purchases.PresentedOfferingContext _presentedOfferingContext;
+            internal string OfferingId { get; }
 
-            public IdentifierType(string offeringId)
+            internal IdentifierType(string offeringId)
             {
                 OfferingId = offeringId;
                 _presentedOfferingContext = new Purchases.PresentedOfferingContext(offeringId);
             }
+
+            private Purchases.PresentedOfferingContext _presentedOfferingContext;
 
             internal override Purchases.Offering GetOffering() => null;
             internal override string GetOfferingIdentifier() => OfferingId;
