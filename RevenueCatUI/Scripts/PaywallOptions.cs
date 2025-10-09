@@ -9,10 +9,10 @@ namespace RevenueCatUI
     public class PaywallOptions
     {
         /// <summary>
-        /// The identifier of the offering to present.
+        /// The offering to present.
         /// If not provided, the current offering will be used.
         /// </summary>
-        public string OfferingIdentifier { get; set; }
+        public Purchases.Offering Offering { get; set; }
 
         /// <summary>
         /// Whether to display a close button on the paywall.
@@ -20,30 +20,31 @@ namespace RevenueCatUI
         /// </summary>
         public bool DisplayCloseButton { get; set; } = false;
 
+        internal string OfferingIdentifier => Offering?.Identifier;
+        
+        internal Purchases.PresentedOfferingContext PresentedOfferingContext => 
+            Offering?.AvailablePackages != null && Offering.AvailablePackages.Count > 0 
+                ? Offering.AvailablePackages[0].PresentedOfferingContext 
+                : null;
+
         /// <summary>
         /// Creates a new PaywallOptions instance.
+        /// Will present the current offering.
         /// </summary>
-        public PaywallOptions()
+        /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
+        public PaywallOptions(bool displayCloseButton = false)
         {
+            DisplayCloseButton = displayCloseButton;
         }
 
         /// <summary>
-        /// Creates a new PaywallOptions instance with the specified offering identifier.
+        /// Creates a new PaywallOptions instance from an Offering object.
         /// </summary>
-        /// <param name="offeringIdentifier">The offering identifier to present</param>
-        public PaywallOptions(string offeringIdentifier)
+        /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
+        /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false)
         {
-            OfferingIdentifier = offeringIdentifier;
-        }
-
-        /// <summary>
-        /// Creates a new PaywallOptions instance with the specified offering identifier and close button option.
-        /// </summary>
-        /// <param name="offeringIdentifier">The offering identifier to present</param>
-        /// <param name="displayCloseButton">Whether to display a close button</param>
-        public PaywallOptions(string offeringIdentifier, bool displayCloseButton)
-        {
-            OfferingIdentifier = offeringIdentifier;
+            Offering = offering;
             DisplayCloseButton = displayCloseButton;
         }
     }
