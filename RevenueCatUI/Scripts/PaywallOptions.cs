@@ -21,12 +21,12 @@ namespace RevenueCatUI
                     : null;
         }
 
-        internal sealed class IdOnly : OfferingSelection
+        internal sealed class IdentifierType : OfferingSelection
         {
             public string OfferingId { get; }
             private Purchases.PresentedOfferingContext _presentedOfferingContext;
 
-            public IdOnly(string offeringId)
+            public IdentifierType(string offeringId)
             {
                 OfferingId = offeringId;
                 _presentedOfferingContext = new Purchases.PresentedOfferingContext(offeringId);
@@ -78,7 +78,7 @@ namespace RevenueCatUI
 
         internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false)
         {
-            _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdOnly(offeringIdentifier) : null;
+            _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
         }
     }
