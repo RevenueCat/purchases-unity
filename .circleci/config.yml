@@ -451,6 +451,7 @@ workflows:
             - archive-ios
           <<: *release-branches
       - revenuecat/tag-current-branch:
+          ruby_version: "3.2.0"
           requires:
             - hold
           <<: *release-branches
