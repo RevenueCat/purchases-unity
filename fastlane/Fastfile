@@ -14,16 +14,32 @@ files_with_version_number = {
     './.version' => ['{x}'],
     './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m' => ['return @"{x}"'],
     './RevenueCat/Plugins/Android/PurchasesWrapper.java' => ['PLUGIN_VERSION = "{x}"'],
-    './RevenueCat/package.json' => ['"version": "{x}"']
+    './RevenueCat/package.json' => ['"version": "{x}"'],
+    './RevenueCatUI/package.json' => ['"version": "{x}"']
 }
 ANDROID_PHC_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common:[{x}]'
+ANDROID_PHC_UI_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common-ui:[{x}]'
 files_to_update_phc_version = {
     'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml' => [
         ANDROID_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommon" version="{x}"'
     ],
-    'Subtester/Assets/Plugins/Android/mainTemplate.gradle' => [ANDROID_PHC_DEPENDENCY_PATTERN],
-    'Subtester/ProjectSettings/AndroidResolverDependencies.xml' => [ANDROID_PHC_DEPENDENCY_PATTERN],
+    'Subtester/Assets/Plugins/Android/mainTemplate.gradle' => [
+        ANDROID_PHC_DEPENDENCY_PATTERN,
+        ANDROID_PHC_UI_DEPENDENCY_PATTERN
+    ],
+    'Subtester/ProjectSettings/AndroidResolverDependencies.xml' => [
+        ANDROID_PHC_DEPENDENCY_PATTERN,
+        ANDROID_PHC_UI_DEPENDENCY_PATTERN
+    ],
+    'RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml' => [
+        ANDROID_PHC_UI_DEPENDENCY_PATTERN,
+        'name="PurchasesHybridCommonUI" version="~> {x}"'
+    ],
+    'RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build.gradle' => [
+        'com.revenuecat.purchases:purchases-hybrid-common:{x}',
+        'com.revenuecat.purchases:purchases-hybrid-common-ui:{x}'
+    ],
 }
 repo_name = 'purchases-unity'
 changelog_latest_path = './CHANGELOG.latest.md'
@@ -79,6 +95,7 @@ lane :github_release do |options|
     repo_name: repo_name,
     github_api_token: ENV["GITHUB_TOKEN"],
     changelog_latest_path: changelog_latest_path,
+    # upload_assets: ['Purchases.unitypackage', 'PurchasesUI.unitypackage']
     upload_assets: ['Purchases.unitypackage']
   )
 end
