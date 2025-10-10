@@ -6,9 +6,9 @@ namespace RevenueCatUI
     {
         internal sealed class OfferingType : OfferingSelection
         {
-            public Purchases.Offering Offering { get; }
+            internal Purchases.Offering Offering { get; }
 
-            public OfferingType(Purchases.Offering offering)
+            internal OfferingType(Purchases.Offering offering)
             {
                 Offering = offering;
             }
@@ -21,16 +21,17 @@ namespace RevenueCatUI
                     : null;
         }
 
-        internal sealed class IdOnly : OfferingSelection
+        internal sealed class IdentifierType : OfferingSelection
         {
-            public string OfferingId { get; }
-            private Purchases.PresentedOfferingContext _presentedOfferingContext;
+            internal string OfferingId { get; }
 
-            public IdOnly(string offeringId)
+            internal IdentifierType(string offeringId)
             {
                 OfferingId = offeringId;
                 _presentedOfferingContext = new Purchases.PresentedOfferingContext(offeringId);
             }
+
+            private Purchases.PresentedOfferingContext _presentedOfferingContext;
 
             internal override Purchases.Offering GetOffering() => null;
             internal override string GetOfferingIdentifier() => OfferingId;
@@ -78,7 +79,7 @@ namespace RevenueCatUI
 
         internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false)
         {
-            _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdOnly(offeringIdentifier) : null;
+            _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
         }
     }
