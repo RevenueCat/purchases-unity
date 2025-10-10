@@ -285,10 +285,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
     {
-        var options = new RevenueCatUI.PaywallOptions
-        {
-            DisplayCloseButton = false
-        };
+        var options = new RevenueCatUI.PaywallOptions(displayCloseButton: false);
 
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
@@ -333,29 +330,25 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
 
         var offerings = offeringsTask.Task.Result;
-        string offeringId = null;
 
-        // Random offering ID from available offerings
+        // Random offering from available offerings
+        Purchases.Offering randomOffering = null;
         if (offerings?.All?.Count > 0)
         {
-            var allOfferingIds = offerings.All.Keys.ToList();
-            var randomIndex = UnityEngine.Random.Range(0, allOfferingIds.Count);
-            offeringId = allOfferingIds[randomIndex];
+            var allOfferings = offerings.All.Values.ToList();
+            var randomIndex = UnityEngine.Random.Range(0, allOfferings.Count);
+            randomOffering = allOfferings[randomIndex];
         }
         else if (offerings?.Current != null)
         {
-            offeringId = offerings.Current.Identifier;
+            randomOffering = offerings.Current;
         }
 
-        // Create options with specific offering
-        var options = new RevenueCatUI.PaywallOptions
-        {
-            OfferingIdentifier = offeringId,
-            DisplayCloseButton = true
-        };
+        Debug.Log($"Subtester: Presenting paywall for offering: {randomOffering?.Identifier ?? "current"}");
 
-        Debug.Log($"Subtester: Presenting paywall for offering: {options.OfferingIdentifier}");
-
+        var options = randomOffering != null 
+            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true)
+            : new RevenueCatUI.PaywallOptions(displayCloseButton: true);
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
 
@@ -364,7 +357,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         if (infoLabel != null)
         {
-            infoLabel.text = $"Paywall for offering '{options.OfferingIdentifier}' result: {GetPaywallResultStatus(result)}";
+            infoLabel.text = $"Paywall for offering '{randomOffering?.Identifier ?? "current"}' result: {GetPaywallResultStatus(result)}";
         }
     }
 
@@ -399,32 +392,27 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
 
         var offerings = offeringsTask.Task.Result;
-        string offeringId = null;
-
-        // Random offering ID from available offerings
+        // Random offering from available offerings
+        Purchases.Offering randomOffering = null;
         if (offerings?.All?.Count > 0)
         {
-            var allOfferingIds = offerings.All.Keys.ToList();
-            var randomIndex = UnityEngine.Random.Range(0, allOfferingIds.Count);
-            offeringId = allOfferingIds[randomIndex];
+            var allOfferings = offerings.All.Values.ToList();
+            var randomIndex = UnityEngine.Random.Range(0, allOfferings.Count);
+            randomOffering = allOfferings[randomIndex];
         }
         else if (offerings?.Current != null)
         {
-            offeringId = offerings.Current.Identifier;
+            randomOffering = offerings.Current;
         }
-
-        // Create options for the test
-        var options = new RevenueCatUI.PaywallOptions
-        {
-            OfferingIdentifier = offeringId,
-            DisplayCloseButton = true // Test with close button enabled
-        };
 
         // Test with a real entitlement - change this to test different scenarios
         var testEntitlement = "pro_level_b"; // User should have this, so paywall should NOT be presented
 
-        Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {options.OfferingIdentifier}");
+        Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {randomOffering?.Identifier ?? "current"}");
 
+        var options = randomOffering != null 
+            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true)
+            : new RevenueCatUI.PaywallOptions(displayCloseButton: true);
         var task = RevenueCatUI.PaywallsPresenter.PresentIfNeeded(testEntitlement, options);
         while (!task.IsCompleted) { yield return null; }
 

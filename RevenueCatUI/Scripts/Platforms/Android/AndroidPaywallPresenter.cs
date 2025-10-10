@@ -49,12 +49,14 @@ namespace RevenueCatUI.Platforms
             _current = new TaskCompletionSource<PaywallResult>();
             try
             {
-                var offering = options?.OfferingIdentifier;
+                var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? false;
+                var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 
-                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offeringIdentifier ?? "<null>"}', " +
+                          $"displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidApplication.currentActivity;
-                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offering, displayCloseButton });
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
             }
             catch (Exception e)
             {
@@ -82,11 +84,13 @@ namespace RevenueCatUI.Platforms
             _current = new TaskCompletionSource<PaywallResult>();
             try
             {
-                var offering = options?.OfferingIdentifier;
+                var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
-                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', offering='{offering ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
+                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', '" +
+                          $"offering='{offeringIdentifier ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidApplication.currentActivity;
-                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offering, displayCloseButton });
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
             }
             catch (Exception e)
             {

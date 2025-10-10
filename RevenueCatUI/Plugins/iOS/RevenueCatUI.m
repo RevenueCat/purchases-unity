@@ -10,6 +10,7 @@ typedef void (*RCUICustomerCenterCallback)(const char *result);
 static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEntitlementIdentifier";
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
 static NSString *const kRCUIOptionDisplayCloseButton = @"displayCloseButton";
+static NSString *const kRCUIOptionPresentedOfferingContext = @"presentedOfferingContext";
 
 static NSString *RCUIStringFromCString(const char *string) {
     if (string == NULL) {
@@ -75,12 +76,31 @@ static BOOL RCUIEnsureReady(RCUIPaywallResultCallback callback) {
     return YES;
 }
 
-static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdentifier, BOOL displayCloseButton) {
+static id RCUIJSONObjectFromJSONString(NSString *jsonString) {
+    if (jsonString.length == 0) {
+        return nil;
+    }
+    NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    if (!data) { return nil; }
+    NSError *error = nil;
+    id obj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (error) { return nil; }
+    return obj;
+}
+
+static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdentifier, NSString *presentedOfferingContextJson, BOOL displayCloseButton) {
     NSMutableDictionary *options = [NSMutableDictionary new];
     options[kRCUIOptionDisplayCloseButton] = @(displayCloseButton);
 
     if (offeringIdentifier.length > 0) {
         options[kRCUIOptionOfferingIdentifier] = offeringIdentifier;
+    }
+
+    if (presentedOfferingContextJson.length > 0) {
+        id presentedOfferingContext = RCUIJSONObjectFromJSONString(presentedOfferingContextJson);
+        if (presentedOfferingContext) {
+            options[kRCUIOptionPresentedOfferingContext] = presentedOfferingContext;
+        }
     }
 
     return options;
@@ -96,13 +116,14 @@ static BOOL RCUICustomerCenterEnsureReady(RCUICustomerCenterCallback callback) {
 }
 
 static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
+                                       NSString *presentedOfferingContextJson,
                                        BOOL displayCloseButton,
                                        RCUIPaywallResultCallback callback) {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (@available(iOS 15.0, *)) {
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
 
-            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, displayCloseButton);
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
 
             [proxy presentPaywallWithOptions:options
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -118,13 +139,14 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
 static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIdentifier,
                                                NSString *offeringIdentifier,
+                                               NSString *presentedOfferingContextJson,
                                                BOOL displayCloseButton,
                                                RCUIPaywallResultCallback callback) {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (@available(iOS 15.0, *)) {
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
 
-            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, displayCloseButton);
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
             [proxy presentPaywallIfNeededWithOptions:options
@@ -139,17 +161,19 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
     });
 }
 
-void rcui_presentPaywall(const char *offeringIdentifier, bool displayCloseButton, RCUIPaywallResultCallback callback) {
+void rcui_presentPaywall(const char *offeringIdentifier, const char *presentedOfferingContextJson, bool displayCloseButton, RCUIPaywallResultCallback callback) {
     if (!RCUIEnsureReady(callback)) {
         return;
     }
 
     NSString *offering = RCUIStringFromCString(offeringIdentifier);
-    RCUIPresentPaywallInternal(offering, displayCloseButton ? YES : NO, callback);
+    NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
+    RCUIPresentPaywallInternal(offering, contextJson, displayCloseButton ? YES : NO, callback);
 }
 
 void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
                                  const char *offeringIdentifier,
+                                 const char *presentedOfferingContextJson,
                                  bool displayCloseButton,
                                  RCUIPaywallResultCallback callback) {
     if (!RCUIEnsureReady(callback)) {
@@ -158,13 +182,14 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
 
     NSString *entitlement = RCUIStringFromCString(requiredEntitlementIdentifier);
     NSString *offering = RCUIStringFromCString(offeringIdentifier);
+    NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
 
     if (entitlement.length == 0) {
-        RCUIPresentPaywallInternal(offering, displayCloseButton ? YES : NO, callback);
+        RCUIPresentPaywallInternal(offering, contextJson, displayCloseButton ? YES : NO, callback);
         return;
     }
 
-    RCUIPresentPaywallIfNeededInternal(entitlement, offering, displayCloseButton ? YES : NO, callback);
+    RCUIPresentPaywallIfNeededInternal(entitlement, offering, contextJson, displayCloseButton ? YES : NO, callback);
 }
 
 void rcui_presentCustomerCenter(RCUICustomerCenterCallback callback) {

@@ -7,11 +7,12 @@ import android.util.Log;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.Purchases;
-import com.revenuecat.purchases.ui.revenuecatui.customercenter.CustomerCenterActivity;
+import com.revenuecat.purchases.ui.revenuecatui.customercenter.ShowCustomerCenter;
+
+import kotlin.Unit;
 
 public class CustomerCenterTrampolineActivity extends ComponentActivity {
     private static final String TAG = "PurchasesUnity";
@@ -19,15 +20,15 @@ public class CustomerCenterTrampolineActivity extends ComponentActivity {
     private static final String RESULT_DISMISSED = "DISMISSED";
     private static final String RESULT_ERROR = "ERROR";
 
-    private ActivityResultLauncher<Intent> launcher;
+    private ActivityResultLauncher<Unit> launcher;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
+                new ShowCustomerCenter(),
+                ignored -> {
                     RevenueCatUI.sendCustomerCenterResult(RESULT_DISMISSED);
                     finish();
                 }
@@ -41,8 +42,7 @@ public class CustomerCenterTrampolineActivity extends ComponentActivity {
         }
 
         try {
-            Intent intent = CustomerCenterActivity.Companion.createIntent$revenuecatui_defaultsRelease(this);
-            launcher.launch(intent);
+            launcher.launch(Unit.INSTANCE);
         } catch (Throwable t) {
             Log.e(TAG, "Error launching CustomerCenterActivity", t);
             RevenueCatUI.sendCustomerCenterResult(RESULT_ERROR);

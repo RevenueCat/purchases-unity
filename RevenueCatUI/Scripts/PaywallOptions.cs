@@ -2,48 +2,84 @@ using System;
 
 namespace RevenueCatUI
 {
+    internal abstract class OfferingSelection
+    {
+        internal sealed class OfferingType : OfferingSelection
+        {
+            internal Purchases.Offering Offering { get; }
+
+            internal OfferingType(Purchases.Offering offering)
+            {
+                Offering = offering;
+            }
+
+            internal override Purchases.Offering GetOffering() => Offering;
+            internal override string GetOfferingIdentifier() => Offering.Identifier;
+            internal override Purchases.PresentedOfferingContext GetPresentedOfferingContext() =>
+                Offering.AvailablePackages != null && Offering.AvailablePackages.Count > 0
+                    ? Offering.AvailablePackages[0].PresentedOfferingContext
+                    : null;
+        }
+
+        internal sealed class IdentifierType : OfferingSelection
+        {
+            internal string OfferingId { get; }
+
+            internal IdentifierType(string offeringId)
+            {
+                OfferingId = offeringId;
+                _presentedOfferingContext = new Purchases.PresentedOfferingContext(offeringId);
+            }
+
+            private Purchases.PresentedOfferingContext _presentedOfferingContext;
+
+            internal override Purchases.Offering GetOffering() => null;
+            internal override string GetOfferingIdentifier() => OfferingId;
+            internal override Purchases.PresentedOfferingContext GetPresentedOfferingContext() => _presentedOfferingContext;
+        }
+
+        internal abstract Purchases.Offering GetOffering();
+        internal abstract string GetOfferingIdentifier();
+        internal abstract Purchases.PresentedOfferingContext GetPresentedOfferingContext();
+    }
+
     /// <summary>
     /// Options for configuring paywall presentation.
     /// </summary>
     [Serializable]
     public class PaywallOptions
     {
-        /// <summary>
-        /// The identifier of the offering to present.
-        /// If not provided, the current offering will be used.
-        /// </summary>
-        public string OfferingIdentifier { get; set; }
+        internal readonly OfferingSelection _offeringSelection;
 
-        /// <summary>
-        /// Whether to display a close button on the paywall.
-        /// Only applicable for original template paywalls, ignored for V2 Paywalls.
-        /// </summary>
-        public bool DisplayCloseButton { get; set; } = false;
+        internal bool DisplayCloseButton { get; }
+        internal string OfferingIdentifier => _offeringSelection?.GetOfferingIdentifier();
+        internal Purchases.PresentedOfferingContext PresentedOfferingContext => _offeringSelection?.GetPresentedOfferingContext();
 
         /// <summary>
         /// Creates a new PaywallOptions instance.
+        /// Will present the current offering.
         /// </summary>
-        public PaywallOptions()
+        /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
+        public PaywallOptions(bool displayCloseButton = false)
         {
+            _offeringSelection = null;
+            DisplayCloseButton = displayCloseButton;
         }
 
         /// <summary>
-        /// Creates a new PaywallOptions instance with the specified offering identifier.
+        /// Creates a new PaywallOptions instance from an Offering object.
         /// </summary>
-        /// <param name="offeringIdentifier">The offering identifier to present</param>
-        public PaywallOptions(string offeringIdentifier)
+        /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
+        /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false)
         {
-            OfferingIdentifier = offeringIdentifier;
+            _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
+            DisplayCloseButton = displayCloseButton;
         }
 
-        /// <summary>
-        /// Creates a new PaywallOptions instance with the specified offering identifier and close button option.
-        /// </summary>
-        /// <param name="offeringIdentifier">The offering identifier to present</param>
-        /// <param name="displayCloseButton">Whether to display a close button</param>
-        public PaywallOptions(string offeringIdentifier, bool displayCloseButton)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false)
         {
-            OfferingIdentifier = offeringIdentifier;
+            _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
         }
     }
