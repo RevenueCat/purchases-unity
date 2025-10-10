@@ -12,15 +12,13 @@ public class RevenueCatUI {
     public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }
     public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
-    public static void presentPaywall(Activity activity, String offeringIdentifier, boolean displayCloseButton) {
-        PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, displayCloseButton);
+    public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
+        PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
     }
 
-    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, boolean displayCloseButton) {
-        PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, displayCloseButton);
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
+        PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
     }
-
-    public static boolean isSupported() { return true; }
 
     public static void sendPaywallResult(String result) {
         try {
