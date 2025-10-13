@@ -1,7 +1,3 @@
-> [!WARNING]  
-> If you don't have any login system in your app, please make sure your one-time purchase products have been correctly configured in the RevenueCat dashboard as either consumable or non-consumable. If they're incorrectly configured as consumables, RevenueCat will consume these purchases. This means that users won't be able to restore them from version 8.0.0 onward.
-> Non-consumables are products that are meant to be bought only once, for example, lifetime subscriptions.
-
 # RevenueCat UI for Unity (Beta)
 
 RevenueCat UI adds native paywall presentation to the RevenueCat Unity SDK. It lets you present a paywall configured in the RevenueCat dashboard on iOS and Android with one line of code.
@@ -143,41 +139,13 @@ The `PaywallResult.Result` property can have the following values:
 
 - The paywall UI is only available on iOS and Android device builds.
 
----
+## Troubleshooting
 
-## RevenueCatUI
+- Build to device when testing the paywall UI.
+- Ensure you have an active Offering and Paywall configured in the RevenueCat dashboard and that product identifiers are correctly set up in the stores.
 
-### ⚠️ Breaking Changes
+## Links
 
-#### API Refactors
-* Removed `IsSupported` method from RevenueCatUI (#707) via Cesar de la Vega (@vegaro)
-  * This method has been removed as it's no longer needed
-  * **Migration**: Remove any checks for `PaywallsPresenter.IsSupported()` from your code
-
-#### PaywallOptions API Changes
-
-* Refactored `PaywallOptions` constructors and properties (#716)
-  * Constructor accepting an `OfferingIdentifier` has been made internal.
-  * `OfferingIdentifier` is now a read-only property derived from internal `OfferingSelection`
-  * `DisplayCloseButton` is now set via constructor instead of being a settable property
-  * **Migration**: Update your `PaywallOptions` creation:
-    * Before: `new PaywallOptions() { DisplayCloseButton = true }`
-    * After: `new PaywallOptions(displayCloseButton: true)`
-  * New constructor accepting `Purchases.Offering` object: `new PaywallOptions(offering, displayCloseButton: true)`
-
-### ✨ New Features
-* Added `PaywallsBehaviour` (#706) via Cesar de la Vega (@vegaro)
-* Added `PresentedOfferingContext` support (#710) via Cesar de la Vega (@vegaro)
-
-## RevenueCat SDK
-### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.10.0 (#718) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 9.7.3](https://github.com/RevenueCat/purchases-android/releases/tag/9.7.3)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.9.1 (#713) via RevenueCat Git Bot (@RCGitBot)
-
-### 🔄 Other Changes
-* Update Subtester and IntegrationTests to 6000.2.6f2 (#701) via Cesar de la Vega (@vegaro)
-* Bump fastlane-plugin-revenuecat_internal from `3f7fffc` to `25c7fb8` (#717) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `b35cae0` to `3f7fffc` (#711) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `a8770fd` to `b35cae0` (#708) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `e555afb` to `a8770fd` (#704) via dependabot[bot] (@dependabot[bot])
+- Documentation: [RevenueCat docs](https://www.revenuecat.com/docs)
+- Changelog: `CHANGELOG.md`
+- License: `LICENSE`
