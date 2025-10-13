@@ -690,7 +690,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"8.2.5";
+    return @"8.3.0-paywalls.beta.2";
 }
 
 @end
