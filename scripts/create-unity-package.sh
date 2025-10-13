@@ -21,6 +21,7 @@ verbose_echo() {
 
 PROJECT="$PWD/Subtester"
 PACKAGE="$PWD/Purchases.unitypackage"
+UI_PACKAGE="$PWD/PurchasesUI.unitypackage"
 
 verbose_echo "Project path: $PROJECT"
 verbose_echo "Package output path: $PACKAGE"
@@ -83,7 +84,7 @@ else
     if [ -L "$PROJECT/Assets/RevenueCat" ]; then
         echo "✅ RevenueCat symlink created successfully"
     else
-        echo "❌ Failed to create RevenueCat symlink!"
+        echo "❌ Failed to create symlink!"
         rm -f $SYMBOLIC_LINK_PATH
         exit 1
     fi
@@ -138,12 +139,22 @@ if [ "$VERBOSE" = true ]; then
 fi
 # Build export folders list, checking what actually exists
 FOLDERS_TO_EXPORT=""
+UI_FOLDERS_TO_EXPORT=""
 verbose_echo "Building export folders list..."
 cd $PROJECT
 if [ -d "Assets/RevenueCat" ]; then
     REVENUECAT_FOLDERS=$(find Assets/RevenueCat/* -type d -prune 2>/dev/null | tr '\n' ' ')
     FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT $REVENUECAT_FOLDERS"
     verbose_echo "Found RevenueCat folders: $REVENUECAT_FOLDERS"
+fi
+if [ -d "Assets/RevenueCatUI" ]; then
+    REVENUECAT_UI_FOLDERS=$(find Assets/RevenueCatUI/* -type d -prune 2>/dev/null | grep -v '/build$' | tr '\n' ' ')
+    UI_FOLDERS_TO_EXPORT="$UI_FOLDERS_TO_EXPORT $REVENUECAT_UI_FOLDERS"
+    verbose_echo "Found RevenueCatUI folders: $REVENUECAT_UI_FOLDERS"
+    
+    # Clean up .DS_Store files before export
+    verbose_echo "Removing .DS_Store files from RevenueCatUI"
+    find Assets/RevenueCatUI -name ".DS_Store" -type f -delete 2>/dev/null
 fi
 if [ -d "Assets/PlayServicesResolver" ]; then
     FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/PlayServicesResolver"
@@ -237,6 +248,10 @@ if [ -f $PACKAGE ]; then
     verbose_echo "Old package found. Removing it."
     rm $PACKAGE
 fi
+if [ -f $UI_PACKAGE ]; then
+    verbose_echo "Old UI package found. Removing it."
+    rm $UI_PACKAGE
+fi
 
 echo "📦 Creating Purchases.unitypackage, this may take a minute."
 
@@ -280,13 +295,51 @@ else
         echo "   Package file not found: $PACKAGE"
     fi
     verbose_echo "Cleaning up RevenueCat and RevenueCatUI folders/symlinks due to failure"
-    # Cleanup RevenueCat and RevenueCatUI folders/symlinks
-    rm -rf "$PROJECT/Assets/RevenueCat"
-    rm -rf "$PROJECT/Assets/RevenueCatUI"
+    rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI"
+    exit 1
+fi
+
+echo "📦 Creating PurchasesUI.unitypackage, this may take a minute."
+
+verbose_echo "Starting Unity package creation process for UI..."
+if [ ! -z "$CI" ] ; then
+    verbose_echo "Running Unity in CI mode with xvfb-run for UI package"
+    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
+    -nographics \
+    -silent-crashes \
+    -projectPath $PROJECT \
+    -force-free -quit -batchmode -logFile /dev/stdout \
+    -disable-assembly-updater \
+    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
+    -exportPackage $UI_FOLDERS_TO_EXPORT $UI_PACKAGE
+    UI_UNITY_EXIT_CODE=$?
+else
+    verbose_echo "Running Unity in local mode for UI package"
+    $UNITY_BIN -gvh_disable \
+    -nographics \
+    -projectPath $PROJECT \
+    -force-free -quit -batchmode -logFile exportlog.txt \
+    -disable-assembly-updater \
+    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
+    -exportPackage $UI_FOLDERS_TO_EXPORT $UI_PACKAGE
+    UI_UNITY_EXIT_CODE=$?
+fi
+verbose_echo "Unity process for UI completed with exit code: $UI_UNITY_EXIT_CODE"
+
+if [ $UI_UNITY_EXIT_CODE -eq 0 ] && [ -f "$UI_PACKAGE" ]; then
+    echo "✅ UI package created successfully: $UI_PACKAGE"
+    verbose_echo "UI Package file size: $(du -h "$UI_PACKAGE" | cut -f1)"
+else
+    echo "❌ UI Unity package creation failed!"
+    echo "   Unity exit code: $UI_UNITY_EXIT_CODE"
+    if [ ! -f "$UI_PACKAGE" ]; then
+        echo "   Package file not found: $UI_PACKAGE"
+    fi
+    verbose_echo "Cleaning up RevenueCat and RevenueCatUI folders/symlinks due to failure"
+    rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI"
     exit 1
 fi
 
 # Cleanup RevenueCat and RevenueCatUI folders/symlinks
 verbose_echo "Cleaning up RevenueCat and RevenueCatUI folders/symlinks after successful package creation"
-rm -rf "$PROJECT/Assets/RevenueCat"
-rm -rf "$PROJECT/Assets/RevenueCatUI"
+rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI"
