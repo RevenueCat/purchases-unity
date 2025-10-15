@@ -32,7 +32,7 @@ namespace RevenueCatUI.Platforms
             try { _plugin?.CallStatic("unregisterCustomerCenterCallbacks"); } catch { }
         }
 
-        public Task<CustomerCenterResult> PresentAsync()
+        public Task<CustomerCenterResult> PresentAsync(CustomerCenterCallbacks callbacks)
         {
             if (_plugin == null)
             {

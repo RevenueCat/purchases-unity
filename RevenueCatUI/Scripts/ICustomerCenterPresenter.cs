@@ -11,7 +11,8 @@ namespace RevenueCatUI.Internal
         /// <summary>
         /// Presents the Customer Center UI modally.
         /// </summary>
+        /// <param name="callbacks">Callback container reserved for future expansion.</param>
         /// <returns>A task describing the outcome of the presentation.</returns>
-        Task<CustomerCenterResult> PresentAsync();
+        Task<CustomerCenterResult> PresentAsync(CustomerCenterCallbacks callbacks);
     }
 }

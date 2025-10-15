@@ -14,7 +14,7 @@ namespace RevenueCatUI.Platforms
 
         private static TaskCompletionSource<CustomerCenterResult> s_current;
 
-        public Task<CustomerCenterResult> PresentAsync()
+        public Task<CustomerCenterResult> PresentAsync(CustomerCenterCallbacks callbacks)
         {
             if (s_current != null && !s_current.Task.IsCompleted)
             {

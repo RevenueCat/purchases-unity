@@ -13,14 +13,15 @@ namespace RevenueCatUI
         /// <summary>
         /// Presents the Customer Center UI modally.
         /// </summary>
+        /// <param name="callbacks">Placeholder for future callback support.</param>
         /// <returns>A task describing the outcome of the presentation.</returns>
-        public static async Task<CustomerCenterResult> Present()
+        public static async Task<CustomerCenterResult> Present(CustomerCenterCallbacks callbacks = null)
         {
             try
             {
                 Debug.Log("[RevenueCatUI] Presenting Customer Center...");
                 var presenter = CustomerCenterPlatformPresenter.Instance;
-                var result = await presenter.PresentAsync();
+                var result = await presenter.PresentAsync(callbacks ?? CustomerCenterCallbacks.None);
                 Debug.Log($"[RevenueCatUI] Customer Center finished with result: {result.Result}");
                 return result;
             }
