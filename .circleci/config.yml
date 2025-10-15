@@ -222,9 +222,13 @@ jobs:
           root: .
           paths:
             - Purchases.unitypackage
+            - PurchasesUI.unitypackage
 
       - store_artifacts:
           path: Purchases.unitypackage
+
+      - store_artifacts:
+          path: PurchasesUI.unitypackage
 
   build-subtester-android:
     resource_class: large
@@ -451,6 +455,7 @@ workflows:
             - archive-ios
           <<: *release-branches
       - revenuecat/tag-current-branch:
+          ruby_version: "3.2.0"
           requires:
             - hold
           <<: *release-branches
