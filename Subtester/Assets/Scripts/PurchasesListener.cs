@@ -274,12 +274,11 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var task = RevenueCatUI.CustomerCenterPresenter.Present();
         while (!task.IsCompleted) { yield return null; }
 
-        var result = task.Result;
-        Debug.Log("Subtester: customer center result = " + result);
+        Debug.Log("Subtester: customer center finished.");
 
         if (infoLabel != null)
         {
-            infoLabel.text = $"Customer Center result: {GetCustomerCenterResultStatus(result)}";
+            infoLabel.text = "Customer Center finished (no callbacks yet)";
         }
     }
 
@@ -428,21 +427,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 message += " (User already has entitlement)";
             }
             infoLabel.text = message;
-        }
-    }
-
-    private string GetCustomerCenterResultStatus(RevenueCatUI.CustomerCenterResult result)
-    {
-        switch (result.Result)
-        {
-            case RevenueCatUI.CustomerCenterResultType.Dismissed:
-                return "DISMISSED - Customer Center closed";
-            case RevenueCatUI.CustomerCenterResultType.NotPresented:
-                return "NOT PRESENTED - Customer Center unavailable";
-            case RevenueCatUI.CustomerCenterResultType.Error:
-                return "ERROR - Customer Center failed to present";
-            default:
-                return $"UNKNOWN - Received: {result}";
         }
     }
 
