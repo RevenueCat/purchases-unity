@@ -12,9 +12,9 @@ namespace RevenueCatUI.Platforms
 
         [DllImport("__Internal")] private static extern void rcui_presentCustomerCenter(CustomerCenterResultCallback cb);
 
-        private static TaskCompletionSource<CustomerCenterResult> s_current;
+        private static TaskCompletionSource<bool> s_current;
 
-        public Task<CustomerCenterResult> PresentAsync(CustomerCenterCallbacks callbacks)
+        public Task PresentAsync(CustomerCenterCallbacks callbacks)
         {
             if (s_current != null && !s_current.Task.IsCompleted)
             {
@@ -22,7 +22,7 @@ namespace RevenueCatUI.Platforms
                 return s_current.Task;
             }
 
-            var tcs = new TaskCompletionSource<CustomerCenterResult>();
+            var tcs = new TaskCompletionSource<bool>();
             s_current = tcs;
             try
             {
@@ -31,7 +31,7 @@ namespace RevenueCatUI.Platforms
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentCustomerCenter: {e.Message}");
-                tcs.TrySetResult(CustomerCenterResult.Error);
+                tcs.TrySetResult(false);
                 s_current = null;
             }
             return tcs.Task;
@@ -43,14 +43,13 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var token = (result ?? "ERROR");
-                var native = token.Split('|')[0];
-                var type = CustomerCenterResultTypeExtensions.FromNativeString(native);
-                s_current?.TrySetResult(new CustomerCenterResult(type));
+                UnityEngine.Debug.Log($"[RevenueCatUI][iOS] Customer Center completed with token '{token}'.");
+                s_current?.TrySetResult(true);
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Failed to handle Customer Center completion: {e.Message}");
-                s_current?.TrySetResult(CustomerCenterResult.Error);
+                s_current?.TrySetResult(false);
             }
             finally
             {

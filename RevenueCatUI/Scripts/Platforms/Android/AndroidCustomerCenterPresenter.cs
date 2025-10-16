@@ -11,7 +11,7 @@ namespace RevenueCatUI.Platforms
     {
         private readonly AndroidJavaClass _plugin;
         private readonly CallbacksProxy _callbacks;
-        private TaskCompletionSource<CustomerCenterResult> _current;
+        private TaskCompletionSource<bool> _current;
 
         public AndroidCustomerCenterPresenter()
         {
@@ -32,12 +32,12 @@ namespace RevenueCatUI.Platforms
             try { _plugin?.CallStatic("unregisterCustomerCenterCallbacks"); } catch { }
         }
 
-        public Task<CustomerCenterResult> PresentAsync(CustomerCenterCallbacks callbacks)
+        public Task PresentAsync(CustomerCenterCallbacks callbacks)
         {
             if (_plugin == null)
             {
                 Debug.LogError("[RevenueCatUI][Android] Plugin not initialized. Cannot present Customer Center.");
-                return Task.FromResult(CustomerCenterResult.Error);
+                return Task.CompletedTask;
             }
 
             if (_current != null && !_current.Task.IsCompleted)
@@ -50,10 +50,10 @@ namespace RevenueCatUI.Platforms
             if (currentActivity == null)
             {
                 Debug.LogError("[RevenueCatUI][Android] Current activity is null. Cannot present Customer Center.");
-                return Task.FromResult(CustomerCenterResult.Error);
+                return Task.CompletedTask;
             }
 
-            _current = new TaskCompletionSource<CustomerCenterResult>();
+            _current = new TaskCompletionSource<bool>();
             try
             {
                 _plugin.CallStatic("presentCustomerCenter", currentActivity);
@@ -61,7 +61,7 @@ namespace RevenueCatUI.Platforms
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Exception in presentCustomerCenter: {e.Message}");
-                _current.TrySetResult(CustomerCenterResult.Error);
+                _current.TrySetResult(false);
                 var task = _current.Task;
                 _current = null;
                 return task;
@@ -80,14 +80,14 @@ namespace RevenueCatUI.Platforms
 
             try
             {
-                var token = resultData?.Split('|')[0] ?? "ERROR";
-                var type = CustomerCenterResultTypeExtensions.FromNativeString(token);
-                _current.TrySetResult(new CustomerCenterResult(type));
+                var token = resultData ?? "ERROR";
+                Debug.Log($"[RevenueCatUI][Android] Customer Center completed with token '{token}'.");
+                _current.TrySetResult(true);
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Failed to handle Customer Center result '{resultData}': {e.Message}. Setting Error.");
-                _current.TrySetResult(CustomerCenterResult.Error);
+                _current.TrySetResult(false);
             }
             finally
             {

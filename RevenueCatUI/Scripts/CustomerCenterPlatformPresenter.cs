@@ -38,10 +38,10 @@ namespace RevenueCatUI.Internal
 
     internal class UnsupportedCustomerCenterPresenter : ICustomerCenterPresenter
     {
-        public Task<CustomerCenterResult> PresentAsync(CustomerCenterCallbacks callbacks)
+        public Task PresentAsync(CustomerCenterCallbacks callbacks)
         {
             Debug.LogWarning("[RevenueCatUI] Customer Center presentation is not supported on this platform.");
-            return Task.FromResult(CustomerCenterResult.NotPresented);
+            return Task.CompletedTask;
         }
     }
 }
