@@ -129,164 +129,101 @@ namespace RevenueCatUI.Platforms
 
         private void OnFeedbackSurveyCompleted(string feedbackSurveyOptionId)
         {
-            try
-            {
-                _storedCallbacks?.OnFeedbackSurveyCompleted?.Invoke(
-                    new FeedbackSurveyCompletedEventArgs(feedbackSurveyOptionId)
-                );
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnFeedbackSurveyCompleted callback: {e.Message}");
-            }
+            _storedCallbacks?.OnFeedbackSurveyCompleted?.Invoke(
+                new FeedbackSurveyCompletedEventArgs(feedbackSurveyOptionId)
+            );
         }
 
         private void OnShowingManageSubscriptions()
         {
-            try
-            {
-                _storedCallbacks?.OnShowingManageSubscriptions?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnShowingManageSubscriptions callback: {e.Message}");
-            }
+            _storedCallbacks?.OnShowingManageSubscriptions?.Invoke();
         }
 
         private void OnRestoreCompleted(string customerInfoJson)
         {
-            try
-            {
-                var customerInfo = new Purchases.CustomerInfo(JSON.Parse(customerInfoJson));
-                _storedCallbacks?.OnRestoreCompleted?.Invoke(
-                    new RestoreCompletedEventArgs(customerInfo)
-                );
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnRestoreCompleted callback: {e.Message}");
-            }
+            var customerInfo = new Purchases.CustomerInfo(JSON.Parse(customerInfoJson));
+            _storedCallbacks?.OnRestoreCompleted?.Invoke(
+                new RestoreCompletedEventArgs(customerInfo)
+            );
         }
 
         private void OnRestoreFailed(string errorJson)
         {
-            try
-            {
-                var error = new Purchases.Error(JSON.Parse(errorJson));
-                _storedCallbacks?.OnRestoreFailed?.Invoke(
-                    new RestoreFailedEventArgs(error)
-                );
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnRestoreFailed callback: {e.Message}");
-            }
+            var error = new Purchases.Error(JSON.Parse(errorJson));
+            _storedCallbacks?.OnRestoreFailed?.Invoke(
+                new RestoreFailedEventArgs(error)
+            );
         }
 
         private void OnRestoreStarted()
         {
-            try
-            {
-                _storedCallbacks?.OnRestoreStarted?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnRestoreStarted callback: {e.Message}");
-            }
+            _storedCallbacks?.OnRestoreStarted?.Invoke();
         }
 
         private void OnRefundRequestStarted(string productIdentifier)
         {
-            try
-            {
-                _storedCallbacks?.OnRefundRequestStarted?.Invoke(
-                    new RefundRequestStartedEventArgs(productIdentifier)
-                );
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnRefundRequestStarted callback: {e.Message}");
-            }
+            _storedCallbacks?.OnRefundRequestStarted?.Invoke(
+                new RefundRequestStartedEventArgs(productIdentifier)
+            );
         }
 
         private void OnRefundRequestCompleted(string productIdentifier, string refundRequestStatus)
         {
-            try
+            RefundRequestStatus status;
+            switch (refundRequestStatus?.ToUpperInvariant())
             {
-                RefundRequestStatus status;
-                switch (refundRequestStatus?.ToUpperInvariant())
-                {
-                    case "SUCCESS":
-                        status = RefundRequestStatus.Success;
-                        break;
-                    case "USERCANCELLED":
-                    case "USER_CANCELLED":
-                        status = RefundRequestStatus.UserCancelled;
-                        break;
-                    default:
-                        status = RefundRequestStatus.Error;
-                        break;
-                }
-                
-                _storedCallbacks?.OnRefundRequestCompleted?.Invoke(
-                    new RefundRequestCompletedEventArgs(productIdentifier, status)
-                );
+                case "SUCCESS":
+                    status = RefundRequestStatus.Success;
+                    break;
+                case "USERCANCELLED":
+                case "USER_CANCELLED":
+                    status = RefundRequestStatus.UserCancelled;
+                    break;
+                default:
+                    status = RefundRequestStatus.Error;
+                    break;
             }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnRefundRequestCompleted callback: {e.Message}");
-            }
+            
+            _storedCallbacks?.OnRefundRequestCompleted?.Invoke(
+                new RefundRequestCompletedEventArgs(productIdentifier, status)
+            );
         }
 
         private void OnManagementOptionSelected(string option, string url)
         {
-            try
+            CustomerCenterManagementOption optionEnum;
+            switch (option?.ToLowerInvariant())
             {
-                CustomerCenterManagementOption optionEnum;
-                switch (option?.ToLowerInvariant())
-                {
-                    case "cancel":
-                        optionEnum = CustomerCenterManagementOption.Cancel;
-                        break;
-                    case "custom_url":
-                        optionEnum = CustomerCenterManagementOption.CustomUrl;
-                        break;
-                    case "missing_purchase":
-                        optionEnum = CustomerCenterManagementOption.MissingPurchase;
-                        break;
-                    case "refund_request":
-                        optionEnum = CustomerCenterManagementOption.RefundRequest;
-                        break;
-                    case "change_plans":
-                        optionEnum = CustomerCenterManagementOption.ChangePlans;
-                        break;
-                    default:
-                        optionEnum = CustomerCenterManagementOption.Unknown;
-                        break;
-                }
-                
-                _storedCallbacks?.OnManagementOptionSelected?.Invoke(
-                    new ManagementOptionSelectedEventArgs(optionEnum, url)
-                );
+                case "cancel":
+                    optionEnum = CustomerCenterManagementOption.Cancel;
+                    break;
+                case "custom_url":
+                    optionEnum = CustomerCenterManagementOption.CustomUrl;
+                    break;
+                case "missing_purchase":
+                    optionEnum = CustomerCenterManagementOption.MissingPurchase;
+                    break;
+                case "refund_request":
+                    optionEnum = CustomerCenterManagementOption.RefundRequest;
+                    break;
+                case "change_plans":
+                    optionEnum = CustomerCenterManagementOption.ChangePlans;
+                    break;
+                default:
+                    optionEnum = CustomerCenterManagementOption.Unknown;
+                    break;
             }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnManagementOptionSelected callback: {e.Message}");
-            }
+            
+            _storedCallbacks?.OnManagementOptionSelected?.Invoke(
+                new ManagementOptionSelectedEventArgs(optionEnum, url)
+            );
         }
 
         private void OnCustomActionSelected(string actionId, string purchaseIdentifier)
         {
-            try
-            {
-                _storedCallbacks?.OnCustomActionSelected?.Invoke(
-                    new CustomActionSelectedEventArgs(actionId, purchaseIdentifier)
-                );
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][Android] Error in OnCustomActionSelected callback: {e.Message}");
-            }
+            _storedCallbacks?.OnCustomActionSelected?.Invoke(
+                new CustomActionSelectedEventArgs(actionId, purchaseIdentifier)
+            );
         }
 
         private class CallbacksProxy : AndroidJavaProxy

@@ -111,134 +111,127 @@ namespace RevenueCatUI.Platforms
         [AOT.MonoPInvokeCallback(typeof(CustomerCenterEventCallback))]
         private static void OnEvent(string eventName, string payload)
         {
-            try
+            switch (eventName)
             {
-                switch (eventName)
-                {
-                    case "onRestoreStarted":
-                        s_storedCallbacks?.OnRestoreStarted?.Invoke();
-                        break;
+                case "onRestoreStarted":
+                    s_storedCallbacks?.OnRestoreStarted?.Invoke();
+                    break;
+                    
+                case "onRestoreCompleted":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        var customerInfo = new Purchases.CustomerInfo(JSON.Parse(payload));
+                        s_storedCallbacks?.OnRestoreCompleted?.Invoke(
+                            new RestoreCompletedEventArgs(customerInfo));
+                    }
+                    break;
+                    
+                case "onRestoreFailed":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        var error = new Purchases.Error(JSON.Parse(payload));
+                        s_storedCallbacks?.OnRestoreFailed?.Invoke(
+                            new RestoreFailedEventArgs(error));
+                    }
+                    break;
+                    
+                case "onShowingManageSubscriptions":
+                    s_storedCallbacks?.OnShowingManageSubscriptions?.Invoke();
+                    break;
+                    
+                case "onRefundRequestStarted":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        s_storedCallbacks?.OnRefundRequestStarted?.Invoke(
+                            new RefundRequestStartedEventArgs(payload));
+                    }
+                    break;
+                    
+                case "onRefundRequestCompleted":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        var data = JSON.Parse(payload);
+                        var productIdentifier = data["productIdentifier"];
+                        var statusString = data["refundRequestStatus"];
                         
-                    case "onRestoreCompleted":
-                        if (!string.IsNullOrEmpty(payload))
+                        RefundRequestStatus status;
+                        switch (statusString?.Value?.ToUpperInvariant())
                         {
-                            var customerInfo = new Purchases.CustomerInfo(JSON.Parse(payload));
-                            s_storedCallbacks?.OnRestoreCompleted?.Invoke(
-                                new RestoreCompletedEventArgs(customerInfo));
+                            case "SUCCESS":
+                                status = RefundRequestStatus.Success;
+                                break;
+                            case "USERCANCELLED":
+                            case "USER_CANCELLED":
+                                status = RefundRequestStatus.UserCancelled;
+                                break;
+                            default:
+                                status = RefundRequestStatus.Error;
+                                break;
                         }
-                        break;
                         
-                    case "onRestoreFailed":
-                        if (!string.IsNullOrEmpty(payload))
+                        s_storedCallbacks?.OnRefundRequestCompleted?.Invoke(
+                            new RefundRequestCompletedEventArgs(productIdentifier, status));
+                    }
+                    break;
+                    
+                case "onFeedbackSurveyCompleted":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        s_storedCallbacks?.OnFeedbackSurveyCompleted?.Invoke(
+                            new FeedbackSurveyCompletedEventArgs(payload));
+                    }
+                    break;
+                    
+                case "onManagementOptionSelected":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        var data = JSON.Parse(payload);
+                        var option = data["option"]?.Value;
+                        var url = data["url"]?.Value;
+                        
+                        CustomerCenterManagementOption optionEnum;
+                        switch (option?.ToLowerInvariant())
                         {
-                            var error = new Purchases.Error(JSON.Parse(payload));
-                            s_storedCallbacks?.OnRestoreFailed?.Invoke(
-                                new RestoreFailedEventArgs(error));
+                            case "cancel":
+                                optionEnum = CustomerCenterManagementOption.Cancel;
+                                break;
+                            case "custom_url":
+                                optionEnum = CustomerCenterManagementOption.CustomUrl;
+                                break;
+                            case "missing_purchase":
+                                optionEnum = CustomerCenterManagementOption.MissingPurchase;
+                                break;
+                            case "refund_request":
+                                optionEnum = CustomerCenterManagementOption.RefundRequest;
+                                break;
+                            case "change_plans":
+                                optionEnum = CustomerCenterManagementOption.ChangePlans;
+                                break;
+                            default:
+                                optionEnum = CustomerCenterManagementOption.Unknown;
+                                break;
                         }
-                        break;
                         
-                    case "onShowingManageSubscriptions":
-                        s_storedCallbacks?.OnShowingManageSubscriptions?.Invoke();
-                        break;
+                        s_storedCallbacks?.OnManagementOptionSelected?.Invoke(
+                            new ManagementOptionSelectedEventArgs(optionEnum, url));
+                    }
+                    break;
+                    
+                case "onCustomActionSelected":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        var data = JSON.Parse(payload);
+                        var actionId = data["actionId"]?.Value;
+                        var purchaseIdentifier = data["purchaseIdentifier"]?.Value;
                         
-                    case "onRefundRequestStarted":
-                        if (!string.IsNullOrEmpty(payload))
-                        {
-                            s_storedCallbacks?.OnRefundRequestStarted?.Invoke(
-                                new RefundRequestStartedEventArgs(payload));
-                        }
-                        break;
-                        
-                    case "onRefundRequestCompleted":
-                        if (!string.IsNullOrEmpty(payload))
-                        {
-                            var data = JSON.Parse(payload);
-                            var productIdentifier = data["productIdentifier"];
-                            var statusString = data["refundRequestStatus"];
-                            
-                            RefundRequestStatus status;
-                            switch (statusString?.Value?.ToUpperInvariant())
-                            {
-                                case "SUCCESS":
-                                    status = RefundRequestStatus.Success;
-                                    break;
-                                case "USERCANCELLED":
-                                case "USER_CANCELLED":
-                                    status = RefundRequestStatus.UserCancelled;
-                                    break;
-                                default:
-                                    status = RefundRequestStatus.Error;
-                                    break;
-                            }
-                            
-                            s_storedCallbacks?.OnRefundRequestCompleted?.Invoke(
-                                new RefundRequestCompletedEventArgs(productIdentifier, status));
-                        }
-                        break;
-                        
-                    case "onFeedbackSurveyCompleted":
-                        if (!string.IsNullOrEmpty(payload))
-                        {
-                            s_storedCallbacks?.OnFeedbackSurveyCompleted?.Invoke(
-                                new FeedbackSurveyCompletedEventArgs(payload));
-                        }
-                        break;
-                        
-                    case "onManagementOptionSelected":
-                        if (!string.IsNullOrEmpty(payload))
-                        {
-                            var data = JSON.Parse(payload);
-                            var option = data["option"]?.Value;
-                            var url = data["url"]?.Value;
-                            
-                            CustomerCenterManagementOption optionEnum;
-                            switch (option?.ToLowerInvariant())
-                            {
-                                case "cancel":
-                                    optionEnum = CustomerCenterManagementOption.Cancel;
-                                    break;
-                                case "custom_url":
-                                    optionEnum = CustomerCenterManagementOption.CustomUrl;
-                                    break;
-                                case "missing_purchase":
-                                    optionEnum = CustomerCenterManagementOption.MissingPurchase;
-                                    break;
-                                case "refund_request":
-                                    optionEnum = CustomerCenterManagementOption.RefundRequest;
-                                    break;
-                                case "change_plans":
-                                    optionEnum = CustomerCenterManagementOption.ChangePlans;
-                                    break;
-                                default:
-                                    optionEnum = CustomerCenterManagementOption.Unknown;
-                                    break;
-                            }
-                            
-                            s_storedCallbacks?.OnManagementOptionSelected?.Invoke(
-                                new ManagementOptionSelectedEventArgs(optionEnum, url));
-                        }
-                        break;
-                        
-                    case "onCustomActionSelected":
-                        if (!string.IsNullOrEmpty(payload))
-                        {
-                            var data = JSON.Parse(payload);
-                            var actionId = data["actionId"]?.Value;
-                            var purchaseIdentifier = data["purchaseIdentifier"]?.Value;
-                            
-                            s_storedCallbacks?.OnCustomActionSelected?.Invoke(
-                                new CustomActionSelectedEventArgs(actionId, purchaseIdentifier));
-                        }
-                        break;
-                        
-                    default:
-                        Debug.LogWarning($"[RevenueCatUI][iOS] Unknown customer center event: {eventName}");
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RevenueCatUI][iOS] Error handling customer center event '{eventName}': {e.Message}");
+                        s_storedCallbacks?.OnCustomActionSelected?.Invoke(
+                            new CustomActionSelectedEventArgs(actionId, purchaseIdentifier));
+                    }
+                    break;
+                    
+                default:
+                    Debug.LogWarning($"[RevenueCatUI][iOS] Unknown customer center event: {eventName}");
+                    break;
             }
         }
     }
