@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using RevenueCat;
 using RevenueCat.SimpleJSON;
+using RevenueCatUI.Internal;
 using UnityEngine;
 using UnityEngine.Android;
 

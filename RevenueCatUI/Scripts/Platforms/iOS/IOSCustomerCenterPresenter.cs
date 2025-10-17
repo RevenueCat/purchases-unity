@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using RevenueCat;
 using RevenueCat.SimpleJSON;
+using RevenueCatUI.Internal;
 using UnityEngine;
 
 namespace RevenueCatUI.Platforms
