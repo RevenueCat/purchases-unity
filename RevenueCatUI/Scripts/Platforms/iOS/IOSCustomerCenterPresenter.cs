@@ -107,6 +107,11 @@ namespace RevenueCatUI.Platforms
             }
         }
 
+        private static string NormalizeNullString(string value)
+        {
+            return string.IsNullOrEmpty(value) || value == "null" ? null : value;
+        }
+
         [AOT.MonoPInvokeCallback(typeof(CustomerCenterEventCallback))]
         private static void OnEvent(string eventName, string payload)
         {
@@ -150,11 +155,11 @@ namespace RevenueCatUI.Platforms
                     if (!string.IsNullOrEmpty(payload))
                     {
                         var data = JSON.Parse(payload);
-                        var productIdentifier = data["productIdentifier"];
-                        var statusString = data["refundRequestStatus"];
+                        var productIdentifier = data["productIdentifier"]?.Value;
+                        var statusString = data["refundRequestStatus"]?.Value;
                         
                         RefundRequestStatus status;
-                        switch (statusString?.Value?.ToUpperInvariant())
+                        switch (statusString?.ToUpperInvariant())
                         {
                             case "SUCCESS":
                                 status = RefundRequestStatus.Success;
@@ -186,7 +191,7 @@ namespace RevenueCatUI.Platforms
                     {
                         var data = JSON.Parse(payload);
                         var option = data["option"]?.Value;
-                        var url = data["url"]?.Value;
+                        var url = NormalizeNullString(data["url"]?.Value);
                         
                         CustomerCenterManagementOption optionEnum;
                         switch (option?.ToLowerInvariant())
@@ -221,7 +226,7 @@ namespace RevenueCatUI.Platforms
                     {
                         var data = JSON.Parse(payload);
                         var actionId = data["actionId"]?.Value;
-                        var purchaseIdentifier = data["purchaseIdentifier"]?.Value;
+                        var purchaseIdentifier = NormalizeNullString(data["purchaseIdentifier"]?.Value);
                         
                         s_storedCallbacks?.OnCustomActionSelected?.Invoke(
                             new CustomActionSelectedEventArgs(actionId, purchaseIdentifier));
