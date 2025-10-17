@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.Purchases;
@@ -67,6 +68,13 @@ public class CustomerCenterTrampolineActivity extends ComponentActivity {
     private CustomerCenterListener createCustomerCenterListener() {
         return new CustomerCenterListenerWrapper() {
             @Override
+            public void onManagementOptionSelectedWrapper(@NonNull String s,
+                                                          @Nullable String s1,
+                                                          @Nullable String s2) {
+                // Ignored since it's deprecated
+            }
+
+            @Override
             public void onFeedbackSurveyCompletedWrapper(@Nullable String feedbackSurveyOptionId) {
                 if (feedbackSurveyOptionId != null) {
                     RevenueCatUI.sendFeedbackSurveyCompleted(feedbackSurveyOptionId);
@@ -74,14 +82,16 @@ public class CustomerCenterTrampolineActivity extends ComponentActivity {
             }
 
             @Override
-            public void onManagementOptionSelectedWrapper(@Nullable String action, @Nullable String url) {
+            public void onManagementOptionSelectedWrapper(@Nullable String action,
+                                                          @Nullable String url) {
                 if (action != null) {
                     RevenueCatUI.sendManagementOptionSelected(action, url);
                 }
             }
 
             @Override
-            public void onCustomActionSelectedWrapper(@Nullable String actionId, @Nullable String purchaseIdentifier) {
+            public void onCustomActionSelectedWrapper(@Nullable String actionId,
+                                                      @Nullable String purchaseIdentifier) {
                 if (actionId != null) {
                     RevenueCatUI.sendCustomActionSelected(actionId, purchaseIdentifier);
                 }
