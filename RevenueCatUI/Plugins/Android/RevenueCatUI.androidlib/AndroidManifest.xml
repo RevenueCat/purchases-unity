@@ -8,10 +8,14 @@
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:node="merge" />
+        <activity
+            android:name=".CustomerCenterTrampolineActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            tools:node="merge" />
     </application>
 
     <!-- No special permissions required -->
 
 </manifest>
-
 
