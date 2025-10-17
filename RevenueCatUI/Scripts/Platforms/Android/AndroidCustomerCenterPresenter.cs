@@ -3,7 +3,6 @@ using System;
 using System.Threading.Tasks;
 using RevenueCat;
 using RevenueCat.SimpleJSON;
-using RevenueCatUI.Internal;
 using UnityEngine;
 using UnityEngine.Android;
 
@@ -27,6 +26,7 @@ namespace RevenueCatUI.Platforms
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Failed to initialize RevenueCatUI plugin for Customer Center: {e.Message}");
+                Debug.LogException(e);
             }
         }
 
@@ -87,7 +87,6 @@ namespace RevenueCatUI.Platforms
 
             try
             {
-                Debug.Log("[RevenueCatUI][Android] Customer Center dismissed.");
                 _current.TrySetResult(true);
             }
             catch (Exception e)

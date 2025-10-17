@@ -97,6 +97,9 @@ namespace RevenueCatUI
 
     /// <summary>
     /// Callbacks for Customer Center events.
+    /// 
+    /// IMPORTANT: All callbacks execute on a background thread, not Unity's main thread.
+    /// You CANNOT directly call Unity APIs (GameObject, Transform, UI components, etc.) from these callbacks.
     /// </summary>
     public sealed class CustomerCenterCallbacks
     {

@@ -276,76 +276,40 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             OnFeedbackSurveyCompleted = (args) =>
             {
                 Debug.Log($"Subtester: OnFeedbackSurveyCompleted - Option ID: {args.FeedbackSurveyOptionId}");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = $"Feedback survey completed: {args.FeedbackSurveyOptionId}";
-                }
             },
             OnShowingManageSubscriptions = () =>
             {
                 Debug.Log("Subtester: OnShowingManageSubscriptions");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = "Showing manage subscriptions";
-                }
             },
             OnRestoreCompleted = (args) =>
             {
                 Debug.Log($"Subtester: OnRestoreCompleted - CustomerInfo: {args.CustomerInfo}");
-                if (infoLabel != null)
-                {
-                    DisplayCustomerInfo(args.CustomerInfo);
-                }
             },
             OnRestoreFailed = (args) =>
             {
                 Debug.Log($"Subtester: OnRestoreFailed - Error: {args.Error}");
-                if (infoLabel != null)
-                {
-                    LogError(args.Error);
-                }
             },
             OnRestoreStarted = () =>
             {
                 Debug.Log("Subtester: OnRestoreStarted");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = "Restore started...";
-                }
             },
             OnRefundRequestStarted = (args) =>
             {
                 Debug.Log($"Subtester: OnRefundRequestStarted - Product: {args.ProductIdentifier}");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = $"Refund request started for: {args.ProductIdentifier}";
-                }
             },
             OnRefundRequestCompleted = (args) =>
             {
                 Debug.Log($"Subtester: OnRefundRequestCompleted - Product: {args.ProductIdentifier}, Status: {args.RefundRequestStatus}");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = $"Refund request completed for {args.ProductIdentifier}: {args.RefundRequestStatus}";
-                }
             },
             OnManagementOptionSelected = (args) =>
             {
                 string urlInfo = args.Url != null ? $", URL: {args.Url}" : "";
                 Debug.Log($"Subtester: OnManagementOptionSelected - Option: {args.Option}{urlInfo}");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = $"Management option selected: {args.Option}{urlInfo}";
-                }
             },
             OnCustomActionSelected = (args) =>
             {
                 string purchaseInfo = args.PurchaseIdentifier != null ? $", Purchase: {args.PurchaseIdentifier}" : "";
                 Debug.Log($"Subtester: OnCustomActionSelected - Action: {args.ActionId}{purchaseInfo}");
-                if (infoLabel != null)
-                {
-                    infoLabel.text = $"Custom action selected: {args.ActionId}{purchaseInfo}";
-                }
             }
         };
 

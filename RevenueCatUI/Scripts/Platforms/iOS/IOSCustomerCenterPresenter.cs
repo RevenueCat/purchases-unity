@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using RevenueCat;
 using RevenueCat.SimpleJSON;
-using RevenueCatUI.Internal;
 using UnityEngine;
 
 namespace RevenueCatUI.Platforms
@@ -67,7 +66,6 @@ namespace RevenueCatUI.Platforms
 
             try
             {
-                Debug.Log("[RevenueCatUI][iOS] Customer Center dismissed.");
                 s_current.TrySetResult(true);
             }
             catch (Exception e)
