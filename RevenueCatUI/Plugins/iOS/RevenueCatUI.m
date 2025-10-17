@@ -205,7 +205,7 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
 }
 
 @interface RCUICustomerCenterDelegate : NSObject <RCCustomerCenterViewControllerDelegateWrapper>
-@property (nonatomic, copy) RCUICustomerCenterEventCallback eventCallback;
+@property (nonatomic, assign, nullable) RCUICustomerCenterEventCallback eventCallback;
 @end
 
 @implementation RCUICustomerCenterDelegate
