@@ -23,7 +23,7 @@ namespace RevenueCatUI
     {
         public string FeedbackSurveyOptionId { get; }
 
-        public FeedbackSurveyCompletedEventArgs(string feedbackSurveyOptionId)
+        internal FeedbackSurveyCompletedEventArgs(string feedbackSurveyOptionId)
         {
             FeedbackSurveyOptionId = feedbackSurveyOptionId;
         }
@@ -33,7 +33,7 @@ namespace RevenueCatUI
     {
         public Purchases.CustomerInfo CustomerInfo { get; }
 
-        public RestoreCompletedEventArgs(Purchases.CustomerInfo customerInfo)
+        internal RestoreCompletedEventArgs(Purchases.CustomerInfo customerInfo)
         {
             CustomerInfo = customerInfo;
         }
@@ -43,7 +43,7 @@ namespace RevenueCatUI
     {
         public Purchases.Error Error { get; }
 
-        public RestoreFailedEventArgs(Purchases.Error error)
+        internal RestoreFailedEventArgs(Purchases.Error error)
         {
             Error = error;
         }
@@ -53,7 +53,7 @@ namespace RevenueCatUI
     {
         public string ProductIdentifier { get; }
 
-        public RefundRequestStartedEventArgs(string productIdentifier)
+        internal RefundRequestStartedEventArgs(string productIdentifier)
         {
             ProductIdentifier = productIdentifier;
         }
@@ -64,7 +64,7 @@ namespace RevenueCatUI
         public string ProductIdentifier { get; }
         public RefundRequestStatus RefundRequestStatus { get; }
 
-        public RefundRequestCompletedEventArgs(string productIdentifier, RefundRequestStatus refundRequestStatus)
+        internal RefundRequestCompletedEventArgs(string productIdentifier, RefundRequestStatus refundRequestStatus)
         {
             ProductIdentifier = productIdentifier;
             RefundRequestStatus = refundRequestStatus;
@@ -76,7 +76,7 @@ namespace RevenueCatUI
         public CustomerCenterManagementOption Option { get; }
         public string Url { get; }
 
-        public ManagementOptionSelectedEventArgs(CustomerCenterManagementOption option, string url = null)
+        internal ManagementOptionSelectedEventArgs(CustomerCenterManagementOption option, string url = null)
         {
             Option = option;
             Url = url;
@@ -88,7 +88,7 @@ namespace RevenueCatUI
         public string ActionId { get; }
         public string PurchaseIdentifier { get; }
 
-        public CustomActionSelectedEventArgs(string actionId, string purchaseIdentifier = null)
+        internal CustomActionSelectedEventArgs(string actionId, string purchaseIdentifier = null)
         {
             ActionId = actionId;
             PurchaseIdentifier = purchaseIdentifier;
