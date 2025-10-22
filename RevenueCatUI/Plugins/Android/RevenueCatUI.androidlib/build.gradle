@@ -5,7 +5,6 @@ dependencies {
     implementation 'com.revenuecat.purchases:purchases-hybrid-common:17.11.0'
     implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:17.11.0'
     implementation 'androidx.activity:activity:1.8.2'
-    // TODO: Automatically update this to the latest version
 }
 
 android {
