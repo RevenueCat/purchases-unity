@@ -70,7 +70,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
-        CreateButton("Present Customer Center", PresentCustomerCenter);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -229,13 +228,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallIfNeededCoroutine());
     }
 
-    void PresentCustomerCenter()
-    {
-        Debug.Log("Subtester: launching customer center");
-        if (infoLabel != null) infoLabel.text = "Launching Customer Center...";
-        StartCoroutine(PresentCustomerCenterCoroutine());
-    }
-
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
         var task = RevenueCatUI.PaywallsPresenter.Present();
@@ -266,61 +258,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
             infoLabel.text = $"Paywall result: {status}";
             Debug.Log($"Subtester: {status}");
-        }
-    }
-
-    private System.Collections.IEnumerator PresentCustomerCenterCoroutine()
-    {
-        var callbacks = new RevenueCatUI.CustomerCenterCallbacks
-        {
-            OnFeedbackSurveyCompleted = (args) =>
-            {
-                Debug.Log($"Subtester: OnFeedbackSurveyCompleted - Option ID: {args.FeedbackSurveyOptionId}");
-            },
-            OnShowingManageSubscriptions = () =>
-            {
-                Debug.Log("Subtester: OnShowingManageSubscriptions");
-            },
-            OnRestoreCompleted = (args) =>
-            {
-                Debug.Log($"Subtester: OnRestoreCompleted - CustomerInfo: {args.CustomerInfo}");
-            },
-            OnRestoreFailed = (args) =>
-            {
-                Debug.Log($"Subtester: OnRestoreFailed - Error: {args.Error}");
-            },
-            OnRestoreStarted = () =>
-            {
-                Debug.Log("Subtester: OnRestoreStarted");
-            },
-            OnRefundRequestStarted = (args) =>
-            {
-                Debug.Log($"Subtester: OnRefundRequestStarted - Product: {args.ProductIdentifier}");
-            },
-            OnRefundRequestCompleted = (args) =>
-            {
-                Debug.Log($"Subtester: OnRefundRequestCompleted - Product: {args.ProductIdentifier}, Status: {args.RefundRequestStatus}");
-            },
-            OnManagementOptionSelected = (args) =>
-            {
-                string urlInfo = args.Url != null ? $", URL: {args.Url}" : "";
-                Debug.Log($"Subtester: OnManagementOptionSelected - Option: {args.Option}{urlInfo}");
-            },
-            OnCustomActionSelected = (args) =>
-            {
-                string purchaseInfo = args.PurchaseIdentifier != null ? $", Purchase: {args.PurchaseIdentifier}" : "";
-                Debug.Log($"Subtester: OnCustomActionSelected - Action: {args.ActionId}{purchaseInfo}");
-            }
-        };
-
-        var task = RevenueCatUI.CustomerCenterPresenter.Present(callbacks);
-        while (!task.IsCompleted) { yield return null; }
-
-        Debug.Log("Subtester: customer center finished.");
-
-        if (infoLabel != null)
-        {
-            infoLabel.text = "Customer Center finished";
         }
     }
 
