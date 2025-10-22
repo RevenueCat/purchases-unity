@@ -125,7 +125,7 @@ namespace RevenueCatUI.Platforms
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidPaywallPresenter _owner;
-            private CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$PaywallCallbacks")
+            internal CallbacksProxy(AndroidPaywallPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$PaywallCallbacks")
             {
                 _owner = owner;
             }

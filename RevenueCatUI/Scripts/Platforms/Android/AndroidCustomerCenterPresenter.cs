@@ -230,7 +230,7 @@ namespace RevenueCatUI.Platforms
         {
             private readonly AndroidCustomerCenterPresenter _owner;
 
-            private CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$CustomerCenterCallbacks")
+            internal CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$CustomerCenterCallbacks")
             {
                 _owner = owner;
             }
