@@ -34,10 +34,8 @@ namespace RevenueCatUI
         {
             try
             {
-                Debug.Log("[RevenueCatUI] Presenting Customer Center...");
                 var presenter = CustomerCenterPlatformPresenter.Instance;
                 await presenter.PresentAsync(callbacks ?? CustomerCenterCallbacks.None);
-                Debug.Log("[RevenueCatUI] Customer Center finished.");
             }
             catch (Exception e)
             {

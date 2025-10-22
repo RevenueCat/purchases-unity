@@ -107,6 +107,11 @@ namespace RevenueCatUI.Platforms
             }
         }
 
+        private static string NormalizeNullString(string value)
+        {
+            return string.IsNullOrEmpty(value) || value == "null" ? null : value;
+        }
+
         [AOT.MonoPInvokeCallback(typeof(CustomerCenterEventCallback))]
         private static void OnEvent(string eventName, string payload)
         {
@@ -121,7 +126,8 @@ namespace RevenueCatUI.Platforms
                     {
                         var customerInfo = new Purchases.CustomerInfo(JSON.Parse(payload));
                         s_storedCallbacks?.OnRestoreCompleted?.Invoke(
-                            new RestoreCompletedEventArgs(customerInfo));
+                            new RestoreCompletedEventArgs(customerInfo)
+                        );
                     }
                     break;
                     
@@ -130,7 +136,8 @@ namespace RevenueCatUI.Platforms
                     {
                         var error = new Purchases.Error(JSON.Parse(payload));
                         s_storedCallbacks?.OnRestoreFailed?.Invoke(
-                            new RestoreFailedEventArgs(error));
+                            new RestoreFailedEventArgs(error)
+                        );
                     }
                     break;
                     
@@ -142,7 +149,8 @@ namespace RevenueCatUI.Platforms
                     if (!string.IsNullOrEmpty(payload))
                     {
                         s_storedCallbacks?.OnRefundRequestStarted?.Invoke(
-                            new RefundRequestStartedEventArgs(payload));
+                            new RefundRequestStartedEventArgs(payload)
+                        );
                     }
                     break;
                     
@@ -150,26 +158,27 @@ namespace RevenueCatUI.Platforms
                     if (!string.IsNullOrEmpty(payload))
                     {
                         var data = JSON.Parse(payload);
-                        var productIdentifier = data["productIdentifier"];
-                        var statusString = data["refundRequestStatus"];
+                        var productIdentifier = data["productIdentifier"]?.Value;
+                        var statusString = data["refundRequestStatus"]?.Value;
                         
-                        RefundRequestStatus status;
-                        switch (statusString?.Value?.ToUpperInvariant())
+                        string status;
+                        switch (statusString?.ToUpperInvariant())
                         {
                             case "SUCCESS":
-                                status = RefundRequestStatus.Success;
+                                status = RevenueCatUI.RefundRequestStatus.Success;
                                 break;
                             case "USERCANCELLED":
                             case "USER_CANCELLED":
-                                status = RefundRequestStatus.UserCancelled;
+                                status = RevenueCatUI.RefundRequestStatus.UserCancelled;
                                 break;
                             default:
-                                status = RefundRequestStatus.Error;
+                                status = RevenueCatUI.RefundRequestStatus.Error;
                                 break;
                         }
                         
                         s_storedCallbacks?.OnRefundRequestCompleted?.Invoke(
-                            new RefundRequestCompletedEventArgs(productIdentifier, status));
+                            new RefundRequestCompletedEventArgs(productIdentifier, status)
+                        );
                     }
                     break;
                     
@@ -177,7 +186,8 @@ namespace RevenueCatUI.Platforms
                     if (!string.IsNullOrEmpty(payload))
                     {
                         s_storedCallbacks?.OnFeedbackSurveyCompleted?.Invoke(
-                            new FeedbackSurveyCompletedEventArgs(payload));
+                            new FeedbackSurveyCompletedEventArgs(payload)
+                        );
                     }
                     break;
                     
@@ -186,33 +196,34 @@ namespace RevenueCatUI.Platforms
                     {
                         var data = JSON.Parse(payload);
                         var option = data["option"]?.Value;
-                        var url = data["url"]?.Value;
+                        var url = NormalizeNullString(data["url"]?.Value);
                         
-                        CustomerCenterManagementOption optionEnum;
+                        string optionString;
                         switch (option?.ToLowerInvariant())
                         {
                             case "cancel":
-                                optionEnum = CustomerCenterManagementOption.Cancel;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.Cancel;
                                 break;
                             case "custom_url":
-                                optionEnum = CustomerCenterManagementOption.CustomUrl;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.CustomUrl;
                                 break;
                             case "missing_purchase":
-                                optionEnum = CustomerCenterManagementOption.MissingPurchase;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.MissingPurchase;
                                 break;
                             case "refund_request":
-                                optionEnum = CustomerCenterManagementOption.RefundRequest;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.RefundRequest;
                                 break;
                             case "change_plans":
-                                optionEnum = CustomerCenterManagementOption.ChangePlans;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.ChangePlans;
                                 break;
                             default:
-                                optionEnum = CustomerCenterManagementOption.Unknown;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.Unknown;
                                 break;
                         }
                         
                         s_storedCallbacks?.OnManagementOptionSelected?.Invoke(
-                            new ManagementOptionSelectedEventArgs(optionEnum, url));
+                            new ManagementOptionSelectedEventArgs(optionString, url)
+                        );
                     }
                     break;
                     
@@ -221,10 +232,11 @@ namespace RevenueCatUI.Platforms
                     {
                         var data = JSON.Parse(payload);
                         var actionId = data["actionId"]?.Value;
-                        var purchaseIdentifier = data["purchaseIdentifier"]?.Value;
+                        var purchaseIdentifier = NormalizeNullString(data["purchaseIdentifier"]?.Value);
                         
                         s_storedCallbacks?.OnCustomActionSelected?.Invoke(
-                            new CustomActionSelectedEventArgs(actionId, purchaseIdentifier));
+                            new CustomActionSelectedEventArgs(actionId, purchaseIdentifier)
+                        );
                     }
                     break;
                     

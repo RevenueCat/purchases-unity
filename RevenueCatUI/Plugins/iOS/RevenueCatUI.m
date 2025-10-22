@@ -139,10 +139,10 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
             [proxy presentPaywallWithOptions:options
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
-                            NSString *token = RCUINormalizedResultToken(resultName);
-                            RCUIInvokeCallback(callback, token, nil);
-                            proxy = nil;
-                        }];
+                NSString *token = RCUINormalizedResultToken(resultName);
+                RCUIInvokeCallback(callback, token, nil);
+                proxy = nil;
+            }];
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -163,10 +163,10 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
 
             [proxy presentPaywallIfNeededWithOptions:options
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
-                                    NSString *token = RCUINormalizedResultToken(resultName);
-                                    RCUIInvokeCallback(callback, token, nil);
-                                    proxy = nil;
-                                }];
+                NSString *token = RCUINormalizedResultToken(resultName);
+                RCUIInvokeCallback(callback, token, nil);
+                proxy = nil;
+            }];
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -223,7 +223,7 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
-         didFinishRestoringWithCustomerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary API_AVAILABLE(ios(15.0)) {
+didFinishRestoringWithCustomerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary API_AVAILABLE(ios(15.0)) {
     if (self.eventCallback) {
         NSError *error = nil;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:customerInfoDictionary options:0 error:&error];
@@ -237,7 +237,7 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
-              didFailRestoringWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDictionary API_AVAILABLE(ios(15.0)) {
+ didFailRestoringWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDictionary API_AVAILABLE(ios(15.0)) {
     if (self.eventCallback) {
         NSError *error = nil;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:errorDictionary options:0 error:&error];
@@ -297,7 +297,7 @@ didCompleteFeedbackSurveyWithOptionID:(NSString *)optionID API_AVAILABLE(ios(15.
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
 didSelectCustomerCenterManagementOption:(NSString *)optionID
-withURL:(NSString *)url API_AVAILABLE(ios(15.0)) {
+                             withURL:(NSString *)url API_AVAILABLE(ios(15.0)) {
     if (self.eventCallback) {
         NSDictionary *payload = @{
             @"option": optionID ?: @"",

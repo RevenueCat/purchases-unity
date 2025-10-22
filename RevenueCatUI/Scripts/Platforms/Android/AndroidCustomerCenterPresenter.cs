@@ -169,18 +169,18 @@ namespace RevenueCatUI.Platforms
 
         private void OnRefundRequestCompleted(string productIdentifier, string refundRequestStatus)
         {
-            RefundRequestStatus status;
+            string status;
             switch (refundRequestStatus?.ToUpperInvariant())
             {
                 case "SUCCESS":
-                    status = RefundRequestStatus.Success;
+                    status = RevenueCatUI.RefundRequestStatus.Success;
                     break;
                 case "USERCANCELLED":
                 case "USER_CANCELLED":
-                    status = RefundRequestStatus.UserCancelled;
+                    status = RevenueCatUI.RefundRequestStatus.UserCancelled;
                     break;
                 default:
-                    status = RefundRequestStatus.Error;
+                    status = RevenueCatUI.RefundRequestStatus.Error;
                     break;
             }
             
@@ -191,31 +191,31 @@ namespace RevenueCatUI.Platforms
 
         private void OnManagementOptionSelected(string option, string url)
         {
-            CustomerCenterManagementOption optionEnum;
+            string optionString;
             switch (option?.ToLowerInvariant())
             {
                 case "cancel":
-                    optionEnum = CustomerCenterManagementOption.Cancel;
+                    optionString = RevenueCatUI.CustomerCenterManagementOption.Cancel;
                     break;
                 case "custom_url":
-                    optionEnum = CustomerCenterManagementOption.CustomUrl;
+                    optionString = RevenueCatUI.CustomerCenterManagementOption.CustomUrl;
                     break;
                 case "missing_purchase":
-                    optionEnum = CustomerCenterManagementOption.MissingPurchase;
+                    optionString = RevenueCatUI.CustomerCenterManagementOption.MissingPurchase;
                     break;
                 case "refund_request":
-                    optionEnum = CustomerCenterManagementOption.RefundRequest;
+                    optionString = RevenueCatUI.CustomerCenterManagementOption.RefundRequest;
                     break;
                 case "change_plans":
-                    optionEnum = CustomerCenterManagementOption.ChangePlans;
+                    optionString = RevenueCatUI.CustomerCenterManagementOption.ChangePlans;
                     break;
                 default:
-                    optionEnum = CustomerCenterManagementOption.Unknown;
+                    optionString = RevenueCatUI.CustomerCenterManagementOption.Unknown;
                     break;
             }
             
             _storedCallbacks?.OnManagementOptionSelected?.Invoke(
-                new ManagementOptionSelectedEventArgs(optionEnum, url)
+                new ManagementOptionSelectedEventArgs(optionString, url)
             );
         }
 
@@ -230,7 +230,7 @@ namespace RevenueCatUI.Platforms
         {
             private readonly AndroidCustomerCenterPresenter _owner;
 
-            public CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$CustomerCenterCallbacks")
+            internal CallbacksProxy(AndroidCustomerCenterPresenter owner) : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$CustomerCenterCallbacks")
             {
                 _owner = owner;
             }

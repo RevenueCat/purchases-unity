@@ -2,28 +2,28 @@ using System;
 
 namespace RevenueCatUI
 {
-    public enum RefundRequestStatus
+    public static class RefundRequestStatus
     {
-        Success,
-        UserCancelled,
-        Error
+        public const string Success = "Success";
+        public const string UserCancelled = "UserCancelled";
+        public const string Error = "Error";
     }
 
-    public enum CustomerCenterManagementOption
+    public static class CustomerCenterManagementOption
     {
-        Cancel,
-        CustomUrl,
-        MissingPurchase,
-        RefundRequest,
-        ChangePlans,
-        Unknown
+        public const string Cancel = "Cancel";
+        public const string CustomUrl = "CustomUrl";
+        public const string MissingPurchase = "MissingPurchase";
+        public const string RefundRequest = "RefundRequest";
+        public const string ChangePlans = "ChangePlans";
+        public const string Unknown = "Unknown";
     }
 
     public sealed class FeedbackSurveyCompletedEventArgs
     {
         public string FeedbackSurveyOptionId { get; }
 
-        public FeedbackSurveyCompletedEventArgs(string feedbackSurveyOptionId)
+        internal FeedbackSurveyCompletedEventArgs(string feedbackSurveyOptionId)
         {
             FeedbackSurveyOptionId = feedbackSurveyOptionId;
         }
@@ -33,7 +33,7 @@ namespace RevenueCatUI
     {
         public Purchases.CustomerInfo CustomerInfo { get; }
 
-        public RestoreCompletedEventArgs(Purchases.CustomerInfo customerInfo)
+        internal RestoreCompletedEventArgs(Purchases.CustomerInfo customerInfo)
         {
             CustomerInfo = customerInfo;
         }
@@ -43,7 +43,7 @@ namespace RevenueCatUI
     {
         public Purchases.Error Error { get; }
 
-        public RestoreFailedEventArgs(Purchases.Error error)
+        internal RestoreFailedEventArgs(Purchases.Error error)
         {
             Error = error;
         }
@@ -53,7 +53,7 @@ namespace RevenueCatUI
     {
         public string ProductIdentifier { get; }
 
-        public RefundRequestStartedEventArgs(string productIdentifier)
+        internal RefundRequestStartedEventArgs(string productIdentifier)
         {
             ProductIdentifier = productIdentifier;
         }
@@ -62,9 +62,9 @@ namespace RevenueCatUI
     public sealed class RefundRequestCompletedEventArgs
     {
         public string ProductIdentifier { get; }
-        public RefundRequestStatus RefundRequestStatus { get; }
+        public string RefundRequestStatus { get; }
 
-        public RefundRequestCompletedEventArgs(string productIdentifier, RefundRequestStatus refundRequestStatus)
+        internal RefundRequestCompletedEventArgs(string productIdentifier, string refundRequestStatus)
         {
             ProductIdentifier = productIdentifier;
             RefundRequestStatus = refundRequestStatus;
@@ -73,10 +73,10 @@ namespace RevenueCatUI
 
     public sealed class ManagementOptionSelectedEventArgs
     {
-        public CustomerCenterManagementOption Option { get; }
+        public string Option { get; }
         public string Url { get; }
 
-        public ManagementOptionSelectedEventArgs(CustomerCenterManagementOption option, string url = null)
+        internal ManagementOptionSelectedEventArgs(string option, string url = null)
         {
             Option = option;
             Url = url;
@@ -88,7 +88,7 @@ namespace RevenueCatUI
         public string ActionId { get; }
         public string PurchaseIdentifier { get; }
 
-        public CustomActionSelectedEventArgs(string actionId, string purchaseIdentifier = null)
+        internal CustomActionSelectedEventArgs(string actionId, string purchaseIdentifier = null)
         {
             ActionId = actionId;
             PurchaseIdentifier = purchaseIdentifier;

@@ -228,7 +228,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         if (infoLabel != null) infoLabel.text = "Checking entitlement and launching paywall if needed...";
         StartCoroutine(PresentPaywallIfNeededCoroutine());
     }
-
+    
     void PresentCustomerCenter()
     {
         Debug.Log("Subtester: launching customer center");
