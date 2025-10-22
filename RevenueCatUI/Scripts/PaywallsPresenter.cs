@@ -21,8 +21,6 @@ namespace RevenueCatUI
         {
             try 
             {
-                Debug.Log("[RevenueCatUI] Presenting paywall...");
-                
                 var presenter = PaywallPresenter.Instance;
                 return await presenter.PresentPaywallAsync(options ?? new PaywallOptions());
             }
