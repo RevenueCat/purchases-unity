@@ -13,8 +13,27 @@
   * [iOS 5.44.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.44.0)
 
 ## RevenueCatUI SDK
+RevenueCatUI adds native paywall presentation to the RevenueCat Unity SDK. It lets you present a paywall configured in the RevenueCat dashboard on iOS and Android with one line of code.
+
 ### ✨ New Features
-* Add basic interface for Customer Center (#712) via Facundo Menzella (@facumenzella)
+* **Paywalls**: Present paywalls configured in the RevenueCat dashboard using the `PaywallsPresenter` API or `PaywallsBehaviour` MonoBehaviour component
+  - Use `await PaywallsPresenter.Present()` to show a paywall
+  - Use `await PaywallsPresenter.PresentIfNeeded(requiredEntitlementIdentifier)` to conditionally present based on entitlement status
+  - Configure paywalls through Unity's Inspector with the `PaywallsBehaviour` component
+  - Supports both original template paywalls and Paywalls V2
+  - Available on iOS and Android device builds (Unity Editor not supported for UI)
+* **Customer Center**: Provide a self-service interface for users to manage their subscriptions
+  - Use `await CustomerCenterPresenter.Present()` to show the Customer Center
+  - Allows users to view subscription details, manage billing, and access support
+  - Fully customizable through the RevenueCat dashboard
+  - Available on iOS and Android device builds
+
+### 📦 Installation
+1. Install the core RevenueCat Unity SDK (if not already installed)
+2. Install the new PurchasesUI SDK
+3. Configure the SDK as normal, then call `PaywallsPresenter.Present()` or `CustomerCenterPresenter.Present()` from any script
+
+For more details, see the [Paywalls documentation](https://www.revenuecat.com/docs/tools/paywalls/installation) and [Customer Center documentation](https://www.revenuecat.com/docs/tools/customer-center/customer-center-unity#installation)
 
 ### 🔄 Other Changes
 * Add importing PurchasesUI to IntegrationTests (#730) via Cesar de la Vega (@vegaro)
