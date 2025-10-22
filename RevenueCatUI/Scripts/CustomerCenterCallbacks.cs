@@ -2,21 +2,21 @@ using System;
 
 namespace RevenueCatUI
 {
-    public enum RefundRequestStatus
+    public static class RefundRequestStatus
     {
-        Success,
-        UserCancelled,
-        Error
+        public const string Success = "Success";
+        public const string UserCancelled = "UserCancelled";
+        public const string Error = "Error";
     }
 
-    public enum CustomerCenterManagementOption
+    public static class CustomerCenterManagementOption
     {
-        Cancel,
-        CustomUrl,
-        MissingPurchase,
-        RefundRequest,
-        ChangePlans,
-        Unknown
+        public const string Cancel = "Cancel";
+        public const string CustomUrl = "CustomUrl";
+        public const string MissingPurchase = "MissingPurchase";
+        public const string RefundRequest = "RefundRequest";
+        public const string ChangePlans = "ChangePlans";
+        public const string Unknown = "Unknown";
     }
 
     public sealed class FeedbackSurveyCompletedEventArgs
@@ -62,9 +62,9 @@ namespace RevenueCatUI
     public sealed class RefundRequestCompletedEventArgs
     {
         public string ProductIdentifier { get; }
-        public RefundRequestStatus RefundRequestStatus { get; }
+        public string RefundRequestStatus { get; }
 
-        internal RefundRequestCompletedEventArgs(string productIdentifier, RefundRequestStatus refundRequestStatus)
+        internal RefundRequestCompletedEventArgs(string productIdentifier, string refundRequestStatus)
         {
             ProductIdentifier = productIdentifier;
             RefundRequestStatus = refundRequestStatus;
@@ -73,10 +73,10 @@ namespace RevenueCatUI
 
     public sealed class ManagementOptionSelectedEventArgs
     {
-        public CustomerCenterManagementOption Option { get; }
+        public string Option { get; }
         public string Url { get; }
 
-        internal ManagementOptionSelectedEventArgs(CustomerCenterManagementOption option, string url = null)
+        internal ManagementOptionSelectedEventArgs(string option, string url = null)
         {
             Option = option;
             Url = url;

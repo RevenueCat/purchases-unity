@@ -161,18 +161,18 @@ namespace RevenueCatUI.Platforms
                         var productIdentifier = data["productIdentifier"]?.Value;
                         var statusString = data["refundRequestStatus"]?.Value;
                         
-                        RefundRequestStatus status;
+                        string status;
                         switch (statusString?.ToUpperInvariant())
                         {
                             case "SUCCESS":
-                                status = RefundRequestStatus.Success;
+                                status = RevenueCatUI.RefundRequestStatus.Success;
                                 break;
                             case "USERCANCELLED":
                             case "USER_CANCELLED":
-                                status = RefundRequestStatus.UserCancelled;
+                                status = RevenueCatUI.RefundRequestStatus.UserCancelled;
                                 break;
                             default:
-                                status = RefundRequestStatus.Error;
+                                status = RevenueCatUI.RefundRequestStatus.Error;
                                 break;
                         }
                         
@@ -198,31 +198,31 @@ namespace RevenueCatUI.Platforms
                         var option = data["option"]?.Value;
                         var url = NormalizeNullString(data["url"]?.Value);
                         
-                        CustomerCenterManagementOption optionEnum;
+                        string optionString;
                         switch (option?.ToLowerInvariant())
                         {
                             case "cancel":
-                                optionEnum = CustomerCenterManagementOption.Cancel;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.Cancel;
                                 break;
                             case "custom_url":
-                                optionEnum = CustomerCenterManagementOption.CustomUrl;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.CustomUrl;
                                 break;
                             case "missing_purchase":
-                                optionEnum = CustomerCenterManagementOption.MissingPurchase;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.MissingPurchase;
                                 break;
                             case "refund_request":
-                                optionEnum = CustomerCenterManagementOption.RefundRequest;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.RefundRequest;
                                 break;
                             case "change_plans":
-                                optionEnum = CustomerCenterManagementOption.ChangePlans;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.ChangePlans;
                                 break;
                             default:
-                                optionEnum = CustomerCenterManagementOption.Unknown;
+                                optionString = RevenueCatUI.CustomerCenterManagementOption.Unknown;
                                 break;
                         }
                         
                         s_storedCallbacks?.OnManagementOptionSelected?.Invoke(
-                            new ManagementOptionSelectedEventArgs(optionEnum, url)
+                            new ManagementOptionSelectedEventArgs(optionString, url)
                         );
                     }
                     break;
