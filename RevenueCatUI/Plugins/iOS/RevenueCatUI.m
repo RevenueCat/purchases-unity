@@ -5,6 +5,9 @@
 #import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 typedef void (*RCUIPaywallResultCallback)(const char *result);
+typedef void (*RCUICustomerCenterDismissedCallback)(void);
+typedef void (*RCUICustomerCenterErrorCallback)(void);
+typedef void (*RCUICustomerCenterEventCallback)(const char *eventName, const char *payload);
 
 static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEntitlementIdentifier";
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
@@ -56,6 +59,26 @@ static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *tok
     });
 }
 
+static void RCUICustomerCenterInvokeDismissedCallback(RCUICustomerCenterDismissedCallback callback) {
+    if (callback == NULL) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        callback();
+    });
+}
+
+static void RCUICustomerCenterInvokeErrorCallback(RCUICustomerCenterErrorCallback callback) {
+    if (callback == NULL) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        callback();
+    });
+}
+
 static BOOL RCUIEnsureReady(RCUIPaywallResultCallback callback) {
     if (!RCPurchases.isConfigured) {
         RCUIInvokeCallback(callback, @"ERROR", @"PurchasesNotConfigured");
@@ -95,6 +118,15 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
     return options;
 }
 
+static BOOL RCUICustomerCenterEnsureReady(RCUICustomerCenterErrorCallback errorCallback) {
+    if (!RCPurchases.isConfigured) {
+        RCUICustomerCenterInvokeErrorCallback(errorCallback);
+        return NO;
+    }
+
+    return YES;
+}
+
 static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
                                        NSString *presentedOfferingContextJson,
                                        BOOL displayCloseButton,
@@ -107,10 +139,10 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
             [proxy presentPaywallWithOptions:options
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
-                            NSString *token = RCUINormalizedResultToken(resultName);
-                            RCUIInvokeCallback(callback, token, nil);
-                            proxy = nil;
-                        }];
+                NSString *token = RCUINormalizedResultToken(resultName);
+                RCUIInvokeCallback(callback, token, nil);
+                proxy = nil;
+            }];
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -131,10 +163,10 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
 
             [proxy presentPaywallIfNeededWithOptions:options
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
-                                    NSString *token = RCUINormalizedResultToken(resultName);
-                                    RCUIInvokeCallback(callback, token, nil);
-                                    proxy = nil;
-                                }];
+                NSString *token = RCUINormalizedResultToken(resultName);
+                RCUIInvokeCallback(callback, token, nil);
+                proxy = nil;
+            }];
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -170,4 +202,163 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
     }
 
     RCUIPresentPaywallIfNeededInternal(entitlement, offering, contextJson, displayCloseButton ? YES : NO, callback);
+}
+
+@interface RCUICustomerCenterDelegate : NSObject <RCCustomerCenterViewControllerDelegateWrapper>
+@property (nonatomic, assign, nullable) RCUICustomerCenterEventCallback eventCallback;
+@end
+
+@implementation RCUICustomerCenterDelegate
+
+- (void)customerCenterViewControllerWasDismissed:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
+    
+}
+
+- (void)customerCenterViewControllerDidStartRestore:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.eventCallback("onRestoreStarted", "");
+        });
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+didFinishRestoringWithCustomerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:customerInfoDictionary options:0 error:&error];
+        if (jsonData && !error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.eventCallback("onRestoreCompleted", jsonString.UTF8String);
+            });
+        }
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+ didFailRestoringWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDictionary API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:errorDictionary options:0 error:&error];
+        if (jsonData && !error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.eventCallback("onRestoreFailed", jsonString.UTF8String);
+            });
+        }
+    }
+}
+
+- (void)customerCenterViewControllerDidShowManageSubscriptions:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.eventCallback("onShowingManageSubscriptions", "");
+        });
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+didStartRefundRequestForProductWithID:(NSString *)productID API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.eventCallback("onRefundRequestStarted", productID.UTF8String ?: "");
+        });
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+didCompleteRefundRequestForProductWithID:(NSString *)productID
+                          withStatus:(NSString *)status API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        NSDictionary *payload = @{
+            @"productIdentifier": productID ?: @"",
+            @"refundRequestStatus": status ?: @""
+        };
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
+        if (jsonData && !error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.eventCallback("onRefundRequestCompleted", jsonString.UTF8String);
+            });
+        }
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+didCompleteFeedbackSurveyWithOptionID:(NSString *)optionID API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.eventCallback("onFeedbackSurveyCompleted", optionID.UTF8String ?: "");
+        });
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+didSelectCustomerCenterManagementOption:(NSString *)optionID
+                             withURL:(NSString *)url API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        NSDictionary *payload = @{
+            @"option": optionID ?: @"",
+            @"url": url ?: [NSNull null]
+        };
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
+        if (jsonData && !error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.eventCallback("onManagementOptionSelected", jsonString.UTF8String);
+            });
+        }
+    }
+}
+
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+               didSelectCustomAction:(NSString *)actionID
+              withPurchaseIdentifier:(NSString *)purchaseIdentifier API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        NSDictionary *payload = @{
+            @"actionId": actionID ?: @"",
+            @"purchaseIdentifier": purchaseIdentifier ?: [NSNull null]
+        };
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
+        if (jsonData && !error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.eventCallback("onCustomActionSelected", jsonString.UTF8String);
+            });
+        }
+    }
+}
+
+@end
+
+void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCallback, 
+                                RCUICustomerCenterErrorCallback errorCallback,
+                                RCUICustomerCenterEventCallback eventCallback) {
+    if (!RCUICustomerCenterEnsureReady(errorCallback)) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (@available(iOS 15.0, *)) {
+            __block CustomerCenterProxy *proxy = [[CustomerCenterProxy alloc] init];
+            __block RCUICustomerCenterDelegate *delegate = [[RCUICustomerCenterDelegate alloc] init];
+            delegate.eventCallback = eventCallback;
+            
+            proxy.shouldShowCloseButton = YES;
+            [proxy setDelegate:delegate];
+
+            [proxy presentWithResultHandler:^{
+                RCUICustomerCenterInvokeDismissedCallback(dismissedCallback);
+                [proxy setDelegate:nil];
+                proxy = nil;
+                delegate = nil;
+            }];
+        } else {
+            RCUICustomerCenterInvokeErrorCallback(errorCallback);
+        }
+    });
 }
