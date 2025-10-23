@@ -12,7 +12,7 @@
   * [iOS 5.44.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.44.0)
 
 ## RevenueCatUI SDK
-RevenueCatUI adds native paywall presentation to the RevenueCat Unity SDK. It lets you present a paywall configured in the RevenueCat dashboard on iOS and Android with one line of code.
+RevenueCatUI adds Paywalls and Customer Center to the RevenueCat Unity SDK. Paywalls and Customer Center can be configured in the RevenueCat dashboard and presented on iOS and Android with one line of code.
 
 ### ✨ New Features
 * **Paywalls**: Present paywalls configured in the RevenueCat dashboard using the `PaywallsPresenter` API or `PaywallsBehaviour` MonoBehaviour component
