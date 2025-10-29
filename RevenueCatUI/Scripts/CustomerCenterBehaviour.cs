@@ -15,8 +15,8 @@ namespace RevenueCatUI
     public class CustomerCenterBehaviour : MonoBehaviour
     {
         [Serializable] public class StringEvent : UnityEvent<string> { }
-        [Serializable] public class RefundRequestCompletedEvent : UnityEvent<string, RefundRequestStatus> { }
-        [Serializable] public class ManagementOptionSelectedEvent : UnityEvent<CustomerCenterManagementOption, string> { }
+        [Serializable] public class RefundRequestCompletedEvent : UnityEvent<string, string> { }
+        [Serializable] public class ManagementOptionSelectedEvent : UnityEvent<string, string> { }
         [Serializable] public class CustomActionSelectedEvent : UnityEvent<string, string> { }
 
         [Header("Events")]
@@ -61,8 +61,8 @@ namespace RevenueCatUI
         private string lastFeedbackSurveyOptionId;
         private string lastRefundRequestStartedProductId;
         private string lastRefundRequestCompletedProductId;
-        private RefundRequestStatus lastRefundRequestStatus = RefundRequestStatus.Error;
-        private CustomerCenterManagementOption lastManagementOption = CustomerCenterManagementOption.Unknown;
+        private string lastRefundRequestStatus = RefundRequestStatus.Error;
+        private string lastManagementOption = CustomerCenterManagementOption.Unknown;
         private string lastManagementOptionUrl;
         private string lastCustomActionId;
         private string lastCustomActionPurchaseId;
@@ -74,8 +74,8 @@ namespace RevenueCatUI
         public string LastFeedbackSurveyOptionId => lastFeedbackSurveyOptionId;
         public string LastRefundRequestStartedProductId => lastRefundRequestStartedProductId;
         public string LastRefundRequestCompletedProductId => lastRefundRequestCompletedProductId;
-        public RefundRequestStatus LastRefundRequestStatus => lastRefundRequestStatus;
-        public CustomerCenterManagementOption LastManagementOption => lastManagementOption;
+        public string LastRefundRequestStatus => lastRefundRequestStatus;
+        public string LastManagementOption => lastManagementOption;
         public string LastManagementOptionUrl => lastManagementOptionUrl;
         public string LastCustomActionId => lastCustomActionId;
         public string LastCustomActionPurchaseId => lastCustomActionPurchaseId;
@@ -228,7 +228,7 @@ namespace RevenueCatUI
             unityEvent.Invoke(argument);
         }
 
-        private void InvokeUnityEvent(RefundRequestCompletedEvent unityEvent, string productId, RefundRequestStatus status, string eventName)
+        private void InvokeUnityEvent(RefundRequestCompletedEvent unityEvent, string productId, string status, string eventName)
         {
             if (unityEvent == null)
             {
@@ -243,7 +243,7 @@ namespace RevenueCatUI
             unityEvent.Invoke(productId, status);
         }
 
-        private void InvokeUnityEvent(ManagementOptionSelectedEvent unityEvent, CustomerCenterManagementOption option, string url, string eventName)
+        private void InvokeUnityEvent(ManagementOptionSelectedEvent unityEvent, string option, string url, string eventName)
         {
             if (unityEvent == null)
             {

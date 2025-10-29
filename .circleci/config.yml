@@ -89,7 +89,7 @@ commands:
 
 
       - run:
-          name: Import package
+          name: Import Purchases package
           command: |
             /opt/unity/Editor/Unity \
               -projectPath IntegrationTests \
@@ -99,6 +99,18 @@ commands:
               -logFile /dev/stdout \
               -disable-assembly-updater \
               -importPackage ../Purchases.unitypackage
+
+      - run:
+          name: Import PurchasesUI package
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath IntegrationTests \
+              -quit \
+              -batchmode \
+              -nographics \
+              -logFile /dev/stdout \
+              -disable-assembly-updater \
+              -importPackage ../PurchasesUI.unitypackage
 
       - run:
           name: Bring scripts back
