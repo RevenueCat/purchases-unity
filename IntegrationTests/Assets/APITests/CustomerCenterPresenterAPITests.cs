@@ -71,8 +71,14 @@ namespace DefaultNamespace
             callbacksPresentationTask.ContinueWith(_ => { _presentationCompleted = true; });
 
             string cancelOption = CustomerCenterManagementOption.Cancel;
+            string customUrlOption = CustomerCenterManagementOption.CustomUrl;
+            string missingPurchaseOption = CustomerCenterManagementOption.MissingPurchase;
+            string refundRequestOption = CustomerCenterManagementOption.RefundRequest;
+            string changePlansOption = CustomerCenterManagementOption.ChangePlans;
+            string unknownOption = CustomerCenterManagementOption.Unknown;
             string refundSuccess = RefundRequestStatus.Success;
             string refundUserCancelled = RefundRequestStatus.UserCancelled;
+            string refundError = RefundRequestStatus.Error;
         }
     }
 }

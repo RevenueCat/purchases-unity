@@ -37,6 +37,18 @@ namespace DefaultNamespace
                 _presentIfNeededNativeString = _presentIfNeededResultType.ToNativeString();
                 _presentIfNeededResultType = PaywallResultTypeExtensions.FromNativeString(_presentIfNeededNativeString);
             });
+            
+            PaywallResultType notPresented = PaywallResultType.NotPresented;
+            PaywallResultType cancelled = PaywallResultType.Cancelled;
+            PaywallResultType error = PaywallResultType.Error;
+            PaywallResultType purchased = PaywallResultType.Purchased;
+            PaywallResultType restored = PaywallResultType.Restored;
+            PaywallResult testResult = new PaywallResult(PaywallResultType.Purchased);
+            string notPresentedStr = PaywallResultType.NotPresented.ToNativeString();
+            string cancelledStr = PaywallResultType.Cancelled.ToNativeString();
+            string errorStr = PaywallResultType.Error.ToNativeString();
+            string purchasedStr = PaywallResultType.Purchased.ToNativeString();
+            string restoredStr = PaywallResultType.Restored.ToNativeString();
         }
     }
 }
