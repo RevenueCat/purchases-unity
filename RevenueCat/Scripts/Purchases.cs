@@ -637,7 +637,8 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Callback for <see cref="Purchases.GetCurrentOfferingForPlacement"/>.
     /// </summary>
-    /// <param name="offerings"> The nullable <see cref="Offering"/> object if the request was successful, null otherwise.</param>
+    /// <param name="offerings"> The nullable <see cref="Offering"/> object if the request was successful, null if no
+    /// offering was found for the particular placement.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
     public delegate void GetCurrentOfferingForPlacementFunc(Offering offerings, Error error);
 
@@ -1560,6 +1561,11 @@ public partial class Purchases : MonoBehaviour
         var response = JSON.Parse(offeringJson);
         var callback = GetCurrentOfferingForPlacementCallback;
         GetCurrentOfferingForPlacementCallback = null;
+        if (response == null || response["offering"] == null)
+        {
+            callback(null, null);
+            return;
+        }
         if (ResponseHasError(response))
         {
             callback(null, new Error(response["error"]));
