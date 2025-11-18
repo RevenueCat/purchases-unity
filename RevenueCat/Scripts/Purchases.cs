@@ -85,7 +85,7 @@ public partial class Purchases : MonoBehaviour
     public bool shouldShowInAppMessagesAutomatically = true;
 
     [Tooltip("The entitlement verification mode to use. For more information, check: https://rev.cat/trusted-entitlements")]
-    public EntitlementVerificationMode entitlementVerificationMode = EntitlementVerificationMode.Disabled;
+    public EntitlementVerificationMode entitlementVerificationMode = EntitlementVerificationMode.Informational;
 
     [Tooltip("Enable this setting if you want to allow pending purchases for prepaid subscriptions (only supported " +
              "in Google Play). Note that entitlements are not granted until payment is done. Disabled by default.")]

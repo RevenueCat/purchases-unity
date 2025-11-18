@@ -5,7 +5,6 @@ using RevenueCat;
 using RevenueCat.SimpleJSON;
 using RevenueCatUI.Internal;
 using UnityEngine;
-using UnityEngine.Android;
 
 namespace RevenueCatUI.Platforms
 {
@@ -55,7 +54,7 @@ namespace RevenueCatUI.Platforms
                 return _current.Task;
             }
 
-            var currentActivity = AndroidApplication.currentActivity;
+            AndroidJavaObject currentActivity = AndroidActivityUtils.GetCurrentActivity();
             if (currentActivity == null)
             {
                 throw new InvalidOperationException("[RevenueCatUI][Android] Current activity is null. Cannot present Customer Center.");
