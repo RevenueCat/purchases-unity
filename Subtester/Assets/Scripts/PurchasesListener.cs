@@ -165,7 +165,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             }
             else if (offering == null)
             {
-                Debug.Log("offering received for placement is null");
+                Debug.Log("no offering received for placement");
             }
             else
             {
