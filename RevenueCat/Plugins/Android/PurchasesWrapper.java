@@ -302,6 +302,10 @@ public class PurchasesWrapper {
             @Override
             public void onReceived(Map<String, ?> map) {
                 try {
+                    if (map == null) {
+                        sendEmptyJSONObject(GET_CURRENT_OFFERING_FOR_PLACEMENT);
+                        return;
+                    }
                     JSONObject offering = null;
                     if (map != null) {
                         offering = MappersHelpersKt.convertToJson(map);
