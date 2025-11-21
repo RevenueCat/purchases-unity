@@ -242,6 +242,47 @@ jobs:
       - store_artifacts:
           path: PurchasesUI.unitypackage
 
+  export-package-bc7:
+    executor: unity
+
+    steps:
+      - checkout
+
+      - unity/prepare-env:
+          project-path: Subtester
+
+      - run:
+          name: Modify dependencies to use bc7 variants
+          command: |
+            sed -i 's/purchases-hybrid-common:/purchases-hybrid-common-bc7:/g' RevenueCat/Plugins/Editor/RevenueCatDependencies.xml
+            sed -i 's/purchases-hybrid-common-ui:/purchases-hybrid-common-ui-bc7:/g' RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml
+            sed -i 's/purchases-hybrid-common:/purchases-hybrid-common-bc7:/g' RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build.gradle
+            sed -i 's/purchases-hybrid-common-ui:/purchases-hybrid-common-ui-bc7:/g' RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build.gradle
+
+      - run:
+          name: Export Unity Package with BC7 dependencies
+          description: Creating Purchases-bc7.unitypackage, this may take a minute.
+          command: |
+            ./scripts/create-unity-package.sh -u /opt/unity/Editor/Unity -v
+
+      - run:
+          name: Rename packages to bc7 variants
+          command: |
+            mv Purchases.unitypackage Purchases-bc7.unitypackage
+            mv PurchasesUI.unitypackage PurchasesUI-bc7.unitypackage
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - Purchases-bc7.unitypackage
+            - PurchasesUI-bc7.unitypackage
+
+      - store_artifacts:
+          path: Purchases-bc7.unitypackage
+
+      - store_artifacts:
+          path: PurchasesUI-bc7.unitypackage
+
   build-subtester-android:
     resource_class: large
     executor: unity-android
@@ -443,6 +484,8 @@ workflows:
     jobs:
       - export-package:
           context: unity
+      - export-package-bc7:
+          context: unity
       - build-subtester-android:
           context: unity
       - build-subtester-ios:
@@ -480,9 +523,13 @@ workflows:
       - export-package: 
           context: unity
           <<: *release-tags
+      - export-package-bc7:
+          context: unity
+          <<: *release-tags
       - github-release:
           requires:
             - export-package
+            - export-package-bc7
           <<: *release-tags
 
   weekly-run-workflow:
