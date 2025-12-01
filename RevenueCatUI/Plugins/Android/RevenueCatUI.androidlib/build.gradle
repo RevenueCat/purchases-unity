@@ -2,8 +2,8 @@ apply plugin: 'com.android.library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:17.21.1'
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:17.21.1'
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common:17.21.2'
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:17.21.2'
     implementation 'androidx.activity:activity:1.8.2'
 }
 
