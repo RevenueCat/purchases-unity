@@ -2,8 +2,8 @@
   <packages>
     <package>androidx.activity:activity:1.8.2</package>
     <package>androidx.annotation:annotation:[1.2.0]</package>
-    <package>com.revenuecat.purchases:purchases-hybrid-common:[17.21.2]</package>
-    <package>com.revenuecat.purchases:purchases-hybrid-common-ui:[17.21.2]</package>
+    <package>com.revenuecat.purchases:purchases-hybrid-common:[17.22.0]</package>
+    <package>com.revenuecat.purchases:purchases-hybrid-common-ui:[17.22.0]</package>
   </packages>
   <files />
   <settings>
