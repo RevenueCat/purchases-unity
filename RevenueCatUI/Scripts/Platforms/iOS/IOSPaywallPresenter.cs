@@ -10,8 +10,8 @@ namespace RevenueCatUI.Platforms
     {
         private delegate void PaywallResultCallback(string result);
 
-        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, string customVariablesJson, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, string customVariablesJson, PaywallResultCallback cb);
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
@@ -28,7 +28,8 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, OnResult);
+                var customVariablesJson = options?.CustomVariablesToJsonString();
+                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, customVariablesJson, OnResult);
             }
             catch (Exception e)
             {
@@ -52,7 +53,8 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, OnResult);
+                var customVariablesJson = options?.CustomVariablesToJsonString();
+                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, customVariablesJson, OnResult);
             }
             catch (Exception e)
             {

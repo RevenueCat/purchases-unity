@@ -8,6 +8,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import androidx.annotation.Nullable;
 import androidx.activity.ComponentActivity;
 
@@ -58,12 +62,13 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
         String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
+        Map<String, String> customVariables = parseCustomVariables(options.getCustomVariablesJson());
 
         if (offeringId == null) {
             launcher.launchIfNeeded(
                     requiredEntitlementIdentifier,
                     null,
-                    null,
+                    customVariables,
                     shouldDisplayDismissButton,
                     Build.VERSION.SDK_INT >= 35,
                     paywallDisplayResult -> {
@@ -79,7 +84,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
                     requiredEntitlementIdentifier,
                     offeringId,
                     presentedOfferingContext,
-                    null,
+                    customVariables,
                     shouldDisplayDismissButton,
                     Build.VERSION.SDK_INT >= 35,
                     paywallDisplayResult -> {
@@ -96,19 +101,20 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
         String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
+        Map<String, String> customVariables = parseCustomVariables(options.getCustomVariablesJson());
 
         if (offeringId != null) {
             PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
             launcher.launchWithOfferingId(
                     offeringId,
                     presentedOfferingContext,
-                    null,
+                    customVariables,
                     shouldDisplayDismissButton
             );
         } else {
             launcher.launch(
                 null,
-                null,
+                customVariables,
                 shouldDisplayDismissButton
             );
         }
@@ -145,6 +151,29 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         }
     }
 
+    @Nullable
+    private Map<String, String> parseCustomVariables(@Nullable String jsonString) {
+        if (jsonString == null || jsonString.isEmpty()) {
+            return null;
+        }
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            Map<String, String> result = new HashMap<>();
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = json.optString(key);
+                if (value != null) {
+                    result.put(key, value);
+                }
+            }
+            return result.isEmpty() ? null : result;
+        } catch (JSONException e) {
+            Log.w(TAG, "Failed to parse custom variables JSON: " + jsonString, e);
+            return null;
+        }
+    }
+
     @Override
     public void onActivityResult(PaywallResult result) {
         try {
@@ -174,14 +203,14 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         RevenueCatUI.sendPaywallResult(resultName);
     }
 
-    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton) {
+    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton, @Nullable String customVariablesJson) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
             RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             return;
         }
 
-        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null, presentedOfferingContextJson);
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null, presentedOfferingContextJson, customVariablesJson);
 
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
         intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);
@@ -194,7 +223,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         }
     }
 
-    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton) {
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton, @Nullable String customVariablesJson) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
             RevenueCatUI.sendPaywallResult(RESULT_ERROR);
@@ -207,7 +236,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             return;
         }
 
-        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier, presentedOfferingContextJson);
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier, presentedOfferingContextJson, customVariablesJson);
 
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
         intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);

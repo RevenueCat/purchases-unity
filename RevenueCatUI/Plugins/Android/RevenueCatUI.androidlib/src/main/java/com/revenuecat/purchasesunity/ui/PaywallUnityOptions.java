@@ -13,17 +13,21 @@ public class PaywallUnityOptions implements Parcelable {
     private final String requiredEntitlementIdentifier;
     @Nullable
     private final String presentedOfferingContextJson;
+    @Nullable
+    private final String customVariablesJson;
 
     public PaywallUnityOptions(
             @Nullable String offeringId,
             boolean shouldDisplayDismissButton,
             @Nullable String requiredEntitlementIdentifier,
-            @Nullable String presentedOfferingContextJson
+            @Nullable String presentedOfferingContextJson,
+            @Nullable String customVariablesJson
     ) {
         this.offeringId = offeringId;
         this.shouldDisplayDismissButton = shouldDisplayDismissButton;
         this.requiredEntitlementIdentifier = requiredEntitlementIdentifier;
         this.presentedOfferingContextJson = presentedOfferingContextJson;
+        this.customVariablesJson = customVariablesJson;
     }
 
     protected PaywallUnityOptions(Parcel in) {
@@ -31,6 +35,7 @@ public class PaywallUnityOptions implements Parcelable {
         shouldDisplayDismissButton = in.readByte() != 0;
         requiredEntitlementIdentifier = in.readString();
         presentedOfferingContextJson = in.readString();
+        customVariablesJson = in.readString();
     }
 
     @Nullable
@@ -52,12 +57,18 @@ public class PaywallUnityOptions implements Parcelable {
         return presentedOfferingContextJson;
     }
 
+    @Nullable
+    public String getCustomVariablesJson() {
+        return customVariablesJson;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(offeringId);
         dest.writeByte((byte) (shouldDisplayDismissButton ? 1 : 0));
         dest.writeString(requiredEntitlementIdentifier);
         dest.writeString(presentedOfferingContextJson);
+        dest.writeString(customVariablesJson);
     }
 
     @Override
