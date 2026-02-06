@@ -51,11 +51,12 @@ namespace RevenueCatUI.Platforms
                 var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? false;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                
+                var customVariablesJson = options?.CustomVariablesToJsonString();
+
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offeringIdentifier ?? "<null>"}', " +
                           $"displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson });
             }
             catch (Exception e)
             {
@@ -86,10 +87,12 @@ namespace RevenueCatUI.Platforms
                 var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
+                var customVariablesJson = options?.CustomVariablesToJsonString();
+
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', '" +
                           $"offering='{offeringIdentifier ?? "<null>"}', displayCloseButton={displayCloseButton}");
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson });
             }
             catch (Exception e)
             {
