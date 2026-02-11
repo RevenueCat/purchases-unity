@@ -22,7 +22,8 @@ public partial class Purchases
         [CanBeNull] public readonly Package TwoMonth;
         [CanBeNull] public readonly Package Monthly;
         [CanBeNull] public readonly Package Weekly;
-        
+        [CanBeNull] public readonly string WebCheckoutUrl;
+
         public Offering(JSONNode response)
         {
             Identifier = response["identifier"];
@@ -67,6 +68,10 @@ public partial class Purchases
             {
                 Weekly = new Package(response["weekly"]);
             }
+            if (response["webCheckoutUrl"] != null && !response["webCheckoutUrl"].IsNull)
+            {
+                WebCheckoutUrl = response["webCheckoutUrl"];
+            }
             Metadata = new Dictionary<string, object>();
             if (response["metadata"] != null && !response["metadata"].IsNull)
             {
@@ -90,7 +95,8 @@ public partial class Purchases
                    $"{nameof(ThreeMonth)}: {ThreeMonth}\n" +
                    $"{nameof(TwoMonth)}: {TwoMonth}\n" +
                    $"{nameof(Monthly)}: {Monthly}\n" +
-                   $"{nameof(Weekly)}: {Weekly}";
+                   $"{nameof(Weekly)}: {Weekly}\n" +
+                   $"{nameof(WebCheckoutUrl)}: {WebCheckoutUrl}";
         }
 
         private object ParseJsonValue(JSONNode jsonValue)
