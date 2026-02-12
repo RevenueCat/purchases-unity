@@ -12,6 +12,7 @@ namespace DefaultNamespace
             string packageType = package.PackageType;
             Purchases.StoreProduct storeProduct = package.StoreProduct;
             string offeringIdentifier = package.OfferingIdentifier;
+            string webCheckoutUrl = package.WebCheckoutUrl;
         }
     }
 }
