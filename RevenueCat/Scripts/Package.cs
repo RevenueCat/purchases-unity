@@ -15,6 +15,7 @@ public partial class Purchases
         public readonly string PackageType;
         public readonly StoreProduct StoreProduct;
         public readonly PresentedOfferingContext PresentedOfferingContext;
+        [CanBeNull] public readonly string WebCheckoutUrl;
 
         [Obsolete("Deprecated, use PresentedOfferingContext instead.", false)]
         public readonly string OfferingIdentifier;
@@ -26,6 +27,10 @@ public partial class Purchases
             StoreProduct = new StoreProduct(response["product"]);
             PresentedOfferingContext = new PresentedOfferingContext(response["presentedOfferingContext"]);
             OfferingIdentifier = PresentedOfferingContext.OfferingIdentifier;
+            if (response["webCheckoutUrl"] != null && !response["webCheckoutUrl"].IsNull)
+            {
+                WebCheckoutUrl = response["webCheckoutUrl"];
+            }
         }
 
         public override string ToString()
@@ -33,7 +38,8 @@ public partial class Purchases
             return $"{nameof(Identifier)}: {Identifier}\n" +
                    $"{nameof(PackageType)}: {PackageType}\n" +
                    $"{nameof(StoreProduct)}: {StoreProduct}\n" +
-                   $"{nameof(PresentedOfferingContext)}: {PresentedOfferingContext}";
+                   $"{nameof(PresentedOfferingContext)}: {PresentedOfferingContext}\n" +
+                   $"{nameof(WebCheckoutUrl)}: {WebCheckoutUrl}";
         }
     }
 }
