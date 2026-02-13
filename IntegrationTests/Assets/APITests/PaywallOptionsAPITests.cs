@@ -16,19 +16,19 @@ namespace DefaultNamespace
 
             // Test PaywallOptions with customVariables only
             PaywallOptions options3 = new PaywallOptions(
-                customVariables: new Dictionary<string, string>
+                customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "player_name", "John" },
-                    { "level", "5" }
+                    { "player_name", CustomVariableValue.String("John") },
+                    { "level", CustomVariableValue.String("5") }
                 }
             );
 
             // Test PaywallOptions with displayCloseButton and customVariables
             PaywallOptions options4 = new PaywallOptions(
                 displayCloseButton: true,
-                customVariables: new Dictionary<string, string>
+                customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "player_name", "Jane" }
+                    { "player_name", CustomVariableValue.String("Jane") }
                 }
             );
 
@@ -45,9 +45,9 @@ namespace DefaultNamespace
             // Test PaywallOptions with offering and customVariables
             PaywallOptions options7 = new PaywallOptions(
                 offering: offering,
-                customVariables: new Dictionary<string, string>
+                customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "coins", "1000" }
+                    { "coins", CustomVariableValue.String("1000") }
                 }
             );
 
@@ -55,13 +55,16 @@ namespace DefaultNamespace
             PaywallOptions options8 = new PaywallOptions(
                 offering: offering,
                 displayCloseButton: true,
-                customVariables: new Dictionary<string, string>
+                customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "player_name", "Test" },
-                    { "level", "42" },
-                    { "coins_balance", "9999" }
+                    { "player_name", CustomVariableValue.String("Test") },
+                    { "level", CustomVariableValue.String("42") },
+                    { "coins_balance", CustomVariableValue.String("9999") }
                 }
             );
+
+            // Test CustomVariableValue factory method
+            CustomVariableValue stringValue = CustomVariableValue.String("test");
         }
     }
 }
