@@ -53,7 +53,7 @@ namespace RevenueCatUI
         internal readonly OfferingSelection _offeringSelection;
 
         internal bool DisplayCloseButton { get; }
-        internal Dictionary<string, string> CustomVariables { get; }
+        internal Dictionary<string, CustomVariableValue> CustomVariables { get; }
         internal string OfferingIdentifier => _offeringSelection?.GetOfferingIdentifier();
         internal Purchases.PresentedOfferingContext PresentedOfferingContext => _offeringSelection?.GetPresentedOfferingContext();
 
@@ -62,8 +62,8 @@ namespace RevenueCatUI
         /// Will present the current offering.
         /// </summary>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax.</param>
-        public PaywallOptions(bool displayCloseButton = false, Dictionary<string, string> customVariables = null)
+        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
+        public PaywallOptions(bool displayCloseButton = false, Dictionary<string, CustomVariableValue> customVariables = null)
         {
             _offeringSelection = null;
             DisplayCloseButton = displayCloseButton;
@@ -75,15 +75,15 @@ namespace RevenueCatUI
         /// </summary>
         /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax.</param>
-        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, Dictionary<string, string> customVariables = null)
+        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, Dictionary<string, CustomVariableValue> customVariables = null)
         {
             _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
             DisplayCloseButton = displayCloseButton;
             CustomVariables = customVariables;
         }
 
-        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, Dictionary<string, string> customVariables = null)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, Dictionary<string, CustomVariableValue> customVariables = null)
         {
             _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
@@ -96,8 +96,9 @@ namespace RevenueCatUI
         internal string CustomVariablesToJsonString()
         {
             if (CustomVariables == null || CustomVariables.Count == 0) return null;
+            var stringDict = CustomVariables.ToStringDictionary();
             var dict = new SimpleJSON.JSONObject();
-            foreach (var kvp in CustomVariables)
+            foreach (var kvp in stringDict)
             {
                 dict[kvp.Key] = kvp.Value;
             }

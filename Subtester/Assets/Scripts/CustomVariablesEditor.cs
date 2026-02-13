@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RevenueCatUI;
 
 /// <summary>
 /// A simple editor for custom paywall variables.
@@ -202,11 +203,16 @@ public class CustomVariablesEditor : MonoBehaviour
     /// Gets the custom variables as a dictionary suitable for PaywallOptions.
     /// Returns null if no variables are defined.
     /// </summary>
-    public Dictionary<string, string> GetCustomVariablesForPaywall()
+    public Dictionary<string, CustomVariableValue> GetCustomVariablesForPaywall()
     {
         if (CustomVariables.Count == 0)
             return null;
 
-        return new Dictionary<string, string>(CustomVariables);
+        var result = new Dictionary<string, CustomVariableValue>();
+        foreach (var kvp in CustomVariables)
+        {
+            result[kvp.Key] = CustomVariableValue.String(kvp.Value);
+        }
+        return result;
     }
 }
