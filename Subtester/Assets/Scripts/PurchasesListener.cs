@@ -166,6 +166,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
             {
                 LogError(error);
             }
+            else if (offering == null)
+            {
+                Debug.Log("no offering received for placement");
+            }
             else
             {
                 Debug.Log("offering for placement received " + offering.ToString());

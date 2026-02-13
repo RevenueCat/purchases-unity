@@ -64,7 +64,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "8.4.1";
+    private static final String PLUGIN_VERSION = "8.4.20";
 
     private static String gameObject;
 
@@ -302,6 +302,10 @@ public class PurchasesWrapper {
             @Override
             public void onReceived(Map<String, ?> map) {
                 try {
+                    if (map == null) {
+                        sendEmptyJSONObject(GET_CURRENT_OFFERING_FOR_PLACEMENT);
+                        return;
+                    }
                     JSONObject offering = null;
                     if (map != null) {
                         offering = MappersHelpersKt.convertToJson(map);
