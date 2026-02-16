@@ -89,26 +89,34 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         launcher.launchIfNeededWithOptions(builder.build());
     }
 
+    @SuppressWarnings("deprecation")
     private void launchPaywall(PaywallUnityOptions options) {
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
         String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
         Map<String, CustomVariableValue> customVariables = parseCustomVariables(options.getCustomVariablesJson());
 
-        PaywallActivityLaunchOptions.Builder builder = new PaywallActivityLaunchOptions.Builder()
-                .setShouldDisplayDismissButton(shouldDisplayDismissButton)
-                .setEdgeToEdge(Build.VERSION.SDK_INT >= 35);
-
-        if (customVariables != null && !customVariables.isEmpty()) {
-            builder.setCustomVariables(customVariables);
-        }
-
         if (offeringId != null) {
             PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
-            builder.setOfferingIdentifier(offeringId, presentedOfferingContext);
+            // Use the deprecated launch() method that handles internal API opt-in
+            launcher.launch(
+                offeringId,
+                presentedOfferingContext,
+                null, // fontProvider
+                shouldDisplayDismissButton,
+                Build.VERSION.SDK_INT >= 35,
+                customVariables != null ? customVariables : java.util.Collections.emptyMap()
+            );
+        } else {
+            // No offering specified, use default
+            launcher.launch(
+                null, // offering
+                null, // fontProvider
+                shouldDisplayDismissButton,
+                Build.VERSION.SDK_INT >= 35,
+                customVariables != null ? customVariables : java.util.Collections.emptyMap()
+            );
         }
-
-        launcher.launchWithOptions(builder.build());
     }
 
     @Nullable
