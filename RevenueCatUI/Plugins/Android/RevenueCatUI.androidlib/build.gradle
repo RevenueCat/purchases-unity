@@ -9,7 +9,7 @@ dependencies {
 
 android {
     namespace 'com.revenuecat.purchasesunity.ui'
-    
+
     compileSdk getProperty("unity.compileSdkVersion") as int
     buildToolsVersion = getProperty("unity.buildToolsVersion")
 
@@ -43,7 +43,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules. pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

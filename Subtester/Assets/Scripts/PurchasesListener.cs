@@ -11,6 +11,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     public RectTransform parentPanel;
     public GameObject buttonPrefab;
     public Text infoLabel;
+    public CustomVariablesEditor customVariablesEditor;
 
     private bool simulatesAskToBuyInSandbox;
 
@@ -66,8 +67,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Purchase Package For WinBack Testing", PurchasePackageForWinBackTesting);
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
         CreateButton("Get Storefront", GetStorefront);
+        CreateButton("Edit Custom Variables", ToggleCustomVariablesEditor);
         CreateButton("Present Paywall", PresentPaywallResult);
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
+        CreateButton("Present Paywall with Custom Vars", PresentPaywallWithCustomVariables);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
         CreateButton("Present Customer Center", PresentCustomerCenter);
@@ -219,6 +222,41 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallWithOptionsCoroutine());
     }
 
+    void ToggleCustomVariablesEditor()
+    {
+        if (customVariablesEditor != null)
+        {
+            customVariablesEditor.ToggleEditor();
+            var varCount = customVariablesEditor.CustomVariables?.Count ?? 0;
+            if (customVariablesEditor.IsEditorVisible())
+            {
+                infoLabel.text = $"Custom Variables Editor opened ({varCount} variables defined)";
+            }
+            else
+            {
+                infoLabel.text = $"Custom Variables Editor closed ({varCount} variables will be used)";
+            }
+        }
+        else
+        {
+            infoLabel.text = "CustomVariablesEditor not configured";
+            Debug.LogWarning("Subtester: CustomVariablesEditor reference not set");
+        }
+    }
+
+    void PresentPaywallWithCustomVariables()
+    {
+        Debug.Log("Subtester: launching paywall with custom variables");
+
+        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
+        var varCount = customVars?.Count ?? 0;
+
+        if (infoLabel != null)
+            infoLabel.text = $"Launching paywall with {varCount} custom variable(s)...";
+
+        StartCoroutine(PresentPaywallWithCustomVariablesCoroutine());
+    }
+
     void PresentPaywallForOffering()
     {
         Debug.Log("Subtester: launching paywall for specific offering");
@@ -344,6 +382,42 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
     }
 
+    private System.Collections.IEnumerator PresentPaywallWithCustomVariablesCoroutine()
+    {
+        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
+        var varCount = customVars?.Count ?? 0;
+
+        // Log the custom variables being sent
+        if (customVars != null)
+        {
+            Debug.Log($"Subtester: Presenting paywall with {varCount} custom variables:");
+            foreach (var kvp in customVars)
+            {
+                Debug.Log($"  {kvp.Key} = \"{kvp.Value}\"");
+            }
+        }
+        else
+        {
+            Debug.Log("Subtester: Presenting paywall with no custom variables");
+        }
+
+        var options = new RevenueCatUI.PaywallOptions(
+            displayCloseButton: true,
+            customVariables: customVars
+        );
+
+        var task = RevenueCatUI.PaywallsPresenter.Present(options);
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall with custom variables result = " + result);
+
+        if (infoLabel != null)
+        {
+            infoLabel.text = $"Paywall with {varCount} custom var(s) result: {GetPaywallResultStatus(result)}";
+        }
+    }
+
     private System.Collections.IEnumerator PresentPaywallForOfferingCoroutine()
     {
         // First get available offerings to use one as an example
@@ -391,9 +465,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         Debug.Log($"Subtester: Presenting paywall for offering: {randomOffering?.Identifier ?? "current"}");
 
-        var options = randomOffering != null 
-            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true)
-            : new RevenueCatUI.PaywallOptions(displayCloseButton: true);
+        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
+        var options = randomOffering != null
+            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true, customVariables: customVars)
+            : new RevenueCatUI.PaywallOptions(displayCloseButton: true, customVariables: customVars);
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
 
@@ -455,9 +530,10 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {randomOffering?.Identifier ?? "current"}");
 
-        var options = randomOffering != null 
-            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true)
-            : new RevenueCatUI.PaywallOptions(displayCloseButton: true);
+        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
+        var options = randomOffering != null
+            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true, customVariables: customVars)
+            : new RevenueCatUI.PaywallOptions(displayCloseButton: true, customVariables: customVars);
         var task = RevenueCatUI.PaywallsPresenter.PresentIfNeeded(testEntitlement, options);
         while (!task.IsCompleted) { yield return null; }
 

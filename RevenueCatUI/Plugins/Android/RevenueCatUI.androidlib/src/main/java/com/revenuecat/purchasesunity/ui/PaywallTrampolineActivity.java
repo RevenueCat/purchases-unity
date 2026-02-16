@@ -8,11 +8,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import androidx.annotation.Nullable;
 import androidx.activity.ComponentActivity;
 
+import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher;
-import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallDisplayCallback;
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLaunchOptions;
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLaunchIfNeededOptions;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult;
 import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler;
 import com.revenuecat.purchases.PresentedOfferingContext;
@@ -58,58 +64,57 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
         String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
+        Map<String, CustomVariableValue> customVariables = parseCustomVariables(options.getCustomVariablesJson());
 
-        if (offeringId == null) {
-            launcher.launchIfNeeded(
-                    requiredEntitlementIdentifier,
-                    null,
-                    null,
-                    shouldDisplayDismissButton,
-                    Build.VERSION.SDK_INT >= 35,
-                    paywallDisplayResult -> {
-                        if (!paywallDisplayResult) {
-                            RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
-                            finish();
-                        }
+        PaywallActivityLaunchIfNeededOptions.Builder builder = new PaywallActivityLaunchIfNeededOptions.Builder()
+                .setRequiredEntitlementIdentifier(requiredEntitlementIdentifier)
+                .setShouldDisplayDismissButton(shouldDisplayDismissButton)
+                .setEdgeToEdge(Build.VERSION.SDK_INT >= 35)
+                .setPaywallDisplayCallback(paywallDisplayResult -> {
+                    if (!paywallDisplayResult) {
+                        RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
+                        finish();
                     }
-            );
-        } else {
-            PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
-            launcher.launchIfNeededWithOfferingId(
-                    requiredEntitlementIdentifier,
-                    offeringId,
-                    presentedOfferingContext,
-                    null,
-                    shouldDisplayDismissButton,
-                    Build.VERSION.SDK_INT >= 35,
-                    paywallDisplayResult -> {
-                        if (!paywallDisplayResult) {
-                            RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
-                            finish();
-                        }
-                    }
-            );
+                });
+
+        if (customVariables != null && !customVariables.isEmpty()) {
+            builder.setCustomVariables(customVariables);
         }
+
+        if (offeringId != null) {
+            PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
+            builder.setOfferingIdentifier(offeringId, presentedOfferingContext);
+        }
+
+        launcher.launchIfNeededWithOptions(builder.build());
     }
 
+    @SuppressWarnings("deprecation")
     private void launchPaywall(PaywallUnityOptions options) {
         String offeringId = options.getOfferingId();
         boolean shouldDisplayDismissButton = options.getShouldDisplayDismissButton();
         String presentedOfferingContextJson = options.getPresentedOfferingContextJson();
+        Map<String, CustomVariableValue> customVariables = parseCustomVariables(options.getCustomVariablesJson());
 
         if (offeringId != null) {
             PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
-            launcher.launchWithOfferingId(
-                    offeringId,
-                    presentedOfferingContext,
-                    null,
-                    shouldDisplayDismissButton
+            // Use the deprecated launch() method that handles internal API opt-in
+            launcher.launch(
+                offeringId,
+                presentedOfferingContext,
+                null, // fontProvider
+                shouldDisplayDismissButton,
+                Build.VERSION.SDK_INT >= 35,
+                customVariables != null ? customVariables : java.util.Collections.emptyMap()
             );
         } else {
+            // No offering specified, use default
             launcher.launch(
-                null,
-                null,
-                shouldDisplayDismissButton
+                null, // offering
+                null, // fontProvider
+                shouldDisplayDismissButton,
+                Build.VERSION.SDK_INT >= 35,
+                customVariables != null ? customVariables : java.util.Collections.emptyMap()
             );
         }
     }
@@ -145,6 +150,29 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         }
     }
 
+    @Nullable
+    private Map<String, CustomVariableValue> parseCustomVariables(@Nullable String jsonString) {
+        if (jsonString == null || jsonString.isEmpty()) {
+            return null;
+        }
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            Map<String, CustomVariableValue> result = new HashMap<>();
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = json.optString(key);
+                if (value != null) {
+                    result.put(key, new CustomVariableValue.String(value));
+                }
+            }
+            return result.isEmpty() ? null : result;
+        } catch (JSONException e) {
+            Log.w(TAG, "Failed to parse custom variables JSON: " + jsonString, e);
+            return null;
+        }
+    }
+
     @Override
     public void onActivityResult(PaywallResult result) {
         try {
@@ -174,14 +202,14 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         RevenueCatUI.sendPaywallResult(resultName);
     }
 
-    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton) {
+    public static void presentPaywall(Activity activity, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton, @Nullable String customVariablesJson) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
             RevenueCatUI.sendPaywallResult(RESULT_ERROR);
             return;
         }
 
-        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null, presentedOfferingContextJson);
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, null, presentedOfferingContextJson, customVariablesJson);
 
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
         intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);
@@ -194,7 +222,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
         }
     }
 
-    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton) {
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, @Nullable String offeringIdentifier, @Nullable String presentedOfferingContextJson, boolean displayCloseButton, @Nullable String customVariablesJson) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot launch paywall");
             RevenueCatUI.sendPaywallResult(RESULT_ERROR);
@@ -207,7 +235,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             return;
         }
 
-        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier, presentedOfferingContextJson);
+        PaywallUnityOptions options = new PaywallUnityOptions(offeringIdentifier, displayCloseButton, requiredEntitlementIdentifier, presentedOfferingContextJson, customVariablesJson);
 
         Intent intent = new Intent(activity, PaywallTrampolineActivity.class);
         intent.putExtra(EXTRA_PAYWALL_OPTIONS, options);
