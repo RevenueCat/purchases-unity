@@ -83,8 +83,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
 
         if (offeringId != null) {
             PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
-            builder.setOfferingId(offeringId)
-                   .setPresentedOfferingContext(presentedOfferingContext);
+            builder.setOfferingIdentifier(offeringId, presentedOfferingContext);
         }
 
         launcher.launchIfNeededWithOptions(builder.build());
@@ -106,8 +105,7 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
 
         if (offeringId != null) {
             PresentedOfferingContext presentedOfferingContext = mapPresentedOfferingContext(presentedOfferingContextJson, offeringId);
-            builder.setOfferingId(offeringId)
-                   .setPresentedOfferingContext(presentedOfferingContext);
+            builder.setOfferingIdentifier(offeringId, presentedOfferingContext);
         }
 
         launcher.launchWithOptions(builder.build());
