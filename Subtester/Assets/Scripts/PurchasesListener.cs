@@ -11,6 +11,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     public RectTransform parentPanel;
     public GameObject buttonPrefab;
     public Text infoLabel;
+    public RevenueCatUI.CustomerCenterBehaviour customerCenterBehaviour;
 
     private bool simulatesAskToBuyInSandbox;
 
@@ -71,6 +72,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
         CreateButton("Present Customer Center", PresentCustomerCenter);
+        CreateButton("Present Customer Center (Behaviour)", PresentCustomerCenterViaBehaviour);
 
         var purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
@@ -238,6 +240,23 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         Debug.Log("Subtester: launching customer center");
         if (infoLabel != null) infoLabel.text = "Launching Customer Center...";
         StartCoroutine(PresentCustomerCenterCoroutine());
+    }
+
+    void PresentCustomerCenterViaBehaviour()
+    {
+        if (customerCenterBehaviour == null)
+        {
+            Debug.LogWarning("Subtester: CustomerCenterBehaviour reference not assigned.");
+            if (infoLabel != null)
+            {
+                infoLabel.text = "Customer Center Behaviour not assigned.";
+            }
+            return;
+        }
+
+        Debug.Log("Subtester: launching customer center via behaviour");
+        if (infoLabel != null) infoLabel.text = "Launching Customer Center via Behaviour...";
+        customerCenterBehaviour.PresentCustomerCenter();
     }
 
     private System.Collections.IEnumerator PresentPaywallCoroutine()
