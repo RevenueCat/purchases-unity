@@ -158,5 +158,4 @@ When creating a pull request, **always add one of these labels** to categorize t
 - **Keep diffs minimal** — only touch what's necessary, preserve existing formatting
 - **Don't break the public API** — if tests fail, investigate why
 - **Test on both iOS and Android** — validate on real devices when possible
-- **Update VERSIONS.md** when dependencies change
 - **Never commit API keys or secrets** — do not stage or commit credentials or sensitive data
