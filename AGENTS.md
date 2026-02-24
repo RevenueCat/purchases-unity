@@ -66,16 +66,7 @@ purchases-unity/
 
 ### Fastlane Commands
 
-```bash
-# Version bump and release
-bundle exec fastlane bump
-
-# Create GitHub release
-bundle exec fastlane github_release
-
-# Update hybrid common dependency
-bundle exec fastlane update_hybrid_common --version <ver>
-```
+Refer to `fastlane/README.md` for fastlane actions
 
 ## Project Architecture
 
