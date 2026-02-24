@@ -129,13 +129,12 @@ Run tests via Unity Test Runner in Edit Mode.
 
 ## Development Workflow
 
-1. Create GitHub issue describing work
-2. Create feature branch from main
-3. Modify C# scripts in `RevenueCat/Scripts/` or `RevenueCatUI/Scripts/`
+1. Create feature branch from main
+2. Modify C# scripts in `RevenueCat/Scripts/` or `RevenueCatUI/Scripts/`
+3. Modify native layer classes `RevenueCat/Plugins/`
 4. Write tests in `IntegrationTests/Assets/APITests/`
 5. Test locally with Subtester project
-6. Update `VERSIONS.md` if dependencies changed
-7. Create PR with detailed explanation
+6. Create PR with detailed explanation
 
 ## Assembly Definitions
 
