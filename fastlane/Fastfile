@@ -132,9 +132,42 @@ end
 
 desc "Run maestro E2E tests"
 lane :run_maestro_e2e_tests do
-  sh("find e2e-tests/MaestroTestApp -type f -name '*.cs' -exec sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_MAESTRO_E2E_API_KEY\"'/g' {} +")
-  # Unity build requires Unity Editor - to be configured
-  UI.message("Unity maestro E2E tests require Unity Editor for building")
+  project_path = "e2e-tests/MaestroTestApp"
+  xcode_project_path = "#{project_path}/build/ios"
+  derived_data_path = "#{project_path}/build/xcode"
+
+  # Replace API key in source files
+  sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_MAESTRO_E2E_API_KEY\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
+
+  # Build iOS Xcode project from Unity
+  unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-buildTarget", "iOS",
+    "-executeMethod", "BuildScript.BuildIOS",
+    "-nographics",
+    "-logFile", "-"
+  )
+
+  # Build with xcodebuild for simulator
+  sh(
+    "xcodebuild",
+    "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
+    "-scheme", "Unity-iPhone",
+    "-configuration", "Debug",
+    "-sdk", "iphonesimulator",
+    "-destination", "platform=iOS Simulator,name=iPhone 16 Pro",
+    "-derivedDataPath", derived_data_path
+  )
+
+  # Install on simulator
+  app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
+  sh("xcrun simctl install booted '#{app_path}'")
+
+  # Run maestro tests
   sh("maestro test --format junit --output test_output/report.xml e2e-tests/maestro/")
 end
 
