@@ -10,8 +10,8 @@ namespace RevenueCatUI.Platforms
     {
         private delegate void PaywallResultCallback(string result);
 
-        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, PaywallResultCallback cb);
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
@@ -28,7 +28,8 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, OnResult);
+                var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
+                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, useFullScreen, OnResult);
             }
             catch (Exception e)
             {
@@ -52,7 +53,8 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, OnResult);
+                var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
+                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, useFullScreen, OnResult);
             }
             catch (Exception e)
             {

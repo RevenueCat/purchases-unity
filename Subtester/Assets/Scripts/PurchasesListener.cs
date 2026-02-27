@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -68,6 +68,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Get Storefront", GetStorefront);
         CreateButton("Present Paywall", PresentPaywallResult);
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
+        CreateButton("Present Paywall Full Screen", PresentPaywallFullScreen);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
         CreateButton("Present Customer Center", PresentCustomerCenter);
@@ -212,6 +213,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallCoroutine());
     }
 
+    void PresentPaywallFullScreen()
+    {
+        Debug.Log("Subtester: launching paywall full screen");
+        if (infoLabel != null) infoLabel.text = "Launching paywall full screen...";
+        StartCoroutine(PresentPaywallFullScreenCoroutine());
+    }
+
     void PresentPaywallWithOptions()
     {
         Debug.Log("Subtester: launching paywall with options");
@@ -325,6 +333,26 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         if (infoLabel != null)
         {
             infoLabel.text = "Customer Center finished";
+        }
+    }
+
+    private System.Collections.IEnumerator PresentPaywallFullScreenCoroutine()
+    {
+        var options = new RevenueCatUI.PaywallOptions(
+            presentationConfiguration: new RevenueCatUI.PaywallPresentationConfiguration(
+                ios: RevenueCatUI.IOSPaywallPresentationStyle.FullScreen
+            )
+        );
+
+        var task = RevenueCatUI.PaywallsPresenter.Present(options);
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall full screen result = " + result);
+
+        if (infoLabel != null)
+        {
+            infoLabel.text = $"Paywall full screen result: {GetPaywallResultStatus(result)}";
         }
     }
 
