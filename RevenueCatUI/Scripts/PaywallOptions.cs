@@ -54,6 +54,7 @@ namespace RevenueCatUI
         internal bool DisplayCloseButton { get; }
         internal string OfferingIdentifier => _offeringSelection?.GetOfferingIdentifier();
         internal Purchases.PresentedOfferingContext PresentedOfferingContext => _offeringSelection?.GetPresentedOfferingContext();
+        internal PaywallPresentationConfiguration PresentationConfiguration { get; }
 
         /// <summary>
         /// Optional custom purchase/restore logic for when purchasesAreCompletedBy is set to MY_APP.
@@ -66,11 +67,13 @@ namespace RevenueCatUI
         /// Will present the current offering.
         /// </summary>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
+        /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
-        public PaywallOptions(bool displayCloseButton = false, PurchaseLogic purchaseLogic = null)
+        public PaywallOptions(bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
         {
             _offeringSelection = null;
             DisplayCloseButton = displayCloseButton;
+            PresentationConfiguration = presentationConfiguration;
             PurchaseLogic = purchaseLogic;
         }
 
@@ -79,18 +82,21 @@ namespace RevenueCatUI
         /// </summary>
         /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
+        /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
-        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PurchaseLogic purchaseLogic = null)
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
         {
             _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
             DisplayCloseButton = displayCloseButton;
+            PresentationConfiguration = presentationConfiguration;
             PurchaseLogic = purchaseLogic;
         }
 
-        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PurchaseLogic purchaseLogic = null)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
         {
             _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
+            PresentationConfiguration = presentationConfiguration;
             PurchaseLogic = purchaseLogic;
         }
     }
