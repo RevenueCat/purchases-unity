@@ -54,16 +54,19 @@ namespace RevenueCatUI
         internal bool DisplayCloseButton { get; }
         internal string OfferingIdentifier => _offeringSelection?.GetOfferingIdentifier();
         internal Purchases.PresentedOfferingContext PresentedOfferingContext => _offeringSelection?.GetPresentedOfferingContext();
+        internal PaywallPresentationConfiguration PresentationConfiguration { get; }
 
         /// <summary>
         /// Creates a new PaywallOptions instance.
         /// Will present the current offering.
         /// </summary>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        public PaywallOptions(bool displayCloseButton = false)
+        /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
+        public PaywallOptions(bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null)
         {
             _offeringSelection = null;
             DisplayCloseButton = displayCloseButton;
+            PresentationConfiguration = presentationConfiguration;
         }
 
         /// <summary>
@@ -71,16 +74,19 @@ namespace RevenueCatUI
         /// </summary>
         /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false)
+        /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null)
         {
             _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
             DisplayCloseButton = displayCloseButton;
+            PresentationConfiguration = presentationConfiguration;
         }
 
-        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null)
         {
             _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
+            PresentationConfiguration = presentationConfiguration;
         }
     }
 } 
