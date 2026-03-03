@@ -161,14 +161,13 @@ public class PaywallViewPresenter {
         // use software rendering. Compose + Coil use hardware bitmaps by default,
         // which crash on a software canvas.
         Dialog dialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        Dialog dialog = new Dialog(activity, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
         currentDialog = dialog;
 
         Window window = dialog.getWindow();
         if (window != null) {
             // Ensure this window is hardware accelerated for Compose rendering
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-            // Make the dialog background transparent so the paywall's own background shows
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             // Ensure truly fullscreen on all device sizes (tablets, foldables, etc.)
             window.setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
