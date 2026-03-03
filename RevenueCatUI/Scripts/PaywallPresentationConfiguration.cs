@@ -49,6 +49,21 @@ namespace RevenueCatUI
     public class PaywallPresentationConfiguration
     {
         /// <summary>
+        /// Full-screen presentation on all platforms.
+        /// </summary>
+        public static readonly PaywallPresentationConfiguration FullScreen =
+            new PaywallPresentationConfiguration(
+                ios: IOSPaywallPresentationStyle.FullScreen,
+                android: AndroidPaywallPresentationStyle.FullScreen
+            );
+
+        /// <summary>
+        /// Default platform behavior (sheet on iOS, full screen on Android).
+        /// </summary>
+        public static readonly PaywallPresentationConfiguration Default =
+            new PaywallPresentationConfiguration();
+
+        /// <summary>
         /// The presentation style for iOS. Defaults to sheet if not specified.
         /// </summary>
         public IOSPaywallPresentationStyle IOS { get; }

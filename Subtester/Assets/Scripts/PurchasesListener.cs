@@ -339,9 +339,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     private System.Collections.IEnumerator PresentPaywallFullScreenCoroutine()
     {
         var options = new RevenueCatUI.PaywallOptions(
-            presentationConfiguration: new RevenueCatUI.PaywallPresentationConfiguration(
-                ios: RevenueCatUI.IOSPaywallPresentationStyle.FullScreen
-            )
+            presentationConfiguration: RevenueCatUI.PaywallPresentationConfiguration.FullScreen
         );
 
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
