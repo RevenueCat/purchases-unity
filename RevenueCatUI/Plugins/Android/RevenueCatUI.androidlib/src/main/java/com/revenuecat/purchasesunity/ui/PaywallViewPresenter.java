@@ -169,6 +169,11 @@ public class PaywallViewPresenter {
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
             // Make the dialog background transparent so the paywall's own background shows
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            // Ensure truly fullscreen on all device sizes (tablets, foldables, etc.)
+            window.setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT
+            );
         }
 
         // Disable default dialog back-press handling; PaywallView handles it via
