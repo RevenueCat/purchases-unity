@@ -10,6 +10,7 @@ namespace RevenueCatUI.Platforms
     {
         private readonly AndroidJavaClass _plugin;
         private readonly CallbacksProxy _callbacks;
+        private readonly PurchaseLogicCallbacksProxy _purchaseLogicCallbacks;
         private TaskCompletionSource<PaywallResult> _current;
 
         public AndroidPaywallPresenter()
@@ -18,7 +19,9 @@ namespace RevenueCatUI.Platforms
             {
                 _plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
                 _callbacks = new CallbacksProxy(this);
+                _purchaseLogicCallbacks = new PurchaseLogicCallbacksProxy();
                 _plugin.CallStatic("registerPaywallCallbacks", _callbacks);
+                _plugin.CallStatic("registerPurchaseLogicCallbacks", _purchaseLogicCallbacks);
             }
             catch (Exception e)
             {
@@ -29,6 +32,7 @@ namespace RevenueCatUI.Platforms
         ~AndroidPaywallPresenter()
         {
             try { _plugin?.CallStatic("unregisterPaywallCallbacks"); } catch { }
+            try { _plugin?.CallStatic("unregisterPurchaseLogicCallbacks"); } catch { }
         }
 
         public Task<PaywallResult> PresentPaywallAsync(PaywallOptions options)
@@ -51,17 +55,22 @@ namespace RevenueCatUI.Platforms
                 var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? false;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                
-                Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offeringIdentifier ?? "<null>"}', " +
-                          $"displayCloseButton={displayCloseButton}");
+                var hasPurchaseLogic = options?.PurchaseLogic != null;
+
+                if (hasPurchaseLogic)
+                {
+                    PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
+                }
+
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic });
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Exception in presentPaywall: {e.Message}");
                 _current.TrySetResult(PaywallResult.Error);
                 _current = null;
+                PurchaseLogicBridge.ClearCurrentPurchaseLogic();
             }
             return _current.Task;
         }
@@ -86,23 +95,30 @@ namespace RevenueCatUI.Platforms
                 var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', '" +
-                          $"offering='{offeringIdentifier ?? "<null>"}', displayCloseButton={displayCloseButton}");
+                var hasPurchaseLogic = options?.PurchaseLogic != null;
+
+                if (hasPurchaseLogic)
+                {
+                    PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
+                }
+
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic });
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Exception in presentPaywallIfNeeded: {e.Message}");
                 _current.TrySetResult(PaywallResult.Error);
                 _current = null;
+                PurchaseLogicBridge.ClearCurrentPurchaseLogic();
             }
             return _current.Task;
         }
 
-        // Called from RevenueCatUI MonoBehaviour or Java via AndroidJavaProxy
+        // Called from Java via AndroidJavaProxy when paywall is dismissed
         public void OnPaywallResult(string resultData)
         {
+            PurchaseLogicBridge.ClearCurrentPurchaseLogic();
             if (_current == null) return;
             try
             {
@@ -129,10 +145,41 @@ namespace RevenueCatUI.Platforms
                 _owner = owner;
             }
 
-            // Signature matches Java interface
             public void onPaywallResult(string result)
             {
                 _owner.OnPaywallResult(result);
+            }
+        }
+
+        private class PurchaseLogicCallbacksProxy : AndroidJavaProxy
+        {
+            internal PurchaseLogicCallbacksProxy() : base("com.revenuecat.purchasesunity.ui.RevenueCatUI$PurchaseLogicCallbacks")
+            {
+            }
+
+            // Unity's AndroidJavaProxy can't always match Java method signatures to C# methods
+            // directly. This Invoke override catches unmatched calls and dispatches them manually.
+            public override AndroidJavaObject Invoke(string methodName, object[] args)
+            {
+                if (methodName == "onPerformPurchase" && args?.Length >= 2)
+                {
+                    PurchaseLogicBridge.OnPerformPurchase(args[0]?.ToString(), args[1]?.ToString());
+                }
+                else if (methodName == "onPerformRestore" && args?.Length >= 1)
+                {
+                    PurchaseLogicBridge.OnPerformRestore(args[0]?.ToString());
+                }
+                return null;
+            }
+
+            public void onPerformPurchase(string requestId, string packageJson)
+            {
+                PurchaseLogicBridge.OnPerformPurchase(requestId, packageJson);
+            }
+
+            public void onPerformRestore(string requestId)
+            {
+                PurchaseLogicBridge.OnPerformRestore(requestId);
             }
         }
     }

@@ -24,6 +24,7 @@ import com.revenuecat.purchases.Package;
 import com.revenuecat.purchases.PresentedOfferingContext;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.PurchasesError;
+import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 import com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback;
 import com.revenuecat.purchases.models.StoreTransaction;
 import com.revenuecat.purchases.ui.revenuecatui.PaywallListener;
@@ -32,6 +33,8 @@ import com.revenuecat.purchases.ui.revenuecatui.views.PaywallView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 import kotlin.Unit;
 
@@ -48,6 +51,7 @@ public class PaywallViewPresenter {
     private static volatile Dialog currentDialog;
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
+    private static volatile HybridPurchaseLogicBridge currentPurchaseLogicBridge;
 
     /**
      * A simple OnBackPressedDispatcherOwner that provides the OnBackPressedDispatcher
@@ -87,7 +91,8 @@ public class PaywallViewPresenter {
             Activity activity,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -96,7 +101,7 @@ public class PaywallViewPresenter {
         }
 
         activity.runOnUiThread(() ->
-                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton)
+                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
         );
     }
 
@@ -105,7 +110,8 @@ public class PaywallViewPresenter {
             @NonNull String requiredEntitlementIdentifier,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -127,7 +133,7 @@ public class PaywallViewPresenter {
                     RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
                 } else {
                     activity.runOnUiThread(() ->
-                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton)
+                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
                     );
                 }
             }
@@ -136,17 +142,19 @@ public class PaywallViewPresenter {
             public void onError(@NonNull PurchasesError error) {
                 Log.w(TAG, "Error checking entitlement, showing paywall anyway: " + error.getMessage());
                 activity.runOnUiThread(() ->
-                        showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton)
+                        showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
                 );
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     private static void showPaywallView(
             Activity activity,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         if (currentDialog != null) {
             Log.w(TAG, "Paywall is already being presented");
@@ -160,7 +168,6 @@ public class PaywallViewPresenter {
         // is hardware-accelerated, which is required because Unity's main window may
         // use software rendering. Compose + Coil use hardware bitmaps by default,
         // which crash on a software canvas.
-        Dialog dialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         Dialog dialog = new Dialog(activity, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
         currentDialog = dialog;
 
@@ -168,6 +175,13 @@ public class PaywallViewPresenter {
         if (window != null) {
             // Ensure this window is hardware accelerated for Compose rendering
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+
+            // FLAG_NOT_FOCUSABLE: the Dialog window does not take input focus.
+            // The Activity retains focus, which prevents Unity's message processing
+            // from breaking after ProxyBillingActivity (Google Play billing) closes.
+            // Touch events still reach the Dialog; only key events go to the Activity.
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
             // Ensure truly fullscreen on all device sizes (tablets, foldables, etc.)
             window.setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -175,8 +189,7 @@ public class PaywallViewPresenter {
             );
         }
 
-        // Disable default dialog back-press handling; PaywallView handles it via
-        // CompatComposeView.dispatchKeyEvent() which calls the dismiss handler.
+        // Disable default dialog back-press handling; we handle back via the Activity.
         dialog.setCancelable(false);
 
         PaywallView paywallView = new PaywallView(activity);
@@ -188,6 +201,32 @@ public class PaywallViewPresenter {
         }
 
         paywallView.setDisplayDismissButton(displayCloseButton);
+
+        if (hasPurchaseLogic) {
+            HybridPurchaseLogicBridge bridge = new HybridPurchaseLogicBridge(
+                    eventData -> {
+                        String requestId = (String) eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_REQUEST_ID);
+                        Object packageMap = eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_PACKAGE_BEING_PURCHASED);
+                        String packageJson = "{}";
+                        if (packageMap instanceof Map) {
+                            try {
+                                packageJson = new JSONObject((Map<String, ?>) packageMap).toString();
+                            } catch (Throwable e) {
+                                Log.w(TAG, "Failed to serialize package to JSON: " + e.getMessage());
+                            }
+                        }
+                        RevenueCatUI.sendPerformPurchase(requestId, packageJson);
+                        return Unit.INSTANCE;
+                    },
+                    eventData -> {
+                        String requestId = (String) eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_REQUEST_ID);
+                        RevenueCatUI.sendPerformRestore(requestId);
+                        return Unit.INSTANCE;
+                    }
+            );
+            currentPurchaseLogicBridge = bridge;
+            paywallView.setPurchaseLogic(bridge);
+        }
 
         paywallView.setPaywallListener(new PaywallListener() {
             @Override
@@ -264,6 +303,10 @@ public class PaywallViewPresenter {
             }
             currentDialog = null;
             lastResult = null;
+        }
+        if (currentPurchaseLogicBridge != null) {
+            currentPurchaseLogicBridge.cancelPending();
+            currentPurchaseLogicBridge = null;
         }
         if (backPressedOwner != null) {
             backPressedOwner.destroy();

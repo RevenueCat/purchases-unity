@@ -70,6 +70,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
+        CreatePurchaseLogicPaywallButton();
         CreateButton("Present Customer Center", PresentCustomerCenter);
 
         var purchases = GetComponent<Purchases>();
@@ -473,6 +474,119 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
                 message += " (User already has entitlement)";
             }
             infoLabel.text = message;
+        }
+    }
+
+    void CreatePurchaseLogicPaywallButton()
+    {
+        var purchases = GetComponent<Purchases>();
+        var isMyApp = purchases.purchasesAreCompletedBy == Purchases.PurchasesAreCompletedBy.MyApp;
+
+        var button = Instantiate(buttonPrefab, parentPanel, false);
+        var buttonTransform = (RectTransform)button.transform;
+
+        var rect = buttonTransform.rect;
+        var height = rect.height;
+        var width = rect.width;
+
+        var yPos = -1
+                   * (currentButtons / maxButtonsPerRow
+                      * (height + yPaddingForButtons)
+                      + minYOffsetForButtons
+                      + height / 2);
+        var xPos = (currentButtons % maxButtonsPerRow)
+                   * (width + xPaddingForButtons)
+                   + minXOffsetForButtons + (width / 2);
+
+        var newButtonTransform = (RectTransform)button.transform;
+        newButtonTransform.anchorMin = new Vector2(0, 1);
+        newButtonTransform.anchorMax = new Vector2(0, 1);
+        newButtonTransform.anchoredPosition = new Vector2(xPos, yPos);
+
+        var tempButton = button.GetComponent<Button>();
+        var textComponent = tempButton.GetComponentsInChildren<Text>()[0];
+        textComponent.text = "Paywall w/ PurchaseLogic";
+
+        tempButton.interactable = isMyApp;
+        if (isMyApp)
+        {
+            tempButton.onClick.AddListener(PresentPaywallWithPurchaseLogic);
+        }
+
+        currentButtons++;
+    }
+
+    void PresentPaywallWithPurchaseLogic()
+    {
+        Debug.Log("Subtester: launching paywall with PurchaseLogic");
+        if (infoLabel != null) infoLabel.text = "Launching paywall with PurchaseLogic...";
+        StartCoroutine(PresentPaywallWithPurchaseLogicCoroutine());
+    }
+
+    private System.Collections.IEnumerator PresentPaywallWithPurchaseLogicCoroutine()
+    {
+        var purchases = GetComponent<Purchases>();
+
+        var purchaseLogic = new RevenueCatUI.PurchaseLogic(
+            performPurchase: async (package) =>
+            {
+                Debug.Log($"Subtester: PurchaseLogic.performPurchase called for package: {package.Identifier}");
+
+                var tcs = new System.Threading.Tasks.TaskCompletionSource<RevenueCatUI.PurchaseLogicResult>();
+                purchases.PurchasePackage(package, (purchaseResult) =>
+                {
+                    Debug.Log($"Subtester: PurchasePackage callback fired, cancelled={purchaseResult.UserCancelled}, error={purchaseResult.Error}");
+                    if (purchaseResult.UserCancelled)
+                    {
+                        tcs.SetResult(RevenueCatUI.PurchaseLogicResult.Cancellation);
+                    }
+                    else if (purchaseResult.Error != null)
+                    {
+                        Debug.LogError($"Subtester: PurchaseLogic purchase error: {purchaseResult.Error}");
+                        tcs.SetResult(RevenueCatUI.PurchaseLogicResult.Error);
+                    }
+                    else
+                    {
+                        Debug.Log("Subtester: PurchaseLogic purchase success");
+                        tcs.SetResult(RevenueCatUI.PurchaseLogicResult.Success);
+                    }
+                });
+
+                return await tcs.Task;
+            },
+            performRestore: async () =>
+            {
+                Debug.Log("Subtester: PurchaseLogic.performRestore called");
+
+                var tcs = new System.Threading.Tasks.TaskCompletionSource<RevenueCatUI.PurchaseLogicResult>();
+                purchases.RestorePurchases((customerInfo, error) =>
+                {
+                    if (error != null)
+                    {
+                        Debug.LogError($"Subtester: PurchaseLogic restore error: {error}");
+                        tcs.SetResult(RevenueCatUI.PurchaseLogicResult.Error);
+                    }
+                    else
+                    {
+                        Debug.Log("Subtester: PurchaseLogic restore success");
+                        tcs.SetResult(RevenueCatUI.PurchaseLogicResult.Success);
+                    }
+                });
+
+                return await tcs.Task;
+            }
+        );
+
+        var options = new RevenueCatUI.PaywallOptions(displayCloseButton: true, purchaseLogic: purchaseLogic);
+        var task = RevenueCatUI.PaywallsPresenter.Present(options);
+        while (!task.IsCompleted) { yield return null; }
+
+        var result = task.Result;
+        Debug.Log("Subtester: paywall with PurchaseLogic result = " + result);
+
+        if (infoLabel != null)
+        {
+            infoLabel.text = $"Paywall w/ PurchaseLogic result: {GetPaywallResultStatus(result)}";
         }
     }
 
