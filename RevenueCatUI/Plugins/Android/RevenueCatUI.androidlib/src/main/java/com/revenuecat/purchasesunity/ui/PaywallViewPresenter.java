@@ -2,10 +2,9 @@ package com.revenuecat.purchasesunity.ui;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.util.Log;
-import android.view.ViewGroup;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -52,6 +51,7 @@ public class PaywallViewPresenter {
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
     private static volatile HybridPurchaseLogicBridge currentPurchaseLogicBridge;
+    private static Object backInvokedCallback; // OnBackInvokedCallback (API 33+)
 
     /**
      * A simple OnBackPressedDispatcherOwner that provides the OnBackPressedDispatcher
@@ -168,7 +168,17 @@ public class PaywallViewPresenter {
         // is hardware-accelerated, which is required because Unity's main window may
         // use software rendering. Compose + Coil use hardware bitmaps by default,
         // which crash on a software canvas.
-        Dialog dialog = new Dialog(activity, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
+        // The subclass overrides onBackPressed() so KEYCODE_BACK (pre-API 33 /
+        // button navigation) is forwarded to the paywall's OnBackPressedDispatcher.
+        @SuppressWarnings("deprecation") // onBackPressed is deprecated in API 33+; we
+        // still need it for KEYCODE_BACK on pre-33 / button nav. API 33+ gesture back
+        // is handled separately via OnBackInvokedCallback.
+        Dialog dialog = new Dialog(activity, android.R.style.Theme_Light_NoTitleBar_Fullscreen) {
+            @Override
+            public void onBackPressed() {
+                handleBackPress(activity);
+            }
+        };
         currentDialog = dialog;
 
         Window window = dialog.getWindow();
@@ -176,11 +186,11 @@ public class PaywallViewPresenter {
             // Ensure this window is hardware accelerated for Compose rendering
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
-            // FLAG_NOT_FOCUSABLE: the Dialog window does not take input focus.
-            // The Activity retains focus, which prevents Unity's message processing
-            // from breaking after ProxyBillingActivity (Google Play billing) closes.
-            // Touch events still reach the Dialog; only key events go to the Activity.
-            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            // NOTE: FLAG_NOT_FOCUSABLE is NOT set here so the Dialog can receive
+            // back navigation events (key events on pre-API 33, gesture back on
+            // API 33+). For PurchaseLogic, FLAG_NOT_FOCUSABLE is toggled on/off
+            // only during active purchase/restore operations to fix a threading
+            // issue with PurchasesAreCompletedBy.MyApp.
 
             // Ensure truly fullscreen on all device sizes (tablets, foldables, etc.)
             window.setLayout(
@@ -189,7 +199,8 @@ public class PaywallViewPresenter {
             );
         }
 
-        // Disable default dialog back-press handling; we handle back via the Activity.
+        // Disable default dialog cancel-on-back; our onBackPressed override and
+        // OnBackInvokedCallback handle back navigation instead.
         dialog.setCancelable(false);
 
         PaywallView paywallView = new PaywallView(activity);
@@ -205,6 +216,9 @@ public class PaywallViewPresenter {
         if (hasPurchaseLogic) {
             HybridPurchaseLogicBridge bridge = new HybridPurchaseLogicBridge(
                     eventData -> {
+                        // Add FLAG_NOT_FOCUSABLE during purchase to prevent
+                        // threading issues with PurchaseLogic results.
+                        setDialogNotFocusable(true);
                         String requestId = (String) eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_REQUEST_ID);
                         Object packageMap = eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_PACKAGE_BEING_PURCHASED);
                         String packageJson = "{}";
@@ -219,6 +233,9 @@ public class PaywallViewPresenter {
                         return Unit.INSTANCE;
                     },
                     eventData -> {
+                        // Add FLAG_NOT_FOCUSABLE during restore to prevent
+                        // threading issues with PurchaseLogic results.
+                        setDialogNotFocusable(true);
                         String requestId = (String) eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_REQUEST_ID);
                         RevenueCatUI.sendPerformRestore(requestId);
                         return Unit.INSTANCE;
@@ -231,6 +248,7 @@ public class PaywallViewPresenter {
         paywallView.setPaywallListener(new PaywallListener() {
             @Override
             public void onRestoreError(@NonNull PurchasesError purchasesError) {
+                setDialogNotFocusable(false);
             }
 
             @Override
@@ -240,6 +258,7 @@ public class PaywallViewPresenter {
             @Override
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
                 lastResult = RESULT_ERROR;
+                setDialogNotFocusable(false);
             }
 
             @Override
@@ -248,6 +267,7 @@ public class PaywallViewPresenter {
 
             @Override
             public void onPurchaseCancelled() {
+                setDialogNotFocusable(false);
             }
 
             @Override
@@ -259,11 +279,13 @@ public class PaywallViewPresenter {
             public void onPurchaseCompleted(@NonNull CustomerInfo customerInfo,
                                             @NonNull StoreTransaction storeTransaction) {
                 lastResult = RESULT_PURCHASED;
+                setDialogNotFocusable(false);
             }
 
             @Override
             public void onRestoreCompleted(@NonNull CustomerInfo customerInfo) {
                 lastResult = RESULT_RESTORED;
+                setDialogNotFocusable(false);
             }
         });
 
@@ -276,13 +298,30 @@ public class PaywallViewPresenter {
             return Unit.INSTANCE;
         });
 
+        // --- Back navigation setup ---
         // Set OnBackPressedDispatcherOwner on the dialog's decor view so Compose's
         // BackHandler composable can find it in the view tree.
         if (window != null) {
-            ViewGroup decorView = (ViewGroup) window.getDecorView();
+            View decorView = window.getDecorView();
             if (ViewTreeOnBackPressedDispatcherOwner.get(decorView) == null) {
                 backPressedOwner = new PaywallBackPressedOwner();
                 ViewTreeOnBackPressedDispatcherOwner.set(decorView, backPressedOwner);
+            }
+
+            // For API 33+ gesture navigation, register OnBackInvokedCallback on
+            // the Dialog's window so back gestures are handled while focused.
+            if (Build.VERSION.SDK_INT >= 33) {
+                try {
+                    android.window.OnBackInvokedCallback callback = () ->
+                            handleBackPress(activity);
+                    window.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                            android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                            callback
+                    );
+                    backInvokedCallback = callback;
+                } catch (Throwable e) {
+                    Log.w(TAG, "Failed to register OnBackInvokedCallback on dialog: " + e.getMessage());
+                }
             }
         }
 
@@ -311,6 +350,20 @@ public class PaywallViewPresenter {
         Dialog dialog = currentDialog;
         currentDialog = null;
         lastResult = null;
+        if (Build.VERSION.SDK_INT >= 33 && backInvokedCallback != null && dialog != null) {
+            try {
+                android.window.OnBackInvokedCallback callback =
+                        (android.window.OnBackInvokedCallback) backInvokedCallback;
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.getOnBackInvokedDispatcher()
+                            .unregisterOnBackInvokedCallback(callback);
+                }
+            } catch (Throwable e) {
+                Log.w(TAG, "Error unregistering OnBackInvokedCallback: " + e.getMessage());
+            }
+            backInvokedCallback = null;
+        }
         if (dialog != null) {
             try {
                 dialog.dismiss();
@@ -325,6 +378,39 @@ public class PaywallViewPresenter {
         if (backPressedOwner != null) {
             backPressedOwner.destroy();
             backPressedOwner = null;
+        }
+    }
+
+    /**
+     * Toggles FLAG_NOT_FOCUSABLE on the dialog window.
+     * When enabled, the dialog won't receive key/back events — needed during
+     * PurchaseLogic operations for correct threading.
+     * When disabled, the dialog is focusable and back navigation works normally.
+     */
+    private static void setDialogNotFocusable(boolean notFocusable) {
+        Dialog dialog = currentDialog;
+        if (dialog == null) return;
+        Window window = dialog.getWindow();
+        if (window == null) return;
+
+        if (notFocusable) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        }
+    }
+
+    private static void handleBackPress(Activity activity) {
+        if (backPressedOwner != null
+                && backPressedOwner.getOnBackPressedDispatcher().hasEnabledCallbacks()) {
+            backPressedOwner.getOnBackPressedDispatcher().onBackPressed();
+        } else {
+            // Fallback: dismiss via the same path as the close button
+            activity.runOnUiThread(() -> {
+                String result = lastResult != null ? lastResult : RESULT_CANCELLED;
+                dismissDialog();
+                RevenueCatUI.sendPaywallResult(result);
+            });
         }
     }
 
