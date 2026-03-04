@@ -286,6 +286,17 @@ public class PaywallViewPresenter {
             }
         }
 
+        // Safety net: if the dialog is dismissed by the system (e.g. Activity finishing)
+        // without the PaywallView dismiss handler firing, clean up static state so future
+        // paywall presentations are not permanently blocked.
+        dialog.setOnDismissListener(d -> {
+            if (currentDialog == d) {
+                String result = lastResult != null ? lastResult : RESULT_CANCELLED;
+                dismissDialog();
+                RevenueCatUI.sendPaywallResult(result);
+            }
+        });
+
         dialog.setContentView(paywallView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -295,14 +306,17 @@ public class PaywallViewPresenter {
     }
 
     private static void dismissDialog() {
-        if (currentDialog != null) {
+        // Null currentDialog before calling dismiss() so the OnDismissListener
+        // safety net sees currentDialog != d and does not re-enter.
+        Dialog dialog = currentDialog;
+        currentDialog = null;
+        lastResult = null;
+        if (dialog != null) {
             try {
-                currentDialog.dismiss();
+                dialog.dismiss();
             } catch (Throwable e) {
                 Log.w(TAG, "Error dismissing paywall dialog: " + e.getMessage());
             }
-            currentDialog = null;
-            lastResult = null;
         }
         if (currentPurchaseLogicBridge != null) {
             currentPurchaseLogicBridge.cancelPending();
