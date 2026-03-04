@@ -8,10 +8,14 @@ namespace RevenueCatUI.Platforms
 {
     internal class AndroidPaywallPresenter : IPaywallPresenter
     {
+        private const string PaywallActivityClass =
+            "com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivity";
+
         private readonly AndroidJavaClass _plugin;
         private readonly CallbacksProxy _callbacks;
         private readonly PurchaseLogicCallbacksProxy _purchaseLogicCallbacks;
         private TaskCompletionSource<PaywallResult> _current;
+        private ScreenOrientation? _savedOrientation;
 
         public AndroidPaywallPresenter()
         {
@@ -62,6 +66,8 @@ namespace RevenueCatUI.Platforms
                     PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
                 }
 
+                ApplyManifestOrientation();
+
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
                 _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic });
             }
@@ -71,6 +77,7 @@ namespace RevenueCatUI.Platforms
                 _current.TrySetResult(PaywallResult.Error);
                 _current = null;
                 PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+                RestoreOrientation();
             }
             return _current.Task;
         }
@@ -102,6 +109,8 @@ namespace RevenueCatUI.Platforms
                     PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
                 }
 
+                ApplyManifestOrientation();
+
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
                 _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic });
             }
@@ -111,6 +120,7 @@ namespace RevenueCatUI.Platforms
                 _current.TrySetResult(PaywallResult.Error);
                 _current = null;
                 PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+                RestoreOrientation();
             }
             return _current.Task;
         }
@@ -119,6 +129,7 @@ namespace RevenueCatUI.Platforms
         public void OnPaywallResult(string resultData)
         {
             PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+            RestoreOrientation();
             if (_current == null) return;
             try
             {
@@ -134,6 +145,73 @@ namespace RevenueCatUI.Platforms
             finally
             {
                 _current = null;
+            }
+        }
+
+        /// <summary>
+        /// Reads android:screenOrientation from the PaywallActivity manifest entry
+        /// (which users may override via manifest merging) and applies it using
+        /// Unity's Screen.orientation API. This works with Unity's own orientation
+        /// management instead of fighting it.
+        /// </summary>
+        private void ApplyManifestOrientation()
+        {
+            try
+            {
+                using var activity = AndroidActivityUtils.GetCurrentActivity();
+                using var packageManager = activity.Call<AndroidJavaObject>("getPackageManager");
+                using var componentName = new AndroidJavaObject(
+                    "android.content.ComponentName", activity, PaywallActivityClass);
+                using var activityInfo = packageManager.Call<AndroidJavaObject>(
+                    "getActivityInfo", componentName, 0);
+
+                var androidOrientation = activityInfo.Get<int>("screenOrientation");
+                var unityOrientation = MapAndroidOrientationToUnity(androidOrientation);
+                if (unityOrientation.HasValue)
+                {
+                    _savedOrientation = Screen.orientation;
+                    Screen.orientation = unityOrientation.Value;
+                }
+            }
+            catch
+            {
+                // PaywallActivity not found in manifest or no override; no-op.
+            }
+        }
+
+        private void RestoreOrientation()
+        {
+            if (_savedOrientation.HasValue)
+            {
+                Screen.orientation = _savedOrientation.Value;
+                _savedOrientation = null;
+            }
+        }
+
+        private static ScreenOrientation? MapAndroidOrientationToUnity(int androidOrientation)
+        {
+            // android.content.pm.ActivityInfo.SCREEN_ORIENTATION_* constants
+            switch (androidOrientation)
+            {
+                case 0:  // SCREEN_ORIENTATION_LANDSCAPE
+                case 6:  // SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                case 11: // SCREEN_ORIENTATION_USER_LANDSCAPE
+                    return ScreenOrientation.LandscapeLeft;
+                case 8:  // SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                    return ScreenOrientation.LandscapeRight;
+                case 1:  // SCREEN_ORIENTATION_PORTRAIT
+                case 7:  // SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                case 12: // SCREEN_ORIENTATION_USER_PORTRAIT
+                    return ScreenOrientation.Portrait;
+                case 9:  // SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                    return ScreenOrientation.PortraitUpsideDown;
+                case 4:  // SCREEN_ORIENTATION_SENSOR
+                case 10: // SCREEN_ORIENTATION_FULL_SENSOR
+                case 2:  // SCREEN_ORIENTATION_USER
+                case 13: // SCREEN_ORIENTATION_FULL_USER
+                    return ScreenOrientation.AutoRotation;
+                default: // UNSPECIFIED (-1), BEHIND (3), NOSENSOR (5), LOCKED (14)
+                    return null;
             }
         }
 
