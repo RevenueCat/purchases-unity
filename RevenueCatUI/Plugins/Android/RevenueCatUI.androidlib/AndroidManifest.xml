@@ -6,11 +6,13 @@
         <activity
             android:name=".PaywallTrampolineActivity"
             android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:node="merge" />
         <activity
             android:name=".CustomerCenterTrampolineActivity"
             android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:node="merge" />
     </application>
