@@ -13,9 +13,9 @@ namespace RevenueCatUI
         /// <summary>
         /// Delegate for performing a custom purchase.
         /// </summary>
-        /// <param name="packageToPurchase">The package the user wants to purchase.</param>
+        /// <param name="purchaseParams">The parameters for the purchase, including the package to purchase.</param>
         /// <returns>A task that resolves to the result of the purchase operation.</returns>
-        public delegate Task<PurchaseLogicResult> PerformPurchaseHandler(Purchases.Package packageToPurchase);
+        public delegate Task<PurchaseLogicResult> PerformPurchaseHandler(PurchaseLogicPurchaseParams purchaseParams);
 
         /// <summary>
         /// Delegate for performing a custom restore.

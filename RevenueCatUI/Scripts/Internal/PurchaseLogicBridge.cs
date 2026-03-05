@@ -86,7 +86,8 @@ namespace RevenueCatUI.Internal
             {
                 var packageNode = JSON.Parse(packageJson);
                 var package_ = new Purchases.Package(packageNode);
-                var result = await s_currentPurchaseLogic.PerformPurchase(package_);
+                var purchaseParams = new PurchaseLogicPurchaseParams(package_);
+                var result = await s_currentPurchaseLogic.PerformPurchase(purchaseParams);
                 ResolveResult(requestId, result, null);
             }
             catch (Exception e)

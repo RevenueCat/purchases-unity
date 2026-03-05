@@ -528,12 +528,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         var purchases = GetComponent<Purchases>();
 
         var purchaseLogic = new RevenueCatUI.PurchaseLogic(
-            performPurchase: async (package) =>
+            performPurchase: async (purchaseParams) =>
             {
-                Debug.Log($"Subtester: PurchaseLogic.performPurchase called for package: {package.Identifier}");
+                var package_ = purchaseParams.PackageToPurchase;
+                Debug.Log($"Subtester: PurchaseLogic.performPurchase called for package: {package_.Identifier}");
 
                 var tcs = new System.Threading.Tasks.TaskCompletionSource<RevenueCatUI.PurchaseLogicResult>();
-                purchases.PurchasePackage(package, (purchaseResult) =>
+                purchases.PurchasePackage(package_, (purchaseResult) =>
                 {
                     Debug.Log($"Subtester: PurchasePackage callback fired, cancelled={purchaseResult.UserCancelled}, error={purchaseResult.Error}");
                     if (purchaseResult.UserCancelled)
