@@ -34,6 +34,12 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        launcher = new PaywallActivityLauncher(this, this);
+
+        if (savedInstanceState != null) {
+            return;
+        }
+
         final Intent source = getIntent();
         PaywallUnityOptions options = source.getParcelableExtra(EXTRA_PAYWALL_OPTIONS);
 
@@ -43,8 +49,6 @@ public class PaywallTrampolineActivity extends ComponentActivity implements Payw
             finish();
             return;
         }
-
-        launcher = new PaywallActivityLauncher(this, this);
 
         if (options.getRequiredEntitlementIdentifier() != null) {
             launchPaywallIfNeeded(options);

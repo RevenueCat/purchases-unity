@@ -38,6 +38,10 @@ public class CustomerCenterTrampolineActivity extends ComponentActivity {
                 }
         );
 
+        if (savedInstanceState != null) {
+            return;
+        }
+
         if (!Purchases.isConfigured()) {
             Log.e(TAG, "Purchases is not configured. Cannot launch Customer Center.");
             RevenueCatUI.sendCustomerCenterError();
