@@ -229,9 +229,11 @@ public class PaywallViewPresenter {
 
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
-                String result = lastResult;
-                dismissDialog();
-                RevenueCatUI.sendPaywallResult(result);
+                if (currentDialog != null) {
+                    String result = lastResult;
+                    dismissDialog();
+                    RevenueCatUI.sendPaywallResult(result);
+                }
             });
             return Unit.INSTANCE;
         });
