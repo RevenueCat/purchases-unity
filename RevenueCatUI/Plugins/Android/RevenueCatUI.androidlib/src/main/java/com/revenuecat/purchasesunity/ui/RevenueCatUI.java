@@ -33,11 +33,11 @@ public class RevenueCatUI {
     public static void unregisterCustomerCenterCallbacks() { customerCenterCallbacks = null; }
 
     public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
-        PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
+        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
     }
 
     public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
-        PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
+        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
     }
 
     public static void presentCustomerCenter(Activity activity) {
