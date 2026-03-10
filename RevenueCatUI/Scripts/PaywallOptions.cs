@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RevenueCat.SimpleJSON;
 
 namespace RevenueCatUI
 {
@@ -97,7 +98,7 @@ namespace RevenueCatUI
         {
             if (CustomVariables == null || CustomVariables.Count == 0) return null;
             var stringDict = CustomVariables.ToStringDictionary();
-            var dict = new SimpleJSON.JSONObject();
+            var dict = new JSONObject();
             foreach (var kvp in stringDict)
             {
                 dict[kvp.Key] = kvp.Value;
