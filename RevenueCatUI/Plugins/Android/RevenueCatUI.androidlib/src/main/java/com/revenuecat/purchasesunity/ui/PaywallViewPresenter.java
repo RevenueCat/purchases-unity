@@ -2,13 +2,16 @@ package com.revenuecat.purchasesunity.ui;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
@@ -171,6 +174,7 @@ public class PaywallViewPresenter {
         );
 
         setupBackPressedOwner(dialog.getWindow());
+        setupBackPressRouting(dialog);
         setupDismissListener(dialog);
 
         FrameLayout container = createEdgeToEdgeContainer(activity, paywallView);
@@ -206,8 +210,8 @@ public class PaywallViewPresenter {
             }
         }
 
-        // Disable default dialog back-press handling; PaywallView handles it via
-        // CompatComposeView.dispatchKeyEvent() which calls the dismiss handler.
+        // Prevent the Dialog from dismissing itself on back press. Back events are
+        // routed to our OnBackPressedDispatcher instead (see setupBackPressRouting).
         dialog.setCancelable(false);
 
         return dialog;
@@ -370,6 +374,42 @@ public class PaywallViewPresenter {
         if (ViewTreeOnBackPressedDispatcherOwner.get(decorView) == null) {
             backPressedOwner = new PaywallBackPressedOwner();
             ViewTreeOnBackPressedDispatcherOwner.set(decorView, backPressedOwner);
+        }
+    }
+
+    /**
+     * Routes the Dialog's back events to our {@link PaywallBackPressedOwner}'s dispatcher.
+     *
+     * The Dialog has {@code setCancelable(false)} so it won't dismiss itself on back press.
+     * However, nothing automatically connects the system back event to our custom
+     * OnBackPressedDispatcher. This method bridges that gap:
+     * <ul>
+     *   <li>API 33+: Registers an {@code OnBackInvokedCallback} for predictive back gestures.</li>
+     *   <li>Pre-33: Uses an {@code OnKeyListener} to intercept KEYCODE_BACK.</li>
+     * </ul>
+     */
+    private static void setupBackPressRouting(Dialog dialog) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // API 33+: back gestures go through OnBackInvokedDispatcher, not KEYCODE_BACK.
+            dialog.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                    () -> {
+                        if (backPressedOwner != null) {
+                            backPressedOwner.getOnBackPressedDispatcher().onBackPressed();
+                        }
+                    }
+            );
+        } else {
+            // Pre-33: back presses arrive as KEYCODE_BACK key events.
+            dialog.setOnKeyListener((DialogInterface d, int keyCode, KeyEvent event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                    if (backPressedOwner != null && backPressedOwner.getOnBackPressedDispatcher().hasEnabledCallbacks()) {
+                        backPressedOwner.getOnBackPressedDispatcher().onBackPressed();
+                        return true;
+                    }
+                }
+                return false;
+            });
         }
     }
 
