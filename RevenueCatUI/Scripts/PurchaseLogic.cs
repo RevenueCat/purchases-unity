@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace RevenueCatUI
@@ -40,8 +41,8 @@ namespace RevenueCatUI
         /// <param name="performRestore">Handler called when the user initiates a restore.</param>
         public PurchaseLogic(PerformPurchaseHandler performPurchase, PerformRestoreHandler performRestore)
         {
-            PerformPurchase = performPurchase;
-            PerformRestore = performRestore;
+            PerformPurchase = performPurchase ?? throw new ArgumentNullException(nameof(performPurchase));
+            PerformRestore = performRestore ?? throw new ArgumentNullException(nameof(performRestore));
         }
     }
 }
