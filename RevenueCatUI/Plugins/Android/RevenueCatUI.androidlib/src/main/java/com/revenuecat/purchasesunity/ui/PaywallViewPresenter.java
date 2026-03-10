@@ -3,6 +3,8 @@ package com.revenuecat.purchasesunity.ui;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -381,6 +383,25 @@ public class PaywallViewPresenter {
             backPressedOwner.destroy();
             backPressedOwner = null;
         }
+    }
+
+    /**
+     * Called from C# after a custom PurchaseLogic operation (purchase or restore) completes.
+     * Updates lastResult based on the operation type and result, and clears FLAG_NOT_FOCUSABLE.
+     * Must be called before HybridPurchaseLogicBridge.resolveResult so lastResult is set
+     * before the ViewModel potentially dismisses the paywall.
+     */
+    public static void onPurchaseLogicResult(String operationType, String resultString) {
+        if ("SUCCESS".equals(resultString)) {
+            if ("RESTORE".equals(operationType)) {
+                lastResult = RESULT_RESTORED;
+            } else if ("PURCHASE".equals(operationType)) {
+                lastResult = RESULT_PURCHASED;
+            }
+        }
+        // setDialogNotFocusable touches the dialog window and must run on the Android UI thread.
+        // This method is called from the Unity main thread, so post to the main looper.
+        new Handler(Looper.getMainLooper()).post(() -> setDialogNotFocusable(false));
     }
 
     /**

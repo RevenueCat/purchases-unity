@@ -59,6 +59,10 @@ public class RevenueCatUI {
         PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic);
     }
 
+    public static void notifyPurchaseLogicResult(String operationType, String resultString) {
+        PaywallViewPresenter.onPurchaseLogicResult(operationType, resultString);
+    }
+
     public static void resolvePurchaseLogicResult(String requestId, String resultString, String errorMessage) {
         HybridPurchaseLogicBridge.resolveResult(requestId, resultString, errorMessage);
     }

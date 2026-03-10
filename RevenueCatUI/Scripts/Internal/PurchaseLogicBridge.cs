@@ -78,7 +78,7 @@ namespace RevenueCatUI.Internal
             if (s_currentPurchaseLogic?.PerformPurchase == null)
             {
                 Debug.LogError("[RevenueCatUI] PurchaseLogic.PerformPurchase is null");
-                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformPurchase handler");
+                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformPurchase handler", "PURCHASE");
                 return;
             }
 
@@ -88,12 +88,12 @@ namespace RevenueCatUI.Internal
                 var package_ = new Purchases.Package(packageNode);
                 var purchaseParams = new PurchaseLogicPurchaseParams(package_);
                 var result = await s_currentPurchaseLogic.PerformPurchase(purchaseParams);
-                ResolveResult(requestId, result, null);
+                ResolveResult(requestId, result, null, "PURCHASE");
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI] Error in PerformPurchase handler: {e.Message}");
-                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message);
+                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message, "PURCHASE");
             }
         }
 
@@ -102,28 +102,28 @@ namespace RevenueCatUI.Internal
             if (s_currentPurchaseLogic?.PerformRestore == null)
             {
                 Debug.LogError("[RevenueCatUI] PurchaseLogic.PerformRestore is null");
-                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformRestore handler");
+                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformRestore handler", "RESTORE");
                 return;
             }
 
             try
             {
                 var result = await s_currentPurchaseLogic.PerformRestore();
-                ResolveResult(requestId, result, null);
+                ResolveResult(requestId, result, null, "RESTORE");
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI] Error in PerformRestore handler: {e.Message}");
-                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message);
+                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message, "RESTORE");
             }
         }
 
-        private static void ResolveResult(string requestId, PurchaseLogicResult result, string errorMessage)
+        private static void ResolveResult(string requestId, PurchaseLogicResult result, string errorMessage, string operationType)
         {
 #if UNITY_IOS && !UNITY_EDITOR
             IOSResolveResult(requestId, result.ToNativeString(), errorMessage);
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            AndroidResolveResult(requestId, result.ToNativeString(), errorMessage);
+            AndroidResolveResult(requestId, result.ToNativeString(), errorMessage, operationType);
 #else
             Debug.LogWarning("[RevenueCatUI] PurchaseLogicBridge.ResolveResult called on unsupported platform");
 #endif
@@ -140,11 +140,13 @@ namespace RevenueCatUI.Internal
 #endif
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        private static void AndroidResolveResult(string requestId, string resultString, string errorMessage)
+        private static void AndroidResolveResult(string requestId, string resultString, string errorMessage, string operationType)
         {
             try
             {
                 using var cls = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
+                // Notify before resolving so lastResult is set before the ViewModel potentially dismisses the paywall.
+                cls.CallStatic("notifyPurchaseLogicResult", operationType, resultString);
                 cls.CallStatic("resolvePurchaseLogicResult", requestId, resultString, errorMessage);
             }
             catch (Exception e)
