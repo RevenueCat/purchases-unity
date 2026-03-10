@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
@@ -312,10 +314,10 @@ public class PaywallViewPresenter {
             // the Dialog's window so back gestures are handled while focused.
             if (Build.VERSION.SDK_INT >= 33) {
                 try {
-                    android.window.OnBackInvokedCallback callback = () ->
+                    OnBackInvokedCallback callback = () ->
                             handleBackPress(activity);
                     window.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
-                            android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                            OnBackInvokedDispatcher.PRIORITY_DEFAULT,
                             callback
                     );
                     backInvokedCallback = callback;
@@ -352,8 +354,8 @@ public class PaywallViewPresenter {
         lastResult = null;
         if (Build.VERSION.SDK_INT >= 33 && backInvokedCallback != null && dialog != null) {
             try {
-                android.window.OnBackInvokedCallback callback =
-                        (android.window.OnBackInvokedCallback) backInvokedCallback;
+                OnBackInvokedCallback callback =
+                        (OnBackInvokedCallback) backInvokedCallback;
                 Window window = dialog.getWindow();
                 if (window != null) {
                     window.getOnBackInvokedDispatcher()

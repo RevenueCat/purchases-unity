@@ -157,21 +157,6 @@ namespace RevenueCatUI.Platforms
             {
             }
 
-            // Unity's AndroidJavaProxy can't always match Java method signatures to C# methods
-            // directly. This Invoke override catches unmatched calls and dispatches them manually.
-            public override AndroidJavaObject Invoke(string methodName, object[] args)
-            {
-                if (methodName == "onPerformPurchase" && args?.Length >= 2)
-                {
-                    PurchaseLogicBridge.OnPerformPurchase(args[0]?.ToString(), args[1]?.ToString());
-                }
-                else if (methodName == "onPerformRestore" && args?.Length >= 1)
-                {
-                    PurchaseLogicBridge.OnPerformRestore(args[0]?.ToString());
-                }
-                return null;
-            }
-
             public void onPerformPurchase(string requestId, string packageJson)
             {
                 PurchaseLogicBridge.OnPerformPurchase(requestId, packageJson);
