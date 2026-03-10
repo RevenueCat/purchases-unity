@@ -45,6 +45,10 @@ public class PaywallViewPresenter {
     private static final String RESULT_ERROR = "ERROR";
     private static final String RESULT_NOT_PRESENTED = "NOT_PRESENTED";
 
+    // These fields must only be accessed on the UI thread. All compound check-then-act
+    // operations (e.g. if (currentDialog != null)) are safe because the UI thread is
+    // single-threaded. The volatile modifier provides cross-thread visibility but does
+    // not substitute for synchronization — do not read or write these off the UI thread.
     private static volatile Dialog currentDialog;
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
