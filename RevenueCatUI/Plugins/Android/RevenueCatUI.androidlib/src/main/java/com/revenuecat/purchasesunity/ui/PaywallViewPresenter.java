@@ -138,10 +138,8 @@ public class PaywallViewPresenter {
 
             @Override
             public void onError(@NonNull PurchasesError error) {
-                Log.w(TAG, "Error checking entitlement, showing paywall anyway: " + error.getMessage());
-                activity.runOnUiThread(() ->
-                        showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton)
-                );
+                Log.e(TAG, "Error fetching customer info to display paywall: " + error.getMessage());
+                RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
             }
         });
     }
