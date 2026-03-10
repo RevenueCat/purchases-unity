@@ -19,6 +19,7 @@ namespace DefaultNamespace
             Purchases.Package TwoMonth = offering.TwoMonth;
             Purchases.Package Monthly = offering.Monthly;
             Purchases.Package Weekly = offering.Weekly;
+            string WebCheckoutUrl = offering.WebCheckoutUrl;
         }
     }
 }

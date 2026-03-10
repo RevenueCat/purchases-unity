@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Android;
 using RevenueCatUI.Internal;
 
 namespace RevenueCatUI.Platforms
@@ -55,7 +54,7 @@ namespace RevenueCatUI.Platforms
                 
                 Debug.Log($"[RevenueCatUI][Android] presentPaywall offering='{offeringIdentifier ?? "<null>"}', " +
                           $"displayCloseButton={displayCloseButton}");
-                var currentActivity = AndroidApplication.currentActivity;
+                var currentActivity = AndroidActivityUtils.GetCurrentActivity();
                 _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
             }
             catch (Exception e)
@@ -89,7 +88,7 @@ namespace RevenueCatUI.Platforms
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 Debug.Log($"[RevenueCatUI][Android] presentPaywallIfNeeded entitlement='{requiredEntitlementIdentifier}', '" +
                           $"offering='{offeringIdentifier ?? "<null>"}', displayCloseButton={displayCloseButton}");
-                var currentActivity = AndroidApplication.currentActivity;
+                var currentActivity = AndroidActivityUtils.GetCurrentActivity();
                 _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton });
             }
             catch (Exception e)

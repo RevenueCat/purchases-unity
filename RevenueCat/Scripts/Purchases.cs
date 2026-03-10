@@ -85,7 +85,7 @@ public partial class Purchases : MonoBehaviour
     public bool shouldShowInAppMessagesAutomatically = true;
 
     [Tooltip("The entitlement verification mode to use. For more information, check: https://rev.cat/trusted-entitlements")]
-    public EntitlementVerificationMode entitlementVerificationMode = EntitlementVerificationMode.Disabled;
+    public EntitlementVerificationMode entitlementVerificationMode = EntitlementVerificationMode.Informational;
 
     [Tooltip("Enable this setting if you want to allow pending purchases for prepaid subscriptions (only supported " +
              "in Google Play). Note that entitlements are not granted until payment is done. Disabled by default.")]
@@ -637,7 +637,8 @@ public partial class Purchases : MonoBehaviour
     /// <summary>
     /// Callback for <see cref="Purchases.GetCurrentOfferingForPlacement"/>.
     /// </summary>
-    /// <param name="offerings"> The nullable <see cref="Offering"/> object if the request was successful, null otherwise.</param>
+    /// <param name="offerings"> The nullable <see cref="Offering"/> object if the request was successful, null if no
+    /// offering was found for the particular placement.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
     public delegate void GetCurrentOfferingForPlacementFunc(Offering offerings, Error error);
 
@@ -1560,6 +1561,11 @@ public partial class Purchases : MonoBehaviour
         var response = JSON.Parse(offeringJson);
         var callback = GetCurrentOfferingForPlacementCallback;
         GetCurrentOfferingForPlacementCallback = null;
+        if (response == null || response["offering"] == null)
+        {
+            callback(null, null);
+            return;
+        }
         if (ResponseHasError(response))
         {
             callback(null, new Error(response["error"]));
