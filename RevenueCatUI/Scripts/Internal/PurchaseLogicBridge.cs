@@ -19,6 +19,9 @@ namespace RevenueCatUI.Internal
     /// </summary>
     internal static class PurchaseLogicBridge
     {
+        private const string OperationTypePurchase = "PURCHASE";
+        private const string OperationTypeRestore = "RESTORE";
+
         private static PurchaseLogic s_currentPurchaseLogic;
         private static SynchronizationContext s_mainThreadContext;
 
@@ -78,7 +81,7 @@ namespace RevenueCatUI.Internal
             if (s_currentPurchaseLogic?.PerformPurchase == null)
             {
                 Debug.LogError("[RevenueCatUI] PurchaseLogic.PerformPurchase is null");
-                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformPurchase handler", "PURCHASE");
+                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformPurchase handler", OperationTypePurchase);
                 return;
             }
 
@@ -88,12 +91,12 @@ namespace RevenueCatUI.Internal
                 var package_ = new Purchases.Package(packageNode);
                 var purchaseParams = new PurchaseLogicPurchaseParams(package_);
                 var result = await s_currentPurchaseLogic.PerformPurchase(purchaseParams);
-                ResolveResult(requestId, result, null, "PURCHASE");
+                ResolveResult(requestId, result, null, OperationTypePurchase);
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI] Error in PerformPurchase handler: {e.Message}");
-                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message, "PURCHASE");
+                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message, OperationTypePurchase);
             }
         }
 
@@ -102,19 +105,19 @@ namespace RevenueCatUI.Internal
             if (s_currentPurchaseLogic?.PerformRestore == null)
             {
                 Debug.LogError("[RevenueCatUI] PurchaseLogic.PerformRestore is null");
-                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformRestore handler", "RESTORE");
+                ResolveResult(requestId, PurchaseLogicResult.Error, "No PerformRestore handler", OperationTypeRestore);
                 return;
             }
 
             try
             {
                 var result = await s_currentPurchaseLogic.PerformRestore();
-                ResolveResult(requestId, result, null, "RESTORE");
+                ResolveResult(requestId, result, null, OperationTypeRestore);
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI] Error in PerformRestore handler: {e.Message}");
-                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message, "RESTORE");
+                ResolveResult(requestId, PurchaseLogicResult.Error, e.Message, OperationTypeRestore);
             }
         }
 

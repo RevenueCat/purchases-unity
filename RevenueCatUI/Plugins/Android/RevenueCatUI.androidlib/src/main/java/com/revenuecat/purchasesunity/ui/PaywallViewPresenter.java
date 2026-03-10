@@ -51,6 +51,9 @@ public class PaywallViewPresenter {
     private static final String RESULT_ERROR = "ERROR";
     private static final String RESULT_NOT_PRESENTED = "NOT_PRESENTED";
 
+    static final String OPERATION_TYPE_PURCHASE = "PURCHASE";
+    static final String OPERATION_TYPE_RESTORE = "RESTORE";
+
     private static volatile Dialog currentDialog;
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
@@ -393,9 +396,9 @@ public class PaywallViewPresenter {
      */
     public static void onPurchaseLogicResult(String operationType, String resultString) {
         if ("SUCCESS".equals(resultString)) {
-            if ("RESTORE".equals(operationType)) {
+            if (OPERATION_TYPE_RESTORE.equals(operationType)) {
                 lastResult = RESULT_RESTORED;
-            } else if ("PURCHASE".equals(operationType)) {
+            } else if (OPERATION_TYPE_PURCHASE.equals(operationType)) {
                 lastResult = RESULT_PURCHASED;
             }
         }
