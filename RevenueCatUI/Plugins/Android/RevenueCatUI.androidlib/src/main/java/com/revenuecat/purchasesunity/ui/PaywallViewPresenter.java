@@ -2,15 +2,17 @@ package com.revenuecat.purchasesunity.ui;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
+import android.view.KeyEvent;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.OnBackPressedDispatcher;
@@ -18,6 +20,9 @@ import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
 
@@ -54,11 +59,14 @@ public class PaywallViewPresenter {
     static final String OPERATION_TYPE_PURCHASE = "PURCHASE";
     static final String OPERATION_TYPE_RESTORE = "RESTORE";
 
+    // These fields must only be accessed on the UI thread. All compound check-then-act
+    // operations (e.g. if (currentDialog != null)) are safe because the UI thread is
+    // single-threaded. The volatile modifier provides cross-thread visibility but does
+    // not substitute for synchronization — do not read or write these off the UI thread.
     private static volatile Dialog currentDialog;
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
     private static volatile HybridPurchaseLogicBridge currentPurchaseLogicBridge;
-    private static Object backInvokedCallback; // OnBackInvokedCallback (API 33+)
 
     /**
      * A simple OnBackPressedDispatcherOwner that provides the OnBackPressedDispatcher
@@ -147,13 +155,13 @@ public class PaywallViewPresenter {
 
             @Override
             public void onError(@NonNull PurchasesError error) {
-                Log.w(TAG, "Error checking entitlement, showing paywall anyway: " + error.getMessage());
-                activity.runOnUiThread(() ->
-                        showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
-                );
+                Log.e(TAG, "Error fetching customer info to display paywall: " + error.getMessage());
+                RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
             }
         });
     }
+
+    // region Dialog setup
 
     @SuppressWarnings("unchecked")
     private static void showPaywallView(
@@ -171,26 +179,39 @@ public class PaywallViewPresenter {
 
         lastResult = RESULT_CANCELLED;
 
-        // Use a Dialog to host the PaywallView. This creates a separate window that
-        // is hardware-accelerated, which is required because Unity's main window may
-        // use software rendering. Compose + Coil use hardware bitmaps by default,
-        // which crash on a software canvas.
-        // The subclass overrides onBackPressed() so KEYCODE_BACK (pre-API 33 /
-        // button navigation) is forwarded to the paywall's OnBackPressedDispatcher.
-        @SuppressWarnings("deprecation") // onBackPressed is deprecated in API 33+; we
-        // still need it for KEYCODE_BACK on pre-33 / button nav. API 33+ gesture back
-        // is handled separately via OnBackInvokedCallback.
-        Dialog dialog = new Dialog(activity, android.R.style.Theme_Light_NoTitleBar_Fullscreen) {
-            @Override
-            public void onBackPressed() {
-                handleBackPress(activity);
-            }
-        };
+        Dialog dialog = createDialog(activity);
         currentDialog = dialog;
+
+        PaywallView paywallView = createPaywallView(
+                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic
+        );
+
+        setupBackPressedOwner(dialog.getWindow());
+        setupBackPressRouting(dialog);
+        setupDismissListener(dialog);
+
+        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView);
+        dialog.setContentView(container, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        ));
+
+        dialog.show();
+        applyEdgeToEdgeFlags(dialog.getWindow());
+    }
+
+    /**
+     * Creates a hardware-accelerated, fullscreen Dialog.
+     *
+     * A Dialog (rather than a View added directly to the Activity) is used because Unity's
+     * main window may use software rendering. Compose + Coil use hardware bitmaps by default,
+     * which crash on a software canvas. A Dialog creates a separate, hardware-accelerated window.
+     */
+    private static Dialog createDialog(Activity activity) {
+        Dialog dialog = new Dialog(activity, android.R.style.Theme_Light_NoTitleBar);
 
         Window window = dialog.getWindow();
         if (window != null) {
-            // Ensure this window is hardware accelerated for Compose rendering
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
             // NOTE: FLAG_NOT_FOCUSABLE is NOT set here so the Dialog can receive
@@ -199,17 +220,34 @@ public class PaywallViewPresenter {
             // only during active purchase/restore operations to fix a threading
             // issue with PurchasesAreCompletedBy.MyApp.
 
-            // Ensure truly fullscreen on all device sizes (tablets, foldables, etc.)
             window.setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
             );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                window.getAttributes().layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            }
         }
 
-        // Disable default dialog cancel-on-back; our onBackPressed override and
-        // OnBackInvokedCallback handle back navigation instead.
+        // Prevent the Dialog from dismissing itself on back press. Back events are
+        // routed to our OnBackPressedDispatcher instead (see setupBackPressRouting).
         dialog.setCancelable(false);
 
+        return dialog;
+    }
+
+    // endregion
+
+    // region PaywallView setup
+
+    private static PaywallView createPaywallView(
+            Activity activity,
+            @Nullable String offeringIdentifier,
+            @Nullable String presentedOfferingContextJson,
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
+    ) {
         PaywallView paywallView = new PaywallView(activity);
 
         if (offeringIdentifier != null) {
@@ -219,6 +257,17 @@ public class PaywallViewPresenter {
         }
 
         paywallView.setDisplayDismissButton(displayCloseButton);
+        paywallView.setPaywallListener(createPaywallListener());
+        paywallView.setDismissHandler(() -> {
+            activity.runOnUiThread(() -> {
+                if (currentDialog != null) {
+                    String result = lastResult;
+                    dismissDialog();
+                    RevenueCatUI.sendPaywallResult(result);
+                }
+            });
+            return Unit.INSTANCE;
+        });
 
         if (hasPurchaseLogic) {
             HybridPurchaseLogicBridge bridge = new HybridPurchaseLogicBridge(
@@ -252,15 +301,18 @@ public class PaywallViewPresenter {
             paywallView.setPurchaseLogic(bridge);
         }
 
-        paywallView.setPaywallListener(new PaywallListener() {
+        return paywallView;
+    }
+
+    private static PaywallListener createPaywallListener() {
+        return new PaywallListener() {
             @Override
             public void onRestoreError(@NonNull PurchasesError purchasesError) {
                 setDialogNotFocusable(false);
             }
 
             @Override
-            public void onRestoreStarted() {
-            }
+            public void onRestoreStarted() {}
 
             @Override
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
@@ -269,8 +321,7 @@ public class PaywallViewPresenter {
             }
 
             @Override
-            public void onPurchaseStarted(@NonNull Package aPackage) {
-            }
+            public void onPurchaseStarted(@NonNull Package aPackage) {}
 
             @Override
             public void onPurchaseCancelled() {
@@ -294,47 +345,140 @@ public class PaywallViewPresenter {
                 lastResult = RESULT_RESTORED;
                 setDialogNotFocusable(false);
             }
+        };
+    }
+
+    // endregion
+
+    // region Edge-to-edge
+
+    /**
+     * Wraps the PaywallView in a container that provides corrected window insets.
+     *
+     * FLAG_LAYOUT_NO_LIMITS (applied later) is needed to draw the paywall behind the
+     * status bar and navigation bar, but it causes the system to report zero insets.
+     * This container intercepts the zero insets and replaces them with the real system
+     * bar values so the PaywallView's Compose content can pad itself appropriately.
+     */
+    private static FrameLayout createEdgeToEdgeContainer(Activity activity, PaywallView paywallView) {
+        final Insets statusBarInsets = getActivityInsets(activity, WindowInsetsCompat.Type.statusBars());
+        final Insets navBarInsets = getActivityInsets(activity, WindowInsetsCompat.Type.navigationBars());
+
+        FrameLayout container = new FrameLayout(activity);
+        container.addView(paywallView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        ));
+
+        ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
+            WindowInsetsCompat corrected = new WindowInsetsCompat.Builder(insets)
+                    .setInsets(WindowInsetsCompat.Type.statusBars(), statusBarInsets)
+                    .setInsets(WindowInsetsCompat.Type.navigationBars(), navBarInsets)
+                    .build();
+            ViewCompat.dispatchApplyWindowInsets(paywallView, corrected);
+            return corrected;
         });
 
-        paywallView.setDismissHandler(() -> {
-            activity.runOnUiThread(() -> {
-                String result = lastResult;
-                dismissDialog();
-                RevenueCatUI.sendPaywallResult(result);
-            });
-            return Unit.INSTANCE;
-        });
+        return container;
+    }
 
-        // --- Back navigation setup ---
-        // Set OnBackPressedDispatcherOwner on the dialog's decor view so Compose's
-        // BackHandler composable can find it in the view tree.
-        if (window != null) {
-            View decorView = window.getDecorView();
-            if (ViewTreeOnBackPressedDispatcherOwner.get(decorView) == null) {
-                backPressedOwner = new PaywallBackPressedOwner();
-                ViewTreeOnBackPressedDispatcherOwner.set(decorView, backPressedOwner);
-            }
-
-            // For API 33+ gesture navigation, register OnBackInvokedCallback on
-            // the Dialog's window so back gestures are handled while focused.
-            if (Build.VERSION.SDK_INT >= 33) {
-                try {
-                    OnBackInvokedCallback callback = () ->
-                            handleBackPress(activity);
-                    window.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
-                            OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                            callback
-                    );
-                    backInvokedCallback = callback;
-                } catch (Throwable e) {
-                    Log.w(TAG, "Failed to register OnBackInvokedCallback on dialog: " + e.getMessage());
-                }
-            }
+    /**
+     * Reads the real insets of the given type from the activity's window.
+     * Falls back to the status_bar_height system resource for status bar insets
+     * if the activity's insets are not yet available.
+     */
+    private static Insets getActivityInsets(Activity activity, int insetsType) {
+        WindowInsetsCompat activityInsets = ViewCompat.getRootWindowInsets(
+                activity.getWindow().getDecorView());
+        if (activityInsets != null) {
+            return activityInsets.getInsets(insetsType);
         }
+        if (insetsType == WindowInsetsCompat.Type.statusBars()) {
+            int sbHeight = getSystemBarHeight(activity, "status_bar_height");
+            return Insets.of(0, sbHeight, 0, 0);
+        }
+        return Insets.NONE;
+    }
 
-        // Safety net: if the dialog is dismissed by the system (e.g. Activity finishing)
-        // without the PaywallView dismiss handler firing, clean up static state so future
-        // paywall presentations are not permanently blocked.
+    /**
+     * Applies edge-to-edge window flags after the dialog is shown.
+     * Must be called after {@link Dialog#show()} so the decor view is attached.
+     */
+    private static void applyEdgeToEdgeFlags(@Nullable Window window) {
+        if (window == null) return;
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+    }
+
+    private static int getSystemBarHeight(Activity activity, String resourceName) {
+        int resourceId = activity.getResources().getIdentifier(resourceName, "dimen", "android");
+        if (resourceId > 0) {
+            return activity.getResources().getDimensionPixelSize(resourceId);
+        }
+        return 0;
+    }
+
+    // endregion
+
+    // region Back press and dismiss
+
+    /**
+     * Installs an OnBackPressedDispatcherOwner on the dialog's decor view so Compose's
+     * BackHandler composable can find it in the view tree. Unity's Activity does not
+     * extend ComponentActivity, so this owner is not available by default.
+     */
+    private static void setupBackPressedOwner(@Nullable Window window) {
+        if (window == null) return;
+        ViewGroup decorView = (ViewGroup) window.getDecorView();
+        if (ViewTreeOnBackPressedDispatcherOwner.get(decorView) == null) {
+            backPressedOwner = new PaywallBackPressedOwner();
+            ViewTreeOnBackPressedDispatcherOwner.set(decorView, backPressedOwner);
+        }
+    }
+
+    /**
+     * Routes the Dialog's back events to our {@link PaywallBackPressedOwner}'s dispatcher.
+     *
+     * The Dialog has {@code setCancelable(false)} so it won't dismiss itself on back press.
+     * However, nothing automatically connects the system back event to our custom
+     * OnBackPressedDispatcher. This method bridges that gap:
+     * <ul>
+     *   <li>API 33+: Registers an {@code OnBackInvokedCallback} for predictive back gestures.</li>
+     *   <li>Pre-33: Uses an {@code OnKeyListener} to intercept KEYCODE_BACK.</li>
+     * </ul>
+     */
+    private static void setupBackPressRouting(Dialog dialog) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // API 33+: back gestures go through OnBackInvokedDispatcher, not KEYCODE_BACK.
+            dialog.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                    () -> {
+                        if (backPressedOwner != null) {
+                            backPressedOwner.getOnBackPressedDispatcher().onBackPressed();
+                        }
+                    }
+            );
+        } else {
+            // Pre-33: back presses arrive as KEYCODE_BACK key events.
+            dialog.setOnKeyListener((DialogInterface d, int keyCode, KeyEvent event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                    if (backPressedOwner != null && backPressedOwner.getOnBackPressedDispatcher().hasEnabledCallbacks()) {
+                        backPressedOwner.getOnBackPressedDispatcher().onBackPressed();
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+    }
+
+    /**
+     * Safety net: if the dialog is dismissed by the system (e.g. Activity finishing)
+     * without the PaywallView dismiss handler firing, clean up static state so future
+     * paywall presentations are not permanently blocked.
+     */
+    private static void setupDismissListener(Dialog dialog) {
         dialog.setOnDismissListener(d -> {
             if (currentDialog == d) {
                 String result = lastResult != null ? lastResult : RESULT_CANCELLED;
@@ -342,13 +486,6 @@ public class PaywallViewPresenter {
                 RevenueCatUI.sendPaywallResult(result);
             }
         });
-
-        dialog.setContentView(paywallView, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-        ));
-
-        dialog.show();
     }
 
     private static void dismissDialog() {
@@ -357,20 +494,6 @@ public class PaywallViewPresenter {
         Dialog dialog = currentDialog;
         currentDialog = null;
         lastResult = null;
-        if (Build.VERSION.SDK_INT >= 33 && backInvokedCallback != null && dialog != null) {
-            try {
-                OnBackInvokedCallback callback =
-                        (OnBackInvokedCallback) backInvokedCallback;
-                Window window = dialog.getWindow();
-                if (window != null) {
-                    window.getOnBackInvokedDispatcher()
-                            .unregisterOnBackInvokedCallback(callback);
-                }
-            } catch (Throwable e) {
-                Log.w(TAG, "Error unregistering OnBackInvokedCallback: " + e.getMessage());
-            }
-            backInvokedCallback = null;
-        }
         if (dialog != null) {
             try {
                 dialog.dismiss();
@@ -426,19 +549,9 @@ public class PaywallViewPresenter {
         }
     }
 
-    private static void handleBackPress(Activity activity) {
-        if (backPressedOwner != null
-                && backPressedOwner.getOnBackPressedDispatcher().hasEnabledCallbacks()) {
-            backPressedOwner.getOnBackPressedDispatcher().onBackPressed();
-        } else {
-            // Fallback: dismiss via the same path as the close button
-            activity.runOnUiThread(() -> {
-                String result = lastResult != null ? lastResult : RESULT_CANCELLED;
-                dismissDialog();
-                RevenueCatUI.sendPaywallResult(result);
-            });
-        }
-    }
+    // endregion
+
+    // region PresentedOfferingContext mapping
 
     @Nullable
     private static PresentedOfferingContext mapPresentedOfferingContext(
@@ -473,4 +586,6 @@ public class PaywallViewPresenter {
             return new PresentedOfferingContext(fallbackOfferingId);
         }
     }
+
+    // endregion
 }
