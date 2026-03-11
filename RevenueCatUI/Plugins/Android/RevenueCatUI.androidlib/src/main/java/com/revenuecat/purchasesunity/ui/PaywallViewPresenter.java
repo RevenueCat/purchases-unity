@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
@@ -30,6 +32,7 @@ import com.revenuecat.purchases.Package;
 import com.revenuecat.purchases.PresentedOfferingContext;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.PurchasesError;
+import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 import com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback;
 import com.revenuecat.purchases.models.StoreTransaction;
 import com.revenuecat.purchases.ui.revenuecatui.PaywallListener;
@@ -38,6 +41,8 @@ import com.revenuecat.purchases.ui.revenuecatui.views.PaywallView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 import kotlin.Unit;
 
@@ -51,6 +56,9 @@ public class PaywallViewPresenter {
     private static final String RESULT_ERROR = "ERROR";
     private static final String RESULT_NOT_PRESENTED = "NOT_PRESENTED";
 
+    static final String OPERATION_TYPE_PURCHASE = "PURCHASE";
+    static final String OPERATION_TYPE_RESTORE = "RESTORE";
+
     // These fields must only be accessed on the UI thread. All compound check-then-act
     // operations (e.g. if (currentDialog != null)) are safe because the UI thread is
     // single-threaded. The volatile modifier provides cross-thread visibility but does
@@ -58,6 +66,7 @@ public class PaywallViewPresenter {
     private static volatile Dialog currentDialog;
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
+    private static volatile HybridPurchaseLogicBridge currentPurchaseLogicBridge;
 
     /**
      * A simple OnBackPressedDispatcherOwner that provides the OnBackPressedDispatcher
@@ -97,7 +106,8 @@ public class PaywallViewPresenter {
             Activity activity,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -106,7 +116,7 @@ public class PaywallViewPresenter {
         }
 
         activity.runOnUiThread(() ->
-                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton)
+                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
         );
     }
 
@@ -115,7 +125,8 @@ public class PaywallViewPresenter {
             @NonNull String requiredEntitlementIdentifier,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -137,7 +148,7 @@ public class PaywallViewPresenter {
                     RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
                 } else {
                     activity.runOnUiThread(() ->
-                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton)
+                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
                     );
                 }
             }
@@ -152,11 +163,13 @@ public class PaywallViewPresenter {
 
     // region Dialog setup
 
+    @SuppressWarnings("unchecked")
     private static void showPaywallView(
             Activity activity,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         if (currentDialog != null) {
             Log.w(TAG, "Paywall is already being presented");
@@ -170,7 +183,7 @@ public class PaywallViewPresenter {
         currentDialog = dialog;
 
         PaywallView paywallView = createPaywallView(
-                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton
+                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic
         );
 
         setupBackPressedOwner(dialog.getWindow());
@@ -200,6 +213,13 @@ public class PaywallViewPresenter {
         Window window = dialog.getWindow();
         if (window != null) {
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+
+            // NOTE: FLAG_NOT_FOCUSABLE is NOT set here so the Dialog can receive
+            // back navigation events (key events on pre-API 33, gesture back on
+            // API 33+). For PurchaseLogic, FLAG_NOT_FOCUSABLE is toggled on/off
+            // only during active purchase/restore operations to fix a threading
+            // issue with PurchasesAreCompletedBy.MyApp.
+
             window.setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
@@ -225,7 +245,8 @@ public class PaywallViewPresenter {
             Activity activity,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
-            boolean displayCloseButton
+            boolean displayCloseButton,
+            boolean hasPurchaseLogic
     ) {
         PaywallView paywallView = new PaywallView(activity);
 
@@ -248,13 +269,47 @@ public class PaywallViewPresenter {
             return Unit.INSTANCE;
         });
 
+        if (hasPurchaseLogic) {
+            HybridPurchaseLogicBridge bridge = new HybridPurchaseLogicBridge(
+                    eventData -> {
+                        // Add FLAG_NOT_FOCUSABLE during purchase to prevent
+                        // threading issues with PurchaseLogic results.
+                        setDialogNotFocusable(true);
+                        String requestId = (String) eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_REQUEST_ID);
+                        Object packageMap = eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_PACKAGE_BEING_PURCHASED);
+                        String packageJson = "{}";
+                        if (packageMap instanceof Map) {
+                            try {
+                                packageJson = new JSONObject((Map<String, ?>) packageMap).toString();
+                            } catch (Throwable e) {
+                                Log.w(TAG, "Failed to serialize package to JSON: " + e.getMessage());
+                            }
+                        }
+                        RevenueCatUI.sendPerformPurchase(requestId, packageJson);
+                        return Unit.INSTANCE;
+                    },
+                    eventData -> {
+                        // Add FLAG_NOT_FOCUSABLE during restore to prevent
+                        // threading issues with PurchaseLogic results.
+                        setDialogNotFocusable(true);
+                        String requestId = (String) eventData.get(HybridPurchaseLogicBridge.EVENT_KEY_REQUEST_ID);
+                        RevenueCatUI.sendPerformRestore(requestId);
+                        return Unit.INSTANCE;
+                    }
+            );
+            currentPurchaseLogicBridge = bridge;
+            paywallView.setPurchaseLogic(bridge);
+        }
+
         return paywallView;
     }
 
     private static PaywallListener createPaywallListener() {
         return new PaywallListener() {
             @Override
-            public void onRestoreError(@NonNull PurchasesError purchasesError) {}
+            public void onRestoreError(@NonNull PurchasesError purchasesError) {
+                setDialogNotFocusable(false);
+            }
 
             @Override
             public void onRestoreStarted() {}
@@ -262,13 +317,16 @@ public class PaywallViewPresenter {
             @Override
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
                 lastResult = RESULT_ERROR;
+                setDialogNotFocusable(false);
             }
 
             @Override
             public void onPurchaseStarted(@NonNull Package aPackage) {}
 
             @Override
-            public void onPurchaseCancelled() {}
+            public void onPurchaseCancelled() {
+                setDialogNotFocusable(false);
+            }
 
             @Override
             public void onPurchasePackageInitiated(@NonNull Package aPackage, @NonNull Resumable resumable) {
@@ -279,11 +337,13 @@ public class PaywallViewPresenter {
             public void onPurchaseCompleted(@NonNull CustomerInfo customerInfo,
                                             @NonNull StoreTransaction storeTransaction) {
                 lastResult = RESULT_PURCHASED;
+                setDialogNotFocusable(false);
             }
 
             @Override
             public void onRestoreCompleted(@NonNull CustomerInfo customerInfo) {
                 lastResult = RESULT_RESTORED;
+                setDialogNotFocusable(false);
             }
         };
     }
@@ -441,9 +501,51 @@ public class PaywallViewPresenter {
                 Log.w(TAG, "Error dismissing paywall dialog: " + e.getMessage());
             }
         }
+        if (currentPurchaseLogicBridge != null) {
+            currentPurchaseLogicBridge.cancelPending();
+            currentPurchaseLogicBridge = null;
+        }
         if (backPressedOwner != null) {
             backPressedOwner.destroy();
             backPressedOwner = null;
+        }
+    }
+
+    /**
+     * Called from C# after a custom PurchaseLogic operation (purchase or restore) completes.
+     * Updates lastResult based on the operation type and result, and clears FLAG_NOT_FOCUSABLE.
+     * Must be called before HybridPurchaseLogicBridge.resolveResult so lastResult is set
+     * before the ViewModel potentially dismisses the paywall.
+     */
+    public static void onPurchaseLogicResult(String operationType, String resultString) {
+        if ("SUCCESS".equals(resultString)) {
+            if (OPERATION_TYPE_RESTORE.equals(operationType)) {
+                lastResult = RESULT_RESTORED;
+            } else if (OPERATION_TYPE_PURCHASE.equals(operationType)) {
+                lastResult = RESULT_PURCHASED;
+            }
+        }
+        // setDialogNotFocusable touches the dialog window and must run on the Android UI thread.
+        // This method is called from the Unity main thread, so post to the main looper.
+        new Handler(Looper.getMainLooper()).post(() -> setDialogNotFocusable(false));
+    }
+
+    /**
+     * Toggles FLAG_NOT_FOCUSABLE on the dialog window.
+     * When enabled, the dialog won't receive key/back events — needed during
+     * PurchaseLogic operations for correct threading.
+     * When disabled, the dialog is focusable and back navigation works normally.
+     */
+    private static void setDialogNotFocusable(boolean notFocusable) {
+        Dialog dialog = currentDialog;
+        if (dialog == null) return;
+        Window window = dialog.getWindow();
+        if (window == null) return;
+
+        if (notFocusable) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         }
     }
 

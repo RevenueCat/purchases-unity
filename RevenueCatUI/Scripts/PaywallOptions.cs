@@ -56,14 +56,22 @@ namespace RevenueCatUI
         internal Purchases.PresentedOfferingContext PresentedOfferingContext => _offeringSelection?.GetPresentedOfferingContext();
 
         /// <summary>
+        /// Optional custom purchase/restore logic for when purchasesAreCompletedBy is set to MY_APP.
+        /// When provided, the paywall delegates purchase and restore operations to these handlers.
+        /// </summary>
+        internal PurchaseLogic PurchaseLogic { get; }
+
+        /// <summary>
         /// Creates a new PaywallOptions instance.
         /// Will present the current offering.
         /// </summary>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        public PaywallOptions(bool displayCloseButton = false)
+        /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
+        public PaywallOptions(bool displayCloseButton = false, PurchaseLogic purchaseLogic = null)
         {
             _offeringSelection = null;
             DisplayCloseButton = displayCloseButton;
+            PurchaseLogic = purchaseLogic;
         }
 
         /// <summary>
@@ -71,16 +79,19 @@ namespace RevenueCatUI
         /// </summary>
         /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false)
+        /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PurchaseLogic purchaseLogic = null)
         {
             _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
             DisplayCloseButton = displayCloseButton;
+            PurchaseLogic = purchaseLogic;
         }
 
-        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PurchaseLogic purchaseLogic = null)
         {
             _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;
+            PurchaseLogic = purchaseLogic;
         }
     }
 } 

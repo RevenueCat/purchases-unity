@@ -5,6 +5,8 @@
 #import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 typedef void (*RCUIPaywallResultCallback)(const char *result);
+typedef void (*RCUIPurchaseLogicPurchaseCallback)(const char *requestId, const char *packageJson);
+typedef void (*RCUIPurchaseLogicRestoreCallback)(const char *requestId);
 typedef void (*RCUICustomerCenterDismissedCallback)(void);
 typedef void (*RCUICustomerCenterErrorCallback)(void);
 typedef void (*RCUICustomerCenterEventCallback)(const char *eventName, const char *payload);
@@ -138,6 +140,7 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
 
             [proxy presentPaywallWithOptions:options
+                        purchaseLogicBridge:nil
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
                 NSString *token = RCUINormalizedResultToken(resultName);
                 RCUIInvokeCallback(callback, token, nil);
@@ -162,6 +165,7 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
             [proxy presentPaywallIfNeededWithOptions:options
+                                purchaseLogicBridge:nil
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
                 NSString *token = RCUINormalizedResultToken(resultName);
                 RCUIInvokeCallback(callback, token, nil);
@@ -202,6 +206,132 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
     }
 
     RCUIPresentPaywallIfNeededInternal(entitlement, offering, contextJson, displayCloseButton ? YES : NO, callback);
+}
+
+// MARK: - Purchase Logic Support
+
+static NSString *RCUISerializePackageEventData(NSDictionary *eventData) API_AVAILABLE(ios(15.0)) {
+    id packageDict = eventData[HybridPurchaseLogicBridge.eventKeyPackageBeingPurchased];
+    if (!packageDict) {
+        return @"{}";
+    }
+    NSError *error = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:packageDict options:0 error:&error];
+    if (error || !jsonData) {
+        return @"{}";
+    }
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] ?: @"{}";
+}
+
+static HybridPurchaseLogicBridge *RCUICreatePurchaseLogicBridge(
+    RCUIPurchaseLogicPurchaseCallback purchaseCallback,
+    RCUIPurchaseLogicRestoreCallback restoreCallback
+) API_AVAILABLE(ios(15.0)) {
+    return [[HybridPurchaseLogicBridge alloc]
+        initOnPerformPurchase:^(NSDictionary<NSString *, id> * _Nonnull eventData) {
+            NSString *requestId = eventData[HybridPurchaseLogicBridge.eventKeyRequestId];
+            NSString *packageJson = RCUISerializePackageEventData(eventData);
+            if (purchaseCallback != NULL && requestId != nil) {
+                purchaseCallback(requestId.UTF8String, packageJson.UTF8String);
+            }
+        }
+        onPerformRestore:^(NSDictionary<NSString *, id> * _Nonnull eventData) {
+            NSString *requestId = eventData[HybridPurchaseLogicBridge.eventKeyRequestId];
+            if (restoreCallback != NULL && requestId != nil) {
+                restoreCallback(requestId.UTF8String);
+            }
+        }];
+}
+
+void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
+                                          const char *presentedOfferingContextJson,
+                                          bool displayCloseButton,
+                                          RCUIPurchaseLogicPurchaseCallback purchaseCallback,
+                                          RCUIPurchaseLogicRestoreCallback restoreCallback,
+                                          RCUIPaywallResultCallback resultCallback) {
+    if (!RCUIEnsureReady(resultCallback)) {
+        return;
+    }
+
+    NSString *offering = RCUIStringFromCString(offeringIdentifier);
+    NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (@available(iOS 15.0, *)) {
+            __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
+            __block HybridPurchaseLogicBridge *bridge = RCUICreatePurchaseLogicBridge(purchaseCallback, restoreCallback);
+
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO);
+
+            [proxy presentPaywallWithOptions:options
+                        purchaseLogicBridge:bridge
+                        paywallResultHandler:^(NSString * _Nonnull resultName) {
+                NSString *token = RCUINormalizedResultToken(resultName);
+                RCUIInvokeCallback(resultCallback, token, nil);
+                proxy = nil;
+                bridge = nil;
+            }];
+        } else {
+            RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
+        }
+    });
+}
+
+void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlementIdentifier,
+                                                   const char *offeringIdentifier,
+                                                   const char *presentedOfferingContextJson,
+                                                   bool displayCloseButton,
+                                                   RCUIPurchaseLogicPurchaseCallback purchaseCallback,
+                                                   RCUIPurchaseLogicRestoreCallback restoreCallback,
+                                                   RCUIPaywallResultCallback resultCallback) {
+    if (!RCUIEnsureReady(resultCallback)) {
+        return;
+    }
+
+    NSString *entitlement = RCUIStringFromCString(requiredEntitlementIdentifier);
+    NSString *offering = RCUIStringFromCString(offeringIdentifier);
+    NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
+
+    if (entitlement.length == 0) {
+        rcui_presentPaywallWithPurchaseLogic(offeringIdentifier, presentedOfferingContextJson,
+                                             displayCloseButton, purchaseCallback, restoreCallback, resultCallback);
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (@available(iOS 15.0, *)) {
+            __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
+            __block HybridPurchaseLogicBridge *bridge = RCUICreatePurchaseLogicBridge(purchaseCallback, restoreCallback);
+
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO);
+            options[kRCUIOptionRequiredEntitlementIdentifier] = entitlement;
+
+            [proxy presentPaywallIfNeededWithOptions:options
+                                purchaseLogicBridge:bridge
+                                paywallResultHandler:^(NSString * _Nonnull resultName) {
+                NSString *token = RCUINormalizedResultToken(resultName);
+                RCUIInvokeCallback(resultCallback, token, nil);
+                proxy = nil;
+                bridge = nil;
+            }];
+        } else {
+            RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
+        }
+    });
+}
+
+void rcui_resolvePurchaseLogicResult(const char *requestId, const char *resultString, const char *errorMessage) {
+    if (@available(iOS 15.0, *)) {
+        NSString *reqId = RCUIStringFromCString(requestId);
+        NSString *result = RCUIStringFromCString(resultString);
+        NSString *error = RCUIStringFromCString(errorMessage);
+
+        if (reqId == nil || result == nil) {
+            return;
+        }
+
+        [HybridPurchaseLogicBridge resolveResultWithRequestId:reqId resultString:result errorMessage:error];
+    }
 }
 
 @interface RCUICustomerCenterDelegate : NSObject <RCCustomerCenterViewControllerDelegateWrapper>
