@@ -1,0 +1,405 @@
+/* ── Reset default Unity theme ───────────────────── */
+
+Button {
+    background-color: #FFFFFF;
+    color: #1F1F47;
+    border-color: #E2E0EA;
+    border-width: 1px;
+    border-radius: 8px;
+}
+
+Button:hover {
+    background-color: #F5F4F8;
+}
+
+Button:active {
+    background-color: #ECEAF2;
+}
+
+TextField > #unity-text-input {
+    background-color: #FFFFFF;
+    color: #1F1F47;
+    border-color: #E2E0EA;
+}
+
+/* ── Root ─────────────────────────────────────────── */
+
+.root {
+    flex-grow: 1;
+    background-color: #F8F7FB;
+}
+
+/* ── Status Bar ──────────────────────────────────── */
+
+.status-bar {
+    flex-direction: row;
+    align-items: center;
+    background-color: #FFFFFF;
+    padding: 6px 16px;
+    border-bottom-width: 1px;
+    border-bottom-color: #E2E0EA;
+}
+
+.status-label {
+    color: #8C8AA0;
+    font-size: 11px;
+    flex-grow: 1;
+}
+
+.status-value {
+    color: #1F1F47;
+    font-size: 11px;
+    -unity-font-style: bold;
+}
+
+/* ── Tab Bar ─────────────────────────────────────── */
+
+.tab-bar {
+    flex-direction: row;
+    background-color: #FFFFFF;
+    border-bottom-width: 1px;
+    border-bottom-color: #E2E0EA;
+    min-height: 48px;
+    padding: 0 4px;
+}
+
+.tab-bar #unity-content-container {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.tab-button {
+    background-color: transparent;
+    color: #8C8AA0;
+    border-width: 0;
+    border-bottom-width: 3px;
+    border-bottom-color: transparent;
+    padding: 10px 18px;
+    margin: 0 1px;
+    font-size: 13px;
+    -unity-font-style: bold;
+    border-radius: 0;
+    -unity-text-align: middle-center;
+}
+
+.tab-button:hover {
+    color: #1F1F47;
+    background-color: rgba(242, 84, 91, 0.05);
+}
+
+.tab-button:active {
+    background-color: rgba(242, 84, 91, 0.1);
+}
+
+.tab-active {
+    color: #F2545B;
+    border-bottom-color: #F2545B;
+}
+
+/* ── Content Area ────────────────────────────────── */
+
+.content-area {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+/* ── Screen Scroll ───────────────────────────────── */
+
+.screen-scroll {
+    flex-grow: 1;
+}
+
+.screen-scroll #unity-content-container {
+    padding: 16px;
+}
+
+/* ── Hide scrollbar arrows globally ──────────────── */
+
+#unity-low-button, #unity-high-button {
+    display: none;
+}
+
+Scroller {
+    width: 4px;
+}
+
+#unity-slider {
+    margin: 0;
+    min-width: 4px;
+}
+
+#unity-tracker {
+    background-color: rgba(31, 31, 71, 0.05);
+    border-width: 0;
+}
+
+#unity-dragger {
+    background-color: rgba(31, 31, 71, 0.2);
+    border-width: 0;
+    border-radius: 2px;
+    min-width: 4px;
+}
+
+/* ── Section Header ──────────────────────────────── */
+
+.section-header {
+    color: #1F1F47;
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom-width: 1px;
+    border-bottom-color: #E2E0EA;
+}
+
+.section-header-first {
+    margin-top: 0;
+}
+
+/* ── Buttons ─────────────────────────────────────── */
+
+.action-button {
+    background-color: #F2545B;
+    color: #FFFFFF;
+    border-width: 0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 4px 0;
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    min-height: 44px;
+}
+
+.action-button:hover {
+    background-color: #F46E74;
+}
+
+.action-button:active {
+    background-color: #D94349;
+}
+
+.secondary-button {
+    background-color: #FFFFFF;
+    color: #1F1F47;
+    border-width: 1px;
+    border-color: #E2E0EA;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 4px 0;
+    font-size: 13px;
+    -unity-text-align: middle-center;
+    min-height: 44px;
+}
+
+.secondary-button:hover {
+    background-color: #F5F4F8;
+}
+
+.secondary-button:active {
+    background-color: #ECEAF2;
+}
+
+.danger-button {
+    background-color: #FEF2F2;
+    color: #F2545B;
+    border-width: 1px;
+    border-color: #FECACA;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 4px 0;
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    min-height: 44px;
+}
+
+.danger-button:active {
+    background-color: #FEE2E2;
+}
+
+.small-button {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+/* ── Offering Picker ─────────────────────────────── */
+
+.offering-selected {
+    background-color: #11D483;
+    color: #FFFFFF;
+    border-width: 0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 4px 0;
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    min-height: 44px;
+}
+
+.offering-selected:active {
+    background-color: #0FB873;
+}
+
+/* ── Button Row ──────────────────────────────────── */
+
+.button-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 2px 0;
+}
+
+.button-row > Button {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 4px 3px;
+}
+
+/* ── Text Fields ─────────────────────────────────── */
+
+.input-field {
+    margin: 6px 0;
+}
+
+.input-field > Label {
+    color: #8C8AA0;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+.input-field > #unity-text-input {
+    background-color: #FFFFFF;
+    color: #1F1F47;
+    border-width: 1px;
+    border-color: #E2E0EA;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+}
+
+.input-field > #unity-text-input:focus {
+    border-color: #F2545B;
+}
+
+/* ── Labels ──────────────────────────────────────── */
+
+.info-label {
+    color: #8C8AA0;
+    font-size: 12px;
+    margin: 4px 0;
+    white-space: normal;
+}
+
+/* ── Dynamic Content Container ───────────────────── */
+
+.dynamic-container {
+    margin-top: 8px;
+    padding: 12px;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #E2E0EA;
+}
+
+.dynamic-item-label {
+    color: #1F1F47;
+    font-size: 12px;
+    margin: 4px 0;
+    white-space: normal;
+}
+
+.package-group {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: #E2E0EA;
+}
+
+/* ── Log Panel ───────────────────────────────────── */
+
+.log-panel {
+    min-height: 160px;
+    max-height: 280px;
+    background-color: #FFFFFF;
+    border-top-width: 1px;
+    border-top-color: #E2E0EA;
+    flex-shrink: 0;
+}
+
+.log-collapsed {
+    min-height: 36px;
+    max-height: 36px;
+}
+
+.log-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: #F5F4F8;
+    border-bottom-width: 1px;
+    border-bottom-color: #E2E0EA;
+    min-height: 36px;
+}
+
+.log-title {
+    color: #8C8AA0;
+    font-size: 12px;
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.log-toggle {
+    background-color: transparent;
+    color: #8C8AA0;
+    border-width: 0;
+    padding: 4px 10px;
+    font-size: 14px;
+    min-height: 28px;
+}
+
+.log-clear {
+    background-color: transparent;
+    color: #8C8AA0;
+    border-width: 0;
+    padding: 4px 10px;
+    font-size: 11px;
+    min-height: 28px;
+}
+
+.log-scroll {
+    flex-grow: 1;
+    padding: 4px 12px;
+}
+
+.log-collapsed .log-scroll {
+    display: none;
+}
+
+.log-entry {
+    color: #5C5A72;
+    font-size: 11px;
+    margin: 1px 0;
+    white-space: normal;
+    padding: 2px 0;
+}
+
+.log-error {
+    color: #F2545B;
+}
+
+.log-success {
+    color: #11D483;
+}
+
+.log-warning {
+    color: #FBBF24;
+}
+
+/* ── Spacer ──────────────────────────────────────── */
+
+.spacer {
+    min-height: 12px;
+}
