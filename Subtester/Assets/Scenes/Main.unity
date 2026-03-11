@@ -399,6 +399,7 @@ GameObject:
   - component: {fileID: 559298754}
   - component: {fileID: 559298755}
   - component: {fileID: 559298753}
+  - component: {fileID: 559298800}
   m_Layer: 0
   m_Name: PurchasesManager
   m_TagString: Untagged
@@ -419,8 +420,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRuntimeSetup: 0
-  revenueCatAPIKeyApple: 
-  revenueCatAPIKeyGoogle: 
+  revenueCatAPIKeyApple: appl_SYkbbYptqjDadVkQeBUtXxVxCcw
+  revenueCatAPIKeyGoogle: goog_TzjuPFWcFelhzMSOGvKoZWvrdcW
   revenueCatAPIKeyAmazon: 
   useAmazon: 0
   autoSyncPurchases: 1
@@ -465,6 +466,21 @@ MonoBehaviour:
   buttonPrefab: {fileID: 1696602566380582, guid: 08be051e1286142ac9bb1c2a81c63bc3,
     type: 3}
   infoLabel: {fileID: 53425791}
+  customVariablesEditor: {fileID: 559298800}
+  offeringIdentifier: facundo.test.restore
+--- !u!114 &559298800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559298752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15183a0204414a65b3753d3bf07c4506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  variables: []
 --- !u!1 &605620630
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,7 +1012,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1016743159}
   m_Direction: 2
   m_Value: 0.90756994
-  m_Size: 0.021009987
+  m_Size: 0.021009985
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1390,8 +1406,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 950935161}
   m_HandleRect: {fileID: 950935160}
   m_Direction: 2
-  m_Value: 1.0000001
-  m_Size: 0.201855
+  m_Value: 1
+  m_Size: 0.20185499
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

@@ -13,6 +13,9 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     public Text infoLabel;
     public CustomVariablesEditor customVariablesEditor;
 
+    [Header("Offering to present (leave empty for default)")]
+    public string offeringIdentifier;
+
     private bool simulatesAskToBuyInSandbox;
 
     private int minYOffsetForButtons = 40; // values lower than these don't work great with devices
@@ -67,10 +70,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         CreateButton("Purchase Package For WinBack Testing", PurchasePackageForWinBackTesting);
         CreateButton("Fetch & Redeem WinBack for Package", FetchAndRedeemWinBackForPackage);
         CreateButton("Get Storefront", GetStorefront);
-        CreateButton("Edit Custom Variables", ToggleCustomVariablesEditor);
         CreateButton("Present Paywall", PresentPaywallResult);
         CreateButton("Present Paywall with Options", PresentPaywallWithOptions);
-        CreateButton("Present Paywall with Custom Vars", PresentPaywallWithCustomVariables);
         CreateButton("Present Paywall for Offering", PresentPaywallForOffering);
         CreateButton("Present Paywall If Needed", PresentPaywallIfNeeded);
         CreateButton("Present Customer Center", PresentCustomerCenter);
@@ -222,40 +223,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallWithOptionsCoroutine());
     }
 
-    void ToggleCustomVariablesEditor()
-    {
-        if (customVariablesEditor != null)
-        {
-            customVariablesEditor.ToggleEditor();
-            var varCount = customVariablesEditor.CustomVariables?.Count ?? 0;
-            if (customVariablesEditor.IsEditorVisible())
-            {
-                infoLabel.text = $"Custom Variables Editor opened ({varCount} variables defined)";
-            }
-            else
-            {
-                infoLabel.text = $"Custom Variables Editor closed ({varCount} variables will be used)";
-            }
-        }
-        else
-        {
-            infoLabel.text = "CustomVariablesEditor not configured";
-            Debug.LogWarning("Subtester: CustomVariablesEditor reference not set");
-        }
-    }
 
-    void PresentPaywallWithCustomVariables()
-    {
-        Debug.Log("Subtester: launching paywall with custom variables");
 
-        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
-        var varCount = customVars?.Count ?? 0;
-
-        if (infoLabel != null)
-            infoLabel.text = $"Launching paywall with {varCount} custom variable(s)...";
-
-        StartCoroutine(PresentPaywallWithCustomVariablesCoroutine());
-    }
 
     void PresentPaywallForOffering()
     {
@@ -278,9 +247,70 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentCustomerCenterCoroutine());
     }
 
+    private Purchases.Offering _cachedOffering;
+
+    private System.Collections.IEnumerator FetchOfferingIfNeeded()
+    {
+        if (string.IsNullOrEmpty(offeringIdentifier))
+        {
+            Debug.Log("Subtester: No offeringIdentifier set, using default");
+            yield break;
+        }
+        if (_cachedOffering != null && _cachedOffering.Identifier == offeringIdentifier)
+        {
+            Debug.Log($"Subtester: Using cached offering '{offeringIdentifier}'");
+            yield break;
+        }
+
+        Debug.Log($"Subtester: Fetching offering '{offeringIdentifier}'...");
+
+        _cachedOffering = null;
+        var purchases = GetComponent<Purchases>();
+        var tcs = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
+        purchases.GetOfferings((offerings, error) =>
+        {
+            if (error != null) tcs.SetException(new System.Exception(error.ToString()));
+            else tcs.SetResult(offerings);
+        });
+
+        while (!tcs.Task.IsCompleted) { yield return null; }
+
+        if (tcs.Task.IsFaulted)
+        {
+            Debug.LogError($"Subtester: Error fetching offerings: {tcs.Task.Exception.GetBaseException().Message}");
+            yield break;
+        }
+
+        var offerings2 = tcs.Task.Result;
+        if (offerings2?.All != null)
+        {
+            offerings2.All.TryGetValue(offeringIdentifier, out _cachedOffering);
+        }
+        if (_cachedOffering != null)
+        {
+            Debug.Log($"Subtester: Using offering '{_cachedOffering.Identifier}'");
+        }
+        else
+        {
+            Debug.LogWarning($"Subtester: Offering '{offeringIdentifier}' not found, using default");
+        }
+    }
+
+    private RevenueCatUI.PaywallOptions BuildPaywallOptions(bool displayCloseButton = true)
+    {
+        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
+        if (_cachedOffering != null)
+        {
+            return new RevenueCatUI.PaywallOptions(_cachedOffering, displayCloseButton: displayCloseButton, customVariables: customVars);
+        }
+        return new RevenueCatUI.PaywallOptions(displayCloseButton: displayCloseButton, customVariables: customVars);
+    }
+
     private System.Collections.IEnumerator PresentPaywallCoroutine()
     {
-        var task = RevenueCatUI.PaywallsPresenter.Present();
+        yield return FetchOfferingIfNeeded();
+        var options = BuildPaywallOptions();
+        var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
 
         var result = task.Result;
@@ -290,7 +320,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         {
             string status = GetPaywallResultStatus(result);
 
-            if (result.Result == RevenueCatUI.PaywallResultType.Purchased || 
+            if (result.Result == RevenueCatUI.PaywallResultType.Purchased ||
                 result.Result == RevenueCatUI.PaywallResultType.Restored)
             {
                 GetComponent<Purchases>().GetCustomerInfo((customerInfo, error) => {
@@ -368,7 +398,8 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
     private System.Collections.IEnumerator PresentPaywallWithOptionsCoroutine()
     {
-        var options = new RevenueCatUI.PaywallOptions(displayCloseButton: false);
+        yield return FetchOfferingIfNeeded();
+        var options = BuildPaywallOptions(displayCloseButton: false);
 
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
@@ -382,93 +413,13 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         }
     }
 
-    private System.Collections.IEnumerator PresentPaywallWithCustomVariablesCoroutine()
-    {
-        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
-        var varCount = customVars?.Count ?? 0;
-
-        // Log the custom variables being sent
-        if (customVars != null)
-        {
-            Debug.Log($"Subtester: Presenting paywall with {varCount} custom variables:");
-            foreach (var kvp in customVars)
-            {
-                Debug.Log($"  {kvp.Key} = \"{kvp.Value}\"");
-            }
-        }
-        else
-        {
-            Debug.Log("Subtester: Presenting paywall with no custom variables");
-        }
-
-        var options = new RevenueCatUI.PaywallOptions(
-            displayCloseButton: true,
-            customVariables: customVars
-        );
-
-        var task = RevenueCatUI.PaywallsPresenter.Present(options);
-        while (!task.IsCompleted) { yield return null; }
-
-        var result = task.Result;
-        Debug.Log("Subtester: paywall with custom variables result = " + result);
-
-        if (infoLabel != null)
-        {
-            infoLabel.text = $"Paywall with {varCount} custom var(s) result: {GetPaywallResultStatus(result)}";
-        }
-    }
-
     private System.Collections.IEnumerator PresentPaywallForOfferingCoroutine()
     {
-        // First get available offerings to use one as an example
-        var purchases = GetComponent<Purchases>();
-        var offeringsTask = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
-        
-        purchases.GetOfferings((offerings, error) =>
-        {
-            if (error != null)
-            {
-                offeringsTask.SetException(new System.Exception(error.ToString()));
-            }
-            else
-            {
-                offeringsTask.SetResult(offerings);
-            }
-        });
+        yield return FetchOfferingIfNeeded();
 
-        while (!offeringsTask.Task.IsCompleted) { yield return null; }
+        Debug.Log($"Subtester: Presenting paywall for offering: {_cachedOffering?.Identifier ?? "default"}");
 
-        if (offeringsTask.Task.IsFaulted)
-        {
-            Debug.LogError("Subtester: Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message);
-            if (infoLabel != null)
-            {
-                infoLabel.text = "Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message;
-            }
-            yield break;
-        }
-
-        var offerings = offeringsTask.Task.Result;
-
-        // Random offering from available offerings
-        Purchases.Offering randomOffering = null;
-        if (offerings?.All?.Count > 0)
-        {
-            var allOfferings = offerings.All.Values.ToList();
-            var randomIndex = UnityEngine.Random.Range(0, allOfferings.Count);
-            randomOffering = allOfferings[randomIndex];
-        }
-        else if (offerings?.Current != null)
-        {
-            randomOffering = offerings.Current;
-        }
-
-        Debug.Log($"Subtester: Presenting paywall for offering: {randomOffering?.Identifier ?? "current"}");
-
-        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
-        var options = randomOffering != null
-            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true, customVariables: customVars)
-            : new RevenueCatUI.PaywallOptions(displayCloseButton: true, customVariables: customVars);
+        var options = BuildPaywallOptions();
         var task = RevenueCatUI.PaywallsPresenter.Present(options);
         while (!task.IsCompleted) { yield return null; }
 
@@ -477,63 +428,19 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
 
         if (infoLabel != null)
         {
-            infoLabel.text = $"Paywall for offering '{randomOffering?.Identifier ?? "current"}' result: {GetPaywallResultStatus(result)}";
+            infoLabel.text = $"Paywall for offering '{_cachedOffering?.Identifier ?? "default"}' result: {GetPaywallResultStatus(result)}";
         }
     }
 
     private System.Collections.IEnumerator PresentPaywallIfNeededCoroutine()
     {
-        // First get available offerings to use one as an example
-        var purchases = GetComponent<Purchases>();
-        var offeringsTask = new System.Threading.Tasks.TaskCompletionSource<Purchases.Offerings>();
-        
-        purchases.GetOfferings((offerings, error) =>
-        {
-            if (error != null)
-            {
-                offeringsTask.SetException(new System.Exception(error.ToString()));
-            }
-            else
-            {
-                offeringsTask.SetResult(offerings);
-            }
-        });
+        yield return FetchOfferingIfNeeded();
 
-        while (!offeringsTask.Task.IsCompleted) { yield return null; }
+        var testEntitlement = "pro_level_b";
 
-        if (offeringsTask.Task.IsFaulted)
-        {
-            Debug.LogError("Subtester: Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message);
-            if (infoLabel != null)
-            {
-                infoLabel.text = "Error getting offerings: " + offeringsTask.Task.Exception.GetBaseException().Message;
-            }
-            yield break;
-        }
+        Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {_cachedOffering?.Identifier ?? "default"}");
 
-        var offerings = offeringsTask.Task.Result;
-        // Random offering from available offerings
-        Purchases.Offering randomOffering = null;
-        if (offerings?.All?.Count > 0)
-        {
-            var allOfferings = offerings.All.Values.ToList();
-            var randomIndex = UnityEngine.Random.Range(0, allOfferings.Count);
-            randomOffering = allOfferings[randomIndex];
-        }
-        else if (offerings?.Current != null)
-        {
-            randomOffering = offerings.Current;
-        }
-
-        // Test with a real entitlement - change this to test different scenarios
-        var testEntitlement = "pro_level_b"; // User should have this, so paywall should NOT be presented
-
-        Debug.Log($"Subtester: Testing presentPaywallIfNeeded for entitlement: {testEntitlement}, offering: {randomOffering?.Identifier ?? "current"}");
-
-        var customVars = customVariablesEditor?.GetCustomVariablesForPaywall();
-        var options = randomOffering != null
-            ? new RevenueCatUI.PaywallOptions(randomOffering, displayCloseButton: true, customVariables: customVars)
-            : new RevenueCatUI.PaywallOptions(displayCloseButton: true, customVariables: customVars);
+        var options = BuildPaywallOptions();
         var task = RevenueCatUI.PaywallsPresenter.PresentIfNeeded(testEntitlement, options);
         while (!task.IsCompleted) { yield return null; }
 
