@@ -223,9 +223,6 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
         StartCoroutine(PresentPaywallWithOptionsCoroutine());
     }
 
-
-
-
     void PresentPaywallForOffering()
     {
         Debug.Log("Subtester: launching paywall for specific offering");
@@ -253,6 +250,7 @@ public class PurchasesListener : Purchases.UpdatedCustomerInfoListener
     {
         if (string.IsNullOrEmpty(offeringIdentifier))
         {
+            _cachedOffering = null;
             Debug.Log("Subtester: No offeringIdentifier set, using default");
             yield break;
         }

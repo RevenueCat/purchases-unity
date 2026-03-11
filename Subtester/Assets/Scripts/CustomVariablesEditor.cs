@@ -15,20 +15,6 @@ public class CustomVariablesEditor : MonoBehaviour
     [Header("Custom Variables (edit in Inspector)")]
     public List<CustomVariable> variables = new List<CustomVariable>();
 
-    public Dictionary<string, string> CustomVariables
-    {
-        get
-        {
-            var dict = new Dictionary<string, string>();
-            foreach (var v in variables)
-            {
-                if (!string.IsNullOrEmpty(v.key))
-                    dict[v.key] = v.value ?? "";
-            }
-            return dict;
-        }
-    }
-
     public Dictionary<string, CustomVariableValue> GetCustomVariablesForPaywall()
     {
         if (variables.Count == 0)
