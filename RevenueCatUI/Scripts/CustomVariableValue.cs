@@ -88,7 +88,8 @@ namespace RevenueCatUI
             var result = new Dictionary<string, string>();
             foreach (var kvp in customVariables)
             {
-                result[kvp.Key] = kvp.Value.StringValue;
+                if (kvp.Value != null)
+                    result[kvp.Key] = kvp.Value.StringValue;
             }
             return result;
         }

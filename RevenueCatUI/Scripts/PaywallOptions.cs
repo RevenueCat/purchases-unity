@@ -70,10 +70,10 @@ namespace RevenueCatUI
         /// Will present the current offering.
         /// </summary>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
         /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
-        public PaywallOptions(bool displayCloseButton = false, Dictionary<string, CustomVariableValue> customVariables = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
+        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
+        public PaywallOptions(bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
         {
             _offeringSelection = null;
             DisplayCloseButton = displayCloseButton;
@@ -87,10 +87,10 @@ namespace RevenueCatUI
         /// </summary>
         /// <param name="offering">The offering to present. If null, the current offering will be used.</param>
         /// <param name="displayCloseButton">Whether to display a close button. Only applicable for original template paywalls, ignored for V2 Paywalls.</param>
-        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
         /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
-        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, Dictionary<string, CustomVariableValue> customVariables = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
+        /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
         {
             _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
             DisplayCloseButton = displayCloseButton;
@@ -99,7 +99,7 @@ namespace RevenueCatUI
             PurchaseLogic = purchaseLogic;
         }
 
-        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, Dictionary<string, CustomVariableValue> customVariables = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
         {
             _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
             DisplayCloseButton = displayCloseButton;

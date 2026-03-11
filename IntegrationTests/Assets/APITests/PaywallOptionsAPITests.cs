@@ -89,6 +89,12 @@ namespace DefaultNamespace
                 presentationConfiguration: PaywallPresentationConfiguration.FullScreen
             );
 
+            // Test positional argument compatibility (must not break existing callers)
+            PaywallOptions positional1 = new PaywallOptions(true);
+            PaywallOptions positional2 = new PaywallOptions(true, PaywallPresentationConfiguration.FullScreen);
+            PaywallOptions positional3 = new PaywallOptions(offering, true);
+            PaywallOptions positional4 = new PaywallOptions(offering, true, PaywallPresentationConfiguration.FullScreen);
+
             // Test CustomVariableValue factory method
             CustomVariableValue stringValue = CustomVariableValue.String("test");
         }
