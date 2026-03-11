@@ -1,0 +1,109 @@
+namespace RevenueCatUI
+{
+    /// <summary>
+    /// Controls how paywalls are presented on iOS.
+    /// </summary>
+    public sealed class IOSPaywallPresentationStyle
+    {
+        /// <summary>
+        /// Presents the paywall as a full-screen view controller.
+        /// </summary>
+        public static readonly IOSPaywallPresentationStyle FullScreen = new IOSPaywallPresentationStyle("fullScreen");
+
+        /// <summary>
+        /// Presents the paywall as a modal sheet. This is the default iOS behavior.
+        /// </summary>
+        public static readonly IOSPaywallPresentationStyle Sheet = new IOSPaywallPresentationStyle("sheet");
+
+        internal string Value { get; }
+
+        private IOSPaywallPresentationStyle(string value)
+        {
+            Value = value;
+        }
+    }
+
+    /// <summary>
+    /// Controls how paywalls are presented on Android.
+    /// Currently only full-screen presentation is supported.
+    /// </summary>
+    public sealed class AndroidPaywallPresentationStyle
+    {
+        /// <summary>
+        /// Presents the paywall as a full-screen activity. This is the default and only supported Android behavior.
+        /// </summary>
+        public static readonly AndroidPaywallPresentationStyle FullScreen = new AndroidPaywallPresentationStyle("fullScreen");
+
+        internal string Value { get; }
+
+        private AndroidPaywallPresentationStyle(string value)
+        {
+            Value = value;
+        }
+    }
+
+    /// <summary>
+    /// Configuration for how a paywall should be presented on each platform.
+    /// Each platform field is optional; when null, the platform's default presentation style is used.
+    /// <example>
+    /// <code>
+    /// // Full screen on all platforms:
+    /// var options = new PaywallOptions(
+    ///     presentationConfiguration: PaywallPresentationConfiguration.FullScreen
+    /// );
+    /// await PaywallsPresenter.Present(options);
+    ///
+    /// // Full screen on iOS only (Android is always full screen):
+    /// var options = new PaywallOptions(
+    ///     presentationConfiguration: new PaywallPresentationConfiguration(
+    ///         ios: IOSPaywallPresentationStyle.FullScreen
+    ///     )
+    /// );
+    /// await PaywallsPresenter.Present(options);
+    ///
+    /// // Default behavior (sheet on iOS, full screen on Android):
+    /// await PaywallsPresenter.Present();
+    /// </code>
+    /// </example>
+    /// </summary>
+    public class PaywallPresentationConfiguration
+    {
+        /// <summary>
+        /// Full-screen presentation on all platforms.
+        /// </summary>
+        public static readonly PaywallPresentationConfiguration FullScreen =
+            new PaywallPresentationConfiguration(
+                ios: IOSPaywallPresentationStyle.FullScreen,
+                android: AndroidPaywallPresentationStyle.FullScreen
+            );
+
+        /// <summary>
+        /// Default platform behavior (sheet on iOS, full screen on Android).
+        /// </summary>
+        public static readonly PaywallPresentationConfiguration Default =
+            new PaywallPresentationConfiguration();
+
+        /// <summary>
+        /// The presentation style for iOS. Defaults to sheet if not specified.
+        /// </summary>
+        public IOSPaywallPresentationStyle IOS { get; }
+
+        /// <summary>
+        /// The presentation style for Android. Defaults to full screen if not specified.
+        /// </summary>
+        public AndroidPaywallPresentationStyle Android { get; }
+
+        /// <summary>
+        /// Creates a new PaywallPresentationConfiguration.
+        /// </summary>
+        /// <param name="ios">iOS presentation style. If null, uses the default (sheet).</param>
+        /// <param name="android">Android presentation style. If null, uses the default (full screen).</param>
+        public PaywallPresentationConfiguration(
+            IOSPaywallPresentationStyle ios = null,
+            AndroidPaywallPresentationStyle android = null)
+        {
+            IOS = ios;
+            Android = android;
+        }
+    }
+}

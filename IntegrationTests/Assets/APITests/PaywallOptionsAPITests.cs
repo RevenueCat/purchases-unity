@@ -63,6 +63,32 @@ namespace DefaultNamespace
                 }
             );
 
+            // Test PaywallOptions with presentationConfiguration
+            PaywallOptions options9 = new PaywallOptions(
+                presentationConfiguration: PaywallPresentationConfiguration.FullScreen
+            );
+
+            // Test PaywallOptions with presentationConfiguration and customVariables
+            PaywallOptions options10 = new PaywallOptions(
+                displayCloseButton: true,
+                customVariables: new Dictionary<string, CustomVariableValue>
+                {
+                    { "player_name", CustomVariableValue.String("Test") }
+                },
+                presentationConfiguration: PaywallPresentationConfiguration.FullScreen
+            );
+
+            // Test PaywallOptions with offering, customVariables, and presentationConfiguration
+            PaywallOptions options11 = new PaywallOptions(
+                offering: offering,
+                displayCloseButton: true,
+                customVariables: new Dictionary<string, CustomVariableValue>
+                {
+                    { "level", CustomVariableValue.String("99") }
+                },
+                presentationConfiguration: PaywallPresentationConfiguration.FullScreen
+            );
+
             // Test CustomVariableValue factory method
             CustomVariableValue stringValue = CustomVariableValue.String("test");
         }
