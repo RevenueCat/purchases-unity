@@ -325,6 +325,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RevenueCat.Tester.TesterApp
   styleSheet: {fileID: 7433441132597879392, guid: afe86b1785bae4efca33abf7cb98997a,
     type: 3}
+  defaultOfferingIdentifier: facundo.test.restore
+  defaultCustomVariables:
+  - key: rosie_player_name
+    value: 123
 --- !u!114 &1572256517
 MonoBehaviour:
   m_ObjectHideFlags: 0
