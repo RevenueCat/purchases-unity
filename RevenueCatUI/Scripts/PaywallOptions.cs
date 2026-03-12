@@ -114,7 +114,7 @@ namespace RevenueCatUI
             var dict = new JSONObject();
             foreach (var kvp in CustomVariables)
             {
-                if (kvp.Value != null)
+                if (!string.IsNullOrEmpty(kvp.Key) && kvp.Value != null)
                     dict[kvp.Key] = kvp.Value.StringValue;
             }
             return dict.ToString();
