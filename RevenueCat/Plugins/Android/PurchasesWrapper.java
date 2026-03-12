@@ -24,7 +24,7 @@ import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
 import com.revenuecat.purchases.hybridcommon.mappers.PurchasesErrorKt;
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener;
 import com.revenuecat.purchases.models.InAppMessageType;
-import com.revenuecat.purchases.paywalls.events.CustomPaywallImpressionParams;
+
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONArray;
@@ -705,8 +705,11 @@ public class PurchasesWrapper {
     }
 
     public static void trackCustomPaywallImpression(@Nullable String paywallId) {
-        CustomPaywallImpressionParams params = new CustomPaywallImpressionParams(paywallId);
-        Purchases.getSharedInstance().trackCustomPaywallImpression(params);
+        Map<String, Object> data = new HashMap<>();
+        if (paywallId != null) {
+            data.put("paywallId", paywallId);
+        }
+        CommonKt.trackCustomPaywallImpression(data);
     }
 
     private static void logJSONException(JSONException e) {

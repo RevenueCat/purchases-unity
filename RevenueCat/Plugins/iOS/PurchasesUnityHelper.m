@@ -638,12 +638,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)trackCustomPaywallImpression:(nullable NSString *)paywallId {
-    if (@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)) {
-        RCCustomPaywallImpressionParams *params = [[RCCustomPaywallImpressionParams alloc] initWithPaywallId:paywallId];
-        [[RCPurchases sharedPurchases] trackCustomPaywallImpression:params];
-    } else {
-        NSLog(@"[Purchases] Warning: trackCustomPaywallImpression requires iOS 15.0+, macOS 12.0+, tvOS 15.0+, or watchOS 8.0+.");
+    NSMutableDictionary *data = [NSMutableDictionary dictionary];
+    if (paywallId) {
+        data[@"paywallId"] = paywallId;
     }
+    [RCCommonFunctionality trackCustomPaywallImpression:data];
 }
 
 #pragma mark Helper Methods
