@@ -8,8 +8,23 @@ namespace RevenueCat.Tester.Screens
 {
     public class PaywallScreen : ScreenBase
     {
-        public PaywallScreen(Purchases purchases, LogConsole console)
-            : base(purchases, console) { }
+        private UnityEngine.UIElements.TextField _offeringIdField;
+
+        public PaywallScreen(Purchases purchases, LogConsole console, string defaultOfferingId = null, RevenueCatUI.PaywallsBehaviour.CustomVariableEntry[] defaultCustomVariables = null)
+            : base(purchases, console)
+        {
+            if (!string.IsNullOrEmpty(defaultOfferingId) && _offeringIdField != null)
+                _offeringIdField.value = defaultOfferingId;
+
+            if (defaultCustomVariables != null)
+            {
+                for (int i = 0; i < defaultCustomVariables.Length && i < _customVarFields.Count; i++)
+                {
+                    _customVarFields[i].key.value = defaultCustomVariables[i].key ?? "";
+                    _customVarFields[i].value.value = defaultCustomVariables[i].value ?? "";
+                }
+            }
+        }
 
         private readonly List<(UnityEngine.UIElements.TextField key, UnityEngine.UIElements.TextField value)> _customVarFields = new();
 
@@ -33,6 +48,34 @@ namespace RevenueCat.Tester.Screens
             return new PaywallOptions(displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic);
         }
 
+        private async Task<Purchases.Offering> GetOfferingByIdAsync(string offeringId)
+        {
+            if (string.IsNullOrWhiteSpace(offeringId)) return null;
+
+            var tcs = new TaskCompletionSource<Purchases.Offerings>();
+            Purchases.GetOfferings((offerings, error) =>
+            {
+                if (error != null)
+                    tcs.SetException(new System.Exception(error.ToString()));
+                else
+                    tcs.SetResult(offerings);
+            });
+
+            Purchases.Offerings result;
+            try { result = await tcs.Task; }
+            catch (System.Exception e)
+            {
+                LogError($"Failed to get offerings: {e.Message}");
+                return null;
+            }
+
+            if (result?.All != null && result.All.TryGetValue(offeringId, out var offering))
+                return offering;
+
+            LogError($"Offering \"{offeringId}\" not found");
+            return null;
+        }
+
         protected override void Build()
         {
             AddSectionHeader("Custom Variables");
@@ -54,24 +97,29 @@ namespace RevenueCat.Tester.Screens
 
             AddSectionHeader("Paywall");
 
+            _offeringIdField = AddTextField("Offering ID", "Leave empty for current offering");
+
             AddButton("Present Paywall", async () =>
             {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
                 Log("Presenting paywall...");
-                var result = await PaywallsPresenter.Present(BuildOptions());
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering));
                 LogPaywallResult("Paywall", result);
             });
 
             AddButton("Present Paywall (No Close Button)", async () =>
             {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
                 Log("Presenting paywall without close button...");
-                var result = await PaywallsPresenter.Present(BuildOptions(displayCloseButton: false));
+                var result = await PaywallsPresenter.Present(BuildOptions(displayCloseButton: false, offering: offering));
                 LogPaywallResult("Paywall (no close)", result);
             });
 
             AddButton("Present Paywall Full Screen", async () =>
             {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
                 Log("Presenting paywall full screen...");
-                var result = await PaywallsPresenter.Present(BuildOptions(presentationConfiguration: PaywallPresentationConfiguration.FullScreen));
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering, presentationConfiguration: PaywallPresentationConfiguration.FullScreen));
                 LogPaywallResult("Paywall (full screen)", result);
             });
 
