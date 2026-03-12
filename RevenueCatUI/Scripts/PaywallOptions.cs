@@ -74,12 +74,8 @@ namespace RevenueCatUI
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
         /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
         public PaywallOptions(bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
+            : this((OfferingSelection)null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables)
         {
-            _offeringSelection = null;
-            DisplayCloseButton = displayCloseButton;
-            CustomVariables = customVariables;
-            PresentationConfiguration = presentationConfiguration;
-            PurchaseLogic = purchaseLogic;
         }
 
         /// <summary>
@@ -91,17 +87,18 @@ namespace RevenueCatUI
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
         /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
         public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
+            : this(offering != null ? new OfferingSelection.OfferingType(offering) : null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables)
         {
-            _offeringSelection = offering != null ? new OfferingSelection.OfferingType(offering) : null;
-            DisplayCloseButton = displayCloseButton;
-            CustomVariables = customVariables;
-            PresentationConfiguration = presentationConfiguration;
-            PurchaseLogic = purchaseLogic;
         }
 
         internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
+            : this(!string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables)
         {
-            _offeringSelection = !string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null;
+        }
+
+        private PaywallOptions(OfferingSelection offeringSelection, bool displayCloseButton, PaywallPresentationConfiguration presentationConfiguration, PurchaseLogic purchaseLogic, Dictionary<string, CustomVariableValue> customVariables)
+        {
+            _offeringSelection = offeringSelection;
             DisplayCloseButton = displayCloseButton;
             CustomVariables = customVariables;
             PresentationConfiguration = presentationConfiguration;
@@ -114,11 +111,11 @@ namespace RevenueCatUI
         internal string CustomVariablesToJsonString()
         {
             if (CustomVariables == null || CustomVariables.Count == 0) return null;
-            var stringDict = CustomVariables.ToStringDictionary();
             var dict = new JSONObject();
-            foreach (var kvp in stringDict)
+            foreach (var kvp in CustomVariables)
             {
-                dict[kvp.Key] = kvp.Value;
+                if (kvp.Value != null)
+                    dict[kvp.Key] = kvp.Value.StringValue;
             }
             return dict.ToString();
         }

@@ -579,7 +579,7 @@ public class PaywallViewPresenter {
                 String key = keys.next();
                 String value = json.optString(key);
                 if (value != null) {
-                    result.put(key, new CustomVariableValue.StringValue(value));
+                    result.put(key, new CustomVariableValue.String(value));
                 }
             }
             return result.isEmpty() ? null : result;
