@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RevenueCatUI;
 using UnityEngine;
 using UnityEngine.UIElements;
 using RevenueCat.Tester.Screens;
@@ -9,6 +10,13 @@ namespace RevenueCat.Tester
     public class TesterApp : Purchases.UpdatedCustomerInfoListener
     {
         [SerializeField] private StyleSheet styleSheet;
+
+        [Header("Paywall Defaults")]
+        [Tooltip("Default offering identifier to pre-populate in the Paywalls screen. Leave empty for current offering.")]
+        [SerializeField] private string defaultOfferingIdentifier;
+
+        [Tooltip("Default custom variables to pre-populate in the Paywalls screen.")]
+        [SerializeField] private PaywallsBehaviour.CustomVariableEntry[] defaultCustomVariables;
 
         private UIDocument _uiDocument;
         private Purchases _purchases;
@@ -152,7 +160,7 @@ namespace RevenueCat.Tester
             _screens.Add(("Offerings", new OfferingsScreen(_purchases, _logConsole)));
             _screens.Add(("Purchase", new PurchaseScreen(_purchases, _logConsole)));
             _screens.Add(("Customer", new CustomerInfoScreen(_purchases, _logConsole)));
-            _screens.Add(("Paywalls", new PaywallScreen(_purchases, _logConsole)));
+            _screens.Add(("Paywalls", new PaywallScreen(_purchases, _logConsole, defaultOfferingIdentifier, defaultCustomVariables)));
             _screens.Add(("Attributes", new AttributesScreen(_purchases, _logConsole)));
             _screens.Add(("Tools", new ToolsScreen(_purchases, _logConsole)));
         }

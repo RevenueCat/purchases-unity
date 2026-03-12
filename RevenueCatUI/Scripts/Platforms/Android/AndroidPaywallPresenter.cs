@@ -59,6 +59,7 @@ namespace RevenueCatUI.Platforms
                 var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? false;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
+                var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPurchaseLogic = options?.PurchaseLogic != null;
 
                 if (hasPurchaseLogic)
@@ -69,7 +70,7 @@ namespace RevenueCatUI.Platforms
                 ApplyManifestOrientation();
 
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic });
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic });
             }
             catch (Exception e)
             {
@@ -102,6 +103,7 @@ namespace RevenueCatUI.Platforms
                 var offeringIdentifier = options?.OfferingIdentifier;
                 var displayCloseButton = options?.DisplayCloseButton ?? true;
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
+                var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPurchaseLogic = options?.PurchaseLogic != null;
 
                 if (hasPurchaseLogic)
@@ -112,7 +114,7 @@ namespace RevenueCatUI.Platforms
                 ApplyManifestOrientation();
 
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic });
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic });
             }
             catch (Exception e)
             {

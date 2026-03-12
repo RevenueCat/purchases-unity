@@ -25,6 +25,13 @@ namespace DefaultNamespace
             UnityEvent onNotPresented = behaviour.OnNotPresented;
             UnityEvent onError = behaviour.OnError;
 
+            PaywallsBehaviour.CustomVariableType type = PaywallsBehaviour.CustomVariableType.String;
+
+            PaywallsBehaviour.CustomVariableEntry entry = new PaywallsBehaviour.CustomVariableEntry();
+            entry.key = "player_name";
+            entry.type = type;
+            entry.value = "John";
+
             behaviour.PresentPaywall();
         }
     }

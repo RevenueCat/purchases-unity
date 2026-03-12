@@ -15,6 +15,7 @@ static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEnti
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
 static NSString *const kRCUIOptionDisplayCloseButton = @"displayCloseButton";
 static NSString *const kRCUIOptionPresentedOfferingContext = @"presentedOfferingContext";
+static NSString *const kRCUIOptionCustomVariables = @"customVariables";
 
 static NSString *RCUIStringFromCString(const char *string) {
     if (string == NULL) {
@@ -102,7 +103,7 @@ static id RCUIJSONObjectFromJSONString(NSString *jsonString) {
     return obj;
 }
 
-static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdentifier, NSString *presentedOfferingContextJson, BOOL displayCloseButton, BOOL useFullScreenPresentation) {
+static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdentifier, NSString *presentedOfferingContextJson, BOOL displayCloseButton, BOOL useFullScreenPresentation, NSString *customVariablesJson) {
     NSMutableDictionary *options = [NSMutableDictionary new];
     options[kRCUIOptionDisplayCloseButton] = @(displayCloseButton);
     options[@"useFullScreenPresentation"] = @(useFullScreenPresentation);
@@ -115,6 +116,13 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
         id presentedOfferingContext = RCUIJSONObjectFromJSONString(presentedOfferingContextJson);
         if (presentedOfferingContext) {
             options[kRCUIOptionPresentedOfferingContext] = presentedOfferingContext;
+        }
+    }
+
+    if (customVariablesJson.length > 0) {
+        id customVariables = RCUIJSONObjectFromJSONString(customVariablesJson);
+        if (customVariables) {
+            options[kRCUIOptionCustomVariables] = customVariables;
         }
     }
 
@@ -134,12 +142,13 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
                                        NSString *presentedOfferingContextJson,
                                        BOOL displayCloseButton,
                                        BOOL useFullScreenPresentation,
+                                       NSString *customVariablesJson,
                                        RCUIPaywallResultCallback callback) {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (@available(iOS 15.0, *)) {
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
 
-            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation);
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, customVariablesJson);
 
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:nil
@@ -159,12 +168,13 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
                                                NSString *presentedOfferingContextJson,
                                                BOOL displayCloseButton,
                                                BOOL useFullScreenPresentation,
+                                               NSString *customVariablesJson,
                                                RCUIPaywallResultCallback callback) {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (@available(iOS 15.0, *)) {
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
 
-            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation);
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, customVariablesJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
             [proxy presentPaywallIfNeededWithOptions:options
@@ -180,14 +190,15 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
     });
 }
 
-void rcui_presentPaywall(const char *offeringIdentifier, const char *presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, RCUIPaywallResultCallback callback) {
+void rcui_presentPaywall(const char *offeringIdentifier, const char *presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, const char *customVariablesJson, RCUIPaywallResultCallback callback) {
     if (!RCUIEnsureReady(callback)) {
         return;
     }
 
     NSString *offering = RCUIStringFromCString(offeringIdentifier);
     NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
-    RCUIPresentPaywallInternal(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, callback);
+    NSString *customVarsJson = RCUIStringFromCString(customVariablesJson);
+    RCUIPresentPaywallInternal(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, customVarsJson, callback);
 }
 
 void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
@@ -195,6 +206,7 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
                                  const char *presentedOfferingContextJson,
                                  bool displayCloseButton,
                                  bool useFullScreenPresentation,
+                                 const char *customVariablesJson,
                                  RCUIPaywallResultCallback callback) {
     if (!RCUIEnsureReady(callback)) {
         return;
@@ -203,13 +215,14 @@ void rcui_presentPaywallIfNeeded(const char *requiredEntitlementIdentifier,
     NSString *entitlement = RCUIStringFromCString(requiredEntitlementIdentifier);
     NSString *offering = RCUIStringFromCString(offeringIdentifier);
     NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
+    NSString *customVarsJson = RCUIStringFromCString(customVariablesJson);
 
     if (entitlement.length == 0) {
-        RCUIPresentPaywallInternal(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, callback);
+        RCUIPresentPaywallInternal(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, customVarsJson, callback);
         return;
     }
 
-    RCUIPresentPaywallIfNeededInternal(entitlement, offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, callback);
+    RCUIPresentPaywallIfNeededInternal(entitlement, offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, customVarsJson, callback);
 }
 
 // MARK: - Purchase Logic Support
@@ -251,6 +264,7 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
                                           const char *presentedOfferingContextJson,
                                           bool displayCloseButton,
                                           bool useFullScreenPresentation,
+                                          const char *customVariablesJson,
                                           RCUIPurchaseLogicPurchaseCallback purchaseCallback,
                                           RCUIPurchaseLogicRestoreCallback restoreCallback,
                                           RCUIPaywallResultCallback resultCallback) {
@@ -260,13 +274,14 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
 
     NSString *offering = RCUIStringFromCString(offeringIdentifier);
     NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
+    NSString *customVarsJson = RCUIStringFromCString(customVariablesJson);
 
     dispatch_async(dispatch_get_main_queue(), ^{
         if (@available(iOS 15.0, *)) {
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
             __block HybridPurchaseLogicBridge *bridge = RCUICreatePurchaseLogicBridge(purchaseCallback, restoreCallback);
 
-            NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO);
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, customVarsJson);
 
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:bridge
@@ -287,6 +302,7 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
                                                    const char *presentedOfferingContextJson,
                                                    bool displayCloseButton,
                                                    bool useFullScreenPresentation,
+                                                   const char *customVariablesJson,
                                                    RCUIPurchaseLogicPurchaseCallback purchaseCallback,
                                                    RCUIPurchaseLogicRestoreCallback restoreCallback,
                                                    RCUIPaywallResultCallback resultCallback) {
@@ -297,10 +313,11 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
     NSString *entitlement = RCUIStringFromCString(requiredEntitlementIdentifier);
     NSString *offering = RCUIStringFromCString(offeringIdentifier);
     NSString *contextJson = RCUIStringFromCString(presentedOfferingContextJson);
+    NSString *customVarsJson = RCUIStringFromCString(customVariablesJson);
 
     if (entitlement.length == 0) {
         rcui_presentPaywallWithPurchaseLogic(offeringIdentifier, presentedOfferingContextJson,
-                                             displayCloseButton, useFullScreenPresentation, purchaseCallback, restoreCallback, resultCallback);
+                                             displayCloseButton, useFullScreenPresentation, customVariablesJson, purchaseCallback, restoreCallback, resultCallback);
         return;
     }
 
@@ -309,7 +326,7 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
             __block PaywallProxy *proxy = [[PaywallProxy alloc] init];
             __block HybridPurchaseLogicBridge *bridge = RCUICreatePurchaseLogicBridge(purchaseCallback, restoreCallback);
 
-            NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO);
+            NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, customVarsJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = entitlement;
 
             [proxy presentPaywallIfNeededWithOptions:options
@@ -347,7 +364,7 @@ void rcui_resolvePurchaseLogicResult(const char *requestId, const char *resultSt
 @implementation RCUICustomerCenterDelegate
 
 - (void)customerCenterViewControllerWasDismissed:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
-    
+
 }
 
 - (void)customerCenterViewControllerDidStartRestore:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
@@ -471,7 +488,7 @@ didSelectCustomerCenterManagementOption:(NSString *)optionID
 
 @end
 
-void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCallback, 
+void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCallback,
                                 RCUICustomerCenterErrorCallback errorCallback,
                                 RCUICustomerCenterEventCallback eventCallback) {
     if (!RCUICustomerCenterEnsureReady(errorCallback)) {
@@ -483,7 +500,7 @@ void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCal
             __block CustomerCenterProxy *proxy = [[CustomerCenterProxy alloc] init];
             __block RCUICustomerCenterDelegate *delegate = [[RCUICustomerCenterDelegate alloc] init];
             delegate.eventCallback = eventCallback;
-            
+
             proxy.shouldShowCloseButton = YES;
             [proxy setDelegate:delegate];
 

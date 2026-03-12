@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +21,10 @@ namespace RevenueCatUI
         [Tooltip("Whether to display a close button on the paywall (only for original template RevenueCat Paywalls).")]
         [SerializeField] private bool displayCloseButton = false;
 
+        [Header("Custom Variables (V2 Paywalls only)")]
+        [Tooltip("Custom variables for text substitution using {{ custom.variable_name }} syntax.")]
+        [SerializeField] private CustomVariableEntry[] customVariables = Array.Empty<CustomVariableEntry>();
+
         [Header("Conditional Presentation")]
         [Tooltip("If set, the paywall will only be presented if the user doesn't have this entitlement.")]
         [SerializeField] private string requiredEntitlementIdentifier;
@@ -39,6 +44,22 @@ namespace RevenueCatUI
         
         [Tooltip("Invoked when an error occurs.")]
         public UnityEvent OnError = new UnityEvent();
+
+        public enum CustomVariableType
+        {
+            String,
+            // Number,
+            // Boolean,
+            // Date,
+        }
+
+        [Serializable]
+        public struct CustomVariableEntry
+        {
+            public string key;
+            public CustomVariableType type;
+            public string value;
+        }
 
         private bool isPresenting = false;
 
@@ -137,12 +158,37 @@ namespace RevenueCatUI
 
         private PaywallOptions CreateOptions()
         {
+            var vars = GetCustomVariablesDictionary();
             if (string.IsNullOrEmpty(offeringIdentifier))
             {
-                return new PaywallOptions(displayCloseButton);
+                return new PaywallOptions(displayCloseButton, customVariables: vars);
             }
 
-            return new PaywallOptions(offeringIdentifier, displayCloseButton);
+            return new PaywallOptions(offeringIdentifier, displayCloseButton, customVariables: vars);
+        }
+
+        private Dictionary<string, CustomVariableValue> GetCustomVariablesDictionary()
+        {
+            if (customVariables == null || customVariables.Length == 0) return null;
+
+            var dict = new Dictionary<string, CustomVariableValue>();
+            foreach (var entry in customVariables)
+            {
+                if (string.IsNullOrEmpty(entry.key)) continue;
+
+                dict[entry.key] = entry.type switch
+                {
+                    // TODO: uncomment when CustomVariableValue supports these types
+                    // CustomVariableType.Number when double.TryParse(entry.value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var n)
+                    //     => CustomVariableValue.Number(n),
+                    // CustomVariableType.Boolean when bool.TryParse(entry.value, out var b)
+                    //     => CustomVariableValue.Boolean(b),
+                    // CustomVariableType.Date when System.DateTime.TryParse(entry.value, out var d)
+                    //     => CustomVariableValue.Date(d),
+                    _ => CustomVariableValue.String(entry.value ?? "")
+                };
+            }
+            return dict.Count > 0 ? dict : null;
         }
 
         private void HandleResult(PaywallResult result)

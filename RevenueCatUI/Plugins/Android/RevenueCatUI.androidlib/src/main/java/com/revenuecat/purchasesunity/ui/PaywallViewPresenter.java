@@ -42,7 +42,11 @@ import com.revenuecat.purchases.ui.revenuecatui.views.PaywallView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
+import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 
 import kotlin.Unit;
 
@@ -107,6 +111,7 @@ public class PaywallViewPresenter {
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
+            @Nullable String customVariablesJson,
             boolean hasPurchaseLogic
     ) {
         if (activity == null) {
@@ -116,7 +121,7 @@ public class PaywallViewPresenter {
         }
 
         activity.runOnUiThread(() ->
-                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
+                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic)
         );
     }
 
@@ -126,6 +131,7 @@ public class PaywallViewPresenter {
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
+            @Nullable String customVariablesJson,
             boolean hasPurchaseLogic
     ) {
         if (activity == null) {
@@ -148,7 +154,7 @@ public class PaywallViewPresenter {
                     RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
                 } else {
                     activity.runOnUiThread(() ->
-                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic)
+                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic)
                     );
                 }
             }
@@ -169,6 +175,7 @@ public class PaywallViewPresenter {
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
+            @Nullable String customVariablesJson,
             boolean hasPurchaseLogic
     ) {
         if (currentDialog != null) {
@@ -183,7 +190,7 @@ public class PaywallViewPresenter {
         currentDialog = dialog;
 
         PaywallView paywallView = createPaywallView(
-                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, hasPurchaseLogic
+                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic
         );
 
         setupBackPressedOwner(dialog.getWindow());
@@ -246,6 +253,7 @@ public class PaywallViewPresenter {
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
+            @Nullable String customVariablesJson,
             boolean hasPurchaseLogic
     ) {
         PaywallView paywallView = new PaywallView(activity);
@@ -254,6 +262,11 @@ public class PaywallViewPresenter {
             PresentedOfferingContext presentedOfferingContext =
                     mapPresentedOfferingContext(presentedOfferingContextJson, offeringIdentifier);
             paywallView.setOfferingId(offeringIdentifier, presentedOfferingContext);
+        }
+
+        Map<String, CustomVariableValue> customVariables = parseCustomVariables(customVariablesJson);
+        if (customVariables != null) {
+            paywallView.setCustomVariables(customVariables);
         }
 
         paywallView.setDisplayDismissButton(displayCloseButton);
@@ -546,6 +559,33 @@ public class PaywallViewPresenter {
             window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        }
+    }
+
+    // endregion
+
+    // region Custom variables
+
+    @Nullable
+    private static Map<String, CustomVariableValue> parseCustomVariables(@Nullable String jsonString) {
+        if (jsonString == null || jsonString.isEmpty()) {
+            return null;
+        }
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            Map<String, CustomVariableValue> result = new HashMap<>();
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = json.optString(key);
+                if (value != null) {
+                    result.put(key, new CustomVariableValue.String(value));
+                }
+            }
+            return result.isEmpty() ? null : result;
+        } catch (JSONException e) {
+            Log.w(TAG, "Failed to parse custom variables JSON: " + jsonString, e);
+            return null;
         }
     }
 
