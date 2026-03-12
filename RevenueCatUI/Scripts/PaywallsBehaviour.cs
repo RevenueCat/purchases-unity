@@ -45,10 +45,19 @@ namespace RevenueCatUI
         [Tooltip("Invoked when an error occurs.")]
         public UnityEvent OnError = new UnityEvent();
 
+        public enum CustomVariableType
+        {
+            String,
+            // Number,
+            // Boolean,
+            // Date,
+        }
+
         [Serializable]
         public struct CustomVariableEntry
         {
             public string key;
+            public CustomVariableType type;
             public string value;
         }
 
@@ -165,8 +174,19 @@ namespace RevenueCatUI
             var dict = new Dictionary<string, CustomVariableValue>();
             foreach (var entry in customVariables)
             {
-                if (!string.IsNullOrEmpty(entry.key))
-                    dict[entry.key] = CustomVariableValue.String(entry.value ?? "");
+                if (string.IsNullOrEmpty(entry.key)) continue;
+
+                dict[entry.key] = entry.type switch
+                {
+                    // TODO: uncomment when CustomVariableValue supports these types
+                    // CustomVariableType.Number when double.TryParse(entry.value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var n)
+                    //     => CustomVariableValue.Number(n),
+                    // CustomVariableType.Boolean when bool.TryParse(entry.value, out var b)
+                    //     => CustomVariableValue.Boolean(b),
+                    // CustomVariableType.Date when System.DateTime.TryParse(entry.value, out var d)
+                    //     => CustomVariableValue.Date(d),
+                    _ => CustomVariableValue.String(entry.value ?? "")
+                };
             }
             return dict.Count > 0 ? dict : null;
         }

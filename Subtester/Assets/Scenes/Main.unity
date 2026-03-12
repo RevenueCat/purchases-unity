@@ -328,6 +328,7 @@ MonoBehaviour:
   defaultOfferingIdentifier: facundo.test.restore
   defaultCustomVariables:
   - key: rosie_player_name
+    type: 0
     value: 123
 --- !u!114 &1572256517
 MonoBehaviour:
