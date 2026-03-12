@@ -271,5 +271,12 @@ public class PurchasesAPITests : MonoBehaviour
 
         receivedVirtualCurrencies = purchases.GetCachedVirtualCurrencies();
         purchases.InvalidateVirtualCurrenciesCache();
+
+        // Custom paywall impression API tests
+        purchases.TrackCustomPaywallImpression(
+            new Purchases.CustomPaywallImpressionParams("my_paywall_id"));
+        purchases.TrackCustomPaywallImpression(
+            new Purchases.CustomPaywallImpressionParams());
+        purchases.TrackCustomPaywallImpression();
     }
 }

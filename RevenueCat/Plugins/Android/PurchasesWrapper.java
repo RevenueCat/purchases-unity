@@ -24,6 +24,7 @@ import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
 import com.revenuecat.purchases.hybridcommon.mappers.PurchasesErrorKt;
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener;
 import com.revenuecat.purchases.models.InAppMessageType;
+import com.revenuecat.purchases.paywalls.events.CustomPaywallImpressionParams;
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONArray;
@@ -701,6 +702,11 @@ public class PurchasesWrapper {
 
         ErrorContainer errorContainer = PurchasesErrorKt.map(error, new HashMap<>());
         sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER);
+    }
+
+    public static void trackCustomPaywallImpression(@Nullable String paywallId) {
+        CustomPaywallImpressionParams params = new CustomPaywallImpressionParams(paywallId);
+        Purchases.getSharedInstance().trackCustomPaywallImpression(params);
     }
 
     private static void logJSONException(JSONException e) {

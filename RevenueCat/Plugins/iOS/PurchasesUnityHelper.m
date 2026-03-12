@@ -637,6 +637,15 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality invalidateVirtualCurrenciesCache];
 }
 
+- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId {
+    if (@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)) {
+        RCCustomPaywallImpressionParams *params = [[RCCustomPaywallImpressionParams alloc] initWithPaywallId:paywallId];
+        [[RCPurchases sharedPurchases] trackCustomPaywallImpression:params];
+    } else {
+        NSLog(@"[Purchases] Warning: trackCustomPaywallImpression requires iOS 15.0+, macOS 12.0+, tvOS 15.0+, or watchOS 8.0+.");
+    }
+}
+
 #pragma mark Helper Methods
 
 - (void)sendEmptyResponseToMethod:(NSString *)methodName {
@@ -1032,4 +1041,8 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
     NSString *presentedOfferingContextJsonString = convertCString(presentedOfferingContextJson);
     NSString *winBackOfferIdentifierString = convertCString(winBackOfferIdentifier);
     [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
+}
+
+void _RCTrackCustomPaywallImpression(const char *paywallId) {
+    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId)];
 }

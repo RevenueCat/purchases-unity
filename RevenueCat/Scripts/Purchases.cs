@@ -1393,6 +1393,25 @@ public partial class Purchases : MonoBehaviour
         _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer);
     }
 
+    /// <summary>
+    /// Tracks a custom paywall impression event with the specified parameters.
+    /// This is an experimental API and may change in the future.
+    /// </summary>
+    /// <param name="params">Parameters for the custom paywall impression.</param>
+    public void TrackCustomPaywallImpression(CustomPaywallImpressionParams @params)
+    {
+        _wrapper.TrackCustomPaywallImpression(@params.PaywallId);
+    }
+
+    /// <summary>
+    /// Tracks a custom paywall impression event with no parameters.
+    /// This is an experimental API and may change in the future.
+    /// </summary>
+    public void TrackCustomPaywallImpression()
+    {
+        _wrapper.TrackCustomPaywallImpression(null);
+    }
+
     private void _receiveStorefront(string storefrontJson)
     {
         Debug.Log("_receiveStorefront " + storefrontJson);
