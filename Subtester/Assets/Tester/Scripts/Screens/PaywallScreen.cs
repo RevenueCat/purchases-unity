@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RevenueCatUI;
@@ -7,35 +8,118 @@ namespace RevenueCat.Tester.Screens
 {
     public class PaywallScreen : ScreenBase
     {
-        public PaywallScreen(Purchases purchases, LogConsole console)
-            : base(purchases, console) { }
+        private UnityEngine.UIElements.TextField _offeringIdField;
+
+        public PaywallScreen(Purchases purchases, LogConsole console, string defaultOfferingId = null, RevenueCatUI.PaywallsBehaviour.CustomVariableEntry[] defaultCustomVariables = null)
+            : base(purchases, console)
+        {
+            if (!string.IsNullOrEmpty(defaultOfferingId) && _offeringIdField != null)
+                _offeringIdField.value = defaultOfferingId;
+
+            if (defaultCustomVariables != null)
+            {
+                for (int i = 0; i < defaultCustomVariables.Length && i < _customVarFields.Count; i++)
+                {
+                    _customVarFields[i].key.value = defaultCustomVariables[i].key ?? "";
+                    _customVarFields[i].value.value = defaultCustomVariables[i].value ?? "";
+                }
+            }
+        }
+
+        private readonly List<(UnityEngine.UIElements.TextField key, UnityEngine.UIElements.TextField value)> _customVarFields = new();
+
+        private Dictionary<string, CustomVariableValue> GetCustomVariables()
+        {
+            var vars = new Dictionary<string, CustomVariableValue>();
+            foreach (var (keyField, valueField) in _customVarFields)
+            {
+                var key = keyField.value?.Trim();
+                if (!string.IsNullOrEmpty(key))
+                    vars[key] = CustomVariableValue.String(valueField.value ?? "");
+            }
+            return vars.Count > 0 ? vars : null;
+        }
+
+        private PaywallOptions BuildOptions(bool displayCloseButton = true, Purchases.Offering offering = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
+        {
+            var customVars = GetCustomVariables();
+            if (offering != null)
+                return new PaywallOptions(offering, displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic);
+            return new PaywallOptions(displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic);
+        }
+
+        private async Task<Purchases.Offering> GetOfferingByIdAsync(string offeringId)
+        {
+            if (string.IsNullOrWhiteSpace(offeringId)) return null;
+
+            var tcs = new TaskCompletionSource<Purchases.Offerings>();
+            Purchases.GetOfferings((offerings, error) =>
+            {
+                if (error != null)
+                    tcs.SetException(new System.Exception(error.ToString()));
+                else
+                    tcs.SetResult(offerings);
+            });
+
+            Purchases.Offerings result;
+            try { result = await tcs.Task; }
+            catch (System.Exception e)
+            {
+                LogError($"Failed to get offerings: {e.Message}");
+                return null;
+            }
+
+            if (result?.All != null && result.All.TryGetValue(offeringId, out var offering))
+                return offering;
+
+            LogError($"Offering \"{offeringId}\" not found");
+            return null;
+        }
 
         protected override void Build()
         {
+            AddSectionHeader("Custom Variables");
+            AddInfoLabel("Variables use {{ custom.key }} syntax in V2 paywalls");
+
+            for (int i = 0; i < 3; i++)
+            {
+                var row = new UnityEngine.UIElements.VisualElement();
+                row.AddToClassList("button-row");
+                var keyField = new UnityEngine.UIElements.TextField("Key") { value = "" };
+                keyField.AddToClassList("input-field");
+                var valueField = new UnityEngine.UIElements.TextField("Value") { value = "" };
+                valueField.AddToClassList("input-field");
+                row.Add(keyField);
+                row.Add(valueField);
+                Content.Add(row);
+                _customVarFields.Add((keyField, valueField));
+            }
+
             AddSectionHeader("Paywall");
+
+            _offeringIdField = AddTextField("Offering ID", "Leave empty for current offering");
 
             AddButton("Present Paywall", async () =>
             {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
                 Log("Presenting paywall...");
-                var result = await PaywallsPresenter.Present();
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering));
                 LogPaywallResult("Paywall", result);
             });
 
             AddButton("Present Paywall (No Close Button)", async () =>
             {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
                 Log("Presenting paywall without close button...");
-                var options = new PaywallOptions(displayCloseButton: false);
-                var result = await PaywallsPresenter.Present(options);
+                var result = await PaywallsPresenter.Present(BuildOptions(displayCloseButton: false, offering: offering));
                 LogPaywallResult("Paywall (no close)", result);
             });
 
             AddButton("Present Paywall Full Screen", async () =>
             {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
                 Log("Presenting paywall full screen...");
-                var options = new PaywallOptions(
-                    presentationConfiguration: PaywallPresentationConfiguration.FullScreen
-                );
-                var result = await PaywallsPresenter.Present(options);
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering, presentationConfiguration: PaywallPresentationConfiguration.FullScreen));
                 LogPaywallResult("Paywall (full screen)", result);
             });
 
@@ -46,8 +130,7 @@ namespace RevenueCat.Tester.Screens
                 if (offering == null) return;
 
                 Log($"Presenting paywall for offering: {offering.Identifier}");
-                var options = new PaywallOptions(offering, displayCloseButton: true);
-                var result = await PaywallsPresenter.Present(options);
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering));
                 LogPaywallResult($"Paywall ({offering.Identifier})", result);
             });
 
@@ -66,9 +149,7 @@ namespace RevenueCat.Tester.Screens
 
                 Log($"Checking entitlement \"{entitlementId}\"...");
                 var offering = await GetRandomOfferingAsync();
-                var options = offering != null
-                    ? new PaywallOptions(offering, displayCloseButton: true)
-                    : new PaywallOptions(displayCloseButton: true);
+                var options = BuildOptions(offering: offering);
 
                 var result = await PaywallsPresenter.PresentIfNeeded(entitlementId, options);
                 var extra = result.Result == PaywallResultType.NotPresented
@@ -136,7 +217,7 @@ namespace RevenueCat.Tester.Screens
                     }
                 );
 
-                var options = new PaywallOptions(displayCloseButton: true, purchaseLogic: purchaseLogic);
+                var options = BuildOptions(purchaseLogic: purchaseLogic);
                 var result = await PaywallsPresenter.Present(options);
                 LogPaywallResult("Paywall w/ PurchaseLogic", result);
             });
