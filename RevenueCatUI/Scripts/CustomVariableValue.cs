@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RevenueCat.SimpleJSON;
 
 namespace RevenueCatUI
 {
@@ -9,15 +10,14 @@ namespace RevenueCatUI
     /// Custom variables allow developers to personalize paywall text with dynamic values.
     /// Variables are defined in the RevenueCat dashboard and can be overridden at runtime.
     ///
-    /// Currently only string values are supported. Additional types may be added in the future.
-    ///
     /// <example>
     /// <code>
     /// var options = new PaywallOptions(
     ///     customVariables: new Dictionary&lt;string, CustomVariableValue&gt;
     ///     {
     ///         { "player_name", CustomVariableValue.String("John") },
-    ///         { "level", CustomVariableValue.String("42") },
+    ///         { "level", CustomVariableValue.Number(42) },
+    ///         { "is_premium", CustomVariableValue.Boolean(true) },
     ///     }
     /// );
     /// await PaywallsPresenter.Present(options);
@@ -41,9 +41,23 @@ namespace RevenueCatUI
         public static CustomVariableValue String(string value) => new StringCustomVariableValue(value);
 
         /// <summary>
-        /// Returns the string representation of this value for native platform consumption.
+        /// Creates a numeric custom variable value.
         /// </summary>
-        internal abstract string StringValue { get; }
+        /// <param name="value">The numeric value for the custom variable.</param>
+        /// <returns>A CustomVariableValue containing the number.</returns>
+        public static CustomVariableValue Number(double value) => new NumberCustomVariableValue(value);
+
+        /// <summary>
+        /// Creates a boolean custom variable value.
+        /// </summary>
+        /// <param name="value">The boolean value for the custom variable.</param>
+        /// <returns>A CustomVariableValue containing the boolean.</returns>
+        public static CustomVariableValue Boolean(bool value) => new BooleanCustomVariableValue(value);
+
+        /// <summary>
+        /// Writes this value to a JSON object with the appropriate native type.
+        /// </summary>
+        internal abstract void WriteToJson(JSONObject dict, string key);
     }
 
     /// <summary>
@@ -58,7 +72,10 @@ namespace RevenueCatUI
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        internal override string StringValue => _value;
+        internal override void WriteToJson(JSONObject dict, string key)
+        {
+            dict[key] = _value;
+        }
 
         public override bool Equals(object obj)
         {
@@ -73,25 +90,60 @@ namespace RevenueCatUI
     }
 
     /// <summary>
-    /// Internal utilities for custom variable conversion.
+    /// A numeric custom variable value.
     /// </summary>
-    internal static class CustomVariableValueExtensions
+    internal sealed class NumberCustomVariableValue : CustomVariableValue
     {
-        /// <summary>
-        /// Converts a map of custom variables to a map of strings for native platform consumption.
-        /// </summary>
-        internal static Dictionary<string, string> ToStringDictionary(
-            this Dictionary<string, CustomVariableValue> customVariables)
-        {
-            if (customVariables == null) return null;
+        private readonly double _value;
 
-            var result = new Dictionary<string, string>();
-            foreach (var kvp in customVariables)
-            {
-                if (kvp.Value != null)
-                    result[kvp.Key] = kvp.Value.StringValue;
-            }
-            return result;
+        internal NumberCustomVariableValue(double value)
+        {
+            _value = value;
         }
+
+        internal override void WriteToJson(JSONObject dict, string key)
+        {
+            dict[key] = _value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is NumberCustomVariableValue other)
+                return _value.Equals(other._value);
+            return false;
+        }
+
+        public override int GetHashCode() => _value.GetHashCode();
+
+        public override string ToString() => $"CustomVariableValue.Number({_value})";
+    }
+
+    /// <summary>
+    /// A boolean custom variable value.
+    /// </summary>
+    internal sealed class BooleanCustomVariableValue : CustomVariableValue
+    {
+        private readonly bool _value;
+
+        internal BooleanCustomVariableValue(bool value)
+        {
+            _value = value;
+        }
+
+        internal override void WriteToJson(JSONObject dict, string key)
+        {
+            dict[key] = _value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is BooleanCustomVariableValue other)
+                return _value == other._value;
+            return false;
+        }
+
+        public override int GetHashCode() => _value.GetHashCode();
+
+        public override string ToString() => $"CustomVariableValue.Boolean({_value})";
     }
 }

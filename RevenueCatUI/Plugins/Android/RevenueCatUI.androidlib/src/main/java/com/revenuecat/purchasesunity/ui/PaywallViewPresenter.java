@@ -577,9 +577,16 @@ public class PaywallViewPresenter {
             Iterator<String> keys = json.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
-                String value = json.optString(key);
-                if (value != null) {
-                    result.put(key, new CustomVariableValue.String(value));
+                Object value = json.opt(key);
+                if (value == null || value == JSONObject.NULL) {
+                    continue;
+                }
+                if (value instanceof Boolean) {
+                    result.put(key, new CustomVariableValue.Boolean((Boolean) value));
+                } else if (value instanceof Number) {
+                    result.put(key, new CustomVariableValue.Number((Number) value));
+                } else {
+                    result.put(key, new CustomVariableValue.String(value.toString()));
                 }
             }
             return result.isEmpty() ? null : result;

@@ -107,6 +107,7 @@ namespace RevenueCatUI
 
         /// <summary>
         /// Serializes custom variables to JSON string for native layer communication.
+        /// Preserves native types (string, number, boolean) in the JSON output.
         /// </summary>
         internal string CustomVariablesToJsonString()
         {
@@ -115,7 +116,7 @@ namespace RevenueCatUI
             foreach (var kvp in CustomVariables)
             {
                 if (!string.IsNullOrEmpty(kvp.Key) && kvp.Value != null)
-                    dict[kvp.Key] = kvp.Value.StringValue;
+                    kvp.Value.WriteToJson(dict, kvp.Key);
             }
             return dict.ToString();
         }

@@ -19,7 +19,8 @@ namespace DefaultNamespace
                 customVariables: new Dictionary<string, CustomVariableValue>
                 {
                     { "player_name", CustomVariableValue.String("John") },
-                    { "level", CustomVariableValue.String("5") }
+                    { "level", CustomVariableValue.Number(5) },
+                    { "is_premium", CustomVariableValue.Boolean(true) }
                 }
             );
 
@@ -28,7 +29,9 @@ namespace DefaultNamespace
                 displayCloseButton: true,
                 customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "player_name", CustomVariableValue.String("Jane") }
+                    { "player_name", CustomVariableValue.String("Jane") },
+                    { "coins", CustomVariableValue.Number(1000) },
+                    { "has_subscription", CustomVariableValue.Boolean(false) }
                 }
             );
 
@@ -47,7 +50,7 @@ namespace DefaultNamespace
                 offering: offering,
                 customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "coins", CustomVariableValue.String("1000") }
+                    { "coins", CustomVariableValue.Number(1000) }
                 }
             );
 
@@ -58,8 +61,8 @@ namespace DefaultNamespace
                 customVariables: new Dictionary<string, CustomVariableValue>
                 {
                     { "player_name", CustomVariableValue.String("Test") },
-                    { "level", CustomVariableValue.String("42") },
-                    { "coins_balance", CustomVariableValue.String("9999") }
+                    { "level", CustomVariableValue.Number(42) },
+                    { "coins_balance", CustomVariableValue.Number(9999) }
                 }
             );
 
@@ -73,7 +76,8 @@ namespace DefaultNamespace
                 displayCloseButton: true,
                 customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "player_name", CustomVariableValue.String("Test") }
+                    { "player_name", CustomVariableValue.String("Test") },
+                    { "is_vip", CustomVariableValue.Boolean(true) }
                 },
                 presentationConfiguration: PaywallPresentationConfiguration.FullScreen
             );
@@ -84,7 +88,7 @@ namespace DefaultNamespace
                 displayCloseButton: true,
                 customVariables: new Dictionary<string, CustomVariableValue>
                 {
-                    { "level", CustomVariableValue.String("99") }
+                    { "level", CustomVariableValue.Number(99) }
                 },
                 presentationConfiguration: PaywallPresentationConfiguration.FullScreen
             );
@@ -95,8 +99,10 @@ namespace DefaultNamespace
             PaywallOptions positional3 = new PaywallOptions(offering, true);
             PaywallOptions positional4 = new PaywallOptions(offering, true, PaywallPresentationConfiguration.FullScreen);
 
-            // Test CustomVariableValue factory method
+            // Test CustomVariableValue factory methods
             CustomVariableValue stringValue = CustomVariableValue.String("test");
+            CustomVariableValue numberValue = CustomVariableValue.Number(42);
+            CustomVariableValue booleanValue = CustomVariableValue.Boolean(true);
         }
     }
 }
