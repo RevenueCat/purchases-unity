@@ -43,9 +43,15 @@ namespace RevenueCatUI
         /// <summary>
         /// Creates a numeric custom variable value.
         /// </summary>
-        /// <param name="value">The numeric value for the custom variable.</param>
+        /// <param name="value">The numeric value for the custom variable. Must be a finite number.</param>
         /// <returns>A CustomVariableValue containing the number.</returns>
-        public static CustomVariableValue Number(double value) => new NumberCustomVariableValue(value);
+        /// <exception cref="ArgumentException">Thrown when value is NaN, PositiveInfinity, or NegativeInfinity.</exception>
+        public static CustomVariableValue Number(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                throw new ArgumentException("Custom variable number must be finite.", nameof(value));
+            return new NumberCustomVariableValue(value);
+        }
 
         /// <summary>
         /// Creates a boolean custom variable value.
