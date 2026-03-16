@@ -582,9 +582,9 @@ public class PaywallViewPresenter {
                     continue;
                 }
                 if (value instanceof Boolean) {
-                    result.put(key, new CustomVariableValue.Boolean((Boolean) value));
+                    result.put(key, new CustomVariableValue.Boolean((boolean) value));
                 } else if (value instanceof Number) {
-                    result.put(key, new CustomVariableValue.Number((Number) value));
+                    result.put(key, new CustomVariableValue.Number(((Number) value).doubleValue()));
                 } else {
                     result.put(key, new CustomVariableValue.String(value.toString()));
                 }
