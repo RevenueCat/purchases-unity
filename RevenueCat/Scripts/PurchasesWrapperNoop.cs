@@ -280,7 +280,7 @@ public partial class Purchases
         {
         }
 
-        public void TrackCustomPaywallImpression(string paywallId)
+        public void TrackCustomPaywallImpression(string paywallId, string offeringId)
         {
         }
     }

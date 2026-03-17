@@ -1278,7 +1278,7 @@ public partial class Purchases : MonoBehaviour
     /// <param name="params">Parameters for the custom paywall impression.</param>
     public void TrackCustomPaywallImpression(CustomPaywallImpressionParams @params)
     {
-        _wrapper.TrackCustomPaywallImpression(@params.PaywallId);
+        _wrapper.TrackCustomPaywallImpression(@params.PaywallId, @params.OfferingId);
     }
 
     /// <summary>

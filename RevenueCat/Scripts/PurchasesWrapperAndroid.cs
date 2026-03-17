@@ -425,9 +425,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("purchasePackageWithWinBackOffer", package.Identifier, package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier);
     }
 
-    public void TrackCustomPaywallImpression(string paywallId)
+    public void TrackCustomPaywallImpression(string paywallId, string offeringId)
     {
-        CallPurchases("trackCustomPaywallImpression", paywallId);
+        CallPurchases("trackCustomPaywallImpression", paywallId, offeringId);
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

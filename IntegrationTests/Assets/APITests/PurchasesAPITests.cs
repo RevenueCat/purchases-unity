@@ -236,6 +236,8 @@ public class PurchasesAPITests : MonoBehaviour
 
         purchases.TrackCustomPaywallImpression();
         purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall"));
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(offeringId: "offering_id"));
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall", "offering_id"));
 
         // Win-back offer API tests
         // Purchasing win-back offers with a product
