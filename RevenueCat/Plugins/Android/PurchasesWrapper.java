@@ -703,6 +703,14 @@ public class PurchasesWrapper {
         sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER);
     }
 
+    public static void trackCustomPaywallImpression(@Nullable String paywallId) {
+        Map<String, Object> data = new HashMap<>();
+        if (paywallId != null) {
+            data.put("paywallId", paywallId);
+        }
+        CommonKt.trackCustomPaywallImpression(data);
+    }
+
     private static void logJSONException(JSONException e) {
         Log.e("Purchases", "JSON Error: " + e.getLocalizedMessage());
     }

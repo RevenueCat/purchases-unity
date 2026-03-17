@@ -224,6 +224,28 @@ namespace RevenueCat.Tester.Screens
 
             if (!isMyApp) purchaseLogicBtn.SetEnabled(false);
 
+            AddSectionHeader("Custom Paywall Events");
+
+            var paywallIdField = AddTextField("Paywall ID", "Optional — leave empty for no ID");
+
+            AddButton("Track Custom Paywall Impression", () =>
+            {
+                var paywallId = paywallIdField.value?.Trim();
+                if (string.IsNullOrEmpty(paywallId)) paywallId = null;
+
+                if (paywallId == null)
+                {
+                    Log("Tracking custom paywall impression (no params)...");
+                    Purchases.TrackCustomPaywallImpression();
+                }
+                else
+                {
+                    Log($"Tracking custom paywall impression (paywallId: \"{paywallId}\")...");
+                    Purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(paywallId));
+                }
+                LogSuccess("Custom paywall impression tracked");
+            });
+
             AddSectionHeader("Customer Center");
 
             AddButton("Present Customer Center", async () =>
