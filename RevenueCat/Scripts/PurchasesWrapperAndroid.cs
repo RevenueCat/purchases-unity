@@ -427,7 +427,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
     {
-        CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, parameters.OfferingId);
+        CallPurchases("trackCustomPaywallImpression", parameters.PaywallId);
     }
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";
