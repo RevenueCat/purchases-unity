@@ -1275,10 +1275,10 @@ public partial class Purchases : MonoBehaviour
     /// <remarks>
     /// Each call creates a separate impression event. Call this once per paywall presentation.
     /// </remarks>
-    /// <param name="params">Parameters for the custom paywall impression.</param>
-    public void TrackCustomPaywallImpression(CustomPaywallImpressionParams @params)
+    /// <param name="parameters">Parameters for the custom paywall impression.</param>
+    public void TrackCustomPaywallImpression(CustomPaywallImpressionParams parameters)
     {
-        _wrapper.TrackCustomPaywallImpression(@params);
+        _wrapper.TrackCustomPaywallImpression(parameters);
     }
 
     /// <summary>

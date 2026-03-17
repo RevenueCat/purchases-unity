@@ -526,9 +526,9 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
     [DllImport("__Internal")]
     private static extern void _RCTrackCustomPaywallImpression(string paywallId, string offeringId);
-    public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams @params)
+    public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
     {
-        _RCTrackCustomPaywallImpression(@params.PaywallId, @params.OfferingId);
+        _RCTrackCustomPaywallImpression(parameters.PaywallId, parameters.OfferingId);
     }
 }
 #endif
