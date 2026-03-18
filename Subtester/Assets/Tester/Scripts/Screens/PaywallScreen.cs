@@ -227,21 +227,24 @@ namespace RevenueCat.Tester.Screens
             AddSectionHeader("Custom Paywall Events");
 
             var paywallIdField = AddTextField("Paywall ID", "Optional — leave empty for no ID");
+            var offeringIdField = AddTextField("Offering ID", "Optional — leave empty for no offering ID");
 
             AddButton("Track Custom Paywall Impression", () =>
             {
                 var paywallId = paywallIdField.value?.Trim();
+                var offeringId = offeringIdField.value?.Trim();
                 if (string.IsNullOrEmpty(paywallId)) paywallId = null;
+                if (string.IsNullOrEmpty(offeringId)) offeringId = null;
 
-                if (paywallId == null)
+                if (paywallId == null && offeringId == null)
                 {
                     Log("Tracking custom paywall impression (no params)...");
                     Purchases.TrackCustomPaywallImpression();
                 }
                 else
                 {
-                    Log($"Tracking custom paywall impression (paywallId: \"{paywallId}\")...");
-                    Purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(paywallId));
+                    Log($"Tracking custom paywall impression (paywallId: \"{paywallId}\", offeringId: \"{offeringId}\")...");
+                    Purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(paywallId, offeringId));
                 }
                 LogSuccess("Custom paywall impression tracked");
             });
