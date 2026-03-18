@@ -48,9 +48,8 @@ namespace RevenueCatUI
         public enum CustomVariableType
         {
             String,
-            // Number,
-            // Boolean,
-            // Date,
+            Number,
+            Boolean,
         }
 
         [Serializable]
@@ -178,13 +177,10 @@ namespace RevenueCatUI
 
                 dict[entry.key] = entry.type switch
                 {
-                    // TODO: uncomment when CustomVariableValue supports these types
-                    // CustomVariableType.Number when double.TryParse(entry.value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var n)
-                    //     => CustomVariableValue.Number(n),
-                    // CustomVariableType.Boolean when bool.TryParse(entry.value, out var b)
-                    //     => CustomVariableValue.Boolean(b),
-                    // CustomVariableType.Date when System.DateTime.TryParse(entry.value, out var d)
-                    //     => CustomVariableValue.Date(d),
+                    CustomVariableType.Number when double.TryParse(entry.value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var n)
+                        => CustomVariableValue.Number(n),
+                    CustomVariableType.Boolean when bool.TryParse(entry.value, out var b)
+                        => CustomVariableValue.Boolean(b),
                     _ => CustomVariableValue.String(entry.value ?? "")
                 };
             }
