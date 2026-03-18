@@ -565,6 +565,17 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
+- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId offeringId:(nullable NSString *)offeringId {
+    NSMutableDictionary *data = [NSMutableDictionary dictionary];
+    if (paywallId) {
+        data[@"paywallId"] = paywallId;
+    }
+    if (offeringId) {
+        data[@"offeringId"] = offeringId;
+    }
+    [RCCommonFunctionality trackCustomPaywallImpression:data];
+}
+
 - (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
     BOOL isWebPurchaseRedemptionURL = [RCCommonFunctionality isWebPurchaseRedemptionURL:urlString];
     if (isWebPurchaseRedemptionURL) {
@@ -690,7 +701,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"8.6.0";
+    return @"8.7.0";
 }
 
 @end
@@ -1032,4 +1043,8 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
     NSString *presentedOfferingContextJsonString = convertCString(presentedOfferingContextJson);
     NSString *winBackOfferIdentifierString = convertCString(winBackOfferIdentifier);
     [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
+}
+
+void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId) {
+    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId) offeringId:convertCString(offeringId)];
 }

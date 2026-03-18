@@ -1267,6 +1267,29 @@ public partial class Purchases : MonoBehaviour
         _wrapper.ShowInAppMessages(messageTypes);
     }
 
+    /// <summary>
+    /// Tracks an impression for a custom paywall.
+    /// Call this when your custom (non-RevenueCat) paywall is displayed to a user.
+    /// This enables RevenueCat to track paywall impressions for analytics.
+    /// </summary>
+    /// <remarks>
+    /// Each call creates a separate impression event. Call this once per paywall presentation.
+    /// </remarks>
+    /// <param name="parameters">Parameters for the custom paywall impression.</param>
+    public void TrackCustomPaywallImpression(CustomPaywallImpressionParams parameters)
+    {
+        _wrapper.TrackCustomPaywallImpression(parameters);
+    }
+
+    /// <summary>
+    /// Tracks an impression for a custom paywall with no additional parameters.
+    /// Call this when your custom (non-RevenueCat) paywall is displayed to a user.
+    /// </summary>
+    public void TrackCustomPaywallImpression()
+    {
+        TrackCustomPaywallImpression(new CustomPaywallImpressionParams());
+    }
+
     public delegate void ParseAsWebPurchaseRedemptionFunc(WebPurchaseRedemption webPurchaseRedemption);
 
     private ParseAsWebPurchaseRedemptionFunc ParseAsWebPurchaseRedemptionCallback { get; set; }

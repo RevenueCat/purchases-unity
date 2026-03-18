@@ -234,6 +234,11 @@ public class PurchasesAPITests : MonoBehaviour
             Purchases.InAppMessageType.PriceIncreaseConsent, Purchases.InAppMessageType.Generic, Purchases.InAppMessageType.WinBackOffer });
         purchases.ShowInAppMessages();
 
+        purchases.TrackCustomPaywallImpression();
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall"));
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(offeringId: "offering_id"));
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall", "offering_id"));
+
         // Win-back offer API tests
         // Purchasing win-back offers with a product
         purchases.GetProducts(new[] { "product_id" }, (products, error) =>
