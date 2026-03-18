@@ -39,7 +39,7 @@ namespace RevenueCatUI.Editor
             switch (type)
             {
                 case CustomVariableType.Boolean:
-                    var boolValue = valueProp.stringValue == "true" || valueProp.stringValue == "True";
+                    var boolValue = string.Equals(valueProp.stringValue, "true", StringComparison.OrdinalIgnoreCase);
                     var newBool = EditorGUI.Toggle(rect, boolValue);
                     valueProp.stringValue = newBool ? "true" : "false";
                     break;
