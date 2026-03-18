@@ -703,10 +703,13 @@ public class PurchasesWrapper {
         sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER);
     }
 
-    public static void trackCustomPaywallImpression(@Nullable String paywallId) {
+    public static void trackCustomPaywallImpression(@Nullable String paywallId, @Nullable String offeringId) {
         Map<String, Object> data = new HashMap<>();
         if (paywallId != null) {
             data.put("paywallId", paywallId);
+        }
+        if (offeringId != null) {
+            data.put("offeringId", offeringId);
         }
         CommonKt.trackCustomPaywallImpression(data);
     }
