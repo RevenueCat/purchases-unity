@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using static RevenueCatUI.PaywallsBehaviour;
@@ -38,25 +39,24 @@ namespace RevenueCatUI.Editor
         {
             switch (type)
             {
-                // TODO: uncomment when CustomVariableValue supports these types
-                // case CustomVariableType.Boolean:
-                //     var boolValue = valueProp.stringValue == "true" || valueProp.stringValue == "True";
-                //     var newBool = EditorGUI.Toggle(rect, boolValue);
-                //     valueProp.stringValue = newBool ? "true" : "false";
-                //     break;
-                // case CustomVariableType.Number:
-                //     if (double.TryParse(valueProp.stringValue, System.Globalization.NumberStyles.Any,
-                //             System.Globalization.CultureInfo.InvariantCulture, out var numValue))
-                //     {
-                //         var newNum = EditorGUI.DoubleField(rect, numValue);
-                //         valueProp.stringValue = newNum.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                //     }
-                //     else
-                //     {
-                //         var newNum = EditorGUI.DoubleField(rect, 0);
-                //         valueProp.stringValue = newNum.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                //     }
-                //     break;
+                case CustomVariableType.Boolean:
+                    var boolValue = string.Equals(valueProp.stringValue, "true", StringComparison.OrdinalIgnoreCase);
+                    var newBool = EditorGUI.Toggle(rect, boolValue);
+                    valueProp.stringValue = newBool ? "true" : "false";
+                    break;
+                case CustomVariableType.Number:
+                    if (double.TryParse(valueProp.stringValue, System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture, out var numValue))
+                    {
+                        var newNum = EditorGUI.DoubleField(rect, numValue);
+                        valueProp.stringValue = newNum.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        var newNum = EditorGUI.DoubleField(rect, 0);
+                        valueProp.stringValue = newNum.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    }
+                    break;
                 default:
                     EditorGUI.PropertyField(rect, valueProp, GUIContent.none);
                     break;
