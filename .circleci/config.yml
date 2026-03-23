@@ -484,6 +484,11 @@ workflows:
           requires:
             - export-package
           <<: *release-tags
+      - revenuecat/merge-release-pr:
+          repo_name: purchases-unity
+          requires:
+            - github-release
+          <<: *release-tags
 
   weekly-run-workflow:
     when:
