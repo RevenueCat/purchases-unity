@@ -56,7 +56,7 @@ cannot be created outside the editor.
 ### 6. Project Settings
 
 - Edit > Project Settings > Player:
-  - Set Bundle Identifier to: `com.revenuecat.maestro.e2e`
+  - Set Bundle Identifier to: `com.revenuecat.automatedsdktests`
   - Set Product Name to: `MaestroTestApp`
 
 ## CRITICAL: UI text must match exactly
