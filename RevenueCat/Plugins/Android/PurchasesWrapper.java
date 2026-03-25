@@ -64,7 +64,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "8.5.1";
+    private static final String PLUGIN_VERSION = "8.8.1";
 
     private static String gameObject;
 
@@ -701,6 +701,17 @@ public class PurchasesWrapper {
 
         ErrorContainer errorContainer = PurchasesErrorKt.map(error, new HashMap<>());
         sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER);
+    }
+
+    public static void trackCustomPaywallImpression(@Nullable String paywallId, @Nullable String offeringId) {
+        Map<String, Object> data = new HashMap<>();
+        if (paywallId != null) {
+            data.put("paywallId", paywallId);
+        }
+        if (offeringId != null) {
+            data.put("offeringId", offeringId);
+        }
+        CommonKt.trackCustomPaywallImpression(data);
     }
 
     private static void logJSONException(JSONException e) {

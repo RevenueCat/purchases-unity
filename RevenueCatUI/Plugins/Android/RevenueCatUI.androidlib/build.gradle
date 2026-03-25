@@ -2,9 +2,13 @@ apply plugin: 'com.android.library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:17.41.1'
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:17.41.1'
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common:17.52.0'
+    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:17.52.0'
     implementation 'androidx.activity:activity:1.8.2'
+    // Required at compile time so the Java compiler can resolve PaywallView's
+    // class hierarchy (PaywallView -> CompatComposeView -> AbstractComposeView -> ViewGroup).
+    // At runtime this is provided transitively by purchases-hybrid-common-ui.
+    compileOnly 'androidx.compose.ui:ui-android:1.7.0'
 }
 
 android {

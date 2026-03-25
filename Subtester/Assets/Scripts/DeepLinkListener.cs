@@ -1,20 +1,20 @@
+using System;
 using UnityEngine;
-using RevenueCat;
 
 public class DeepLinkListener : MonoBehaviour
 {
     public static DeepLinkListener Instance { get; private set; }
-    
+    public static event Action<string> OnDeepLinkReceived;
+
     private void Awake()
     {
         if (Instance == null)
         {
-            Instance = this;                
-            Application.deepLinkActivated += onDeepLinkActivated;
+            Instance = this;
+            Application.deepLinkActivated += HandleDeepLink;
             if (!string.IsNullOrEmpty(Application.absoluteURL))
             {
-                // Cold start and Application.absoluteURL not null so process Deep Link.
-                onDeepLinkActivated(Application.absoluteURL);
+                HandleDeepLink(Application.absoluteURL);
             }
             DontDestroyOnLoad(gameObject);
         }
@@ -23,43 +23,45 @@ public class DeepLinkListener : MonoBehaviour
             Destroy(gameObject);
         }
     }
- 
-    private void onDeepLinkActivated(string url)
+
+    private void HandleDeepLink(string url)
     {
-        GameObject purchasesManager = GameObject.Find("PurchasesManager");
-        if (purchasesManager == null)
+        Debug.Log($"[DeepLink] Received: {url}");
+        OnDeepLinkReceived?.Invoke(url);
+
+        var purchases = FindFirstObjectByType<Purchases>();
+        if (purchases == null)
         {
-            Debug.LogError("PurchasesManager not found");
+            Debug.LogError("[DeepLink] No Purchases component found");
             return;
         }
-        Purchases purchases = purchasesManager.GetComponent<Purchases>();
+
         purchases.ParseAsWebPurchaseRedemption(url, (webPurchaseRedemption) =>
         {
-            if (webPurchaseRedemption != null)
+            if (webPurchaseRedemption == null) return;
+
+            Debug.Log($"[DeepLink] Starting redemption: {webPurchaseRedemption}");
+            purchases.RedeemWebPurchase(webPurchaseRedemption, (result) =>
             {
-                Debug.Log("Starting redemption: " + webPurchaseRedemption.ToString());
-                purchases.RedeemWebPurchase(webPurchaseRedemption, (result) =>
+                switch (result)
                 {
-                    switch (result) 
-                    {
-                        case Purchases.WebPurchaseRedemptionResult.Success success:
-                            Debug.Log("Redemption successful: " + success.CustomerInfo.ToString());
-                            break;
-                        case Purchases.WebPurchaseRedemptionResult.RedemptionError error:
-                            Debug.Log("Redemption failed: " + error.Error.ToString());
-                            break;
-                        case Purchases.WebPurchaseRedemptionResult.InvalidToken:
-                            Debug.Log("Redemption failed: Invalid token");
-                            break;
-                        case Purchases.WebPurchaseRedemptionResult.PurchaseBelongsToOtherUser:
-                            Debug.Log("Redemption failed: Purchase belongs to other user");
-                            break;
-                        case Purchases.WebPurchaseRedemptionResult.Expired expired:
-                            Debug.Log("Redemption failed: Expired. Sent new email to " + expired.ObfuscatedEmail);
-                            break;
-                    }
-                });
-            }
+                    case Purchases.WebPurchaseRedemptionResult.Success success:
+                        Debug.Log($"[DeepLink] Redemption successful: {success.CustomerInfo}");
+                        break;
+                    case Purchases.WebPurchaseRedemptionResult.RedemptionError error:
+                        Debug.LogError($"[DeepLink] Redemption failed: {error.Error}");
+                        break;
+                    case Purchases.WebPurchaseRedemptionResult.InvalidToken:
+                        Debug.LogError("[DeepLink] Redemption failed: Invalid token");
+                        break;
+                    case Purchases.WebPurchaseRedemptionResult.PurchaseBelongsToOtherUser:
+                        Debug.LogError("[DeepLink] Redemption failed: Purchase belongs to other user");
+                        break;
+                    case Purchases.WebPurchaseRedemptionResult.Expired expired:
+                        Debug.Log($"[DeepLink] Redemption expired. New email sent to {expired.ObfuscatedEmail}");
+                        break;
+                }
+            });
         });
     }
 }

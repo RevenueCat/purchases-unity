@@ -9,9 +9,13 @@ namespace RevenueCatUI.Platforms
     internal class IOSPaywallPresenter : IPaywallPresenter
     {
         private delegate void PaywallResultCallback(string result);
+        private delegate void PurchaseLogicPurchaseCallback(string requestId, string packageJson);
+        private delegate void PurchaseLogicRestoreCallback(string requestId);
 
-        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallWithPurchaseLogic(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, PaywallResultCallback resultCallback);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeededWithPurchaseLogic(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, PaywallResultCallback resultCallback);
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
@@ -28,13 +32,32 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, OnResult);
+                var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
+                var customVariablesJson = options?.CustomVariablesToJsonString();
+                if (options?.PurchaseLogic != null)
+                {
+                    PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
+                    rcui_presentPaywallWithPurchaseLogic(
+                        options.OfferingIdentifier,
+                        presentedOfferingContextJson,
+                        options.DisplayCloseButton,
+                        useFullScreen,
+                        customVariablesJson,
+                        OnPerformPurchase,
+                        OnPerformRestore,
+                        OnResultWithPurchaseLogic);
+                }
+                else
+                {
+                    rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, useFullScreen, customVariablesJson, OnResult);
+                }
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywall: {e.Message}");
                 tcs.TrySetResult(PaywallResult.Error);
                 s_current = null;
+                PurchaseLogicBridge.ClearCurrentPurchaseLogic();
             }
             return tcs.Task;
         }
@@ -52,13 +75,33 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, OnResult);
+                var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
+                var customVariablesJson = options?.CustomVariablesToJsonString();
+                if (options?.PurchaseLogic != null)
+                {
+                    PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
+                    rcui_presentPaywallIfNeededWithPurchaseLogic(
+                        requiredEntitlementIdentifier,
+                        options.OfferingIdentifier,
+                        presentedOfferingContextJson,
+                        options.DisplayCloseButton,
+                        useFullScreen,
+                        customVariablesJson,
+                        OnPerformPurchase,
+                        OnPerformRestore,
+                        OnResultWithPurchaseLogic);
+                }
+                else
+                {
+                    rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, useFullScreen, customVariablesJson, OnResult);
+                }
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Exception in presentPaywallIfNeeded: {e.Message}");
                 tcs.TrySetResult(PaywallResult.Error);
                 s_current = null;
+                PurchaseLogicBridge.ClearCurrentPurchaseLogic();
             }
             return tcs.Task;
         }
@@ -82,6 +125,25 @@ namespace RevenueCatUI.Platforms
             {
                 s_current = null;
             }
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(PaywallResultCallback))]
+        private static void OnResultWithPurchaseLogic(string result)
+        {
+            PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+            OnResult(result);
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(PurchaseLogicPurchaseCallback))]
+        private static void OnPerformPurchase(string requestId, string packageJson)
+        {
+            PurchaseLogicBridge.OnPerformPurchase(requestId, packageJson);
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(PurchaseLogicRestoreCallback))]
+        private static void OnPerformRestore(string requestId)
+        {
+            PurchaseLogicBridge.OnPerformRestore(requestId);
         }
     }
 }

@@ -5,9 +5,16 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
+
 public class RevenueCatUI {
     public interface PaywallCallbacks { void onPaywallResult(String result); }
-    
+
+    public interface PurchaseLogicCallbacks {
+        void onPerformPurchase(String requestId, String packageJson);
+        void onPerformRestore(String requestId);
+    }
+
     public interface CustomerCenterCallbacks {
         void onCustomerCenterDismissed();
         void onCustomerCenterError();
@@ -24,20 +31,40 @@ public class RevenueCatUI {
 
     private static final String TAG = "RevenueCatUI";
     private static volatile PaywallCallbacks paywallCallbacks;
+    private static volatile PurchaseLogicCallbacks purchaseLogicCallbacks;
     private static volatile CustomerCenterCallbacks customerCenterCallbacks;
 
     public static void registerPaywallCallbacks(PaywallCallbacks cb) { paywallCallbacks = cb; }
     public static void unregisterPaywallCallbacks() { paywallCallbacks = null; }
 
+    public static void registerPurchaseLogicCallbacks(PurchaseLogicCallbacks cb) { purchaseLogicCallbacks = cb; }
+    public static void unregisterPurchaseLogicCallbacks() { purchaseLogicCallbacks = null; }
+
     public static void registerCustomerCenterCallbacks(CustomerCenterCallbacks cb) { customerCenterCallbacks = cb; }
     public static void unregisterCustomerCenterCallbacks() { customerCenterCallbacks = null; }
 
     public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
-        PaywallTrampolineActivity.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
+        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, null, false);
+    }
+
+    public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton, String customVariablesJson, boolean hasPurchaseLogic) {
+        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic);
     }
 
     public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
-        PaywallTrampolineActivity.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton);
+        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, null, false);
+    }
+
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton, String customVariablesJson, boolean hasPurchaseLogic) {
+        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic);
+    }
+
+    public static void notifyPurchaseLogicResult(String operationType, String resultString) {
+        PaywallViewPresenter.onPurchaseLogicResult(operationType, resultString);
+    }
+
+    public static void resolvePurchaseLogicResult(String requestId, String resultString, String errorMessage) {
+        HybridPurchaseLogicBridge.resolveResult(requestId, resultString, errorMessage);
     }
 
     public static void presentCustomerCenter(Activity activity) {
@@ -179,6 +206,36 @@ public class RevenueCatUI {
             }
         } catch (Throwable e) {
             Log.e(TAG, "Error sending custom action selected: " + e.getMessage());
+        }
+    }
+
+    public static void sendPerformPurchase(String requestId, String packageJson) {
+        try {
+            PurchaseLogicCallbacks cb = purchaseLogicCallbacks;
+            if (cb != null) {
+                cb.onPerformPurchase(requestId, packageJson);
+            } else {
+                Log.w(TAG, "No purchase logic callback registered for purchase request: " + requestId);
+                HybridPurchaseLogicBridge.resolveResult(requestId, "ERROR", "No purchase logic callback registered");
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "Error sending perform purchase: " + e.getMessage());
+            HybridPurchaseLogicBridge.resolveResult(requestId, "ERROR", e.getMessage());
+        }
+    }
+
+    public static void sendPerformRestore(String requestId) {
+        try {
+            PurchaseLogicCallbacks cb = purchaseLogicCallbacks;
+            if (cb != null) {
+                cb.onPerformRestore(requestId);
+            } else {
+                Log.w(TAG, "No purchase logic callback registered for restore request: " + requestId);
+                HybridPurchaseLogicBridge.resolveResult(requestId, "ERROR", "No purchase logic callback registered");
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "Error sending perform restore: " + e.getMessage());
+            HybridPurchaseLogicBridge.resolveResult(requestId, "ERROR", e.getMessage());
         }
     }
 }
