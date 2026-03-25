@@ -137,7 +137,7 @@ lane :run_maestro_e2e_tests do
   derived_data_path = "#{project_path}/build/xcode"
 
   # Replace API key in source files
-  sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_MAESTRO_E2E_API_KEY\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
+  sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_APP_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
 
   # Build iOS Xcode project from Unity
   unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
