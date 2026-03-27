@@ -95,6 +95,20 @@ namespace RevenueCatUI
         }
     }
 
+    public sealed class PromotionalOfferSucceededEventArgs
+    {
+        public Purchases.CustomerInfo CustomerInfo { get; }
+        public Purchases.StoreTransaction Transaction { get; }
+        public string OfferId { get; }
+
+        internal PromotionalOfferSucceededEventArgs(Purchases.CustomerInfo customerInfo, Purchases.StoreTransaction transaction, string offerId)
+        {
+            CustomerInfo = customerInfo;
+            Transaction = transaction;
+            OfferId = offerId;
+        }
+    }
+
     /// <summary>
     /// Callbacks for Customer Center events.
     /// 
@@ -153,5 +167,10 @@ namespace RevenueCatUI
         /// Called when a custom action is selected in the customer center.
         /// </summary>
         public Action<CustomActionSelectedEventArgs> OnCustomActionSelected { get; set; }
+
+        /// <summary>
+        /// Called when a promotional offer purchase completes successfully in the customer center.
+        /// </summary>
+        public Action<PromotionalOfferSucceededEventArgs> OnPromotionalOfferSucceeded { get; set; }
     }
 }

@@ -486,6 +486,27 @@ didSelectCustomerCenterManagementOption:(NSString *)optionID
     }
 }
 
+- (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
+       didSucceedWithPromotionalOffer:(NSString *)offerId
+               customerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary
+               transactionDictionary:(NSDictionary<NSString *, id> *)transactionDictionary API_AVAILABLE(ios(15.0)) {
+    if (self.eventCallback) {
+        NSDictionary *payload = @{
+            @"customerInfo": customerInfoDictionary ?: [NSNull null],
+            @"transaction": transactionDictionary ?: [NSNull null],
+            @"offerId": offerId ?: @""
+        };
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
+        if (jsonData && !error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.eventCallback("onPromotionalOfferSucceeded", jsonString.UTF8String);
+            });
+        }
+    }
+}
+
 @end
 
 void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCallback,

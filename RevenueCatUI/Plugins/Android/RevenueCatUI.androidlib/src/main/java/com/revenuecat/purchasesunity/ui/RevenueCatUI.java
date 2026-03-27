@@ -27,6 +27,7 @@ public class RevenueCatUI {
         void onRefundRequestCompleted(String productIdentifier, String refundRequestStatus);
         void onManagementOptionSelected(String option, @Nullable String url);
         void onCustomActionSelected(String actionId, @Nullable String purchaseIdentifier);
+        void onPromotionalOfferSucceeded(String customerInfoJson, String transactionJson, String offerId);
     }
 
     private static final String TAG = "RevenueCatUI";
@@ -206,6 +207,17 @@ public class RevenueCatUI {
             }
         } catch (Throwable e) {
             Log.e(TAG, "Error sending custom action selected: " + e.getMessage());
+        }
+    }
+
+    public static void sendPromotionalOfferSucceeded(String customerInfoJson, String transactionJson, String offerId) {
+        try {
+            CustomerCenterCallbacks cb = customerCenterCallbacks;
+            if (cb != null) {
+                cb.onPromotionalOfferSucceeded(customerInfoJson, transactionJson, offerId);
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "Error sending promotional offer succeeded: " + e.getMessage());
         }
     }
 

@@ -233,13 +233,27 @@ namespace RevenueCatUI.Platforms
                         var data = JSON.Parse(payload);
                         var actionId = data["actionId"]?.Value;
                         var purchaseIdentifier = NormalizeNullString(data["purchaseIdentifier"]?.Value);
-                        
+
                         s_storedCallbacks?.OnCustomActionSelected?.Invoke(
                             new CustomActionSelectedEventArgs(actionId, purchaseIdentifier)
                         );
                     }
                     break;
-                    
+
+                case "onPromotionalOfferSucceeded":
+                    if (!string.IsNullOrEmpty(payload))
+                    {
+                        var data = JSON.Parse(payload);
+                        var customerInfo = new Purchases.CustomerInfo(data["customerInfo"]);
+                        var transaction = new Purchases.StoreTransaction(data["transaction"]);
+                        var offerId = data["offerId"]?.Value;
+
+                        s_storedCallbacks?.OnPromotionalOfferSucceeded?.Invoke(
+                            new PromotionalOfferSucceededEventArgs(customerInfo, transaction, offerId)
+                        );
+                    }
+                    break;
+
                 default:
                     Debug.LogWarning($"[RevenueCatUI][iOS] Unknown customer center event: {eventName}");
                     break;
