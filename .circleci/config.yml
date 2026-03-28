@@ -215,6 +215,15 @@ commands:
             - vendor/bundle
             - ~/.rbenv/versions/3.2.0
 jobs:
+  check-meta-files:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Check for missing .meta files
+          command: bash scripts/check-meta-files.sh
+
   export-package:
     executor: unity
 
@@ -441,8 +450,11 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
+      - check-meta-files
       - export-package:
           context: unity
+          requires:
+            - check-meta-files
       - build-subtester-android:
           context: unity
       - build-subtester-ios:
