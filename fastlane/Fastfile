@@ -156,7 +156,7 @@ lane :run_maestro_e2e_tests_ios do
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
     "-sdk", "iphonesimulator",
-    "-destination", "platform=iOS Simulator,name=iPhone 16 Pro",
+    "-destination", "platform=iOS Simulator,name=iPhone 17",
     "-derivedDataPath", derived_data_path
   )
 
