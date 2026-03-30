@@ -549,6 +549,16 @@ workflows:
           context: unity
       - build-subtester-ios:
           context: unity
+      - run-maestro-e2e-tests-ios:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+            - unity
+      - run-maestro-e2e-tests-android:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+            - unity
       - build-integration-tests-android:
           context: unity
           requires:
