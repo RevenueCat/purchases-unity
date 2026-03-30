@@ -453,8 +453,6 @@ workflows:
       - check-meta-files
       - export-package:
           context: unity
-          requires:
-            - check-meta-files
       - build-subtester-android:
           context: unity
       - build-subtester-ios:
