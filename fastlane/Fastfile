@@ -136,7 +136,7 @@ lane :run_maestro_e2e_tests_ios do
   xcode_project_path = "#{project_path}/build/ios"
   derived_data_path = "#{project_path}/build/xcode"
 
-  sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_APP_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
+  sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
 
   unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
   sh(
@@ -163,7 +163,7 @@ lane :run_maestro_e2e_tests_ios do
   app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
   sh("xcrun simctl install booted '#{app_path}'")
 
-  sh("maestro test -e MAESTRO_STORE=app_store --format junit --output test_output/report.xml e2e-tests/maestro/")
+  sh("maestro test --format junit --output test_output/report.xml e2e-tests/maestro/")
 end
 
 desc "Run maestro E2E tests on Android"
@@ -187,7 +187,7 @@ lane :run_maestro_e2e_tests_android do
 
   sh("adb install '#{apk_path}'")
 
-  sh("maestro test -e MAESTRO_STORE=test_store --format junit --output test_output/report.xml e2e-tests/maestro/")
+  sh("maestro test --format junit --output test_output/report.xml e2e-tests/maestro/")
 end
 
 desc "Tag current branch with current version number"
