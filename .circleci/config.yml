@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@3.13.0
+  revenuecat: revenuecat/sdks-common-config@3.16.0
   unity: game-ci/unity@1.7.1
 
 executors:
@@ -215,6 +215,15 @@ commands:
             - vendor/bundle
             - ~/.rbenv/versions/3.2.0
 jobs:
+  check-meta-files:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Check for missing .meta files
+          command: bash scripts/check-meta-files.sh
+
   export-package:
     executor: unity
 
@@ -441,6 +450,7 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
+      - check-meta-files
       - export-package:
           context: unity
       - build-subtester-android:
@@ -483,6 +493,11 @@ workflows:
       - github-release:
           requires:
             - export-package
+          <<: *release-tags
+      - revenuecat/merge-release-pr:
+          repo_name: purchases-unity
+          requires:
+            - github-release
           <<: *release-tags
 
   weekly-run-workflow:
