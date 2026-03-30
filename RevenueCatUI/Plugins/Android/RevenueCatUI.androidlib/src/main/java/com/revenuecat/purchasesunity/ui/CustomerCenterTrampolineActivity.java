@@ -122,6 +122,17 @@ public class CustomerCenterTrampolineActivity extends ComponentActivity {
             public void onRestoreStartedWrapper() {
                 RevenueCatUI.sendRestoreStarted();
             }
+
+            @Override
+            public void onPromotionalOfferSucceededWrapper(@Nullable Map<String, ?> customerInfo,
+                                                           @Nullable Map<String, ?> transaction,
+                                                           @Nullable String offerId) {
+                if (customerInfo != null && transaction != null && offerId != null) {
+                    String customerInfoJson = MappersHelpersKt.convertToJson(customerInfo).toString();
+                    String transactionJson = MappersHelpersKt.convertToJson(transaction).toString();
+                    RevenueCatUI.sendPromotionalOfferSucceeded(customerInfoJson, transactionJson, offerId);
+                }
+            }
         };
     }
 

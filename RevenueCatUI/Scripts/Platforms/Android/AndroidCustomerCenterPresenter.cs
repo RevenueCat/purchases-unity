@@ -225,6 +225,15 @@ namespace RevenueCatUI.Platforms
             );
         }
 
+        private void OnPromotionalOfferSucceeded(string customerInfoJson, string transactionJson, string offerId)
+        {
+            var customerInfo = new Purchases.CustomerInfo(JSON.Parse(customerInfoJson));
+            var transaction = new Purchases.StoreTransaction(JSON.Parse(transactionJson));
+            _storedCallbacks?.OnPromotionalOfferSucceeded?.Invoke(
+                new PromotionalOfferSucceededEventArgs(customerInfo, transaction, offerId)
+            );
+        }
+
         private class CallbacksProxy : AndroidJavaProxy
         {
             private readonly AndroidCustomerCenterPresenter _owner;
@@ -287,6 +296,11 @@ namespace RevenueCatUI.Platforms
             public void onCustomActionSelected(string actionId, string purchaseIdentifier)
             {
                 _owner.OnCustomActionSelected(actionId, purchaseIdentifier);
+            }
+
+            public void onPromotionalOfferSucceeded(string customerInfoJson, string transactionJson, string offerId)
+            {
+                _owner.OnPromotionalOfferSucceeded(customerInfoJson, transactionJson, offerId);
             }
         }
     }

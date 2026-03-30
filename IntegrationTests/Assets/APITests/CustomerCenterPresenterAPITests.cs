@@ -21,6 +21,9 @@ namespace DefaultNamespace
         private string _feedbackOptionId;
         private Purchases.CustomerInfo _customerInfo;
         private Purchases.Error _restoreError;
+        private Purchases.CustomerInfo _promotionalOfferCustomerInfo;
+        private Purchases.StoreTransaction _promotionalOfferTransaction;
+        private string _promotionalOfferId;
 
         private void Start()
         {
@@ -61,7 +64,13 @@ namespace DefaultNamespace
                     _customActionId = args.ActionId;
                     _customActionPurchaseIdentifier = args.PurchaseIdentifier;
                 },
-                OnFeedbackSurveyCompleted = args => { _feedbackOptionId = args.FeedbackSurveyOptionId; }
+                OnFeedbackSurveyCompleted = args => { _feedbackOptionId = args.FeedbackSurveyOptionId; },
+                OnPromotionalOfferSucceeded = args =>
+                {
+                    _promotionalOfferCustomerInfo = args.CustomerInfo;
+                    _promotionalOfferTransaction = args.Transaction;
+                    _promotionalOfferId = args.OfferId;
+                }
             };
 
             Task defaultPresentationTask = CustomerCenterPresenter.Present();
