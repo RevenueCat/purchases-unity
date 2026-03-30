@@ -43,6 +43,10 @@ cannot be created outside the editor.
 - Add a child **Button** (UI > Legacy > Button):
   - Set the button's child Text to: `Present Paywall`
   - On Click: drag the Purchases GameObject, select `MaestroTestApp > PresentPaywall`.
+- Add a child **Text** named "ErrorLabel" (UI > Legacy > Text):
+  - Text content: (leave empty)
+  - Font size: 14, color red, centered.
+  - Set it to **inactive** by default.
 - Add a child **Button** for back navigation:
   - Set the button's child Text to: `Back`
   - On Click: drag the Purchases GameObject, select `MaestroTestApp > ShowTestCases`.
@@ -52,6 +56,7 @@ cannot be created outside the editor.
 - Drag "TestCasesScreen" to the `testCasesScreen` field.
 - Drag "PurchaseScreen" to the `purchaseScreen` field.
 - Drag "EntitlementsLabel" Text to the `entitlementsLabel` field.
+- Drag "ErrorLabel" Text to the `errorLabel` field.
 
 ### 6. Project Settings
 

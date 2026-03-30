@@ -9,6 +9,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     public GameObject testCasesScreen;
     public GameObject purchaseScreen;
     public Text entitlementsLabel;
+    public Text errorLabel;
 
     private Purchases purchases;
 
@@ -21,6 +22,11 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         purchases.Configure(config);
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.listener = this;
+
+        if (errorLabel != null)
+        {
+            errorLabel.gameObject.SetActive(false);
+        }
 
         ShowTestCases();
     }
@@ -35,11 +41,13 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     {
         testCasesScreen.SetActive(false);
         purchaseScreen.SetActive(true);
+        ClearError();
         UpdateEntitlements();
     }
 
     public async void PresentPaywall()
     {
+        ClearError();
         try
         {
             await PaywallsPresenter.Present();
@@ -47,6 +55,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         catch (System.Exception e)
         {
             Debug.LogError($"Failed to present paywall: {e}");
+            ShowError(e.Message);
         }
     }
 
@@ -72,6 +81,23 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         if (entitlementsLabel != null)
         {
             entitlementsLabel.text = "Entitlements: " + (hasPro ? "pro" : "none");
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        if (errorLabel != null)
+        {
+            errorLabel.text = "Error: " + message;
+            errorLabel.gameObject.SetActive(true);
+        }
+    }
+
+    private void ClearError()
+    {
+        if (errorLabel != null)
+        {
+            errorLabel.gameObject.SetActive(false);
         }
     }
 }
