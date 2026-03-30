@@ -40,7 +40,14 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 
     public async void PresentPaywall()
     {
-        await PaywallsPresenter.Present();
+        try
+        {
+            await PaywallsPresenter.Present();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to present paywall: {e}");
+        }
     }
 
     public override void CustomerInfoReceived(CustomerInfo customerInfo)
