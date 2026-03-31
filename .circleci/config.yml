@@ -438,12 +438,16 @@ jobs:
       - run:
           name: Activate Unity License
           command: |
-            /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-              -batchmode -quit -nographics \
-              -serial "$UNITY_SERIAL" \
-              -username "$UNITY_EMAIL" \
-              -password "$UNITY_PASSWORD" \
-              -logFile -
+            for i in 1 2 3; do
+              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+                -batchmode -quit -nographics \
+                -serial "$UNITY_SERIAL" \
+                -username "$UNITY_EMAIL" \
+                -password "$UNITY_PASSWORD" \
+                -logFile - && break
+              echo "License activation attempt $i failed, retrying in 30s..."
+              sleep 30
+            done
       - run:
           name: Boot iOS Simulator
           command: |
@@ -502,12 +506,16 @@ jobs:
       - run:
           name: Activate Unity License
           command: |
-            /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-              -batchmode -quit -nographics \
-              -serial "$UNITY_SERIAL" \
-              -username "$UNITY_EMAIL" \
-              -password "$UNITY_PASSWORD" \
-              -logFile -
+            for i in 1 2 3; do
+              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+                -batchmode -quit -nographics \
+                -serial "$UNITY_SERIAL" \
+                -username "$UNITY_EMAIL" \
+                -password "$UNITY_PASSWORD" \
+                -logFile - && break
+              echo "License activation attempt $i failed, retrying in 30s..."
+              sleep 30
+            done
       - run:
           name: Create and start Android emulator
           command: |
