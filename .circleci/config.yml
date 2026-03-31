@@ -447,7 +447,9 @@ jobs:
           name: Activate Unity License
           command: |
             activated=false
-            for i in 1 2 3; do
+            for i in 1 2 3 4 5; do
+              pkill -f "Unity.Licensing.Client" || true
+              sleep 5
               if /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
                 -batchmode -quit -nographics \
                 -serial "$UNITY_SERIAL" \
@@ -457,13 +459,15 @@ jobs:
                 activated=true
                 break
               fi
-              echo "License activation attempt $i failed, retrying in 30s..."
-              sleep 30
+              echo "License activation attempt $i failed, retrying in 60s..."
+              pkill -f "Unity.Licensing.Client" || true
+              sleep 60
             done
             if [ "$activated" = false ]; then
               echo "All license activation attempts failed"
               exit 1
             fi
+          no_output_timeout: 15m
       - run:
           name: Boot iOS Simulator
           command: |
@@ -525,7 +529,9 @@ jobs:
           name: Activate Unity License
           command: |
             activated=false
-            for i in 1 2 3; do
+            for i in 1 2 3 4 5; do
+              pkill -f "Unity.Licensing.Client" || true
+              sleep 5
               if /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
                 -batchmode -quit -nographics \
                 -serial "$UNITY_SERIAL" \
@@ -535,13 +541,15 @@ jobs:
                 activated=true
                 break
               fi
-              echo "License activation attempt $i failed, retrying in 30s..."
-              sleep 30
+              echo "License activation attempt $i failed, retrying in 60s..."
+              pkill -f "Unity.Licensing.Client" || true
+              sleep 60
             done
             if [ "$activated" = false ]; then
               echo "All license activation attempts failed"
               exit 1
             fi
+          no_output_timeout: 15m
       - run:
           name: Create and start Android emulator
           command: |
