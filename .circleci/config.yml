@@ -434,20 +434,36 @@ jobs:
               --changeset 4a4dcaec6541 \
               -a arm64 \
               --module ios
+            echo "Verifying iOS module installation..."
+            if [ ! -d "/Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/iOSSupport" ]; then
+              echo "iOS module not found, installing separately..."
+              /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install-modules \
+                --version 6000.2.6f2 \
+                -m ios
+            fi
+            ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
           no_output_timeout: 30m
       - run:
           name: Activate Unity License
           command: |
+            activated=false
             for i in 1 2 3; do
-              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+              if /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
                 -batchmode -quit -nographics \
                 -serial "$UNITY_SERIAL" \
                 -username "$UNITY_EMAIL" \
                 -password "$UNITY_PASSWORD" \
-                -logFile - && break
+                -logFile -; then
+                activated=true
+                break
+              fi
               echo "License activation attempt $i failed, retrying in 30s..."
               sleep 30
             done
+            if [ "$activated" = false ]; then
+              echo "All license activation attempts failed"
+              exit 1
+            fi
       - run:
           name: Boot iOS Simulator
           command: |
@@ -502,20 +518,30 @@ jobs:
               --changeset 4a4dcaec6541 \
               -a arm64 \
               --module android
+            echo "Verifying Android module installation..."
+            ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
           no_output_timeout: 60m
       - run:
           name: Activate Unity License
           command: |
+            activated=false
             for i in 1 2 3; do
-              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+              if /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
                 -batchmode -quit -nographics \
                 -serial "$UNITY_SERIAL" \
                 -username "$UNITY_EMAIL" \
                 -password "$UNITY_PASSWORD" \
-                -logFile - && break
+                -logFile -; then
+                activated=true
+                break
+              fi
               echo "License activation attempt $i failed, retrying in 30s..."
               sleep 30
             done
+            if [ "$activated" = false ]; then
+              echo "All license activation attempts failed"
+              exit 1
+            fi
       - run:
           name: Create and start Android emulator
           command: |
