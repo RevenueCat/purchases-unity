@@ -444,11 +444,18 @@ jobs:
             ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
           no_output_timeout: 30m
       - run:
+          name: Clear quarantine attributes from Unity
+          command: |
+            sudo xattr -cr /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app || true
+            sudo xattr -cr "/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/Frameworks/UnityLicensingClient.app" || true
+            sudo spctl --master-disable 2>/dev/null || true
+      - run:
           name: Activate Unity License
           command: |
             rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
             rm -rf ~/Library/Unity/licenses 2>/dev/null || true
             rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
+            mkdir -p "/Library/Application Support/Unity" 2>/dev/null || true
 
             activated=false
             for i in 1 2 3 4 5; do
@@ -546,11 +553,18 @@ jobs:
             ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
           no_output_timeout: 60m
       - run:
+          name: Clear quarantine attributes from Unity
+          command: |
+            sudo xattr -cr /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app || true
+            sudo xattr -cr "/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/Frameworks/UnityLicensingClient.app" || true
+            sudo spctl --master-disable 2>/dev/null || true
+      - run:
           name: Activate Unity License
           command: |
             rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
             rm -rf ~/Library/Unity/licenses 2>/dev/null || true
             rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
+            mkdir -p "/Library/Application Support/Unity" 2>/dev/null || true
 
             activated=false
             for i in 1 2 3 4 5; do
