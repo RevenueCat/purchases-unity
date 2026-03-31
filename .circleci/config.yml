@@ -416,6 +416,9 @@ jobs:
       - checkout
       - install-bundle-dependencies
       - run:
+          name: Install Rosetta 2
+          command: softwareupdate --install-rosetta --agree-to-license || true
+      - run:
           name: Install Java for Maestro
           command: |
             brew install openjdk@17
@@ -470,6 +473,9 @@ jobs:
     steps:
       - checkout
       - install-bundle-dependencies
+      - run:
+          name: Install Rosetta 2
+          command: softwareupdate --install-rosetta --agree-to-license || true
       - run:
           name: Install Java for Maestro
           command: |
