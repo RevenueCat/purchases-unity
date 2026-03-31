@@ -498,7 +498,7 @@ jobs:
               --changeset 4a4dcaec6541 \
               -a arm64 \
               --module android
-          no_output_timeout: 30m
+          no_output_timeout: 60m
       - run:
           name: Activate Unity License
           command: |
