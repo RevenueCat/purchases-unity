@@ -446,27 +446,38 @@ jobs:
       - run:
           name: Activate Unity License
           command: |
+            rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
+            rm -rf ~/Library/Unity/licenses 2>/dev/null || true
+            rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
+
             activated=false
             for i in 1 2 3 4 5; do
-              pkill -f "Unity.Licensing.Client" || true
+              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
+              pkill -9 -f "Unity " 2>/dev/null || true
               sleep 5
-              if /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-                -batchmode -quit -nographics \
+
+              echo "=== License activation attempt $i ==="
+              timeout 120 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+                -batchmode -nographics \
                 -serial "$UNITY_SERIAL" \
                 -username "$UNITY_EMAIL" \
                 -password "$UNITY_PASSWORD" \
-                -logFile -; then
-                activated=true
-                break
-              fi
-              echo "License activation attempt $i failed, retrying in 60s..."
-              pkill -f "Unity.Licensing.Client" || true
+                -logFile - \
+                -quit && activated=true && break
+
+              echo "Attempt $i failed (exit code: $?), cleaning up and retrying in 60s..."
+              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
+              pkill -9 -f "Unity " 2>/dev/null || true
+              rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
               sleep 60
             done
             if [ "$activated" = false ]; then
               echo "All license activation attempts failed"
+              ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
               exit 1
             fi
+            echo "License activated successfully"
+            ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
           no_output_timeout: 15m
       - run:
           name: Boot iOS Simulator
@@ -528,27 +539,38 @@ jobs:
       - run:
           name: Activate Unity License
           command: |
+            rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
+            rm -rf ~/Library/Unity/licenses 2>/dev/null || true
+            rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
+
             activated=false
             for i in 1 2 3 4 5; do
-              pkill -f "Unity.Licensing.Client" || true
+              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
+              pkill -9 -f "Unity " 2>/dev/null || true
               sleep 5
-              if /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-                -batchmode -quit -nographics \
+
+              echo "=== License activation attempt $i ==="
+              timeout 120 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+                -batchmode -nographics \
                 -serial "$UNITY_SERIAL" \
                 -username "$UNITY_EMAIL" \
                 -password "$UNITY_PASSWORD" \
-                -logFile -; then
-                activated=true
-                break
-              fi
-              echo "License activation attempt $i failed, retrying in 60s..."
-              pkill -f "Unity.Licensing.Client" || true
+                -logFile - \
+                -quit && activated=true && break
+
+              echo "Attempt $i failed (exit code: $?), cleaning up and retrying in 60s..."
+              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
+              pkill -9 -f "Unity " 2>/dev/null || true
+              rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
               sleep 60
             done
             if [ "$activated" = false ]; then
               echo "All license activation attempts failed"
+              ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
               exit 1
             fi
+            echo "License activated successfully"
+            ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
           no_output_timeout: 15m
       - run:
           name: Create and start Android emulator
