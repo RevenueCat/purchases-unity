@@ -428,6 +428,7 @@ jobs:
             brew install --cask unity-hub
             /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
               --version 6000.2.6f2 \
+              --changeset 4a4dcaec6541 \
               --module ios
           no_output_timeout: 30m
       - run:
@@ -487,6 +488,7 @@ jobs:
             brew install --cask unity-hub
             /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
               --version 6000.2.6f2 \
+              --changeset 4a4dcaec6541 \
               --module android
           no_output_timeout: 30m
       - run:
