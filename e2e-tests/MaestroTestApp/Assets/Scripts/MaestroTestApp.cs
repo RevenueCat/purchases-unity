@@ -59,7 +59,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         }
     }
 
-    public override void CustomerInfoReceived(CustomerInfo customerInfo)
+    public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
     {
         UpdateEntitlementsFromInfo(customerInfo);
     }
@@ -75,7 +75,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         });
     }
 
-    private void UpdateEntitlementsFromInfo(CustomerInfo info)
+    private void UpdateEntitlementsFromInfo(Purchases.CustomerInfo info)
     {
         bool hasPro = info.Entitlements.Active.ContainsKey("pro");
         if (entitlementsLabel != null)
