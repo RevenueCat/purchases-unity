@@ -425,15 +425,21 @@ jobs:
       - run:
           name: Install Unity Hub and Editor
           command: |
+            set -x
             brew install --cask unity-hub
+            echo "Unity Hub installed, now installing editor..."
             /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
               --version 6000.2.6f2 \
               --changeset 4a4dcaec6541 \
               --module ios
+            echo "Unity Editor install exit code: $?"
+            ls -la /Applications/Unity/Hub/Editor/ || echo "Editor dir not found"
+            ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/ || echo "Editor version dir not found"
           no_output_timeout: 30m
       - run:
           name: Activate Unity License
           command: |
+            set -x
             /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
               -batchmode -quit -nographics \
               -serial "$UNITY_SERIAL" \
@@ -485,15 +491,21 @@ jobs:
       - run:
           name: Install Unity Hub and Editor
           command: |
+            set -x
             brew install --cask unity-hub
+            echo "Unity Hub installed, now installing editor..."
             /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
               --version 6000.2.6f2 \
               --changeset 4a4dcaec6541 \
               --module android
+            echo "Unity Editor install exit code: $?"
+            ls -la /Applications/Unity/Hub/Editor/ || echo "Editor dir not found"
+            ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/ || echo "Editor version dir not found"
           no_output_timeout: 30m
       - run:
           name: Activate Unity License
           command: |
+            set -x
             /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
               -batchmode -quit -nographics \
               -serial "$UNITY_SERIAL" \
