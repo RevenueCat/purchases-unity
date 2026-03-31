@@ -139,6 +139,17 @@ lane :run_maestro_e2e_tests_ios do
   sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
 
   unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
+
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-executeMethod", "SceneSetup.SetupScene",
+    "-nographics",
+    "-logFile", "-"
+  )
+
   sh(
     "#{unity_path}",
     "-batchmode",
@@ -175,6 +186,17 @@ lane :run_maestro_e2e_tests_android do
   sh("sed -i 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
 
   unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
+
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-executeMethod", "SceneSetup.SetupScene",
+    "-nographics",
+    "-logFile", "-"
+  )
+
   sh(
     "#{unity_path}",
     "-batchmode",
