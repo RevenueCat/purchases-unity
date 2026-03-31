@@ -457,15 +457,24 @@ jobs:
               sleep 5
 
               echo "=== License activation attempt $i ==="
-              timeout 120 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
                 -batchmode -nographics \
                 -serial "$UNITY_SERIAL" \
                 -username "$UNITY_EMAIL" \
                 -password "$UNITY_PASSWORD" \
                 -logFile - \
-                -quit && activated=true && break
+                -quit &
+              UNITY_PID=$!
+              ( sleep 120 && kill -9 $UNITY_PID 2>/dev/null ) &
+              WATCHDOG_PID=$!
+              if wait $UNITY_PID 2>/dev/null; then
+                kill $WATCHDOG_PID 2>/dev/null || true
+                activated=true
+                break
+              fi
+              kill $WATCHDOG_PID 2>/dev/null || true
 
-              echo "Attempt $i failed (exit code: $?), cleaning up and retrying in 60s..."
+              echo "Attempt $i failed, cleaning up and retrying in 60s..."
               pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
               pkill -9 -f "Unity " 2>/dev/null || true
               rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
@@ -550,15 +559,24 @@ jobs:
               sleep 5
 
               echo "=== License activation attempt $i ==="
-              timeout 120 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
+              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
                 -batchmode -nographics \
                 -serial "$UNITY_SERIAL" \
                 -username "$UNITY_EMAIL" \
                 -password "$UNITY_PASSWORD" \
                 -logFile - \
-                -quit && activated=true && break
+                -quit &
+              UNITY_PID=$!
+              ( sleep 120 && kill -9 $UNITY_PID 2>/dev/null ) &
+              WATCHDOG_PID=$!
+              if wait $UNITY_PID 2>/dev/null; then
+                kill $WATCHDOG_PID 2>/dev/null || true
+                activated=true
+                break
+              fi
+              kill $WATCHDOG_PID 2>/dev/null || true
 
-              echo "Attempt $i failed (exit code: $?), cleaning up and retrying in 60s..."
+              echo "Attempt $i failed, cleaning up and retrying in 60s..."
               pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
               pkill -9 -f "Unity " 2>/dev/null || true
               rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
