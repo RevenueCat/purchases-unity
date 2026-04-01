@@ -347,6 +347,11 @@ public class PaywallViewPresenter {
             }
 
             @Override
+            public void onRestoreInitiated(@NonNull Resumable resume) {
+                resume.invoke(true);
+            }
+
+            @Override
             public void onPurchaseCompleted(@NonNull CustomerInfo customerInfo,
                                             @NonNull StoreTransaction storeTransaction) {
                 lastResult = RESULT_PURCHASED;
