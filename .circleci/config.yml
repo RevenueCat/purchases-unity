@@ -215,6 +215,15 @@ commands:
             - vendor/bundle
             - ~/.rbenv/versions/3.2.0
 jobs:
+  check-meta-files:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Check for missing .meta files
+          command: bash scripts/check-meta-files.sh
+
   export-package:
     executor: unity
 
@@ -605,14 +614,6 @@ jobs:
             ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
           no_output_timeout: 15m
       - run:
-          name: Create and start Android emulator
-          command: |
-            echo "no" | avdmanager create avd -n test-e2e -k "system-images;android-34;google_apis;arm64-v8a" --force
-            nohup emulator -avd test-e2e -no-audio -no-boot-anim -no-window &
-            adb wait-for-device
-            adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
-            adb shell input keyevent 82
-      - run:
           name: Run Maestro E2E Tests (Android)
           command: bundle exec fastlane run_maestro_e2e_tests_android
           no_output_timeout: 30m
@@ -662,22 +663,13 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
+      - check-meta-files
       - export-package:
           context: unity
       - build-subtester-android:
           context: unity
       - build-subtester-ios:
           context: unity
-      - run-maestro-e2e-tests-ios:
-          context:
-            - maestro-e2e-tests
-            - e2e-tests
-            - unity
-      - run-maestro-e2e-tests-android:
-          context:
-            - maestro-e2e-tests
-            - e2e-tests
-            - unity
       - build-integration-tests-android:
           context: unity
           requires:
@@ -689,6 +681,16 @@ workflows:
       - archive-ios:
           requires:
             - build-integration-tests-ios
+      - run-maestro-e2e-tests-ios:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+            - unity
+      - run-maestro-e2e-tests-android:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+            - unity
       - hold:
           type: approval
           requires:
