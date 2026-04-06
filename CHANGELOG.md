@@ -1,3 +1,15 @@
+## 8.9.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.55.1 (#890) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 9.29.0](https://github.com/RevenueCat/purchases-android/releases/tag/9.29.0)
+  * [iOS 5.67.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.67.1)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 17.55.0 (#889) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump fastlane-plugin-revenuecat_internal from `5d6e93f` to `6289be1` (#888) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `f11fe40` to `5d6e93f` (#887) via dependabot[bot] (@dependabot[bot])
+
 ## 8.9.0
 ## RevenueCat SDK
 ### 📦 Dependency Updates
