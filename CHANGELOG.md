@@ -1,3 +1,8 @@
+## 8.10.0
+## RevenueCat SDK
+### ✨ New Features
+* Add `SetOnesignalUserID` support (#892) via Cesar de la Vega (@vegaro)
+
 ## 8.9.1
 ## RevenueCat SDK
 ### 📦 Dependency Updates
