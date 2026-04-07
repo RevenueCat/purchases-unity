@@ -187,6 +187,10 @@ public partial class Purchases
         {
         }
 
+        public void SetOnesignalUserID(string onesignalUserID)
+        {
+        }
+
         public void SetAirshipChannelID(string airshipChannelID)
         {
         }

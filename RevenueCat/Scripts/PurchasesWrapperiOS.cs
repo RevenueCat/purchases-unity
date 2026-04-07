@@ -331,6 +331,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSetOnesignalUserID(string onesignalUserID);
+    public void SetOnesignalUserID(string onesignalUserID)
+    {
+        _RCSetOnesignalUserID(onesignalUserID);
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetAirshipChannelID(string airshipChannelID);
     public void SetAirshipChannelID(string airshipChannelID)
     {
