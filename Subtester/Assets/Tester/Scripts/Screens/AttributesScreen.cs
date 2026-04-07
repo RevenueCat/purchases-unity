@@ -29,6 +29,7 @@ namespace RevenueCat.Tester.Screens
                 Purchases.SetFBAnonymousID($"fbAnonymousId_{ts}");
                 Purchases.SetMparticleID($"mparticleId_{ts}");
                 Purchases.SetOnesignalID($"onesignalId_{ts}");
+                Purchases.SetOnesignalUserID($"onesignalUserId_{ts}");
                 Purchases.SetAirshipChannelID($"airshipChannelId_{ts}");
                 Purchases.SetCleverTapID($"cleverTapID_{ts}");
                 Purchases.SetMixpanelDistinctID($"mixpanelDistinctID_{ts}");

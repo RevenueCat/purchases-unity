@@ -1042,6 +1042,18 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
+     * Sets the subscriber attribute associated with the OneSignal User Id for the user
+     * Required for the RevenueCat OneSignal integration with versions v11.0 and above
+     * </summary>
+     * <param name="onesignalUserID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetOnesignalUserID(string onesignalUserID)
+    {
+        _wrapper.SetOnesignalUserID(onesignalUserID);
+    }
+
+    /**
+     * <summary>
      * Sets the subscriber attribute associated with the Airship Channel Id for the user
      * Required for the RevenueCat Airship integration
      * </summary>

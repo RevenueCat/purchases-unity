@@ -489,6 +489,10 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.setOnesignalID(onesignalID);
     }
 
+    public static void setOnesignalUserID(String onesignalUserID) {
+        SubscriberAttributesKt.setOnesignalUserID(onesignalUserID);
+    }
+
     public static void setAirshipChannelID(String airshipChannelID) {
         SubscriberAttributesKt.setAirshipChannelID(airshipChannelID);
     }
