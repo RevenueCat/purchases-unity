@@ -132,6 +132,7 @@ end
 
 desc "Run maestro E2E tests on iOS"
 lane :run_maestro_e2e_tests_ios do
+  UI.user_error!("RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set") if ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"].to_s.empty?
   project_path = "../e2e-tests/MaestroTestApp"
   xcode_project_path = "#{project_path}/build/ios"
   derived_data_path = "#{project_path}/build/xcode"
@@ -180,6 +181,7 @@ end
 
 desc "Run maestro E2E tests on Android"
 lane :run_maestro_e2e_tests_android do
+  UI.user_error!("RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set") if ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"].to_s.empty?
   project_path = "../e2e-tests/MaestroTestApp"
   apk_path = "#{project_path}/build/android/MaestroTestApp.apk"
 
