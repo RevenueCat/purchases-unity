@@ -130,6 +130,96 @@ lane :update_hybrid_common do |options|
   )
 end
 
+desc "Run maestro E2E tests on iOS"
+lane :run_maestro_e2e_tests_ios do
+  UI.user_error!("RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set") if ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"].to_s.empty?
+  project_path = "../e2e-tests/MaestroTestApp"
+  xcode_project_path = "#{project_path}/build/ios"
+  derived_data_path = "#{project_path}/build/xcode"
+
+  sh("sed -i '' 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
+  cs_path = "#{project_path}/Assets/Scripts/MaestroTestApp.cs"
+  UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
+
+  unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
+
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-executeMethod", "SceneSetup.SetupScene",
+    "-nographics",
+    "-logFile", "-"
+  )
+
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-buildTarget", "iOS",
+    "-executeMethod", "BuildScript.BuildIOS",
+    "-nographics",
+    "-logFile", "-"
+  )
+
+  sh(
+    "xcodebuild",
+    "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
+    "-scheme", "Unity-iPhone",
+    "-configuration", "Debug",
+    "-sdk", "iphonesimulator",
+    "-destination", "platform=iOS Simulator,name=iPhone 17",
+    "-derivedDataPath", derived_data_path
+  )
+
+  app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
+  sh("xcrun simctl install booted '#{app_path}'")
+
+  sh("mkdir -p test_output")
+  sh("maestro test --format junit --output test_output/report.xml --test-output-dir test_output ../e2e-tests/maestro/")
+end
+
+desc "Run maestro E2E tests on Android"
+lane :run_maestro_e2e_tests_android do
+  UI.user_error!("RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set") if ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"].to_s.empty?
+  project_path = "../e2e-tests/MaestroTestApp"
+  apk_path = "#{project_path}/build/android/MaestroTestApp.apk"
+
+  sh("sed -i 's/MAESTRO_TESTS_REVENUECAT_API_KEY/'\"$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE\"'/g' #{project_path}/Assets/Scripts/MaestroTestApp.cs")
+  cs_path = "#{project_path}/Assets/Scripts/MaestroTestApp.cs"
+  UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
+
+  unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
+
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-executeMethod", "SceneSetup.SetupScene",
+    "-nographics",
+    "-logFile", "-"
+  )
+
+  sh(
+    "#{unity_path}",
+    "-batchmode",
+    "-quit",
+    "-projectPath", project_path,
+    "-buildTarget", "Android",
+    "-executeMethod", "BuildScript.BuildAndroid",
+    "-nographics",
+    "-logFile", "-"
+  )
+
+  sh("adb install '#{apk_path}'")
+
+  sh("mkdir -p test_output")
+  sh("maestro test --format junit --output test_output/report.xml --test-output-dir test_output ../e2e-tests/maestro/")
+end
+
 desc "Tag current branch with current version number"
 lane :tag_current_branch do |options|
   version_number = current_version_number
