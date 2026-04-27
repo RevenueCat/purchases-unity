@@ -476,6 +476,18 @@ jobs:
             - /Applications/Unity/Hub/Editor/6000.2.6f2
             - /Applications/Unity Hub.app
       - run:
+          name: Verify iOS module installation
+          command: |
+            EDITOR_DIR="/Applications/Unity/Hub/Editor/$UNITY_VERSION"
+            echo "=== Editor directory ==="
+            ls -la "$EDITOR_DIR/" 2>/dev/null || echo "Not found: $EDITOR_DIR"
+            echo "=== PlaybackEngines (top-level) ==="
+            ls -la "$EDITOR_DIR/PlaybackEngines/" 2>/dev/null || echo "No top-level PlaybackEngines"
+            echo "=== PlaybackEngines (inside app) ==="
+            ls -la "$EDITOR_DIR/Unity.app/Contents/PlaybackEngines/" 2>/dev/null || echo "No PlaybackEngines inside app"
+            echo "=== iOSSupport ==="
+            find "$EDITOR_DIR" -name "iOSSupport" -type d 2>/dev/null || echo "No iOSSupport found"
+      - run:
           name: Install Rosetta 2
           command: softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
       - run:
