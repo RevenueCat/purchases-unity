@@ -425,9 +425,9 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - unity-lib-ios-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
-            - unity-lib-ios-v1-6000.2.6f2-{{ arch }}-
-            - unity-lib-ios-v1-
+            - unity-lib-ios-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
+            - unity-lib-ios-v2-6000.2.6f2-{{ arch }}-
+            - unity-lib-ios-v2-
       - install-bundle-dependencies
       - run:
           name: Install Rosetta 2
@@ -531,7 +531,7 @@ jobs:
           command: bundle exec fastlane build_maestro_test_app platform:ios
           no_output_timeout: 30m
       - save_cache:
-          key: unity-lib-ios-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+          key: unity-lib-ios-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
           paths:
             - e2e-tests/MaestroTestApp/Library
           when: always
@@ -563,9 +563,9 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - unity-lib-android-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
-            - unity-lib-android-v1-6000.2.6f2-{{ arch }}-
-            - unity-lib-android-v1-
+            - unity-lib-android-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
+            - unity-lib-android-v2-6000.2.6f2-{{ arch }}-
+            - unity-lib-android-v2-
       - install-bundle-dependencies
       - run:
           name: Install Rosetta 2
@@ -662,7 +662,7 @@ jobs:
           command: bundle exec fastlane build_maestro_test_app platform:android
           no_output_timeout: 30m
       - save_cache:
-          key: unity-lib-android-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+          key: unity-lib-android-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
           paths:
             - e2e-tests/MaestroTestApp/Library
           when: always
