@@ -464,6 +464,15 @@ jobs:
             sudo xattr -cr "/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/Frameworks/UnityLicensingClient.app" || true
             sudo spctl --master-disable 2>/dev/null || true
       - run:
+          name: Restore Xcode developer directory
+          command: |
+            sudo xcode-select -s /Applications/Xcode-26.3.app/Contents/Developer
+            echo "Developer dir: $(xcode-select -p)"
+            echo "Available runtimes:"
+            xcrun simctl list runtimes
+            echo "Available simulator devices:"
+            xcrun simctl list devices available | head -20
+      - run:
           name: Activate Unity License
           command: |
             sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
