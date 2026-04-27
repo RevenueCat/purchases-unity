@@ -151,16 +151,6 @@ lane :build_maestro_test_app do |options|
   project_path = "../e2e-tests/MaestroTestApp"
   unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
 
-  sh(
-    "#{unity_path}",
-    "-batchmode",
-    "-quit",
-    "-projectPath", project_path,
-    "-executeMethod", "SceneSetup.SetupScene",
-    "-nographics",
-    "-logFile", "-"
-  )
-
   if platform == "ios"
     sh(
       "#{unity_path}",
