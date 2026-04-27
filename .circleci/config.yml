@@ -476,6 +476,9 @@ jobs:
             - /Applications/Unity/Hub/Editor/6000.2.6f2
             - /Applications/Unity Hub.app
       - run:
+          name: Install Rosetta 2
+          command: softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
+      - run:
           name: Activate Unity license
           command: |
             "$UNITY_PATH" -batchmode -quit -nographics \
