@@ -425,7 +425,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+            - unity-lib-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+            - unity-lib-v1-6000.2.6f2-{{ arch }}-
             - unity-lib-v1-
       - install-bundle-dependencies
       - run:
@@ -523,7 +524,7 @@ jobs:
       - store_artifacts:
           path: fastlane/test_output
       - save_cache:
-          key: unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+          key: unity-lib-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
           paths:
             - e2e-tests/MaestroTestApp/Library
           when: always
@@ -544,7 +545,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+            - unity-lib-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+            - unity-lib-v1-6000.2.6f2-{{ arch }}-
             - unity-lib-v1-
       - install-bundle-dependencies
       - run:
@@ -637,7 +639,7 @@ jobs:
       - store_artifacts:
           path: fastlane/test_output
       - save_cache:
-          key: unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+          key: unity-lib-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
           paths:
             - e2e-tests/MaestroTestApp/Library
           when: always
