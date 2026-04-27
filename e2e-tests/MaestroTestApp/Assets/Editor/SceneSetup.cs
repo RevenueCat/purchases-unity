@@ -82,6 +82,7 @@ static class SceneSetup
         PlayerSettings.productName = "MaestroTestApp";
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "com.revenuecat.automatedsdktests");
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.revenuecat.automatedsdktests");
+        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
 
         Debug.Log(":: Scene setup completed successfully");
     }
