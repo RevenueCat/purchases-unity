@@ -203,10 +203,8 @@ lane :xcode_build_maestro_test_app do
     "-workspace", "#{xcode_project_path}/Unity-iPhone.xcworkspace",
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
-    "-sdk", "iphonesimulator",
-    "-arch", "arm64",
+    "-destination", "generic/platform=iOS Simulator",
     "-derivedDataPath", derived_data_path,
-    "SUPPORTED_PLATFORMS=iphonesimulator",
     "CODE_SIGN_IDENTITY=-",
     "CODE_SIGNING_REQUIRED=NO",
     "CODE_SIGNING_ALLOWED=NO"
