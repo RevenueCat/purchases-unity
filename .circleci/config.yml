@@ -465,7 +465,8 @@ jobs:
             else
               brew install --cask unity-hub
               /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
-                --version "$UNITY_VERSION" --changeset 4a4dcaec6541 --module ios --childModules
+                --version "$UNITY_VERSION" --changeset 4a4dcaec6541 \
+                --architecture arm64 --module ios --childModules
             fi
           no_output_timeout: 30m
       - save_cache:
