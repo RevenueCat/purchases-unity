@@ -423,6 +423,10 @@ jobs:
     resource_class: m4pro.medium
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+            - unity-lib-v1-
       - install-bundle-dependencies
       - run:
           name: Install Rosetta 2
@@ -518,6 +522,11 @@ jobs:
           path: fastlane/test_output
       - store_artifacts:
           path: fastlane/test_output
+      - save_cache:
+          key: unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+          paths:
+            - e2e-tests/MaestroTestApp/Library
+          when: always
       - run:
           name: Return Unity License
           command: |
@@ -533,6 +542,10 @@ jobs:
     resource_class: m4pro.medium
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+            - unity-lib-v1-
       - install-bundle-dependencies
       - run:
           name: Install Rosetta 2
@@ -623,6 +636,11 @@ jobs:
           path: fastlane/test_output
       - store_artifacts:
           path: fastlane/test_output
+      - save_cache:
+          key: unity-lib-v1-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
+          paths:
+            - e2e-tests/MaestroTestApp/Library
+          when: always
       - run:
           name: Return Unity License
           command: |
