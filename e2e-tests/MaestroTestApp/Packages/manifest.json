@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "com.revenuecat.purchases-unity": "file:../../../RevenueCat",
+    "com.revenuecat.purchases-ui-unity": "file:../../../RevenueCatUI",
+    "com.unity.ugui": "2.0.0"
+  }
+}
