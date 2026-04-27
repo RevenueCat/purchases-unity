@@ -187,7 +187,7 @@ lane :xcode_build_maestro_test_app do
   unless File.exist?(podfile_path)
     File.write(podfile_path, <<~PODFILE)
       platform :ios, '13.0'
-      target 'Unity-iPhone' do
+      target 'UnityFramework' do
         pod 'PurchasesHybridCommon', '18.1.0'
         pod 'PurchasesHybridCommonUI', '~> 18.1.0'
       end
