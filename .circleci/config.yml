@@ -511,23 +511,32 @@ jobs:
             ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
           no_output_timeout: 15m
       - run:
-          name: Boot iOS Simulator
-          command: |
-            xcrun simctl boot "iPhone 17" || true
-            xcrun simctl bootstatus "iPhone 17" -b
+          name: Replace API key
+          command: bundle exec fastlane change_maestro_test_app_api_key
       - run:
-          name: Run Maestro E2E Tests (iOS)
-          command: bundle exec fastlane run_maestro_e2e_tests_ios
+          name: Boot iOS Simulator
+          command: xcrun simctl boot "iPhone 17" || true
+          background: true
+      - run:
+          name: Build Maestro test app (iOS)
+          command: bundle exec fastlane build_maestro_test_app platform:ios
           no_output_timeout: 30m
-      - store_test_results:
-          path: fastlane/test_output
-      - store_artifacts:
-          path: fastlane/test_output
       - save_cache:
           key: unity-lib-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
           paths:
             - e2e-tests/MaestroTestApp/Library
           when: always
+      - run:
+          name: Wait for iOS Simulator
+          command: xcrun simctl bootstatus "iPhone 17" -b
+      - run:
+          name: Run Maestro E2E Tests (iOS)
+          command: bundle exec fastlane run_maestro_e2e_tests_ios
+          no_output_timeout: 15m
+      - store_test_results:
+          path: fastlane/test_output
+      - store_artifacts:
+          path: fastlane/test_output
       - run:
           name: Return Unity License
           command: |
@@ -631,18 +640,35 @@ jobs:
             ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
           no_output_timeout: 15m
       - run:
-          name: Run Maestro E2E Tests (Android)
-          command: bundle exec fastlane run_maestro_e2e_tests_android
+          name: Replace API key
+          command: bundle exec fastlane change_maestro_test_app_api_key
+      - run:
+          name: Create and boot Android emulator
+          command: |
+            echo "no" | avdmanager create avd -n test-e2e -k "system-images;android-34;google_apis;arm64-v8a" --force
+            nohup emulator -avd test-e2e -no-window -no-audio -gpu swiftshader_indirect -no-snapshot > /tmp/emulator.log 2>&1 &
+          background: true
+      - run:
+          name: Build Maestro test app (Android)
+          command: bundle exec fastlane build_maestro_test_app platform:android
           no_output_timeout: 30m
-      - store_test_results:
-          path: fastlane/test_output
-      - store_artifacts:
-          path: fastlane/test_output
       - save_cache:
           key: unity-lib-v1-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/manifest.json" }}
           paths:
             - e2e-tests/MaestroTestApp/Library
           when: always
+      - run:
+          name: Wait for Android emulator
+          command: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+          no_output_timeout: 5m
+      - run:
+          name: Run Maestro E2E Tests (Android)
+          command: bundle exec fastlane run_maestro_e2e_tests_android
+          no_output_timeout: 15m
+      - store_test_results:
+          path: fastlane/test_output
+      - store_artifacts:
+          path: fastlane/test_output
       - run:
           name: Return Unity License
           command: |
