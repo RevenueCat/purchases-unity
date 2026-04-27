@@ -511,10 +511,6 @@ jobs:
             ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
           no_output_timeout: 15m
       - run:
-          name: Download iOS Simulator runtime
-          command: xcodebuild -downloadPlatform iOS
-          no_output_timeout: 30m
-      - run:
           name: Replace API key
           command: bundle exec fastlane change_maestro_test_app_api_key
       - run:

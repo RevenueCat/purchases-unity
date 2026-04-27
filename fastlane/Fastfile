@@ -181,7 +181,6 @@ lane :build_maestro_test_app do |options|
       "-scheme", "Unity-iPhone",
       "-configuration", "Debug",
       "-sdk", "iphonesimulator",
-      "-destination", "platform=iOS Simulator,name=iPhone 17",
       "-derivedDataPath", derived_data_path
     )
   else
