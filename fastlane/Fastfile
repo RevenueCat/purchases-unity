@@ -182,9 +182,24 @@ lane :xcode_build_maestro_test_app do
   project_path = "../e2e-tests/MaestroTestApp"
   xcode_project_path = "#{project_path}/build/ios"
   derived_data_path = "#{project_path}/build/xcode"
+
+  podfile_path = "#{xcode_project_path}/Podfile"
+  unless File.exist?(podfile_path)
+    File.write(podfile_path, <<~PODFILE)
+      platform :ios, '13.0'
+      target 'Unity-iPhone' do
+        pod 'PurchasesHybridCommon', '18.1.0'
+        pod 'PurchasesHybridCommonUI', '~> 18.1.0'
+      end
+    PODFILE
+  end
+
+  xcode_abs_path = File.expand_path(xcode_project_path)
+  sh("cd '#{xcode_abs_path}' && pod install --repo-update")
+
   sh(
     "xcodebuild", "build",
-    "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
+    "-workspace", "#{xcode_project_path}/Unity-iPhone.xcworkspace",
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
     "-sdk", "iphonesimulator",
