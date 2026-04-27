@@ -417,21 +417,69 @@ jobs:
           name: release
           command: bundle exec fastlane github_release
 
+  build-maestro-test-app-ios:
+    executor: unity-ios
+    steps:
+      - checkout
+      - unity/prepare-env:
+          project-path: e2e-tests/MaestroTestApp
+      - run:
+          name: Replace API key
+          command: |
+            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
+              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+      - run:
+          name: Build Maestro test app (Unity iOS)
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath e2e-tests/MaestroTestApp \
+              -quit \
+              -batchmode \
+              -buildTarget iOS \
+              -executeMethod BuildScript.BuildIOS \
+              -nographics \
+              -logFile /dev/stdout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - e2e-tests/MaestroTestApp/build/ios
+
+  build-maestro-test-app-android:
+    executor: unity-android
+    steps:
+      - checkout
+      - unity/prepare-env:
+          project-path: e2e-tests/MaestroTestApp
+      - run:
+          name: Replace API key
+          command: |
+            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
+              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+      - run:
+          name: Build Maestro test app (Unity Android)
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath e2e-tests/MaestroTestApp \
+              -quit \
+              -batchmode \
+              -buildTarget Android \
+              -executeMethod BuildScript.BuildAndroid \
+              -nographics \
+              -logFile /dev/stdout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - e2e-tests/MaestroTestApp/build/android
+
   run-maestro-e2e-tests-ios:
     macos:
       xcode: 26.3.0
     resource_class: m4pro.medium
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - unity-lib-ios-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
-            - unity-lib-ios-v2-6000.2.6f2-{{ arch }}-
-            - unity-lib-ios-v2-
+      - attach_workspace:
+          at: .
       - install-bundle-dependencies
-      - run:
-          name: Install Rosetta 2
-          command: softwareupdate --install-rosetta --agree-to-license || true
       - run:
           name: Install Java for Maestro
           command: |
@@ -440,101 +488,13 @@ jobs:
             echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 17)' >> "$BASH_ENV"
       - revenuecat/install-maestro
       - run:
-          name: Install Unity Hub and Editor
-          command: |
-            brew install --cask unity-hub
-            yes | /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
-              --version 6000.2.6f2 \
-              --changeset 4a4dcaec6541 \
-              -a arm64 \
-              --module ios || true
-            echo "Verifying iOS module installation..."
-            if [ ! -d "/Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/iOSSupport" ]; then
-              echo "iOS module not found, installing separately..."
-              yes | /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install-modules \
-                --version 6000.2.6f2 \
-                -m ios || true
-            fi
-            ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
-          no_output_timeout: 30m
-      - run:
-          name: Clear quarantine attributes from Unity
-          command: |
-            sudo xattr -cr /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app || true
-            sudo xattr -cr "/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/Frameworks/UnityLicensingClient.app" || true
-            sudo spctl --master-disable 2>/dev/null || true
-      - run:
-          name: Restore Xcode developer directory
-          command: |
-            sudo xcode-select -s /Applications/Xcode-26.3.app/Contents/Developer
-            echo "Developer dir: $(xcode-select -p)"
-            echo "Available runtimes:"
-            xcrun simctl list runtimes
-            echo "Available simulator devices:"
-            xcrun simctl list devices available | head -20
-      - run:
-          name: Activate Unity License
-          command: |
-            sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
-            rm -rf ~/Library/Unity/licenses 2>/dev/null || true
-            rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
-            sudo mkdir -p "/Library/Application Support/Unity"
-            sudo chmod -R 777 "/Library/Application Support/Unity"
-
-            activated=false
-            for i in 1 2 3 4 5; do
-              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
-              pkill -9 -f "Unity " 2>/dev/null || true
-              sleep 5
-
-              echo "=== License activation attempt $i ==="
-              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-                -batchmode -nographics \
-                -serial "$UNITY_SERIAL" \
-                -username "$UNITY_EMAIL" \
-                -password "$UNITY_PASSWORD" \
-                -logFile - \
-                -quit &
-              UNITY_PID=$!
-              ( sleep 120 && kill -9 $UNITY_PID 2>/dev/null ) &
-              WATCHDOG_PID=$!
-              if wait $UNITY_PID 2>/dev/null; then
-                kill $WATCHDOG_PID 2>/dev/null || true
-                activated=true
-                break
-              fi
-              kill $WATCHDOG_PID 2>/dev/null || true
-
-              echo "Attempt $i failed, cleaning up and retrying in 60s..."
-              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
-              pkill -9 -f "Unity " 2>/dev/null || true
-              sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
-              sleep 60
-            done
-            if [ "$activated" = false ]; then
-              echo "All license activation attempts failed"
-              ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
-              exit 1
-            fi
-            echo "License activated successfully"
-            ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
-          no_output_timeout: 15m
-      - run:
-          name: Replace API key
-          command: bundle exec fastlane change_maestro_test_app_api_key
-      - run:
           name: Boot iOS Simulator
           command: xcrun simctl boot "iPhone 17" || true
           background: true
       - run:
-          name: Build Maestro test app (iOS)
-          command: bundle exec fastlane build_maestro_test_app platform:ios
-          no_output_timeout: 30m
-      - save_cache:
-          key: unity-lib-ios-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
-          paths:
-            - e2e-tests/MaestroTestApp/Library
-          when: always
+          name: Build Xcode project for simulator
+          command: bundle exec fastlane xcode_build_maestro_test_app
+          no_output_timeout: 15m
       - run:
           name: Wait for iOS Simulator
           command: xcrun simctl bootstatus "iPhone 17" -b
@@ -546,14 +506,6 @@ jobs:
           path: fastlane/test_output
       - store_artifacts:
           path: fastlane/test_output
-      - run:
-          name: Return Unity License
-          command: |
-            /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-              -batchmode -quit -nographics \
-              -returnlicense \
-              -logFile - || true
-          when: always
 
   run-maestro-e2e-tests-android:
     macos:
@@ -561,15 +513,9 @@ jobs:
     resource_class: m4pro.medium
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - unity-lib-android-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
-            - unity-lib-android-v2-6000.2.6f2-{{ arch }}-
-            - unity-lib-android-v2-
+      - attach_workspace:
+          at: .
       - install-bundle-dependencies
-      - run:
-          name: Install Rosetta 2
-          command: softwareupdate --install-rosetta --agree-to-license || true
       - run:
           name: Install Java for Maestro
           command: |
@@ -584,88 +530,11 @@ jobs:
             yes | sdkmanager --licenses || true
             sdkmanager "platform-tools" "emulator" "system-images;android-34;google_apis;arm64-v8a"
       - run:
-          name: Install Unity Hub and Editor
-          command: |
-            brew install --cask unity-hub
-            yes | /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
-              --version 6000.2.6f2 \
-              --changeset 4a4dcaec6541 \
-              -a arm64 \
-              --module android || true
-            echo "Verifying Android module installation..."
-            ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
-          no_output_timeout: 60m
-      - run:
-          name: Clear quarantine attributes from Unity
-          command: |
-            sudo xattr -cr /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app || true
-            sudo xattr -cr "/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/Frameworks/UnityLicensingClient.app" || true
-            sudo spctl --master-disable 2>/dev/null || true
-      - run:
-          name: Activate Unity License
-          command: |
-            sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
-            rm -rf ~/Library/Unity/licenses 2>/dev/null || true
-            rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
-            sudo mkdir -p "/Library/Application Support/Unity"
-            sudo chmod -R 777 "/Library/Application Support/Unity"
-
-            activated=false
-            for i in 1 2 3 4 5; do
-              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
-              pkill -9 -f "Unity " 2>/dev/null || true
-              sleep 5
-
-              echo "=== License activation attempt $i ==="
-              /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-                -batchmode -nographics \
-                -serial "$UNITY_SERIAL" \
-                -username "$UNITY_EMAIL" \
-                -password "$UNITY_PASSWORD" \
-                -logFile - \
-                -quit &
-              UNITY_PID=$!
-              ( sleep 120 && kill -9 $UNITY_PID 2>/dev/null ) &
-              WATCHDOG_PID=$!
-              if wait $UNITY_PID 2>/dev/null; then
-                kill $WATCHDOG_PID 2>/dev/null || true
-                activated=true
-                break
-              fi
-              kill $WATCHDOG_PID 2>/dev/null || true
-
-              echo "Attempt $i failed, cleaning up and retrying in 60s..."
-              pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
-              pkill -9 -f "Unity " 2>/dev/null || true
-              sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
-              sleep 60
-            done
-            if [ "$activated" = false ]; then
-              echo "All license activation attempts failed"
-              ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
-              exit 1
-            fi
-            echo "License activated successfully"
-            ls -la "/Library/Application Support/Unity/" 2>/dev/null || true
-          no_output_timeout: 15m
-      - run:
-          name: Replace API key
-          command: bundle exec fastlane change_maestro_test_app_api_key
-      - run:
           name: Create and boot Android emulator
           command: |
             echo "no" | avdmanager create avd -n test-e2e -k "system-images;android-34;google_apis;arm64-v8a" --force
             nohup emulator -avd test-e2e -no-window -no-audio -gpu swiftshader_indirect -no-snapshot > /tmp/emulator.log 2>&1 &
           background: true
-      - run:
-          name: Build Maestro test app (Android)
-          command: bundle exec fastlane build_maestro_test_app platform:android
-          no_output_timeout: 30m
-      - save_cache:
-          key: unity-lib-android-v2-6000.2.6f2-{{ arch }}-{{ checksum "e2e-tests/MaestroTestApp/Packages/packages-lock.json" }}
-          paths:
-            - e2e-tests/MaestroTestApp/Library
-          when: always
       - run:
           name: Wait for Android emulator
           command: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
@@ -678,14 +547,6 @@ jobs:
           path: fastlane/test_output
       - store_artifacts:
           path: fastlane/test_output
-      - run:
-          name: Return Unity License
-          command: |
-            /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-              -batchmode -quit -nographics \
-              -returnlicense \
-              -logFile - || true
-          when: always
 
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
@@ -738,16 +599,26 @@ workflows:
       - archive-ios:
           requires:
             - build-integration-tests-ios
+      - build-maestro-test-app-ios:
+          context:
+            - maestro-e2e-tests
+            - unity
+      - build-maestro-test-app-android:
+          context:
+            - maestro-e2e-tests
+            - unity
       - run-maestro-e2e-tests-ios:
           context:
             - maestro-e2e-tests
             - e2e-tests
-            - unity
+          requires:
+            - build-maestro-test-app-ios
       - run-maestro-e2e-tests-android:
           context:
             - maestro-e2e-tests
             - e2e-tests
-            - unity
+          requires:
+            - build-maestro-test-app-android
       - hold:
           type: approval
           requires:
@@ -801,22 +672,32 @@ workflows:
       or:
         - equal: ["maestro_e2e_tests", << pipeline.schedule.name >>]
     jobs:
+      - build-maestro-test-app-ios:
+          context:
+            - maestro-e2e-tests
+            - unity
       - run-maestro-e2e-tests-ios:
           context:
             - maestro-e2e-tests
             - e2e-tests
-            - unity
+          requires:
+            - build-maestro-test-app-ios
 
   maestro-e2e-tests-android:
     when:
       or:
         - equal: ["maestro_e2e_tests", << pipeline.schedule.name >>]
     jobs:
+      - build-maestro-test-app-android:
+          context:
+            - maestro-e2e-tests
+            - unity
       - run-maestro-e2e-tests-android:
           context:
             - maestro-e2e-tests
             - e2e-tests
-            - unity
+          requires:
+            - build-maestro-test-app-android
 
   update-hybrid-common-versions:
     when:
