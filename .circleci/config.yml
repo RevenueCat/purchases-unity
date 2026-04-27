@@ -438,17 +438,17 @@ jobs:
           name: Install Unity Hub and Editor
           command: |
             brew install --cask unity-hub
-            /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
+            yes | /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
               --version 6000.2.6f2 \
               --changeset 4a4dcaec6541 \
               -a arm64 \
-              --module ios
+              --module ios || true
             echo "Verifying iOS module installation..."
             if [ ! -d "/Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/iOSSupport" ]; then
               echo "iOS module not found, installing separately..."
-              /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install-modules \
+              yes | /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install-modules \
                 --version 6000.2.6f2 \
-                -m ios
+                -m ios || true
             fi
             ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
           no_output_timeout: 30m
@@ -553,11 +553,11 @@ jobs:
           name: Install Unity Hub and Editor
           command: |
             brew install --cask unity-hub
-            /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
+            yes | /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
               --version 6000.2.6f2 \
               --changeset 4a4dcaec6541 \
               -a arm64 \
-              --module android
+              --module android || true
             echo "Verifying Android module installation..."
             ls -la /Applications/Unity/Hub/Editor/6000.2.6f2/PlaybackEngines/ || echo "No PlaybackEngines dir"
           no_output_timeout: 60m
