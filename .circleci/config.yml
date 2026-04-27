@@ -543,6 +543,9 @@ jobs:
           name: Install Android SDK
           command: |
             brew install --cask android-commandlinetools
+            ANDROID_HOME="$(brew --prefix)/share/android-commandlinetools"
+            echo "export ANDROID_HOME=$ANDROID_HOME" >> "$BASH_ENV"
+            echo "export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:\$PATH" >> "$BASH_ENV"
             yes | sdkmanager --licenses || true
             sdkmanager "platform-tools" "emulator" "system-images;android-34;google_apis;arm64-v8a"
       - run:
