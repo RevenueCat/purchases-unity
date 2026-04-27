@@ -417,33 +417,6 @@ jobs:
           name: release
           command: bundle exec fastlane github_release
 
-  build-maestro-test-app-ios:
-    executor: unity-ios
-    steps:
-      - checkout
-      - unity/prepare-env:
-          project-path: e2e-tests/MaestroTestApp
-      - run:
-          name: Replace API key
-          command: |
-            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
-              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
-      - run:
-          name: Build Maestro test app (Unity iOS)
-          command: |
-            /opt/unity/Editor/Unity \
-              -projectPath e2e-tests/MaestroTestApp \
-              -quit \
-              -batchmode \
-              -buildTarget iOS \
-              -executeMethod BuildScript.BuildIOS \
-              -nographics \
-              -logFile /dev/stdout
-      - persist_to_workspace:
-          root: .
-          paths:
-            - e2e-tests/MaestroTestApp/build/ios
-
   build-maestro-test-app-android:
     executor: unity-android
     steps:
@@ -475,27 +448,41 @@ jobs:
     macos:
       xcode: 26.3.0
     resource_class: m4pro.medium
+    environment:
+      UNITY_VERSION: 6000.2.6f2
+      UNITY_PATH: /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity
     steps:
       - checkout
-      - attach_workspace:
-          at: .
       - install-bundle-dependencies
+      - restore_cache:
+          keys:
+            - v1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
       - run:
-          name: Debug simulator and Xcode project info
+          name: Install Unity Hub and Editor
           command: |
-            echo "=== Xcode version ==="
-            xcodebuild -version
-            echo "=== Simulator runtimes ==="
-            xcrun simctl list runtimes
-            echo "=== Simulator devices ==="
-            xcrun simctl list devices available | head -30
-            echo "=== Unity Xcode project build settings ==="
-            xcodebuild -project e2e-tests/MaestroTestApp/build/ios/Unity-iPhone.xcodeproj \
-              -scheme Unity-iPhone -showBuildSettings 2>/dev/null | \
-              grep -E 'IPHONEOS_DEPLOYMENT_TARGET|SUPPORTED_PLATFORMS|VALID_ARCHS|ARCHS' || true
-            echo "=== Available destinations ==="
-            xcodebuild -project e2e-tests/MaestroTestApp/build/ios/Unity-iPhone.xcodeproj \
-              -scheme Unity-iPhone -showdestinations 2>&1 | head -30 || true
+            if [ -x "$UNITY_PATH" ]; then
+              echo "Unity already installed from cache"
+            else
+              brew install --cask unity-hub
+              /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
+                --version "$UNITY_VERSION" --module ios --childModules
+            fi
+          no_output_timeout: 30m
+      - save_cache:
+          key: v1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
+          paths:
+            - /Applications/Unity/Hub/Editor/6000.2.6f2
+            - /Applications/Unity Hub.app
+      - run:
+          name: Activate Unity license
+          command: |
+            "$UNITY_PATH" -batchmode -quit -nographics \
+              -serial "$UNITY_SERIAL" \
+              -username "$UNITY_EMAIL" \
+              -password "$UNITY_PASSWORD" 2>&1 || true
+      - run:
+          name: Replace API key
+          command: bundle exec fastlane change_maestro_test_app_api_key
       - run:
           name: Install Java for Maestro
           command: |
@@ -508,9 +495,9 @@ jobs:
           command: xcrun simctl boot "iPhone 17" || true
           background: true
       - run:
-          name: Build Xcode project for simulator
-          command: bundle exec fastlane xcode_build_maestro_test_app
-          no_output_timeout: 15m
+          name: Build Maestro test app (Unity + Xcode)
+          command: bundle exec fastlane build_maestro_test_app platform:ios
+          no_output_timeout: 30m
       - run:
           name: Wait for iOS Simulator
           command: xcrun simctl bootstatus "iPhone 17" -b
@@ -518,6 +505,11 @@ jobs:
           name: Run Maestro E2E Tests (iOS)
           command: bundle exec fastlane run_maestro_e2e_tests_ios
           no_output_timeout: 15m
+      - run:
+          name: Return Unity license
+          command: |
+            "$UNITY_PATH" -batchmode -quit -nographics -returnlicense 2>&1 || true
+          when: always
       - store_test_results:
           path: fastlane/test_output
       - store_artifacts:
@@ -618,10 +610,6 @@ workflows:
       - archive-ios:
           requires:
             - build-integration-tests-ios
-      - build-maestro-test-app-ios:
-          context:
-            - maestro-e2e-tests
-            - unity
       - build-maestro-test-app-android:
           context:
             - maestro-e2e-tests
@@ -630,8 +618,7 @@ workflows:
           context:
             - maestro-e2e-tests
             - e2e-tests
-          requires:
-            - build-maestro-test-app-ios
+            - unity
       - run-maestro-e2e-tests-android:
           context:
             - maestro-e2e-tests
@@ -691,16 +678,11 @@ workflows:
       or:
         - equal: ["maestro_e2e_tests", << pipeline.schedule.name >>]
     jobs:
-      - build-maestro-test-app-ios:
-          context:
-            - maestro-e2e-tests
-            - unity
       - run-maestro-e2e-tests-ios:
           context:
             - maestro-e2e-tests
             - e2e-tests
-          requires:
-            - build-maestro-test-app-ios
+            - unity
 
   maestro-e2e-tests-android:
     when:
