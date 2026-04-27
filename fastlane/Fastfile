@@ -183,12 +183,12 @@ lane :xcode_build_maestro_test_app do
   xcode_project_path = "#{project_path}/build/ios"
   derived_data_path = "#{project_path}/build/xcode"
   sh(
-    "xcodebuild",
+    "xcodebuild", "build",
     "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
     "-sdk", "iphonesimulator",
-    "-destination", "generic/platform=iOS Simulator",
+    "-arch", "arm64",
     "-derivedDataPath", derived_data_path,
     "SUPPORTED_PLATFORMS=iphonesimulator",
     "CODE_SIGN_IDENTITY=-",
