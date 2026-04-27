@@ -181,6 +181,7 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.SetFBAnonymousID("asdgas");
         purchases.SetMparticleID("asdgas");
         purchases.SetOnesignalID("asdgas");
+        purchases.SetOnesignalUserID("asdgas");
         purchases.SetAirshipChannelID("asdgas");
         purchases.SetCleverTapID("asdgas");
         purchases.SetMixpanelDistinctID("asdgas");

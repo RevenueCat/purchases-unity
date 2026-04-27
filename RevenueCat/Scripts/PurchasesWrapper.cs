@@ -64,6 +64,7 @@ public interface IPurchasesWrapper
     void SetFBAnonymousID(string fbAnonymousID);
     void SetMparticleID(string mparticleID);
     void SetOnesignalID(string onesignalID);
+    void SetOnesignalUserID(string onesignalUserID);
     void SetAirshipChannelID(string airshipChannelID);
     void SetCleverTapID(string cleverTapID);
     void SetMixpanelDistinctID(string mixpanelDistinctID);
