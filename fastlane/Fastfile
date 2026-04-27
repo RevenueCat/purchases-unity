@@ -138,10 +138,11 @@ lane :run_maestro_e2e_tests_ios do
   derived_data_path = "#{project_path}/build/xcode"
 
   cs_path = "#{project_path}/Assets/Scripts/MaestroTestApp.cs"
+  cs_path_from_root = "e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs"
   replace_text_in_files(
     previous_text: "MAESTRO_TESTS_REVENUECAT_API_KEY",
     new_text: ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"],
-    paths_of_files_to_update: [cs_path]
+    paths_of_files_to_update: [cs_path_from_root]
   )
   UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
 
@@ -191,10 +192,11 @@ lane :run_maestro_e2e_tests_android do
   apk_path = "#{project_path}/build/android/MaestroTestApp.apk"
 
   cs_path = "#{project_path}/Assets/Scripts/MaestroTestApp.cs"
+  cs_path_from_root = "e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs"
   replace_text_in_files(
     previous_text: "MAESTRO_TESTS_REVENUECAT_API_KEY",
     new_text: ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"],
-    paths_of_files_to_update: [cs_path]
+    paths_of_files_to_update: [cs_path_from_root]
   )
   UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
 
