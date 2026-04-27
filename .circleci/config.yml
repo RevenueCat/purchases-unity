@@ -461,10 +461,11 @@ jobs:
       - run:
           name: Activate Unity License
           command: |
-            rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
+            sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
             rm -rf ~/Library/Unity/licenses 2>/dev/null || true
             rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
-            mkdir -p "/Library/Application Support/Unity" 2>/dev/null || true
+            sudo mkdir -p "/Library/Application Support/Unity"
+            sudo chmod -R 777 "/Library/Application Support/Unity"
 
             activated=false
             for i in 1 2 3 4 5; do
@@ -493,7 +494,7 @@ jobs:
               echo "Attempt $i failed, cleaning up and retrying in 60s..."
               pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
               pkill -9 -f "Unity " 2>/dev/null || true
-              rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
+              sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
               sleep 60
             done
             if [ "$activated" = false ]; then
@@ -570,10 +571,11 @@ jobs:
       - run:
           name: Activate Unity License
           command: |
-            rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
+            sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
             rm -rf ~/Library/Unity/licenses 2>/dev/null || true
             rm -rf "/tmp/Unity.Licensing.Client" 2>/dev/null || true
-            mkdir -p "/Library/Application Support/Unity" 2>/dev/null || true
+            sudo mkdir -p "/Library/Application Support/Unity"
+            sudo chmod -R 777 "/Library/Application Support/Unity"
 
             activated=false
             for i in 1 2 3 4 5; do
@@ -602,7 +604,7 @@ jobs:
               echo "Attempt $i failed, cleaning up and retrying in 60s..."
               pkill -9 -f "Unity.Licensing.Client" 2>/dev/null || true
               pkill -9 -f "Unity " 2>/dev/null || true
-              rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
+              sudo rm -f "/Library/Application Support/Unity/Unity_lic.ulf" 2>/dev/null || true
               sleep 60
             done
             if [ "$activated" = false ]; then
