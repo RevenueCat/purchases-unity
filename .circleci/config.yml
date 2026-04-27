@@ -481,6 +481,16 @@ jobs:
           at: .
       - install-bundle-dependencies
       - run:
+          name: Ensure iOS Simulator runtime
+          command: |
+            sudo xcode-select -s /Applications/Xcode-26.3.app/Contents/Developer
+            if ! xcrun simctl list runtimes | grep -q "iOS.*26"; then
+              echo "iOS Simulator runtime not found, downloading..."
+              xcodebuild -downloadPlatform iOS
+            fi
+            xcrun simctl list runtimes
+            xcrun simctl list devices available | head -20
+      - run:
           name: Install Java for Maestro
           command: |
             brew install openjdk@17
