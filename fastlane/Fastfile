@@ -188,7 +188,7 @@ lane :xcode_build_maestro_test_app do
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
     "-sdk", "iphonesimulator",
-    "-destination", "platform=iOS Simulator,name=iPhone 17",
+    "-destination", "generic/platform=iOS Simulator",
     "-derivedDataPath", derived_data_path,
     "CODE_SIGN_IDENTITY=-",
     "CODE_SIGNING_REQUIRED=NO",

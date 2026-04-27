@@ -481,6 +481,22 @@ jobs:
           at: .
       - install-bundle-dependencies
       - run:
+          name: Debug simulator and Xcode project info
+          command: |
+            echo "=== Xcode version ==="
+            xcodebuild -version
+            echo "=== Simulator runtimes ==="
+            xcrun simctl list runtimes
+            echo "=== Simulator devices ==="
+            xcrun simctl list devices available | head -30
+            echo "=== Unity Xcode project build settings ==="
+            xcodebuild -project e2e-tests/MaestroTestApp/build/ios/Unity-iPhone.xcodeproj \
+              -scheme Unity-iPhone -showBuildSettings 2>/dev/null | \
+              grep -E 'IPHONEOS_DEPLOYMENT_TARGET|SUPPORTED_PLATFORMS|VALID_ARCHS|ARCHS' || true
+            echo "=== Available destinations ==="
+            xcodebuild -project e2e-tests/MaestroTestApp/build/ios/Unity-iPhone.xcodeproj \
+              -scheme Unity-iPhone -showdestinations 2>&1 | head -30 || true
+      - run:
           name: Install Java for Maestro
           command: |
             brew install openjdk@17
