@@ -64,7 +64,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "8.9.0";
+    private static final String PLUGIN_VERSION = "9.0.1";
 
     private static String gameObject;
 
@@ -487,6 +487,10 @@ public class PurchasesWrapper {
 
     public static void setOnesignalID(String onesignalID) {
         SubscriberAttributesKt.setOnesignalID(onesignalID);
+    }
+
+    public static void setOnesignalUserID(String onesignalUserID) {
+        SubscriberAttributesKt.setOnesignalUserID(onesignalUserID);
     }
 
     public static void setAirshipChannelID(String airshipChannelID) {

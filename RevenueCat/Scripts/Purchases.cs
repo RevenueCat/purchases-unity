@@ -1031,13 +1031,25 @@ public partial class Purchases : MonoBehaviour
     /**
      * <summary>
      * Sets the subscriber attribute associated with the OneSignal Player Id for the user
-     * Required for the RevenueCat OneSignal integration
+     * Required for the RevenueCat OneSignal integration. Deprecated for OneSignal versions above v9.0.
      * </summary>
      * <param name="onesignalID">Empty String or null will delete the subscriber attribute.</param>
      */
     public void SetOnesignalID(string onesignalID)
     {
         _wrapper.SetOnesignalID(onesignalID);
+    }
+
+    /**
+     * <summary>
+     * Sets the subscriber attribute associated with the OneSignal User Id for the user
+     * Required for the RevenueCat OneSignal integration with versions v11.0 and above
+     * </summary>
+     * <param name="onesignalUserID">Empty String or null will delete the subscriber attribute.</param>
+     */
+    public void SetOnesignalUserID(string onesignalUserID)
+    {
+        _wrapper.SetOnesignalUserID(onesignalUserID);
     }
 
     /**
