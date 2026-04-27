@@ -34,6 +34,7 @@ aliases:
 orbs:
   revenuecat: revenuecat/sdks-common-config@3.16.0
   unity: game-ci/unity@1.7.1
+  android: circleci/android@3.0.2
 
 executors:
   unity:
@@ -517,40 +518,24 @@ jobs:
           path: fastlane/test_output
 
   run-maestro-e2e-tests-android:
-    macos:
-      xcode: 26.3.0
-    resource_class: m4pro.medium
+    machine:
+      image: android:2025.10.1
+    resource_class: xlarge
+    shell: /bin/bash --login -o pipefail
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - install-bundle-dependencies
-      - run:
-          name: Install Java for Maestro
-          command: |
-            brew install openjdk@17
-            sudo ln -sfn "$(brew --prefix openjdk@17)/libexec/openjdk.jdk" /Library/Java/JavaVirtualMachines/openjdk-17.jdk
-            echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 17)' >> "$BASH_ENV"
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - android/create_avd:
+          avd_name: test-e2e
+          system_image: system-images;android-34;google_apis;x86_64
+          install: true
+      - android/start_emulator:
+          avd_name: test-e2e
+          post_emulator_launch_assemble_command: ""
       - revenuecat/install-maestro
-      - run:
-          name: Install Android SDK
-          command: |
-            brew install --cask android-commandlinetools
-            ANDROID_HOME="$(brew --prefix)/share/android-commandlinetools"
-            echo "export ANDROID_HOME=$ANDROID_HOME" >> "$BASH_ENV"
-            echo "export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:\$PATH" >> "$BASH_ENV"
-            yes | sdkmanager --licenses || true
-            sdkmanager "platform-tools" "emulator" "system-images;android-34;google_apis;arm64-v8a"
-      - run:
-          name: Create and boot Android emulator
-          command: |
-            echo "no" | avdmanager create avd -n test-e2e -k "system-images;android-34;google_apis;arm64-v8a" --force
-            nohup emulator -avd test-e2e -no-window -no-audio -gpu swiftshader_indirect -no-snapshot > /tmp/emulator.log 2>&1 &
-          background: true
-      - run:
-          name: Wait for Android emulator
-          command: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-          no_output_timeout: 5m
       - run:
           name: Run Maestro E2E Tests (Android)
           command: bundle exec fastlane run_maestro_e2e_tests_android
