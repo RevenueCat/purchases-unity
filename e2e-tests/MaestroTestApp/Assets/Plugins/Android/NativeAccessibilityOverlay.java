@@ -35,15 +35,10 @@ public class NativeAccessibilityOverlay {
             public void run() {
                 if (container != null) return;
 
-                container = new FrameLayout(activity) {
-                    @Override
-                    public boolean dispatchTouchEvent(android.view.MotionEvent ev) {
-                        // Never consume touches — let them fall through to Unity
-                        return false;
-                    }
-                };
+                container = new FrameLayout(activity);
                 container.setClickable(false);
                 container.setFocusable(false);
+                container.setFocusableInTouchMode(false);
                 container.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
