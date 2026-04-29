@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
@@ -83,6 +84,8 @@ static class SceneSetup
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "com.revenuecat.automatedsdktests");
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.revenuecat.automatedsdktests");
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+        PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
 
         Debug.Log(":: Scene setup completed successfully");
     }
