@@ -34,8 +34,16 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         }
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        nativeOverlay = new AndroidJavaClass("com.revenuecat.accessibility.NativeAccessibilityOverlay");
-        nativeOverlay.CallStatic("init");
+        try
+        {
+            nativeOverlay = new AndroidJavaClass("com.revenuecat.accessibility.NativeAccessibilityOverlay");
+            nativeOverlay.CallStatic("init");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("NativeAccessibilityOverlay init failed: " + e);
+            nativeOverlay = null;
+        }
 #endif
 
         ShowTestCases();
