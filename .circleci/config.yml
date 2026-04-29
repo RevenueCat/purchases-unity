@@ -34,6 +34,7 @@ aliases:
 orbs:
   revenuecat: revenuecat/sdks-common-config@3.16.0
   unity: game-ci/unity@1.7.1
+  android: circleci/android@3.0.2
 
 executors:
   unity:
@@ -417,6 +418,167 @@ jobs:
           name: release
           command: bundle exec fastlane github_release
 
+  build-maestro-test-app-android:
+    executor: unity-android
+    steps:
+      - checkout
+      - unity/prepare-env:
+          project-path: e2e-tests/MaestroTestApp
+      - run:
+          name: Replace API key
+          command: |
+            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
+              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+      - run:
+          name: Build Maestro test app (Unity Android)
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath e2e-tests/MaestroTestApp \
+              -quit \
+              -batchmode \
+              -buildTarget Android \
+              -executeMethod BuildScript.BuildAndroid \
+              -nographics \
+              -logFile /dev/stdout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - e2e-tests/MaestroTestApp/build/android
+
+  run-maestro-e2e-tests-ios:
+    macos:
+      xcode: 26.3.0
+    resource_class: m4pro.medium
+    environment:
+      UNITY_VERSION: 6000.2.6f2
+      UNITY_PATH: /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity
+    steps:
+      - checkout
+      - install-bundle-dependencies
+      - restore_cache:
+          keys:
+            - v1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
+      - run:
+          name: Install Unity Hub and Editor
+          command: |
+            if [ -x "$UNITY_PATH" ]; then
+              echo "Unity already installed from cache"
+            else
+              brew install --cask unity-hub
+              /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
+                --version "$UNITY_VERSION" --changeset 4a4dcaec6541 \
+                --architecture arm64 --module ios --childModules
+            fi
+          no_output_timeout: 30m
+      - save_cache:
+          key: v1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
+          paths:
+            - /Applications/Unity/Hub/Editor/6000.2.6f2
+            - /Applications/Unity Hub.app
+      - run:
+          name: Link iOS module into Unity app bundle
+          command: |
+            EDITOR_DIR="/Applications/Unity/Hub/Editor/$UNITY_VERSION"
+            APP_ENGINES="$EDITOR_DIR/Unity.app/Contents/PlaybackEngines"
+            TOP_ENGINES="$EDITOR_DIR/PlaybackEngines"
+            if [ -d "$TOP_ENGINES/iOSSupport" ] && [ ! -e "$APP_ENGINES/iOSSupport" ]; then
+              ln -s "$TOP_ENGINES/iOSSupport" "$APP_ENGINES/iOSSupport"
+              echo "Symlinked iOSSupport into app bundle"
+            else
+              echo "iOSSupport already in place or not found"
+            fi
+      - run:
+          name: Install Rosetta 2
+          command: softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
+      - run:
+          name: Activate Unity license
+          command: |
+            for attempt in 1 2 3; do
+              echo "License activation attempt $attempt..."
+              "$UNITY_PATH" -batchmode -quit -nographics \
+                -serial "$UNITY_SERIAL" \
+                -username "$UNITY_EMAIL" \
+                -password "$UNITY_PASSWORD" \
+                -logFile /dev/stdout 2>&1 && break
+              echo "Attempt $attempt failed, waiting 30s before retry..."
+              sleep 30
+            done
+            # Verify license file exists
+            ULF_DIR="$HOME/Library/Application Support/Unity"
+            if ls "$ULF_DIR"/*.ulf 1>/dev/null 2>&1; then
+              echo "License file found"
+            else
+              echo "WARNING: No .ulf license file found in $ULF_DIR"
+              ls -la "$ULF_DIR/" 2>/dev/null || echo "Directory does not exist"
+            fi
+          no_output_timeout: 5m
+      - run:
+          name: Replace API key
+          command: bundle exec fastlane change_maestro_test_app_api_key
+      - run:
+          name: Install Java for Maestro
+          command: |
+            brew install openjdk@17
+            sudo ln -sfn "$(brew --prefix openjdk@17)/libexec/openjdk.jdk" /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+            echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 17)' >> "$BASH_ENV"
+      - revenuecat/install-maestro
+      - run:
+          name: Boot iOS Simulator
+          command: xcrun simctl boot "iPhone 17" || true
+          background: true
+      - run:
+          name: Build Maestro test app (Unity + Xcode)
+          command: bundle exec fastlane build_maestro_test_app platform:ios
+          no_output_timeout: 30m
+      - run:
+          name: Wait for iOS Simulator
+          command: xcrun simctl bootstatus "iPhone 17" -b
+      - run:
+          name: Run Maestro E2E Tests (iOS)
+          command: bundle exec fastlane run_maestro_e2e_tests_ios
+          no_output_timeout: 15m
+      - run:
+          name: Return Unity license
+          command: |
+            "$UNITY_PATH" -batchmode -quit -nographics -returnlicense 2>&1 || true
+          when: always
+      - store_test_results:
+          path: fastlane/test_output
+      - store_artifacts:
+          path: fastlane/test_output
+
+  run-maestro-e2e-tests-android:
+    machine:
+      image: android:2025.10.1
+    resource_class: xlarge
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - android/create_avd:
+          avd_name: test-e2e
+          system_image: system-images;android-34;google_apis;x86_64
+          install: true
+      - android/start_emulator:
+          avd_name: test-e2e
+          post_emulator_launch_assemble_command: ""
+      - revenuecat/install-maestro
+      - run:
+          name: Run Maestro E2E Tests (Android)
+          command: bundle exec fastlane run_maestro_e2e_tests_android
+          no_output_timeout: 15m
+      - run:
+          name: Capture logcat on failure
+          command: adb logcat -d > fastlane/test_output/logcat.txt 2>&1 || true
+          when: on_fail
+      - store_test_results:
+          path: fastlane/test_output
+      - store_artifacts:
+          path: fastlane/test_output
+
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
@@ -468,6 +630,21 @@ workflows:
       - archive-ios:
           requires:
             - build-integration-tests-ios
+      - build-maestro-test-app-android:
+          context:
+            - maestro-e2e-tests
+            - unity
+      - run-maestro-e2e-tests-ios:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+            - unity
+      - run-maestro-e2e-tests-android:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+          requires:
+            - build-maestro-test-app-android
       - hold:
           type: approval
           requires:
@@ -515,6 +692,33 @@ workflows:
     jobs:
       - revenuecat/automatic-bump:
           ruby_version: "3.2.0"
+
+  maestro-e2e-tests-ios:
+    when:
+      or:
+        - equal: ["maestro_e2e_tests", << pipeline.schedule.name >>]
+    jobs:
+      - run-maestro-e2e-tests-ios:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+            - unity
+
+  maestro-e2e-tests-android:
+    when:
+      or:
+        - equal: ["maestro_e2e_tests", << pipeline.schedule.name >>]
+    jobs:
+      - build-maestro-test-app-android:
+          context:
+            - maestro-e2e-tests
+            - unity
+      - run-maestro-e2e-tests-android:
+          context:
+            - maestro-e2e-tests
+            - e2e-tests
+          requires:
+            - build-maestro-test-app-android
 
   update-hybrid-common-versions:
     when:
