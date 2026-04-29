@@ -84,6 +84,7 @@ static class SceneSetup
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "com.revenuecat.automatedsdktests");
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.revenuecat.automatedsdktests");
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+        PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
         PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
         PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
 
