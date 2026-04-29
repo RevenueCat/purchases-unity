@@ -570,6 +570,10 @@ jobs:
           name: Run Maestro E2E Tests (Android)
           command: bundle exec fastlane run_maestro_e2e_tests_android
           no_output_timeout: 15m
+      - run:
+          name: Capture logcat on failure
+          command: adb logcat -d > fastlane/test_output/logcat.txt 2>&1 || true
+          when: on_fail
       - store_test_results:
           path: fastlane/test_output
       - store_artifacts:
