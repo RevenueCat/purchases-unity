@@ -23,7 +23,6 @@ static class BuildScript
     public static void BuildIOS()
     {
         SceneSetup.SetupScene();
-        PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
         var scenes = GetEnabledScenes();
         if (scenes.Length == 0)
         {
