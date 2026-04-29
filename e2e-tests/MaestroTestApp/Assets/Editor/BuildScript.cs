@@ -22,6 +22,7 @@ static class BuildScript
     [MenuItem("Build/Build iOS")]
     public static void BuildIOS()
     {
+        SceneSetup.SetupScene();
         var scenes = GetEnabledScenes();
         if (scenes.Length == 0)
         {
@@ -61,6 +62,7 @@ static class BuildScript
     [MenuItem("Build/Build Android")]
     public static void BuildAndroid()
     {
+        SceneSetup.SetupScene();
         var scenes = GetEnabledScenes();
         if (scenes.Length == 0)
         {

@@ -130,6 +130,112 @@ lane :update_hybrid_common do |options|
   )
 end
 
+desc "Replace the Maestro test app API key placeholder"
+lane :change_maestro_test_app_api_key do |options|
+  new_api_key = options[:api_key] || ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"]
+  UI.user_error!("Missing api_key parameter or RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE environment variable") if new_api_key.to_s.empty?
+  replace_text_in_files(
+    previous_text: "MAESTRO_TESTS_REVENUECAT_API_KEY",
+    new_text: new_api_key,
+    paths_of_files_to_update: ['e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs']
+  )
+  cs_path = "../e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs"
+  UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
+end
+
+desc "Build the Maestro E2E test app for the given platform (platform:ios or platform:android)"
+lane :build_maestro_test_app do |options|
+  platform = options[:platform].to_s.downcase
+  UI.user_error!("Missing or invalid `platform` option (use ios or android)") unless %w[ios android].include?(platform)
+
+  project_path = "../e2e-tests/MaestroTestApp"
+  unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
+
+  if platform == "ios"
+    sh(
+      "#{unity_path}",
+      "-batchmode",
+      "-quit",
+      "-projectPath", project_path,
+      "-buildTarget", "iOS",
+      "-executeMethod", "BuildScript.BuildIOS",
+      "-nographics",
+      "-logFile", "-"
+    )
+    xcode_build_maestro_test_app
+  else
+    sh(
+      "#{unity_path}",
+      "-batchmode",
+      "-quit",
+      "-projectPath", project_path,
+      "-buildTarget", "Android",
+      "-executeMethod", "BuildScript.BuildAndroid",
+      "-nographics",
+      "-logFile", "-"
+    )
+  end
+end
+
+desc "Build the Unity-generated Xcode project for iOS Simulator"
+lane :xcode_build_maestro_test_app do
+  project_path = "../e2e-tests/MaestroTestApp"
+  xcode_project_path = "#{project_path}/build/ios"
+  derived_data_path = "#{project_path}/build/xcode"
+
+  podfile_path = "#{xcode_project_path}/Podfile"
+  unless File.exist?(podfile_path)
+    File.write(podfile_path, <<~PODFILE)
+      platform :ios, '13.0'
+      use_frameworks! :linkage => :static
+      target 'UnityFramework' do
+        pod 'PurchasesHybridCommon', '18.1.0'
+        pod 'PurchasesHybridCommonUI', '~> 18.1.0'
+      end
+    PODFILE
+  end
+
+  xcode_abs_path = File.expand_path(xcode_project_path)
+  sh("cd '#{xcode_abs_path}' && pod install --repo-update")
+
+  sh(
+    "xcodebuild", "build",
+    "-workspace", "#{xcode_project_path}/Unity-iPhone.xcworkspace",
+    "-scheme", "Unity-iPhone",
+    "-configuration", "Debug",
+    "-sdk", "iphonesimulator",
+    "-arch", "arm64",
+    "-derivedDataPath", derived_data_path,
+    "SUPPORTED_PLATFORMS=iphonesimulator",
+    "CODE_SIGN_IDENTITY=-",
+    "CODE_SIGNING_REQUIRED=NO",
+    "CODE_SIGNING_ALLOWED=NO"
+  )
+end
+
+desc "Run maestro E2E tests on iOS (booted simulator required)"
+lane :run_maestro_e2e_tests_ios do
+  project_path = "../e2e-tests/MaestroTestApp"
+  derived_data_path = "#{project_path}/build/xcode"
+  app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
+  unless File.directory?(app_path)
+    xcode_build_maestro_test_app
+  end
+  sh("xcrun simctl install booted '#{app_path}'")
+  run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
+end
+
+desc "Run maestro E2E tests on Android (running emulator required)"
+lane :run_maestro_e2e_tests_android do
+  project_path = "../e2e-tests/MaestroTestApp"
+  apk_path = "#{project_path}/build/android/MaestroTestApp.apk"
+  unless File.exist?(apk_path)
+    UI.user_error!("APK not found at #{apk_path}. Build it first with build_maestro_test_app platform:android")
+  end
+  sh("adb install '#{apk_path}'")
+  run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
+end
+
 desc "Tag current branch with current version number"
 lane :tag_current_branch do |options|
   version_number = current_version_number
