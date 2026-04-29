@@ -493,10 +493,25 @@ jobs:
       - run:
           name: Activate Unity license
           command: |
-            "$UNITY_PATH" -batchmode -quit -nographics \
-              -serial "$UNITY_SERIAL" \
-              -username "$UNITY_EMAIL" \
-              -password "$UNITY_PASSWORD" 2>&1 || true
+            for attempt in 1 2 3; do
+              echo "License activation attempt $attempt..."
+              "$UNITY_PATH" -batchmode -quit -nographics \
+                -serial "$UNITY_SERIAL" \
+                -username "$UNITY_EMAIL" \
+                -password "$UNITY_PASSWORD" \
+                -logFile /dev/stdout 2>&1 && break
+              echo "Attempt $attempt failed, waiting 30s before retry..."
+              sleep 30
+            done
+            # Verify license file exists
+            ULF_DIR="$HOME/Library/Application Support/Unity"
+            if ls "$ULF_DIR"/*.ulf 1>/dev/null 2>&1; then
+              echo "License file found"
+            else
+              echo "WARNING: No .ulf license file found in $ULF_DIR"
+              ls -la "$ULF_DIR/" 2>/dev/null || echo "Directory does not exist"
+            fi
+          no_output_timeout: 5m
       - run:
           name: Replace API key
           command: bundle exec fastlane change_maestro_test_app_api_key
