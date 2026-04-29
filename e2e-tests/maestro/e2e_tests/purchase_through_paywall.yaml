@@ -1,11 +1,6 @@
 # This flow tests the purchase through paywall flow.
-# It navigates to the purchase screen, presents the paywall, makes a
-# purchase, and verifies entitlements update.
-#
-# Unity UGUI renders on a single GLSurfaceView, so elements are not
-# exposed to the accessibility tree. UGUI interactions use coordinate-based
-# taps derived from the RectTransform anchors in SceneSetup.cs.
-# The RevenueCat paywall uses native views and supports text-based assertions.
+# It navigates to the purchase screen, verifies initial entitlements,
+# presents the paywall, makes a purchase, and verifies entitlements update.
 
 appId: com.revenuecat.automatedsdktests
 name: Purchase through paywall
@@ -14,25 +9,19 @@ name: Purchase through paywall
 - clearState
 - pressKey: home
 - launchApp
-- waitForAnimationToEnd:
-    timeout: 15000
-
-# Tap "Purchase through paywall" button (UGUI)
-# SceneSetup.cs anchors: (0.1, 0.3)-(0.9, 0.4) → center at 65% from top
-- tapOn:
-    point: "50%,65%"
-- waitForAnimationToEnd:
-    timeout: 5000
-
-# Tap "Present Paywall" button (UGUI)
-# SceneSetup.cs anchors: (0.1, 0.4)-(0.9, 0.5) → center at 55% from top
-- tapOn:
-    point: "50%,55%"
-
-# Paywall is a native view — text-based assertions work here
 - extendedWaitUntil:
-    visible: "Paywall V2"
+    visible: "Test Cases"
+    timeout: 30000
+- assertVisible: "Test Cases"
+- tapOn:
+    text: "Purchase through paywall"
+- extendedWaitUntil:
+    visible: "Entitlements: none"
     timeout: 15000
+- assertVisible: "Entitlements: none"
+- assertVisible: "Present Paywall"
+- tapOn:
+    text: "Present Paywall"
 - assertVisible: "Paywall V2"
 - tapOn:
     text: "Yearly"
@@ -40,9 +29,7 @@ name: Purchase through paywall
     text: "Continue"
 - runFlow:
     file: ../utils/confirm_purchase.yaml
-# After purchase dismissal, wait for entitlements update.
-# The label is UGUI so this may not be visible via accessibility tree.
-# Use a long timeout to allow for both native and UGUI detection.
 - extendedWaitUntil:
     visible: "Entitlements: pro"
-    timeout: 30000
+    timeout: 15000
+- assertVisible: "Entitlements: pro"

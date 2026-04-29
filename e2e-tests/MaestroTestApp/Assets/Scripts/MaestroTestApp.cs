@@ -15,6 +15,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 
     void Start()
     {
+        Debug.Log("MaestroTestApp: Start() called");
         purchases = GetComponent<Purchases>();
         purchases.useRuntimeSetup = true;
 
@@ -22,6 +23,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         purchases.Configure(config);
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.listener = this;
+        Debug.Log("MaestroTestApp: Purchases configured");
 
         if (errorLabel != null)
         {
@@ -29,6 +31,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         }
 
         ShowTestCases();
+        Debug.Log("MaestroTestApp: ShowTestCases() done");
     }
 
     public void ShowTestCases()
