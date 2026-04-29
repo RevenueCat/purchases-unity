@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using RevenueCatUI;
 
 public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
@@ -13,10 +12,6 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     public Text errorLabel;
 
     private Purchases purchases;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-    private AndroidJavaClass nativeOverlay;
-#endif
 
     void Start()
     {
@@ -33,19 +28,6 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             errorLabel.gameObject.SetActive(false);
         }
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        try
-        {
-            nativeOverlay = new AndroidJavaClass("com.revenuecat.accessibility.NativeAccessibilityOverlay");
-            nativeOverlay.CallStatic("init");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("NativeAccessibilityOverlay init failed: " + e);
-            nativeOverlay = null;
-        }
-#endif
-
         ShowTestCases();
     }
 
@@ -53,9 +35,6 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     {
         testCasesScreen.SetActive(true);
         purchaseScreen.SetActive(false);
-#if UNITY_ANDROID && !UNITY_EDITOR
-        StartCoroutine(UpdateOverlay("testCases"));
-#endif
     }
 
     public void ShowPurchaseScreen()
@@ -64,9 +43,6 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         purchaseScreen.SetActive(true);
         ClearError();
         UpdateEntitlements();
-#if UNITY_ANDROID && !UNITY_EDITOR
-        StartCoroutine(UpdateOverlay("purchase"));
-#endif
     }
 
     public async void PresentPaywall()
@@ -104,11 +80,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         bool hasPro = info.Entitlements.Active.ContainsKey("pro");
         if (entitlementsLabel != null)
         {
-            string text = "Entitlements: " + (hasPro ? "pro" : "none");
-            entitlementsLabel.text = text;
-#if UNITY_ANDROID && !UNITY_EDITOR
-            SetOverlayElement("entitlements", text, entitlementsLabel.rectTransform);
-#endif
+            entitlementsLabel.text = "Entitlements: " + (hasPro ? "pro" : "none");
         }
     }
 
@@ -128,54 +100,4 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             errorLabel.gameObject.SetActive(false);
         }
     }
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-    private IEnumerator UpdateOverlay(string screen)
-    {
-        yield return null; // wait one frame for layout
-
-        if (nativeOverlay == null) yield break;
-        nativeOverlay.CallStatic("clear");
-
-        if (screen == "testCases")
-        {
-            var title = testCasesScreen.transform.Find("Title");
-            if (title != null)
-                SetOverlayElement("title", "Test Cases", title.GetComponent<RectTransform>());
-
-            var btn = testCasesScreen.transform.Find("PurchaseButton");
-            if (btn != null)
-                SetOverlayElement("purchaseBtn", "Purchase through paywall", btn.GetComponent<RectTransform>());
-        }
-        else if (screen == "purchase")
-        {
-            if (entitlementsLabel != null)
-                SetOverlayElement("entitlements", entitlementsLabel.text, entitlementsLabel.rectTransform);
-
-            var paywallBtn = purchaseScreen.transform.Find("PaywallButton");
-            if (paywallBtn != null)
-                SetOverlayElement("paywallBtn", "Present Paywall", paywallBtn.GetComponent<RectTransform>());
-
-            var backBtn = purchaseScreen.transform.Find("BackButton");
-            if (backBtn != null)
-                SetOverlayElement("backBtn", "Back", backBtn.GetComponent<RectTransform>());
-        }
-    }
-
-    private void SetOverlayElement(string id, string text, RectTransform rt)
-    {
-        if (rt == null || nativeOverlay == null) return;
-
-        Vector3[] corners = new Vector3[4];
-        rt.GetWorldCorners(corners);
-        // corners: 0=bottom-left, 1=top-left, 2=top-right, 3=bottom-right (Unity screen coords, Y-up)
-        int left   = Mathf.RoundToInt(corners[0].x);
-        int right  = Mathf.RoundToInt(corners[2].x);
-        int top    = Screen.height - Mathf.RoundToInt(corners[1].y);
-        int bottom = Screen.height - Mathf.RoundToInt(corners[0].y);
-
-        nativeOverlay.CallStatic("setElement", id, text, left, top, right, bottom);
-    }
-#endif
 }
-
