@@ -4,8 +4,7 @@
         <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[18.8.0]" />
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
     </androidPackages>
-    <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git"
-                        version="18.2.0">
+    <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git" version="18.2.0">
         <swiftPackage name="PurchasesHybridCommon" replacesPod="PurchasesHybridCommon" />
     </remoteSwiftPackage>
     <iosPods>
