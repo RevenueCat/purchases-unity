@@ -489,7 +489,6 @@ workflows:
           requires:
             - export-package
       - build-integration-tests-ios:
-          name: build-integration-tests-ios-spm
           variant: spm
           context: unity
           requires:
@@ -501,10 +500,9 @@ workflows:
           requires:
             - export-package
       - archive-ios:
-          name: archive-ios-spm
           variant: spm
           requires:
-            - build-integration-tests-ios-spm
+            - build-integration-tests-ios
       - archive-ios:
           name: archive-ios-cocoapods
           variant: cocoapods
@@ -516,7 +514,7 @@ workflows:
             - build-integration-tests-android
             - build-subtester-android
             - build-subtester-ios
-            - archive-ios-spm
+            - archive-ios
             - archive-ios-cocoapods
           <<: *release-branches
       - revenuecat/tag-current-branch:
