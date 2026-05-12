@@ -1,17 +1,17 @@
 using RevenueCat.SimpleJSON;
 
-namespace RevenueCat.AdTracking
+namespace RevenueCat
 {
     public class AdOpenedData
     {
-        public AdMediatorName MediatorName { get; }
-        public AdFormat AdFormat { get; }
+        public AdTracker.MediatorName MediatorName { get; }
+        public AdTracker.Format AdFormat { get; }
         public string AdUnitId { get; }
         public string ImpressionId { get; }
         public string NetworkName { get; }
         public string Placement { get; }
 
-        public AdOpenedData(AdMediatorName mediatorName, AdFormat adFormat,
+        public AdOpenedData(AdTracker.MediatorName mediatorName, AdTracker.Format adFormat,
             string adUnitId, string impressionId,
             string networkName = null, string placement = null)
         {

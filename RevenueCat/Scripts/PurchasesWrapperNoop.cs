@@ -288,10 +288,10 @@ public partial class Purchases
         {
         }
 
-        public void TrackAdDisplayed(RevenueCat.AdTracking.AdDisplayedData data) { }
-        public void TrackAdOpened(RevenueCat.AdTracking.AdOpenedData data) { }
-        public void TrackAdRevenue(RevenueCat.AdTracking.AdRevenueData data) { }
-        public void TrackAdLoaded(RevenueCat.AdTracking.AdLoadedData data) { }
-        public void TrackAdFailedToLoad(RevenueCat.AdTracking.AdFailedToLoadData data) { }
+        public void TrackAdDisplayed(RevenueCat.AdDisplayedData data) { }
+        public void TrackAdOpened(RevenueCat.AdOpenedData data) { }
+        public void TrackAdRevenue(RevenueCat.AdRevenueData data) { }
+        public void TrackAdLoaded(RevenueCat.AdLoadedData data) { }
+        public void TrackAdFailedToLoad(RevenueCat.AdFailedToLoadData data) { }
     }
 }

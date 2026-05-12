@@ -435,19 +435,19 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, parameters.OfferingId);
     }
 
-    public void TrackAdDisplayed(RevenueCat.AdTracking.AdDisplayedData data) =>
+    public void TrackAdDisplayed(RevenueCat.AdDisplayedData data) =>
         CallPurchases("trackAdDisplayed", data.ToJsonString());
 
-    public void TrackAdOpened(RevenueCat.AdTracking.AdOpenedData data) =>
+    public void TrackAdOpened(RevenueCat.AdOpenedData data) =>
         CallPurchases("trackAdOpened", data.ToJsonString());
 
-    public void TrackAdRevenue(RevenueCat.AdTracking.AdRevenueData data) =>
+    public void TrackAdRevenue(RevenueCat.AdRevenueData data) =>
         CallPurchases("trackAdRevenue", data.ToJsonString());
 
-    public void TrackAdLoaded(RevenueCat.AdTracking.AdLoadedData data) =>
+    public void TrackAdLoaded(RevenueCat.AdLoadedData data) =>
         CallPurchases("trackAdLoaded", data.ToJsonString());
 
-    public void TrackAdFailedToLoad(RevenueCat.AdTracking.AdFailedToLoadData data) =>
+    public void TrackAdFailedToLoad(RevenueCat.AdFailedToLoadData data) =>
         CallPurchases("trackAdFailedToLoad", data.ToJsonString());
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

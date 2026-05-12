@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using RevenueCat.AdTracking;
 
 public class CustomListener : Purchases.UpdatedCustomerInfoListener
 {
@@ -242,14 +241,14 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall", "offering_id"));
 
         // Ad tracking API tests
-        purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdMediatorName.AdMob, AdFormat.Banner, "ad_unit", "imp_001"));
-        purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdMediatorName.AdMob, AdFormat.Rewarded, "ad_unit", "imp_002", networkName: "network", placement: "main_menu"));
-        purchases.AdTracker.TrackAdOpened(new AdOpenedData(AdMediatorName.AppLovin, AdFormat.Interstitial, "ad_unit", "imp_003"));
-        purchases.AdTracker.TrackAdLoaded(new AdLoadedData(new AdMediatorName("custom"), AdFormat.AppOpen, "ad_unit", "imp_004"));
-        purchases.AdTracker.TrackAdRevenue(new AdRevenueData(AdMediatorName.AdMob, AdFormat.Banner, "ad_unit", "imp_005", 1000000L, "USD", AdRevenuePrecision.Estimated));
-        purchases.AdTracker.TrackAdRevenue(new AdRevenueData(AdMediatorName.AdMob, AdFormat.Rewarded, "ad_unit", "imp_006", 500000L, "EUR", AdRevenuePrecision.PublisherDefined, networkName: "network", placement: "end_level"));
-        purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdMediatorName.AdMob, AdFormat.Banner, "ad_unit"));
-        purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdMediatorName.AdMob, AdFormat.Banner, "ad_unit", placement: "home", mediatorErrorCode: 2));
+        purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", "imp_001"));
+        purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "ad_unit", "imp_002", networkName: "network", placement: "main_menu"));
+        purchases.AdTracker.TrackAdOpened(new AdOpenedData(AdTracker.MediatorName.AppLovin, AdTracker.Format.Interstitial, "ad_unit", "imp_003"));
+        purchases.AdTracker.TrackAdLoaded(new AdLoadedData(new AdTracker.MediatorName("custom"), AdTracker.Format.AppOpen, "ad_unit", "imp_004"));
+        purchases.AdTracker.TrackAdRevenue(new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", "imp_005", 1000000L, "USD", AdTracker.Precision.Estimated));
+        purchases.AdTracker.TrackAdRevenue(new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "ad_unit", "imp_006", 500000L, "EUR", AdTracker.Precision.PublisherDefined, networkName: "network", placement: "end_level"));
+        purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit"));
+        purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", placement: "home", mediatorErrorCode: 2));
 
         // Win-back offer API tests
         // Purchasing win-back offers with a product

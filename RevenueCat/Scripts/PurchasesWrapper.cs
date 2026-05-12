@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using RevenueCat.AdTracking;
+using RevenueCat;
 
 public interface IPurchasesWrapper
 {

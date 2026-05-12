@@ -1,16 +1,16 @@
 using RevenueCat.SimpleJSON;
 
-namespace RevenueCat.AdTracking
+namespace RevenueCat
 {
     public class AdFailedToLoadData
     {
-        public AdMediatorName MediatorName { get; }
-        public AdFormat AdFormat { get; }
+        public AdTracker.MediatorName MediatorName { get; }
+        public AdTracker.Format AdFormat { get; }
         public string AdUnitId { get; }
         public string Placement { get; }
         public int? MediatorErrorCode { get; }
 
-        public AdFailedToLoadData(AdMediatorName mediatorName, AdFormat adFormat,
+        public AdFailedToLoadData(AdTracker.MediatorName mediatorName, AdTracker.Format adFormat,
             string adUnitId,
             string placement = null, int? mediatorErrorCode = null)
         {
