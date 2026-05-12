@@ -10,9 +10,12 @@ namespace RevenueCat
         public string Placement { get; }
         public int? MediatorErrorCode { get; }
 
-        public AdFailedToLoadData(AdTracker.MediatorName mediatorName, AdTracker.Format adFormat,
+        public AdFailedToLoadData(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
             string adUnitId,
-            string placement = null, int? mediatorErrorCode = null)
+            string placement = null,
+            int? mediatorErrorCode = null)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;

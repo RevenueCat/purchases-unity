@@ -11,9 +11,13 @@ namespace RevenueCat
         public string NetworkName { get; }
         public string Placement { get; }
 
-        public AdLoadedData(AdTracker.MediatorName mediatorName, AdTracker.Format adFormat,
-            string adUnitId, string impressionId,
-            string networkName = null, string placement = null)
+        public AdLoadedData(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
+            string adUnitId,
+            string impressionId,
+            string networkName = null,
+            string placement = null)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;

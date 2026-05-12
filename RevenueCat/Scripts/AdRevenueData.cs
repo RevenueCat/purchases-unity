@@ -14,10 +14,16 @@ namespace RevenueCat
         public string NetworkName { get; }
         public string Placement { get; }
 
-        public AdRevenueData(AdTracker.MediatorName mediatorName, AdTracker.Format adFormat,
-            string adUnitId, string impressionId,
-            long revenueMicros, string currency, AdTracker.Precision precision,
-            string networkName = null, string placement = null)
+        public AdRevenueData(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
+            string adUnitId,
+            string impressionId,
+            long revenueMicros,
+            string currency,
+            AdTracker.Precision precision,
+            string networkName = null,
+            string placement = null)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;
