@@ -287,5 +287,11 @@ public partial class Purchases
         public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
         {
         }
+
+        public void TrackAdDisplayed(RevenueCat.AdTracking.AdDisplayedData data) { }
+        public void TrackAdOpened(RevenueCat.AdTracking.AdOpenedData data) { }
+        public void TrackAdRevenue(RevenueCat.AdTracking.AdRevenueData data) { }
+        public void TrackAdLoaded(RevenueCat.AdTracking.AdLoadedData data) { }
+        public void TrackAdFailedToLoad(RevenueCat.AdTracking.AdFailedToLoadData data) { }
     }
 }

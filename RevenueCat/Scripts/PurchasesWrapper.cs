@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RevenueCat.AdTracking;
 
 public interface IPurchasesWrapper
 {
@@ -89,4 +90,9 @@ public interface IPurchasesWrapper
     void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer);
     void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer);
     void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters);
+    void TrackAdDisplayed(AdDisplayedData data);
+    void TrackAdOpened(AdOpenedData data);
+    void TrackAdRevenue(AdRevenueData data);
+    void TrackAdLoaded(AdLoadedData data);
+    void TrackAdFailedToLoad(AdFailedToLoadData data);
 }
