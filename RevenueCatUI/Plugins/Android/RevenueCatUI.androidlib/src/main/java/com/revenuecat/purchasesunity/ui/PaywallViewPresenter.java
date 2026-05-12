@@ -372,14 +372,15 @@ public class PaywallViewPresenter {
     // region Edge-to-edge
 
     /**
-     * Wraps the PaywallView in a container whose insets listener captures the dialog
-     * window's real system-bar insets on first dispatch, then triggers FLAG_LAYOUT_NO_LIMITS.
-     * Once the flag is applied, subsequent dispatches arrive with zero insets — the listener
-     * re-injects the cached values so the PaywallView's Compose content stays padded.
+     * Wraps the PaywallView in a container whose inset listener forwards the dialog
+     * window's status and navigation bar insets to the Compose content.
      *
      * Insets must be read from the dialog window, not the host activity, because the host
      * (e.g. Unity with unity.launch-fullscreen=True) may hide system bars, which makes
      * the activity report zero nav-bar insets while the dialog still shows them.
+     *
+     * The listener also defers FLAG_LAYOUT_NO_LIMITS until after the first inset dispatch
+     * (see {@link InsetsCachingListener}).
      */
     private static FrameLayout createEdgeToEdgeContainer(
             Activity activity, PaywallView paywallView, @Nullable Window dialogWindow) {
@@ -396,10 +397,21 @@ public class PaywallViewPresenter {
     }
 
     /**
-     * Stateful inset listener that caches real status/navigation bar insets and re-injects
-     * them on subsequent dispatches (which arrive with zero insets after FLAG_LAYOUT_NO_LIMITS).
-     * Triggers the edge-to-edge flag itself once it has observed real insets, to avoid a race
-     * where the flag would be set before the first inset dispatch and we'd never see real values.
+     * Inset listener that forwards the dialog window's status and navigation bar insets to
+     * the PaywallView. Triggers FLAG_LAYOUT_NO_LIMITS on the dialog window once it has
+     * observed a real (non-zero) inset, to avoid a race where the flag would be set before
+     * any inset has been dispatched.
+     *
+     * On API 30+ the typed insets ({@link WindowInsetsCompat.Type#statusBars()} and
+     * {@link WindowInsetsCompat.Type#navigationBars()}) are descriptive: they keep being
+     * dispatched with real values across configuration changes (rotation, fold/unfold,
+     * multi-window resize) regardless of FLAG_LAYOUT_NO_LIMITS, so each new dispatch
+     * refreshes the cache and downstream Compose padding stays correct. FLAG_LAYOUT_NO_LIMITS
+     * only zeroes the legacy {@code getSystemWindowInsets()} surface, which this listener
+     * does not read.
+     *
+     * The cache is kept as a defensive fallback for older APIs or edge configurations where
+     * a dispatch might transiently arrive with zero typed values.
      */
     private static final class InsetsCachingListener implements OnApplyWindowInsetsListener {
         private final PaywallView paywallView;
