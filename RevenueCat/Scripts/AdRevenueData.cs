@@ -40,8 +40,8 @@ namespace RevenueCat.AdTracking
             obj["revenueMicros"] = RevenueMicros;
             obj["currency"] = Currency;
             obj["precision"] = Precision.Value;
-            obj["networkName"] = NetworkName;
-            obj["placement"] = Placement;
+            if (NetworkName != null) obj["networkName"] = NetworkName;
+            if (Placement != null) obj["placement"] = Placement;
             return obj.ToString();
         }
     }

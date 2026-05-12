@@ -30,8 +30,8 @@ namespace RevenueCat.AdTracking
             obj["adFormat"] = AdFormat.Value;
             obj["adUnitId"] = AdUnitId;
             obj["impressionId"] = ImpressionId;
-            obj["networkName"] = NetworkName;
-            obj["placement"] = Placement;
+            if (NetworkName != null) obj["networkName"] = NetworkName;
+            if (Placement != null) obj["placement"] = Placement;
             return obj.ToString();
         }
     }

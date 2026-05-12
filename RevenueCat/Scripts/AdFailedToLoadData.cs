@@ -27,8 +27,8 @@ namespace RevenueCat.AdTracking
             obj["mediatorName"] = MediatorName.Value;
             obj["adFormat"] = AdFormat.Value;
             obj["adUnitId"] = AdUnitId;
-            obj["placement"] = Placement;
-            obj["mediatorErrorCode"] = MediatorErrorCode.HasValue ? (JSONNode)new JSONNumber(MediatorErrorCode.Value) : JSONNull.CreateOrGet();
+            if (Placement != null) obj["placement"] = Placement;
+            if (MediatorErrorCode.HasValue) obj["mediatorErrorCode"] = MediatorErrorCode.Value;
             return obj.ToString();
         }
     }
