@@ -206,9 +206,6 @@ public class PaywallViewPresenter {
         ));
 
         dialog.show();
-        // FLAG_LAYOUT_NO_LIMITS is applied by the inset listener installed on the container
-        // (see InsetsCachingListener) once the dialog window has reported its real system-bar
-        // insets. Doing it here would race with the first dispatch and capture zero insets.
     }
 
     /**
