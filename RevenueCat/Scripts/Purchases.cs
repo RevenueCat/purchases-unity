@@ -98,6 +98,7 @@ public partial class Purchases : MonoBehaviour
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public RevenueCat.AdTracker AdTracker { get; private set; }
 
     private void Start()
