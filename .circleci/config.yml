@@ -405,18 +405,22 @@ jobs:
       - install-bundle-dependencies:
           directory: IntegrationTests
 
-      - restore_cache:
-          key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - restore_cache:
+                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
 
-      - run:
-          name: Install Pods
-          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-          command: bundle exec pod install --repo-update --verbose
+            - run:
+                name: Install Pods
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec pod install --repo-update --verbose
 
-      - save_cache:
-          key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
-          paths:
-            - IntegrationTests/buildiOS-<< parameters.variant >>/Pods
+            - save_cache:
+                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+                paths:
+                  - IntegrationTests/buildiOS-<< parameters.variant >>/Pods
 
       - run:
           name: Setup fastlane
