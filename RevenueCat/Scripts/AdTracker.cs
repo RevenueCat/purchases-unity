@@ -15,6 +15,11 @@ namespace RevenueCat
 
             public static readonly MediatorName AdMob = new MediatorName("AdMob");
             public static readonly MediatorName AppLovin = new MediatorName("AppLovin");
+
+            public override bool Equals(object obj) => obj is MediatorName other && other.Value == Value;
+            public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+            public static bool operator ==(MediatorName a, MediatorName b) => Equals(a, b);
+            public static bool operator !=(MediatorName a, MediatorName b) => !Equals(a, b);
         }
 
         /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
@@ -34,6 +39,11 @@ namespace RevenueCat
             public static readonly Format Native = new Format("native");
             public static readonly Format AppOpen = new Format("app_open");
             public static readonly Format Other = new Format("other");
+
+            public override bool Equals(object obj) => obj is Format other && other.Value == Value;
+            public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+            public static bool operator ==(Format a, Format b) => Equals(a, b);
+            public static bool operator !=(Format a, Format b) => !Equals(a, b);
         }
 
         /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
@@ -50,6 +60,11 @@ namespace RevenueCat
             public static readonly Precision PublisherDefined = new Precision("publisher_defined");
             public static readonly Precision Estimated = new Precision("estimated");
             public static readonly Precision Unknown = new Precision("unknown");
+
+            public override bool Equals(object obj) => obj is Precision other && other.Value == Value;
+            public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+            public static bool operator ==(Precision a, Precision b) => Equals(a, b);
+            public static bool operator !=(Precision a, Precision b) => !Equals(a, b);
         }
 
         private readonly IPurchasesWrapper _wrapper;
