@@ -412,11 +412,15 @@ jobs:
             - restore_cache:
                 key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
 
-            - run:
-                name: Install Pods
-                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-                command: bundle exec pod install --repo-update --verbose
+      - run:
+          name: Install Pods
+          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+          command: bundle exec pod install --repo-update --verbose
 
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
             - save_cache:
                 key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
                 paths:
@@ -427,23 +431,10 @@ jobs:
           working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
           command: ln -s ../fastlane .
 
-      - when:
-          condition:
-            equal: [cocoapods, << parameters.variant >>]
-          steps:
-            - run:
-                name: Archive
-                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-                command: bundle exec fastlane archive workspace:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcworkspace"
-
-      - when:
-          condition:
-            equal: [spm, << parameters.variant >>]
-          steps:
-            - run:
-                name: Archive
-                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-                command: bundle exec fastlane archive project:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcodeproj"
+      - run:
+          name: Archive
+          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+          command: bundle exec fastlane archive workspace:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcworkspace"
 
   github-release:
     description: "Creates a github release"
