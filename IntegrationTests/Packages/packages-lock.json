@@ -15,7 +15,7 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
-"com.unity.ai.navigation": {
+    "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,
       "source": "registry",

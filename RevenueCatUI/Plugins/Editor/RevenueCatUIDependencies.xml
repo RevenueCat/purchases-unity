@@ -5,7 +5,7 @@
     <androidPackage spec="androidx.activity:activity:1.8.2" />
   </androidPackages>
 
-  <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git" version="18.2.0">
+  <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git" version="18.8.0">
     <swiftPackage name="PurchasesHybridCommonUI" replacesPod="PurchasesHybridCommonUI" />
   </remoteSwiftPackage>
 
