@@ -24,11 +24,13 @@ platform :ios do
   lane :archive do |options|
 
     workspace = options[:workspace]
-    fail ArgumentError, "missing workspace" unless workspace
+    project = options[:project]
+    fail ArgumentError, "missing workspace or project" unless workspace || project
 
     gym(
       export_method: "app-store",
       workspace: workspace,
+      project: project,
       skip_codesigning: true,
       skip_package_ipa: true
     )
