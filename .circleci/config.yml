@@ -342,6 +342,11 @@ jobs:
 
   build-integration-tests-ios:
     executor: unity-ios
+    parameters:
+      variant:
+        type: enum
+        enum: [spm, cocoapods]
+        default: spm
     steps:
       - checkout
       - attach_workspace:
@@ -352,6 +357,20 @@ jobs:
 
       - import-package
 
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - run:
+                name: Disable SPM in iOS Resolver settings
+                command: |
+                  XML=IntegrationTests/ProjectSettings/GvhProjectSettings.xml
+                  if grep -q SwiftPackageManagerEnabled "$XML"; then
+                    sed -i 's|SwiftPackageManagerEnabled" value="True"|SwiftPackageManagerEnabled" value="False"|' "$XML"
+                  else
+                    sed -i 's|</projectSettings>|  <projectSetting name="Google.IOSResolver.SwiftPackageManagerEnabled" value="False" />\n</projectSettings>|' "$XML"
+                  fi
+
       - resolve-dependencies:
           project: IntegrationTests
           target: iOS
@@ -360,46 +379,71 @@ jobs:
           project: IntegrationTests
           target: iOS
 
+      - run:
+          name: Move build to variant-specific dir
+          command: mv IntegrationTests/buildiOS IntegrationTests/buildiOS-<< parameters.variant >>
+
       - persist_to_workspace:
           root: .
           paths:
-            - IntegrationTests/buildiOS
+            - IntegrationTests/buildiOS-<< parameters.variant >>
 
   archive-ios:
     description: "Run iOS integration tests for Unity"
+    parameters:
+      variant:
+        type: enum
+        enum: [spm, cocoapods]
+        default: spm
     macos:
       xcode: 16.4.0
     steps:
       - checkout
       - attach_workspace:
           at: .
-      
+
       - install-bundle-dependencies:
           directory: IntegrationTests
 
-      - restore_cache:
-          key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - restore_cache:
+                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
 
-      - run:
-          name: Install Pods
-          working_directory: IntegrationTests/buildiOS
-          command: bundle exec pod install --repo-update --verbose
+            - run:
+                name: Install Pods
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec pod install --repo-update --verbose
 
-      - save_cache:
-          key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
-          paths:
-            - IntegrationTests/buildiOS/Pods
+            - save_cache:
+                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+                paths:
+                  - IntegrationTests/buildiOS-<< parameters.variant >>/Pods
 
       - run:
           name: Setup fastlane
-          working_directory: IntegrationTests/buildiOS
-          command: |
-            ln -s ../fastlane .
+          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+          command: ln -s ../fastlane .
 
-      - run:
-          name: Archive
-          working_directory: IntegrationTests/buildiOS
-          command: bundle exec fastlane archive workspace:"buildiOS/Unity-iPhone.xcworkspace"
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - run:
+                name: Archive
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec fastlane archive workspace:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcworkspace"
+
+      - when:
+          condition:
+            equal: [spm, << parameters.variant >>]
+          steps:
+            - run:
+                name: Archive
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec fastlane archive project:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcodeproj"
 
   github-release:
     description: "Creates a github release"
@@ -462,12 +506,25 @@ workflows:
           requires:
             - export-package
       - build-integration-tests-ios:
+          variant: spm
+          context: unity
+          requires:
+            - export-package
+      - build-integration-tests-ios:
+          name: build-integration-tests-ios-cocoapods
+          variant: cocoapods
           context: unity
           requires:
             - export-package
       - archive-ios:
+          variant: spm
           requires:
             - build-integration-tests-ios
+      - archive-ios:
+          name: archive-ios-cocoapods
+          variant: cocoapods
+          requires:
+            - build-integration-tests-ios-cocoapods
       - hold:
           type: approval
           requires:
@@ -475,6 +532,7 @@ workflows:
             - build-subtester-android
             - build-subtester-ios
             - archive-ios
+            - archive-ios-cocoapods
           <<: *release-branches
       - revenuecat/tag-current-branch:
           ruby_version: "3.2.0"

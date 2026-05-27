@@ -19,9 +19,11 @@ files_with_version_number = {
 }
 ANDROID_PHC_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common:[{x}]'
 ANDROID_PHC_UI_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common-ui:[{x}]'
+SPM_PHC_DEPENDENCY_PATTERN = 'purchases-hybrid-common.git" version="{x}"'
 files_to_update_phc_version = {
     'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml' => [
         ANDROID_PHC_DEPENDENCY_PATTERN,
+        SPM_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommon" version="{x}"'
     ],
     'Subtester/Assets/Plugins/Android/mainTemplate.gradle' => [
@@ -34,6 +36,7 @@ files_to_update_phc_version = {
     ],
     'RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml' => [
         ANDROID_PHC_UI_DEPENDENCY_PATTERN,
+        SPM_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommonUI" version="~> {x}"'
     ],
     'RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build.gradle' => [
