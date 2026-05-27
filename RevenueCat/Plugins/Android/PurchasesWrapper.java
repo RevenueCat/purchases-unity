@@ -718,6 +718,56 @@ public class PurchasesWrapper {
         CommonKt.trackCustomPaywallImpression(data);
     }
 
+    public static void trackAdDisplayed(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdDisplayed(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdOpened(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdOpened(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdRevenue(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdRevenue(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdLoaded(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdLoaded(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdFailedToLoad(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdFailedToLoad(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
     private static void logJSONException(JSONException e) {
         Log.e("Purchases", "JSON Error: " + e.getLocalizedMessage());
     }
