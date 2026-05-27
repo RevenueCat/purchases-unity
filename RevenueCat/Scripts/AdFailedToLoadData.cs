@@ -25,6 +25,13 @@ namespace RevenueCat
             MediatorErrorCode = mediatorErrorCode;
         }
 
+        public override string ToString() =>
+            $"{nameof(MediatorName)}: {MediatorName.Value}, " +
+            $"{nameof(AdFormat)}: {AdFormat.Value}, " +
+            $"{nameof(AdUnitId)}: {AdUnitId}, " +
+            $"{nameof(Placement)}: {Placement}, " +
+            $"{nameof(MediatorErrorCode)}: {MediatorErrorCode}";
+
         public string ToJsonString()
         {
             var obj = new JSONObject();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RevenueCat;
 
 public partial class Purchases
 {
@@ -288,10 +289,10 @@ public partial class Purchases
         {
         }
 
-        public void TrackAdDisplayed(RevenueCat.AdDisplayedData data) { }
-        public void TrackAdOpened(RevenueCat.AdOpenedData data) { }
-        public void TrackAdRevenue(RevenueCat.AdRevenueData data) { }
-        public void TrackAdLoaded(RevenueCat.AdLoadedData data) { }
-        public void TrackAdFailedToLoad(RevenueCat.AdFailedToLoadData data) { }
+        public void TrackAdDisplayed(AdDisplayedData data) { }
+        public void TrackAdOpened(AdOpenedData data) { }
+        public void TrackAdRevenue(AdRevenueData data) { }
+        public void TrackAdLoaded(AdLoadedData data) { }
+        public void TrackAdFailedToLoad(AdFailedToLoadData data) { }
     }
 }

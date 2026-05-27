@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using RevenueCat;
 using RevenueCat.SimpleJSON;
 using UnityEngine;
 
@@ -435,19 +436,19 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, parameters.OfferingId);
     }
 
-    public void TrackAdDisplayed(RevenueCat.AdDisplayedData data) =>
+    public void TrackAdDisplayed(AdDisplayedData data) =>
         CallPurchases("trackAdDisplayed", data.ToJsonString());
 
-    public void TrackAdOpened(RevenueCat.AdOpenedData data) =>
+    public void TrackAdOpened(AdOpenedData data) =>
         CallPurchases("trackAdOpened", data.ToJsonString());
 
-    public void TrackAdRevenue(RevenueCat.AdRevenueData data) =>
+    public void TrackAdRevenue(AdRevenueData data) =>
         CallPurchases("trackAdRevenue", data.ToJsonString());
 
-    public void TrackAdLoaded(RevenueCat.AdLoadedData data) =>
+    public void TrackAdLoaded(AdLoadedData data) =>
         CallPurchases("trackAdLoaded", data.ToJsonString());
 
-    public void TrackAdFailedToLoad(RevenueCat.AdFailedToLoadData data) =>
+    public void TrackAdFailedToLoad(AdFailedToLoadData data) =>
         CallPurchases("trackAdFailedToLoad", data.ToJsonString());
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";

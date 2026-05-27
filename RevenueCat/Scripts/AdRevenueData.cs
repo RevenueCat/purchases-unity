@@ -37,6 +37,17 @@ namespace RevenueCat
             Placement = placement;
         }
 
+        public override string ToString() =>
+            $"{nameof(MediatorName)}: {MediatorName.Value}, " +
+            $"{nameof(AdFormat)}: {AdFormat.Value}, " +
+            $"{nameof(AdUnitId)}: {AdUnitId}, " +
+            $"{nameof(ImpressionId)}: {ImpressionId}, " +
+            $"{nameof(RevenueMicros)}: {RevenueMicros}, " +
+            $"{nameof(Currency)}: {Currency}, " +
+            $"{nameof(Precision)}: {Precision.Value}, " +
+            $"{nameof(NetworkName)}: {NetworkName}, " +
+            $"{nameof(Placement)}: {Placement}";
+
         public string ToJsonString()
         {
             var obj = new JSONObject();
