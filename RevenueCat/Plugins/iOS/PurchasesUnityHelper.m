@@ -580,6 +580,76 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality trackCustomPaywallImpression:data];
 }
 
+- (void)trackAdDisplayed:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdDisplayed: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdDisplayed:data];
+    } else {
+        NSLog(@"[Purchases] trackAdDisplayed: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdOpened:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdOpened: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdOpened:data];
+    } else {
+        NSLog(@"[Purchases] trackAdOpened: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdRevenue:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdRevenue: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdRevenue:data];
+    } else {
+        NSLog(@"[Purchases] trackAdRevenue: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdLoaded:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdLoaded: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdLoaded:data];
+    } else {
+        NSLog(@"[Purchases] trackAdLoaded: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdFailedToLoad:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdFailedToLoad: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdFailedToLoad:data];
+    } else {
+        NSLog(@"[Purchases] trackAdFailedToLoad: requires iOS 15.0+, skipping");
+    }
+}
+
 - (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
     BOOL isWebPurchaseRedemptionURL = [RCCommonFunctionality isWebPurchaseRedemptionURL:urlString];
     if (isWebPurchaseRedemptionURL) {
@@ -705,7 +775,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"9.0.4";
+    return @"9.1.0";
 }
 
 @end
@@ -1055,4 +1125,24 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
 
 void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId) {
     [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId) offeringId:convertCString(offeringId)];
+}
+
+void _RCTrackAdDisplayed(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdDisplayed:convertCString(dataJson)];
+}
+
+void _RCTrackAdOpened(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdOpened:convertCString(dataJson)];
+}
+
+void _RCTrackAdRevenue(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdRevenue:convertCString(dataJson)];
+}
+
+void _RCTrackAdLoaded(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdLoaded:convertCString(dataJson)];
+}
+
+void _RCTrackAdFailedToLoad(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
 }
