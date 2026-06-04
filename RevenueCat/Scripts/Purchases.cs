@@ -3,7 +3,6 @@ using UnityEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using RevenueCat.SimpleJSON;
-
 #pragma warning disable CS0649
 
 public partial class Purchases : MonoBehaviour
@@ -99,6 +98,8 @@ public partial class Purchases : MonoBehaviour
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+    public RevenueCat.AdTracker AdTracker { get; private set; }
 
     private void Start()
     {
@@ -109,6 +110,7 @@ public partial class Purchases : MonoBehaviour
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
+        AdTracker = new RevenueCat.AdTracker(_wrapper);
         if (!string.IsNullOrEmpty(proxyURL))
         {
             _wrapper.SetProxyURL(proxyURL);

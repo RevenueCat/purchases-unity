@@ -64,7 +64,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "9.0.2";
+    private static final String PLUGIN_VERSION = "9.1.1";
 
     private static String gameObject;
 
@@ -716,6 +716,56 @@ public class PurchasesWrapper {
             data.put("offeringId", offeringId);
         }
         CommonKt.trackCustomPaywallImpression(data);
+    }
+
+    public static void trackAdDisplayed(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdDisplayed(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdOpened(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdOpened(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdRevenue(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdRevenue(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdLoaded(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdLoaded(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdFailedToLoad(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdFailedToLoad(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
     }
 
     private static void logJSONException(JSONException e) {

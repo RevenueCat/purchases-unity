@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RevenueCat;
 
 public partial class Purchases
 {
@@ -287,5 +288,11 @@ public partial class Purchases
         public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
         {
         }
+
+        public void TrackAdDisplayed(AdDisplayedData data) { }
+        public void TrackAdOpened(AdOpenedData data) { }
+        public void TrackAdRevenue(AdRevenueData data) { }
+        public void TrackAdLoaded(AdLoadedData data) { }
+        public void TrackAdFailedToLoad(AdFailedToLoadData data) { }
     }
 }

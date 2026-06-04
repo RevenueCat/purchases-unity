@@ -2,7 +2,6 @@
 #import <UIKit/UIKit.h>
 @import RevenueCat;
 @import PurchasesHybridCommonUI;
-#import <PurchasesHybridCommonUI/PurchasesHybridCommonUI-Swift.h>
 
 typedef void (*RCUIPaywallResultCallback)(const char *result);
 typedef void (*RCUIPurchaseLogicPurchaseCallback)(const char *requestId, const char *packageJson);

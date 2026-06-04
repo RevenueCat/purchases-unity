@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using RevenueCat;
 using UnityEngine;
 
 #if UNITY_IOS || UNITY_VISIONOS
@@ -537,5 +538,30 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         _RCTrackCustomPaywallImpression(parameters.PaywallId, parameters.OfferingId);
     }
+
+    [DllImport("__Internal")]
+    private static extern void _RCTrackAdDisplayed(string dataJson);
+    public void TrackAdDisplayed(AdDisplayedData data) =>
+        _RCTrackAdDisplayed(data.ToJsonString());
+
+    [DllImport("__Internal")]
+    private static extern void _RCTrackAdOpened(string dataJson);
+    public void TrackAdOpened(AdOpenedData data) =>
+        _RCTrackAdOpened(data.ToJsonString());
+
+    [DllImport("__Internal")]
+    private static extern void _RCTrackAdRevenue(string dataJson);
+    public void TrackAdRevenue(AdRevenueData data) =>
+        _RCTrackAdRevenue(data.ToJsonString());
+
+    [DllImport("__Internal")]
+    private static extern void _RCTrackAdLoaded(string dataJson);
+    public void TrackAdLoaded(AdLoadedData data) =>
+        _RCTrackAdLoaded(data.ToJsonString());
+
+    [DllImport("__Internal")]
+    private static extern void _RCTrackAdFailedToLoad(string dataJson);
+    public void TrackAdFailedToLoad(AdFailedToLoadData data) =>
+        _RCTrackAdFailedToLoad(data.ToJsonString());
 }
 #endif
