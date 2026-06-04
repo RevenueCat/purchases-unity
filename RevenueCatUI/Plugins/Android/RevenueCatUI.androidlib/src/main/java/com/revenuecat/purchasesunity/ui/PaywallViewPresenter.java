@@ -462,7 +462,7 @@ public class PaywallViewPresenter {
      */
     private static void applyEdgeToEdgeFlags(@Nullable Window window) {
         if (window == null) return;
-        if (Build.VERSION.SDK_INT < 35) { // Build.VERSION_CODES.VANILLA_ICE_CREAM
+        if (Build.VERSION.SDK_INT < 35) {
             window.setStatusBarColor(Color.TRANSPARENT);
             window.setNavigationBarColor(Color.TRANSPARENT);
         }
