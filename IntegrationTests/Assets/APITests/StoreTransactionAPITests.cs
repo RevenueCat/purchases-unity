@@ -11,6 +11,8 @@ namespace DefaultNamespace
             string transactionIdentifier = storeTransaction.TransactionIdentifier;
             string productIdentifier = storeTransaction.ProductIdentifier;
             DateTime purchaseDate = storeTransaction.PurchaseDate;
+            string originalJson = storeTransaction.OriginalJson;
+            string signature = storeTransaction.Signature;
         }
     }
 }
