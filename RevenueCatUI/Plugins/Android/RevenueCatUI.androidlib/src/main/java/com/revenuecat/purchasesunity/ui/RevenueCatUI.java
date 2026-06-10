@@ -3,10 +3,12 @@ package com.revenuecat.purchasesunity.ui;
 import android.app.Activity;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 
+@Keep
 public class RevenueCatUI {
     public interface PaywallCallbacks { void onPaywallResult(String result); }
 
