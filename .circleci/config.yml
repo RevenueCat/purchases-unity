@@ -230,6 +230,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Test the @Keep check against its fixtures
+          command: bash scripts/test-check-android-keep-annotations.sh
+      - run:
           name: Check Android Java types are annotated with @Keep
           command: bash scripts/check-android-keep-annotations.sh
 

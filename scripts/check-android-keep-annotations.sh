@@ -16,11 +16,16 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Directories that hold the Android bridge compiled into consumer apps.
-ROOTS=(
-    "RevenueCat/Plugins/Android"
-    "RevenueCatUI/Plugins/Android"
-)
+# Directories to scan. Defaults to the folders holding the Android bridge compiled into consumer
+# apps; override by passing one or more paths as arguments (used by the fixture test suite).
+if [ "$#" -gt 0 ]; then
+    ROOTS=("$@")
+else
+    ROOTS=(
+        "RevenueCat/Plugins/Android"
+        "RevenueCatUI/Plugins/Android"
+    )
+fi
 
 # Fail loudly if a root moved/was renamed, otherwise the scan below would silently pass.
 for root in "${ROOTS[@]}"; do
