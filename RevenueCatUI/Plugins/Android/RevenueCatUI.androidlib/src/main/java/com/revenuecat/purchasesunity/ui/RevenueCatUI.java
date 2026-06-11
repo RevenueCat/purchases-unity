@@ -3,18 +3,23 @@ package com.revenuecat.purchasesunity.ui;
 import android.app.Activity;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 
+@Keep
 public class RevenueCatUI {
+    @Keep
     public interface PaywallCallbacks { void onPaywallResult(String result); }
 
+    @Keep
     public interface PurchaseLogicCallbacks {
         void onPerformPurchase(String requestId, String packageJson);
         void onPerformRestore(String requestId);
     }
 
+    @Keep
     public interface CustomerCenterCallbacks {
         void onCustomerCenterDismissed();
         void onCustomerCenterError();

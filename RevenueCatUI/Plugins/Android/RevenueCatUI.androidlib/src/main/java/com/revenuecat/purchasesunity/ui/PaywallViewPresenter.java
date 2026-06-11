@@ -19,6 +19,7 @@ import android.window.OnBackInvokedDispatcher;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
@@ -52,6 +53,7 @@ import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 
 import kotlin.Unit;
 
+@Keep
 public class PaywallViewPresenter {
 
     private static final String TAG = "PurchasesUnity";

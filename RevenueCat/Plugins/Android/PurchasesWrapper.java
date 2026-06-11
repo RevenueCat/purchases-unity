@@ -2,6 +2,7 @@ package com.revenuecat.purchasesunity;
 
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -37,6 +38,7 @@ import java.util.Map;
 
 import kotlin.Unit;
 
+@Keep
 public class PurchasesWrapper {
     private static final String RECEIVE_STOREFRONT = "_receiveStorefront";
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
