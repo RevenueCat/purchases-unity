@@ -775,7 +775,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"9.1.2";
+    return @"9.2.0";
 }
 
 @end
