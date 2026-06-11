@@ -224,6 +224,18 @@ jobs:
           name: Check for missing .meta files
           command: bash scripts/check-meta-files.sh
 
+  check-android-keep-annotations:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Test the @Keep check against its fixtures
+          command: bash scripts/test-check-android-keep-annotations.sh
+      - run:
+          name: Check Android Java types are annotated with @Keep
+          command: bash scripts/check-android-keep-annotations.sh
+
   export-package:
     executor: unity
 
@@ -495,6 +507,7 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - check-meta-files
+      - check-android-keep-annotations
       - export-package:
           context: unity
       - build-subtester-android:
@@ -528,6 +541,7 @@ workflows:
       - hold:
           type: approval
           requires:
+            - check-android-keep-annotations
             - build-integration-tests-android
             - build-subtester-android
             - build-subtester-ios

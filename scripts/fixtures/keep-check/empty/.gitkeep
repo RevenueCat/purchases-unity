@@ -1,0 +1,2 @@
+# Keeps an otherwise-empty directory in git so the test can exercise the "no .java/.kt files"
+# guard in check-android-keep-annotations.sh. This file is ignored by the scanner.
