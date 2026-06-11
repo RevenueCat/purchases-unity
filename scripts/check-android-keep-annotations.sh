@@ -65,6 +65,10 @@ while IFS= read -r -d '' file; do
             return c
         }
 
+        # True if the line carries an @Keep annotation token (anywhere, e.g. after another
+        # annotation on the same line: `@SuppressWarnings(...) @Keep`).
+        function haskeep(s) { return (s ~ /(^|[^A-Za-z0-9_])@Keep([ \t(]|$)/) }
+
         # Return the code-only part of a line, dropping // tails and /* */ spans (incl. multi-line
         # via the persistent in_block flag).
         function strip(s,   out, i, n, two) {
@@ -92,6 +96,7 @@ while IFS= read -r -d '' file; do
 
             # Continuation of a multi-line annotation argument list: stay in the annotation block.
             if (ann_depth > 0) {
+                if (haskeep(t)) seen_keep = 1   # e.g. @Keep on the line that closes the args
                 ann_depth += nparen(t)
                 if (ann_depth < 0) ann_depth = 0
                 next                          # preserve seen_keep
@@ -101,7 +106,7 @@ while IFS= read -r -d '' file; do
 
             # Type declaration (checked before annotations so inline "@Keep public class X" works).
             if (t ~ decl_re) {
-                if (t ~ /(^|[^A-Za-z0-9_])@Keep([ \t(]|$)/) seen_keep = 1   # inline @Keep
+                if (haskeep(t)) seen_keep = 1                               # inline @Keep
                 match(t, decl_re)
                 prefix = substr(t, 1, RSTART - 1)                          # modifiers before keyword
                 if (lang == "kotlin")
@@ -121,7 +126,7 @@ while IFS= read -r -d '' file; do
 
             # Annotation line (no declaration on it).
             if (substr(t, 1, 1) == "@") {
-                if (t ~ /^@Keep([ \t(]|$)/) seen_keep = 1
+                if (haskeep(t)) seen_keep = 1
                 ann_depth = nparen(t)
                 if (ann_depth < 0) ann_depth = 0
                 next
