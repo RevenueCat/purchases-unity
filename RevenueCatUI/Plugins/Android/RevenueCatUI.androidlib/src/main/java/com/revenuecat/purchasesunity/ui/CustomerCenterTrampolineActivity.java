@@ -21,6 +21,7 @@ import java.util.Map;
 
 import kotlin.Unit;
 
+@Keep
 public class CustomerCenterTrampolineActivity extends ComponentActivity {
     private static final String TAG = "PurchasesUnity";
 
