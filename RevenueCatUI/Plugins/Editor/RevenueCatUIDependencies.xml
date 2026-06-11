@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dependencies>
   <androidPackages>
-    <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common-ui:[18.11.0]" />
+    <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common-ui:[18.14.1]" />
     <androidPackage spec="androidx.activity:activity:1.8.2" />
   </androidPackages>
 
-  <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git" version="18.11.0">
+  <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git" version="18.14.1">
     <swiftPackage name="PurchasesHybridCommonUI" replacesPod="PurchasesHybridCommonUI" />
   </remoteSwiftPackage>
 
   <iosPods>
-    <iosPod name="PurchasesHybridCommonUI" version="~> 18.11.0" />
+    <iosPod name="PurchasesHybridCommonUI" version="~> 18.14.1" />
   </iosPods>
 </dependencies> 
