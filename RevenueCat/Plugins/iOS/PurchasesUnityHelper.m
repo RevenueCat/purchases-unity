@@ -442,6 +442,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setCreative:creative];
 }
 
+- (void)setAppsFlyerConversionData:(nullable NSDictionary *)data {
+    [RCCommonFunctionality setAppsFlyerConversionData:data];
+}
+
 - (void)showInAppMessages:(NSArray<NSNumber*>*)messageTypes {
     #if TARGET_OS_IPHONE
     if (@available(iOS 16.0, *)) {
@@ -1035,6 +1039,21 @@ void _RCSetKeyword(const char *keyword) {
 
 void _RCSetCreative(const char *creative) {
     [_RCUnityHelperShared() setCreative:convertCString(creative)];
+}
+
+void _RCSetAppsFlyerConversionData(const char *conversionDataJSON) {
+    NSError *error = nil;
+    NSData *conversionDataAsData = [convertCString(conversionDataJSON) dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *conversionData = [NSJSONSerialization JSONObjectWithData:conversionDataAsData
+                                                                  options:0
+                                                                    error:&error];
+
+    if (error) {
+        NSLog(@"Error parsing conversion data JSON: %s %@", conversionDataJSON, error.localizedDescription);
+        return;
+    }
+
+    [_RCUnityHelperShared() setAppsFlyerConversionData:conversionData];
 }
 
 void _RCCollectDeviceIdentifiers() {

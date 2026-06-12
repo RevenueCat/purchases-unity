@@ -409,6 +409,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSetAppsFlyerConversionData(string conversionDataJson);
+    public void SetAppsFlyerConversionData(string conversionDataJson)
+    {
+        _RCSetAppsFlyerConversionData(conversionDataJson);
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCCollectDeviceIdentifiers();
     public void CollectDeviceIdentifiers()
     {

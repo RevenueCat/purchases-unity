@@ -232,6 +232,10 @@ public partial class Purchases
         {
         }
 
+        public void SetAppsFlyerConversionData(string conversionDataJson)
+        {
+        }
+
         public void CollectDeviceIdentifiers()
         {
         }

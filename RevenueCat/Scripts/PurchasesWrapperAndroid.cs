@@ -333,6 +333,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("setCreative", creative);
     }
 
+    public void SetAppsFlyerConversionData(string conversionDataJson)
+    {
+        CallPurchases("setAppsFlyerConversionData", conversionDataJson);
+    }
+
     public void CollectDeviceIdentifiers()
     {
         CallPurchases("collectDeviceIdentifiers");

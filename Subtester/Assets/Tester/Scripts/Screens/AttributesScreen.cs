@@ -85,6 +85,25 @@ namespace RevenueCat.Tester.Screens
                 LogSuccess($"Phone number set to \"{phoneField.value}\"");
             });
 
+            AddSectionHeader("AppsFlyer");
+
+            AddButton("Set AppsFlyer Conversion Data", () =>
+            {
+                var conversionData = new Dictionary<string, object>
+                {
+                    { "af_status", "Non-organic" },
+                    { "media_source", "test_media_source" },
+                    { "campaign", "test_campaign" },
+                    { "adgroup", "test_adgroup" },
+                    { "af_ad", "test_ad" },
+                    { "af_keywords", "test_keyword" },
+                    { "creative", "test_creative" },
+                    { "is_first_launch", true },
+                };
+                Purchases.SetAppsFlyerConversionData(conversionData);
+                LogSuccess("AppsFlyer conversion data set");
+            });
+
             AddSectionHeader("Device");
 
             AddButton("Collect Device Identifiers", () =>
