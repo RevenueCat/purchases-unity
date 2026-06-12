@@ -193,6 +193,7 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.SetAd("asdgas");
         purchases.SetKeyword("asdgas");
         purchases.SetCreative("asdgas");
+        purchases.SetAppsFlyerConversionData(new Dictionary<string, object>());
         purchases.CollectDeviceIdentifiers();
 
         bool receivedCanMakePayments = false;
