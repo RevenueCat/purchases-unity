@@ -535,6 +535,15 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.setCreative(creative);
     }
 
+    public static void setAppsFlyerConversionData(String conversionDataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(conversionDataJson);
+            SubscriberAttributesKt.setAppsFlyerConversionData(MappersHelpersKt.convertToMap(jsonObject));
+        } catch (JSONException e) {
+            Log.e("Purchases", "Failure parsing conversion data " + conversionDataJson);
+        }
+    }
+
     public static void collectDeviceIdentifiers() {
         SubscriberAttributesKt.collectDeviceIdentifiers();
     }

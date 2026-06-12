@@ -1170,6 +1170,63 @@ public partial class Purchases : MonoBehaviour
 
     /**
      * <summary>
+     * Sets conversion data from AppsFlyer's onConversionDataSuccess callback. This method extracts
+     * the relevant attribution fields from the AppsFlyer conversion data and sets the corresponding
+     * RevenueCat subscriber attributes. Note that this method will never unset any attributes.
+     * </summary>
+     * <param name="conversionData">The conversion data from AppsFlyer's onConversionDataSuccess
+     * callback. Pass the result of <c>AppsFlyer.CallbackStringToDictionary(conversionData)</c>.</param>
+     */
+    public void SetAppsFlyerConversionData(Dictionary<string, object> conversionData)
+    {
+        var jsonObject = new JSONObject();
+        foreach (var keyValuePair in conversionData)
+        {
+            jsonObject[keyValuePair.Key] = ConvertToJsonNode(keyValuePair.Value);
+        }
+
+        _wrapper.SetAppsFlyerConversionData(jsonObject.ToString());
+    }
+
+    private static JSONNode ConvertToJsonNode(object value)
+    {
+        switch (value)
+        {
+            case null:
+                return JSONNull.CreateOrGet();
+            case string stringValue:
+                return stringValue;
+            case bool boolValue:
+                return boolValue;
+            case int intValue:
+                return intValue;
+            case long longValue:
+                return longValue;
+            case float floatValue:
+                return floatValue;
+            case double doubleValue:
+                return doubleValue;
+            case IDictionary<string, object> dictValue:
+                var nestedObject = new JSONObject();
+                foreach (var keyValuePair in dictValue)
+                {
+                    nestedObject[keyValuePair.Key] = ConvertToJsonNode(keyValuePair.Value);
+                }
+                return nestedObject;
+            case IEnumerable<object> listValue:
+                var nestedArray = new JSONArray();
+                foreach (var item in listValue)
+                {
+                    nestedArray.Add(ConvertToJsonNode(item));
+                }
+                return nestedArray;
+            default:
+                return value.ToString();
+        }
+    }
+
+    /**
+     * <summary>
      * Automatically collect subscriber attributes associated with the device identifiers.
      * $idfa, $idfv, $ip on iOS
      * $gpsAdId, $androidId, $ip on Android

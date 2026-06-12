@@ -76,6 +76,7 @@ public interface IPurchasesWrapper
     void SetAd(string ad);
     void SetKeyword(string keyword);
     void SetCreative(string creative);
+    void SetAppsFlyerConversionData(string conversionDataJson);
     void CollectDeviceIdentifiers();
     void CanMakePayments(Purchases.BillingFeature[] features);
     void GetPromotionalOffer(string productIdentifier, string discountIdentifier);
