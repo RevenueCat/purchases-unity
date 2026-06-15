@@ -737,8 +737,11 @@ public class PurchasesWrapper {
         if (presentedOfferingContextJSON != null && !presentedOfferingContextJSON.isEmpty()) {
             try {
                 JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
-                data.put("presentedOfferingContext",
-                        mapWithoutNullValues(MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject)));
+                Object presentedOfferingContext = valueWithoutNullValues(
+                        MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject));
+                if (presentedOfferingContext != null) {
+                    data.put("presentedOfferingContext", presentedOfferingContext);
+                }
             } catch (JSONException e) {
                 logJSONException(e);
             }
@@ -746,13 +749,13 @@ public class PurchasesWrapper {
         CommonKt.trackCustomPaywallImpression(mapWithoutNullValues(data));
     }
 
-    private static HashMap<String, Object> mapWithoutNullValues(@Nullable Map<?, ?> map) {
+    private static HashMap<String, Object> mapWithoutNullValues(@Nullable Map<String, Object> map) {
         HashMap<String, Object> filteredMap = new HashMap<>();
         if (map != null) {
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
                 Object value = valueWithoutNullValues(entry.getValue());
-                if (entry.getKey() instanceof String && value != null) {
-                    filteredMap.put((String) entry.getKey(), value);
+                if (value != null) {
+                    filteredMap.put(entry.getKey(), value);
                 }
             }
         }
@@ -760,11 +763,16 @@ public class PurchasesWrapper {
     }
 
     private static Object valueWithoutNullValues(@Nullable Object value) {
-        if (value == null || value == JSONObject.NULL) {
-            return null;
-        }
         if (value instanceof Map) {
-            return mapWithoutNullValues((Map<?, ?>) value);
+            HashMap<String, Object> filteredMap = new HashMap<>();
+            Map<?, ?> originalMap = (Map<?, ?>) value;
+            for (Map.Entry<?, ?> entry : originalMap.entrySet()) {
+                Object filteredValue = valueWithoutNullValues(entry.getValue());
+                if (entry.getKey() instanceof String && filteredValue != null) {
+                    filteredMap.put((String) entry.getKey(), filteredValue);
+                }
+            }
+            return filteredMap;
         }
         if (value instanceof List) {
             ArrayList<Object> filteredList = new ArrayList<>();
