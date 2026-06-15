@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using RevenueCat;
+using RevenueCat.SimpleJSON;
 
 public class CustomListener : Purchases.UpdatedCustomerInfoListener
 {
@@ -239,8 +240,19 @@ public class PurchasesAPITests : MonoBehaviour
 
         purchases.TrackCustomPaywallImpression();
         purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall"));
+#pragma warning disable CS0618
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(paywallId: null, offeringId: null));
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(paywallId: "", offeringId: ""));
         purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams(offeringId: "offering_id"));
         purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall", "offering_id"));
+#pragma warning restore CS0618
+        Purchases.Offering offering = CreateOfferingForCustomPaywallImpression();
+        purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(offering));
+        purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(offering, "my_custom_paywall"));
+        purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(
+            offering,
+            "my_custom_paywall",
+            "ignored_offering_id"));
 
         // Ad tracking API tests
         purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", "imp_001"));
@@ -289,5 +301,40 @@ public class PurchasesAPITests : MonoBehaviour
 
         receivedVirtualCurrencies = purchases.GetCachedVirtualCurrencies();
         purchases.InvalidateVirtualCurrenciesCache();
+    }
+
+    private static Purchases.Offering CreateOfferingForCustomPaywallImpression()
+    {
+        JSONNode offeringJson = JSON.Parse(
+            @"{
+                ""identifier"": ""custom_offering"",
+                ""serverDescription"": ""Custom paywall offering"",
+                ""metadata"": {},
+                ""availablePackages"": [
+                    {
+                        ""identifier"": ""$rc_monthly"",
+                        ""packageType"": ""MONTHLY"",
+                        ""product"": {
+                            ""identifier"": ""product_id"",
+                            ""title"": ""Monthly"",
+                            ""description"": ""Monthly subscription"",
+                            ""price"": 1.99,
+                            ""priceString"": ""$1.99"",
+                            ""currencyCode"": ""USD"",
+                            ""productCategory"": ""SUBSCRIPTION""
+                        },
+                        ""presentedOfferingContext"": {
+                            ""offeringIdentifier"": ""custom_offering"",
+                            ""placementIdentifier"": ""onboarding"",
+                            ""targetingContext"": {
+                                ""revision"": 7,
+                                ""ruleId"": ""rule_1""
+                            }
+                        }
+                    }
+                ]
+            }");
+
+        return new Purchases.Offering(offeringJson);
     }
 }

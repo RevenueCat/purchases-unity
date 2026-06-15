@@ -540,10 +540,14 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCPurchasePackageWithWinBackOffer(package.Identifier, package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier);
     }
     [DllImport("__Internal")]
-    private static extern void _RCTrackCustomPaywallImpression(string paywallId, string offeringId);
+    private static extern void _RCTrackCustomPaywallImpression(string paywallId, string offeringId, string presentedOfferingContextJSON);
     public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
     {
-        _RCTrackCustomPaywallImpression(parameters.PaywallId, parameters.OfferingId);
+#pragma warning disable CS0618
+        var offeringId = parameters.OfferingId;
+#pragma warning restore CS0618
+        _RCTrackCustomPaywallImpression(parameters.PaywallId, offeringId,
+            parameters.PresentedOfferingContext?.ToJsonString());
     }
 
     [DllImport("__Internal")]

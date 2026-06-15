@@ -58,6 +58,38 @@ char *makeStringCopy(NSString *nstring) {
     return res;
 }
 
+static id valueByRemovingNSNull(id value) {
+    if (!value || value == (id)[NSNull null]) {
+        return nil;
+    }
+
+    if ([value isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *filteredDictionary = [NSMutableDictionary dictionary];
+        NSDictionary *dictionary = (NSDictionary *) value;
+        for (id key in dictionary) {
+            id filteredValue = valueByRemovingNSNull(dictionary[key]);
+            if (filteredValue) {
+                filteredDictionary[key] = filteredValue;
+            }
+        }
+        return [NSDictionary dictionaryWithDictionary:filteredDictionary];
+    }
+
+    if ([value isKindOfClass:NSArray.class]) {
+        NSMutableArray *filteredArray = [NSMutableArray array];
+        NSArray *array = (NSArray *) value;
+        for (id item in array) {
+            id filteredItem = valueByRemovingNSNull(item);
+            if (filteredItem) {
+                [filteredArray addObject:filteredItem];
+            }
+        }
+        return [NSArray arrayWithArray:filteredArray];
+    }
+
+    return value;
+}
+
 #pragma mark RCPurchases Wrapper
 
 @interface RCUnityHelperDelegate : NSObject <RCPurchasesDelegate>
@@ -573,7 +605,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId offeringId:(nullable NSString *)offeringId {
+- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId
+                           offeringId:(nullable NSString *)offeringId
+             presentedOfferingContext:(nullable NSString *)presentedOfferingContextJson {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
     if (paywallId) {
         data[@"paywallId"] = paywallId;
@@ -581,7 +615,20 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     if (offeringId) {
         data[@"offeringId"] = offeringId;
     }
-    [RCCommonFunctionality trackCustomPaywallImpression:data];
+    if (presentedOfferingContextJson.length > 0) {
+        NSError *error = nil;
+        NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
+        id presentedOfferingContext = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+        if (error) {
+            NSLog(@"Error parsing presentedOfferingContext JSON: %@ %@", presentedOfferingContextJson, error.localizedDescription);
+        } else if (presentedOfferingContext) {
+            id filteredPresentedOfferingContext = valueByRemovingNSNull(presentedOfferingContext);
+            if (filteredPresentedOfferingContext) {
+                data[@"presentedOfferingContext"] = filteredPresentedOfferingContext;
+            }
+        }
+    }
+    [RCCommonFunctionality trackCustomPaywallImpression:valueByRemovingNSNull(data)];
 }
 
 - (void)trackAdDisplayed:(NSString *)dataJson {
@@ -1142,8 +1189,10 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
     [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
 }
 
-void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId) {
-    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId) offeringId:convertCString(offeringId)];
+void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId, const char *presentedOfferingContextJson) {
+    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId)
+                                              offeringId:convertCString(offeringId)
+                                presentedOfferingContext:convertCString(presentedOfferingContextJson)];
 }
 
 void _RCTrackAdDisplayed(const char *dataJson) {
