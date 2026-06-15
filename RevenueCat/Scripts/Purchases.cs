@@ -1358,7 +1358,7 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public void TrackCustomPaywallImpression()
     {
-        _wrapper.TrackCustomPaywallImpression(new CustomPaywallImpressionParams());
+        TrackCustomPaywallImpression(new CustomPaywallImpressionParams());
     }
 
     public delegate void ParseAsWebPurchaseRedemptionFunc(WebPurchaseRedemption webPurchaseRedemption);
