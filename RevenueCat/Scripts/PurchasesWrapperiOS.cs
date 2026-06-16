@@ -545,7 +545,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     {
         var offeringId = parameters.OfferingId;
         _RCTrackCustomPaywallImpression(parameters.PaywallId, offeringId,
-            parameters.PresentedOfferingContext?.ToJsonString());
+            parameters.PresentedOfferingContextJson);
     }
 
     [DllImport("__Internal")]

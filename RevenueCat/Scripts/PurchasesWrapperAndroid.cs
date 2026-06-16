@@ -440,7 +440,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     {
         var offeringId = parameters.OfferingId;
         CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, offeringId,
-            parameters.PresentedOfferingContext?.ToJsonString());
+            parameters.PresentedOfferingContextJson);
     }
 
     public void TrackAdDisplayed(AdDisplayedData data) =>

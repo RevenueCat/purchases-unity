@@ -19,7 +19,12 @@ public partial class Purchases
         /// </summary>
         public string OfferingId { get; private set; }
 
-        internal PresentedOfferingContext PresentedOfferingContext { get; private set; }
+        private PresentedOfferingContext _presentedOfferingContext;
+
+        internal string PresentedOfferingContextJson
+        {
+            get { return _presentedOfferingContext?.ToJsonString(); }
+        }
 
         /// <summary>
         /// Creates parameters for a custom paywall impression.
@@ -74,7 +79,7 @@ public partial class Purchases
             PaywallId = paywallId;
             var resolvedOfferingId = offering != null ? offering.Identifier : offeringId;
             OfferingId = resolvedOfferingId;
-            PresentedOfferingContext = GetPresentedOfferingContext(offering);
+            _presentedOfferingContext = GetPresentedOfferingContext(offering);
         }
 
         private static PresentedOfferingContext GetPresentedOfferingContext(Offering offering)
