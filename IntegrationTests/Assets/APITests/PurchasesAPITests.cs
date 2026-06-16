@@ -249,10 +249,6 @@ public class PurchasesAPITests : MonoBehaviour
         Purchases.Offering offering = CreateOfferingForCustomPaywallImpression();
         purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(offering));
         purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(offering, "my_custom_paywall"));
-        purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(
-            offering,
-            "my_custom_paywall",
-            "ignored_offering_id"));
 
         // Ad tracking API tests
         purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", "imp_001"));

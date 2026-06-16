@@ -16,9 +16,7 @@ public partial class Purchases
         /// An optional identifier for the offering associated with the custom paywall.
         /// If neither this nor an Offering is provided, no offering data is sent and the
         /// native SDK handles its default fallback behavior.
-        /// Deprecated: use FromOffering instead so the SDK can derive placement and targeting context.
         /// </summary>
-        [Obsolete("Use FromOffering instead.", false)]
         public string OfferingId { get; private set; }
 
         internal PresentedOfferingContext PresentedOfferingContext { get; private set; }
@@ -61,10 +59,9 @@ public partial class Purchases
         /// the SDK derives the offering identifier and presented offering context from this offering's first
         /// available package.</param>
         /// <param name="paywallId">An optional identifier for the custom paywall being shown.</param>
-        /// <param name="offeringId">Deprecated. This value is ignored when an Offering is provided.</param>
-        public static CustomPaywallImpressionParams FromOffering(Offering offering, string paywallId = null, string offeringId = null)
+        public static CustomPaywallImpressionParams FromOffering(Offering offering, string paywallId = null)
         {
-            return new CustomPaywallImpressionParams(paywallId, offeringId, offering);
+            return new CustomPaywallImpressionParams(paywallId, null, offering);
         }
 
         private CustomPaywallImpressionParams(string paywallId, string offeringId, Offering offering)
@@ -75,10 +72,8 @@ public partial class Purchases
         private void SetValues(string paywallId, string offeringId, Offering offering)
         {
             PaywallId = paywallId;
-#pragma warning disable CS0618
             var resolvedOfferingId = offering != null ? offering.Identifier : offeringId;
             OfferingId = resolvedOfferingId;
-#pragma warning restore CS0618
             PresentedOfferingContext = GetPresentedOfferingContext(offering);
         }
 

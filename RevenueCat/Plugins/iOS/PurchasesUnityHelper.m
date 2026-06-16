@@ -580,8 +580,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)trackCustomPaywallImpression:(nullable NSString *)paywallId
-                           offeringId:(nullable NSString *)offeringId
-             presentedOfferingContext:(nullable NSString *)presentedOfferingContextJson {
+                            offeringId:(nullable NSString *)offeringId
+              presentedOfferingContext:(nullable NSString *)presentedOfferingContextJson {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
     if (paywallId) {
         data[@"paywallId"] = paywallId;

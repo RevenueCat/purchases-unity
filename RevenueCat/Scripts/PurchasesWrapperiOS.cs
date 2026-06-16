@@ -543,9 +543,7 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCTrackCustomPaywallImpression(string paywallId, string offeringId, string presentedOfferingContextJSON);
     public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
     {
-#pragma warning disable CS0618
         var offeringId = parameters.OfferingId;
-#pragma warning restore CS0618
         _RCTrackCustomPaywallImpression(parameters.PaywallId, offeringId,
             parameters.PresentedOfferingContext?.ToJsonString());
     }

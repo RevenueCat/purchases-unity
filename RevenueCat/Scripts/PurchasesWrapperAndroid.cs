@@ -438,9 +438,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
     {
-#pragma warning disable CS0618
         var offeringId = parameters.OfferingId;
-#pragma warning restore CS0618
         CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, offeringId,
             parameters.PresentedOfferingContext?.ToJsonString());
     }
