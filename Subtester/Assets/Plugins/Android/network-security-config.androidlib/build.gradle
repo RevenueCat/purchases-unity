@@ -1,0 +1,20 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.revenuecat.paywall_tester.networksecurity'
+    compileSdk getProperty("unity.compileSdkVersion") as int
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            res.srcDirs = ['src/main/res']
+        }
+    }
+
+    def unityLib = project(':unityLibrary').extensions.getByName('android')
+
+    defaultConfig {
+        minSdkVersion unityLib.defaultConfig.minSdkVersion.mApiLevel
+        targetSdkVersion unityLib.defaultConfig.targetSdkVersion.mApiLevel
+    }
+}
