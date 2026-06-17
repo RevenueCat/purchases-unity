@@ -10,6 +10,12 @@
 @import PurchasesHybridCommon;
 @import RevenueCat;
 
+@interface NSObject (NSNullMapping)
+
+- (id)mappingNSNullToNil;
+
+@end
+
 static NSString *const RECEIVE_STOREFRONT = @"_receiveStorefront";
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const RECEIVE_CUSTOMER_INFO = @"_receiveCustomerInfo";
@@ -573,7 +579,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId offeringId:(nullable NSString *)offeringId {
+- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId
+                          offeringId:(nullable NSString *)offeringId
+            presentedOfferingContext:(nullable NSString *)presentedOfferingContextJson {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
     if (paywallId) {
         data[@"paywallId"] = paywallId;
@@ -581,7 +589,20 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     if (offeringId) {
         data[@"offeringId"] = offeringId;
     }
-    [RCCommonFunctionality trackCustomPaywallImpression:data];
+    if (presentedOfferingContextJson.length > 0) {
+        NSError *error = nil;
+        NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
+        id presentedOfferingContext = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+        if (error) {
+            NSLog(@"Error parsing presentedOfferingContext JSON: %@ %@", presentedOfferingContextJson, error.localizedDescription);
+        } else if (presentedOfferingContext) {
+            id filteredPresentedOfferingContext = [presentedOfferingContext mappingNSNullToNil];
+            if (filteredPresentedOfferingContext) {
+                data[@"presentedOfferingContext"] = filteredPresentedOfferingContext;
+            }
+        }
+    }
+    [RCCommonFunctionality trackCustomPaywallImpression:data.mappingNSNullToNil ?: @{}];
 }
 
 - (void)trackAdDisplayed:(NSString *)dataJson {
@@ -1142,8 +1163,10 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
     [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
 }
 
-void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId) {
-    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId) offeringId:convertCString(offeringId)];
+void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId, const char *presentedOfferingContextJson) {
+    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId)
+                                              offeringId:convertCString(offeringId)
+                                presentedOfferingContext:convertCString(presentedOfferingContextJson)];
 }
 
 void _RCTrackAdDisplayed(const char *dataJson) {
@@ -1165,3 +1188,42 @@ void _RCTrackAdLoaded(const char *dataJson) {
 void _RCTrackAdFailedToLoad(const char *dataJson) {
     [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
 }
+
+@implementation NSObject (NSNullMapping)
+
+- (id)mappingNSNullToNil {
+    if ([self isKindOfClass:[NSNull class]]) {
+        return nil;
+    } else if ([self isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *filteredDict = [NSMutableDictionary dictionary];
+        NSDictionary *originalDict = (NSDictionary *)self;
+
+        for (id key in originalDict) {
+            id value = [originalDict[key] mappingNSNullToNil];
+            if (value) {
+                // Only add non-nil values to the dictionary
+                filteredDict[key] = value;
+            }
+        }
+
+        return [NSDictionary dictionaryWithDictionary:filteredDict];
+
+    } else if ([self isKindOfClass:NSArray.class]) {
+        NSMutableArray *filteredArray = [NSMutableArray array];
+        NSArray *originalArray = (NSArray *)self;
+
+        for (id value in originalArray) {
+            id newValue = [value mappingNSNullToNil];
+            if (newValue) {
+                // Only add non-nil values to the array
+                [filteredArray addObject:newValue];
+            }
+        }
+
+        return [NSArray arrayWithArray:filteredArray];
+    }
+
+    return self;
+}
+
+@end

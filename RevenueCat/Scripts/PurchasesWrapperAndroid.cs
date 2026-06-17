@@ -438,7 +438,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
     {
-        CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, parameters.OfferingId);
+        var offeringId = parameters.OfferingId;
+        CallPurchases("trackCustomPaywallImpression", parameters.PaywallId, offeringId,
+            parameters.PresentedOfferingContext?.ToJsonString());
     }
 
     public void TrackAdDisplayed(AdDisplayedData data) =>
