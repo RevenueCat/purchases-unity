@@ -14,12 +14,24 @@ public partial class Purchases
 
         /// <summary>
         /// An optional identifier for the offering associated with the custom paywall.
-        /// If neither this nor an Offering is provided, no offering data is sent and the
-        /// native SDK handles its default fallback behavior.
+        /// Deprecated: use the Offering object instead so the SDK can derive placement and targeting context.
         /// </summary>
         public string OfferingId { get; private set; }
 
-        internal PresentedOfferingContext PresentedOfferingContext { get; private set; }
+        /// <summary>
+        /// The offering associated with the custom paywall, if provided.
+        /// </summary>
+        public Offering Offering { get; private set; }
+
+        internal PresentedOfferingContext PresentedOfferingContext
+        {
+            get
+            {
+                return Offering != null && Offering.AvailablePackages != null && Offering.AvailablePackages.Count > 0
+                    ? Offering.AvailablePackages[0].PresentedOfferingContext
+                    : null;
+            }
+        }
 
         /// <summary>
         /// Creates parameters for a custom paywall impression.
@@ -39,29 +51,36 @@ public partial class Purchases
         }
 
         /// <summary>
-        /// Creates parameters for a custom paywall impression.
+        /// Creates parameters for a custom paywall impression from an offering.
+        /// The SDK derives the offering identifier and presented offering context from this offering.
         /// </summary>
-        /// <param name="paywallId">An optional identifier for the custom paywall being shown.</param>
-        /// <param name="offeringId">An optional identifier for the offering associated with the custom paywall.
-        /// If neither this nor an Offering is provided, no offering data is sent and the native SDK
-        /// handles its default fallback behavior.
-        /// Deprecated: use FromOffering instead so the SDK can derive placement and targeting context.</param>
-        [Obsolete("Use FromOffering instead.", false)]
-        public CustomPaywallImpressionParams(string paywallId = null, string offeringId = null)
+        /// <param name="offering">The offering associated with the custom paywall.</param>
+        public CustomPaywallImpressionParams(Offering offering)
         {
-            SetValues(paywallId, offeringId, null);
+            SetValues(null, null, offering);
         }
 
         /// <summary>
-        /// Creates parameters for a custom paywall impression from an Offering.
+        /// Creates parameters for a custom paywall impression from an offering.
+        /// The SDK derives the offering identifier and presented offering context from this offering.
         /// </summary>
-        /// <param name="offering">An optional offering associated with the custom paywall. When provided,
-        /// the SDK derives the offering identifier and presented offering context from this offering's first
-        /// available package.</param>
         /// <param name="paywallId">An optional identifier for the custom paywall being shown.</param>
-        public static CustomPaywallImpressionParams FromOffering(Offering offering, string paywallId = null)
+        /// <param name="offering">The offering associated with the custom paywall.</param>
+        public CustomPaywallImpressionParams(string paywallId, Offering offering)
         {
-            return new CustomPaywallImpressionParams(paywallId, null, offering);
+            SetValues(paywallId, null, offering);
+        }
+
+        /// <summary>
+        /// Creates parameters for a custom paywall impression with an offering identifier string.
+        /// </summary>
+        /// <param name="paywallId">An optional identifier for the custom paywall being shown.</param>
+        /// <param name="offeringId">An optional identifier for the offering associated with the custom paywall.
+        /// Deprecated: pass an Offering instead so the SDK can derive placement and targeting context.</param>
+        [Obsolete("Pass an Offering instead.", false)]
+        public CustomPaywallImpressionParams(string paywallId = null, string offeringId = null)
+        {
+            SetValues(paywallId, offeringId, null);
         }
 
         private CustomPaywallImpressionParams(string paywallId, string offeringId, Offering offering)
@@ -72,16 +91,9 @@ public partial class Purchases
         private void SetValues(string paywallId, string offeringId, Offering offering)
         {
             PaywallId = paywallId;
+            Offering = offering;
             var resolvedOfferingId = offering != null ? offering.Identifier : offeringId;
             OfferingId = resolvedOfferingId;
-            PresentedOfferingContext = GetPresentedOfferingContext(offering);
-        }
-
-        private static PresentedOfferingContext GetPresentedOfferingContext(Offering offering)
-        {
-            return offering != null && offering.AvailablePackages != null && offering.AvailablePackages.Count > 0
-                ? offering.AvailablePackages[0].PresentedOfferingContext
-                : null;
         }
     }
 }

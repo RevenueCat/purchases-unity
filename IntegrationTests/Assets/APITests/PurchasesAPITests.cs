@@ -247,8 +247,11 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall", "offering_id"));
 #pragma warning restore CS0618
         Purchases.Offering offering = CreateOfferingForCustomPaywallImpression();
-        purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(offering));
-        purchases.TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams.FromOffering(offering, "my_custom_paywall"));
+        Purchases.CustomPaywallImpressionParams paramsWithOffering =
+            new Purchases.CustomPaywallImpressionParams(offering);
+        Purchases.Offering paramsOffering = paramsWithOffering.Offering;
+        purchases.TrackCustomPaywallImpression(paramsWithOffering);
+        purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("my_custom_paywall", paramsOffering));
 
         // Ad tracking API tests
         purchases.AdTracker.TrackAdDisplayed(new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", "imp_001"));
