@@ -27,6 +27,10 @@ public partial class Purchases
         public readonly string? StoreTransactionId;
         public readonly bool IsActive;
         public readonly bool WillRenew;
+        public readonly DateTime? AutoResumeDate;
+        public readonly string? DisplayName;
+        public readonly string? ManagementURL;
+        public readonly string? ProductPlanIdentifier;
 
         public SubscriptionInfo(JSONNode response)
         {
@@ -49,6 +53,10 @@ public partial class Purchases
             StoreTransactionId = response["storeTransactionId"];
             IsActive = response["isActive"].AsBool;
             WillRenew = response["willRenew"].AsBool;
+            AutoResumeDate = FromResponseISO8601String(response, "autoResumeDate");
+            DisplayName = response["displayName"];
+            ManagementURL = response["managementURL"];
+            ProductPlanIdentifier = response["productPlanIdentifier"];
         }
 
         public override string ToString()
@@ -68,7 +76,11 @@ public partial class Purchases
                 $"{nameof(RefundedAt)}: {RefundedAt}\n" +
                 $"{nameof(StoreTransactionId)}: {StoreTransactionId}\n" +
                 $"{nameof(IsActive)}: {IsActive}\n" +
-                $"{nameof(WillRenew)}: {WillRenew}";
+                $"{nameof(WillRenew)}: {WillRenew}\n" +
+                $"{nameof(AutoResumeDate)}: {AutoResumeDate}\n" +
+                $"{nameof(DisplayName)}: {DisplayName}\n" +
+                $"{nameof(ManagementURL)}: {ManagementURL}\n" +
+                $"{nameof(ProductPlanIdentifier)}: {ProductPlanIdentifier}";
         }
 
         private DateTime? FromResponseISO8601String(JSONNode response, string key)
