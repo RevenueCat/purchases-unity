@@ -40,6 +40,8 @@ static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = @"_getEligible
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = @"_getEligibleWinBackOffersForPackage";
 static NSString *const PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = @"_purchaseProductWithWinBackOffer";
 static NSString *const PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = @"_purchasePackageWithWinBackOffer";
+static NSString *const GENERATE_REWARD_VERIFICATION_TOKEN = @"_generateRewardVerificationToken";
+static NSString *const POLL_REWARD_VERIFICATION = @"_pollRewardVerification";
 #pragma mark Utility Methods
 
 NSString *convertCString(const char *string) {
@@ -675,6 +677,24 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
+- (void)generateRewardVerificationToken:(NSString *)impressionId {
+    NSDictionary *token = [RCCommonFunctionality generateRewardVerificationTokenWithImpressionId:impressionId];
+    [self sendJSONObject:token toMethod:GENERATE_REWARD_VERIFICATION_TOKEN];
+}
+
+- (void)pollRewardVerification:(NSString *)clientTransactionId {
+    [RCCommonFunctionality pollRewardVerificationWithClientTransactionId:clientTransactionId
+                                                             completion:^(NSDictionary *_Nullable result, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        if (error) {
+            response[@"error"] = error.info;
+        } else {
+            [response addEntriesFromDictionary:result];
+        }
+        [self sendJSONObject:response toMethod:POLL_REWARD_VERIFICATION];
+    }];
+}
+
 - (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
     BOOL isWebPurchaseRedemptionURL = [RCCommonFunctionality isWebPurchaseRedemptionURL:urlString];
     if (isWebPurchaseRedemptionURL) {
@@ -1187,6 +1207,14 @@ void _RCTrackAdLoaded(const char *dataJson) {
 
 void _RCTrackAdFailedToLoad(const char *dataJson) {
     [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
+}
+
+void _RCGenerateRewardVerificationToken(const char *impressionId) {
+    [_RCUnityHelperShared() generateRewardVerificationToken:convertCString(impressionId)];
+}
+
+void _RCPollRewardVerification(const char *clientTransactionId) {
+    [_RCUnityHelperShared() pollRewardVerification:convertCString(clientTransactionId)];
 }
 
 @implementation NSObject (NSNullMapping)

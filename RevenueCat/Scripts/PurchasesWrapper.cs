@@ -96,4 +96,6 @@ public interface IPurchasesWrapper
     void TrackAdRevenue(AdRevenueData data);
     void TrackAdLoaded(AdLoadedData data);
     void TrackAdFailedToLoad(AdFailedToLoadData data);
+    void GenerateRewardVerificationToken(string impressionId);
+    void PollRewardVerification(string clientTransactionId);
 }

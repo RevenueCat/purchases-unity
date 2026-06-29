@@ -298,5 +298,7 @@ public partial class Purchases
         public void TrackAdRevenue(AdRevenueData data) { }
         public void TrackAdLoaded(AdLoadedData data) { }
         public void TrackAdFailedToLoad(AdFailedToLoadData data) { }
+        public void GenerateRewardVerificationToken(string impressionId) { }
+        public void PollRewardVerification(string clientTransactionId) { }
     }
 }

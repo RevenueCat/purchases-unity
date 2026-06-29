@@ -691,6 +691,59 @@ public partial class Purchases : MonoBehaviour
     }
 
     /// <summary>
+    /// Callback for <see cref="Purchases.GenerateRewardVerificationToken"/>.
+    /// </summary>
+    /// <param name="token"> The generated token if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+    public delegate void GenerateRewardVerificationTokenFunc(RewardVerificationToken token, Error error);
+
+    private GenerateRewardVerificationTokenFunc GenerateRewardVerificationTokenCallback { get; set; }
+
+    /// <summary>
+    /// Callback for <see cref="Purchases.PollRewardVerification"/>.
+    /// </summary>
+    /// <param name="result"> The verification result if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+    public delegate void PollRewardVerificationFunc(RewardVerificationResult result, Error error);
+
+    private PollRewardVerificationFunc PollRewardVerificationCallback { get; set; }
+
+    /// <summary>
+    /// Generates a reward verification token for a rewarded ad impression.
+    ///
+    /// Pass the returned <see cref="RewardVerificationToken.ClientTransactionId"/> to the ad
+    /// network as the server-side verification custom data. After the ad completes, pass the same
+    /// id to <see cref="PollRewardVerification"/> to await the reward.
+    /// </summary>
+    /// <param name="impressionId"> The impression identifier of the rewarded ad.</param>
+    /// <param name="callback"> Called with the generated token, or an error if generation failed.</param>
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+    public void GenerateRewardVerificationToken(string impressionId, GenerateRewardVerificationTokenFunc callback)
+    {
+        GenerateRewardVerificationTokenCallback = callback;
+        _wrapper.GenerateRewardVerificationToken(impressionId);
+    }
+
+    /// <summary>
+    /// Polls RevenueCat for the reward verification result of a rewarded ad.
+    ///
+    /// The callback fires once the native poller completes or times out (up to ~10-30s). A
+    /// timed-out or rejected verification reports a result with <see cref="RewardVerificationResult.Failed"/>
+    /// set to true rather than an error.
+    /// </summary>
+    /// <param name="clientTransactionId"> The <see cref="RewardVerificationToken.ClientTransactionId"/>
+    /// from <see cref="GenerateRewardVerificationToken"/>.</param>
+    /// <param name="callback"> Called with the verification result, or an error if polling failed.</param>
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+    public void PollRewardVerification(string clientTransactionId, PollRewardVerificationFunc callback)
+    {
+        PollRewardVerificationCallback = callback;
+        _wrapper.PollRewardVerification(clientTransactionId);
+    }
+
+    /// <summary>
     /// This method will post all purchases associated with the current App Store account to RevenueCat and
     /// become associated with the current <c>appUserID</c>.
     /// </summary>
@@ -1686,6 +1739,42 @@ public partial class Purchases : MonoBehaviour
         {
             var offeringsResponse = response["offerings"];
             callback(new Offerings(offeringsResponse), null);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _generateRewardVerificationToken(string tokenJson)
+    {
+        Debug.Log("_generateRewardVerificationToken " + tokenJson);
+        if (GenerateRewardVerificationTokenCallback == null) return;
+        var response = JSON.Parse(tokenJson);
+        var callback = GenerateRewardVerificationTokenCallback;
+        GenerateRewardVerificationTokenCallback = null;
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            callback(new RewardVerificationToken(response), null);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _pollRewardVerification(string resultJson)
+    {
+        Debug.Log("_pollRewardVerification " + resultJson);
+        if (PollRewardVerificationCallback == null) return;
+        var response = JSON.Parse(resultJson);
+        var callback = PollRewardVerificationCallback;
+        PollRewardVerificationCallback = null;
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            callback(new RewardVerificationResult(response), null);
         }
     }
 

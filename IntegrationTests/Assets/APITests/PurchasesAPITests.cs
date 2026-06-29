@@ -263,6 +263,20 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit"));
         purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", placement: "home", mediatorErrorCode: 2));
 
+        // Reward verification API tests
+        purchases.GenerateRewardVerificationToken("imp_001", (token, error) =>
+        {
+            string customData = token.CustomData;
+            string clientTransactionId = token.ClientTransactionId;
+            string appUserID = token.AppUserID;
+        });
+        purchases.PollRewardVerification("client_transaction_id", (result, error) =>
+        {
+            bool failed = result.Failed;
+            Purchases.VerifiedReward reward = result.Reward;
+            List<Purchases.VerifiedReward> moreRewards = result.MoreRewards;
+        });
+
         // Win-back offer API tests
         // Purchasing win-back offers with a product
         purchases.GetProducts(new[] { "product_id" }, (products, error) =>
