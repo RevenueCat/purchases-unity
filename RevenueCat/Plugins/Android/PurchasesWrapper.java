@@ -92,14 +92,18 @@ public class PurchasesWrapper {
                              boolean shouldShowInAppMessagesAutomatically,
                              String dangerousSettingsJSON,
                              String entitlementVerificationMode,
-                             boolean pendingTransactionsForPrepaidPlansEnabled) {
+                             boolean pendingTransactionsForPrepaidPlansEnabled,
+                             String preferredUILocaleOverride) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, purchasesAreCompletedBy, platformInfo, store,
                 dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
-                pendingTransactionsForPrepaidPlansEnabled);
+                pendingTransactionsForPrepaidPlansEnabled,
+                null, // diagnosticsEnabled
+                null, // automaticDeviceIdentifierCollectionEnabled
+                preferredUILocaleOverride);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
@@ -444,6 +448,10 @@ public class PurchasesWrapper {
 
     public static void invalidateCustomerInfoCache() {
         CommonKt.invalidateCustomerInfoCache();
+    }
+
+    public static void overridePreferredUILocale(String locale) {
+        CommonKt.overridePreferredLocale(locale);
     }
 
     public static void setAttributes(String jsonAttributes) {

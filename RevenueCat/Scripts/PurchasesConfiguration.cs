@@ -33,10 +33,11 @@ public partial class Purchases
         public readonly bool ShouldShowInAppMessagesAutomatically;
         public readonly EntitlementVerificationMode EntitlementVerificationMode;
         public readonly bool PendingTransactionsForPrepaidPlansEnabled;
+        public readonly string PreferredUILocaleOverride;
 
         private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
-            bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically, 
-            EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled)
+            bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically,
+            EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, string preferredUILocaleOverride)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -48,6 +49,7 @@ public partial class Purchases
             ShouldShowInAppMessagesAutomatically = shouldShowInAppMessagesAutomatically;
             EntitlementVerificationMode = entitlementVerificationMode;
             PendingTransactionsForPrepaidPlansEnabled = pendingTransactionsForPrepaidPlansEnabled;
+            PreferredUILocaleOverride = preferredUILocaleOverride;
         }
 
         /// <summary>
@@ -81,6 +83,7 @@ public partial class Purchases
             private bool _shouldShowInAppMessagesAutomatically;
             private EntitlementVerificationMode _entitlementVerificationMode;
             private bool _pendingTransactionsForPrepaidPlansEnabled;
+            private string _preferredUILocaleOverride;
 
             private Builder(string apiKey)
             {
@@ -96,8 +99,8 @@ public partial class Purchases
             {
                 _dangerousSettings = _dangerousSettings ?? new DangerousSettings(true);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
-                    _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically, 
-                    _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled);
+                    _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically,
+                    _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _preferredUILocaleOverride);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -155,6 +158,16 @@ public partial class Purchases
                 return this;
             }
 
+            /// <summary>
+            /// Sets a preferred UI locale override (e.g. "de_DE") used by RevenueCat UI components like Paywalls,
+            /// instead of the device locale. Useful for apps with in-app language switching.
+            /// </summary>
+            public Builder SetPreferredUILocaleOverride(string preferredUILocaleOverride)
+            {
+                _preferredUILocaleOverride = preferredUILocaleOverride;
+                return this;
+            }
+
         }
 
         public override string ToString()
@@ -169,7 +182,8 @@ public partial class Purchases
                 $"{nameof(StoreKitVersion)}: {StoreKitVersion}\n" +
                 $"{nameof(ShouldShowInAppMessagesAutomatically)}: {ShouldShowInAppMessagesAutomatically}\n" +
                 $"{nameof(EntitlementVerificationMode)}: {EntitlementVerificationMode}\n" +
-                $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n";
+                $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n" +
+                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n";
         }
     }
 }
