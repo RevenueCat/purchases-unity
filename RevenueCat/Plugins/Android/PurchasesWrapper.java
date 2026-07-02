@@ -93,6 +93,8 @@ public class PurchasesWrapper {
                              String dangerousSettingsJSON,
                              String entitlementVerificationMode,
                              boolean pendingTransactionsForPrepaidPlansEnabled,
+                             boolean diagnosticsEnabled,
+                             boolean automaticDeviceIdentifierCollectionEnabled,
                              String preferredUILocaleOverride) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
@@ -100,10 +102,8 @@ public class PurchasesWrapper {
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, purchasesAreCompletedBy, platformInfo, store,
                 dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
-                pendingTransactionsForPrepaidPlansEnabled,
-                null, // diagnosticsEnabled
-                null, // automaticDeviceIdentifierCollectionEnabled
-                preferredUILocaleOverride);
+                pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
+                automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 

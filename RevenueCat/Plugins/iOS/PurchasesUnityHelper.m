@@ -82,6 +82,8 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
  dangerousSettingsJson:(NSString *)dangerousSettingsJson
  shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically
  entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode
+ diagnosticsEnabled:(BOOL)diagnosticsEnabled
+ automaticDeviceIdentifierCollectionEnabled:(BOOL)automaticDeviceIdentifierCollectionEnabled
  preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride {
     self.products = nil;
     self.gameObject = nil;
@@ -110,8 +112,8 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
                    dangerousSettings:dangerousSettings
 shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                     verificationMode:entitlementVerificationMode
-                  diagnosticsEnabled:NO
-automaticDeviceIdentifierCollectionEnabled:YES
+                  diagnosticsEnabled:diagnosticsEnabled
+automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
                      preferredLocale:preferredUILocaleOverride];
 
     self.gameObject = gameObject;
@@ -833,6 +835,8 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *dangerousSettingsJson,
                        const BOOL shouldShowInAppMessagesAutomatically,
                        const char *entitlementVerificationMode,
+                       const BOOL diagnosticsEnabled,
+                       const BOOL automaticDeviceIdentifierCollectionEnabled,
                        const char *preferredUILocaleOverride) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
@@ -843,6 +847,8 @@ void _RCSetupPurchases(const char *gameObject,
                      dangerousSettingsJson:convertCString(dangerousSettingsJson)
       shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                entitlementVerificationMode:convertCString(entitlementVerificationMode)
+                        diagnosticsEnabled:diagnosticsEnabled
+automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
                  preferredUILocaleOverride:convertCString(preferredUILocaleOverride)];
 }
 

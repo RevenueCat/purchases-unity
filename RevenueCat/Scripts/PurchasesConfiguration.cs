@@ -33,11 +33,14 @@ public partial class Purchases
         public readonly bool ShouldShowInAppMessagesAutomatically;
         public readonly EntitlementVerificationMode EntitlementVerificationMode;
         public readonly bool PendingTransactionsForPrepaidPlansEnabled;
+        public readonly bool DiagnosticsEnabled;
+        public readonly bool AutomaticDeviceIdentifierCollectionEnabled;
         public readonly string PreferredUILocaleOverride;
 
         private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
             bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically,
-            EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, string preferredUILocaleOverride)
+            EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -49,6 +52,8 @@ public partial class Purchases
             ShouldShowInAppMessagesAutomatically = shouldShowInAppMessagesAutomatically;
             EntitlementVerificationMode = entitlementVerificationMode;
             PendingTransactionsForPrepaidPlansEnabled = pendingTransactionsForPrepaidPlansEnabled;
+            DiagnosticsEnabled = diagnosticsEnabled;
+            AutomaticDeviceIdentifierCollectionEnabled = automaticDeviceIdentifierCollectionEnabled;
             PreferredUILocaleOverride = preferredUILocaleOverride;
         }
 
@@ -83,6 +88,8 @@ public partial class Purchases
             private bool _shouldShowInAppMessagesAutomatically;
             private EntitlementVerificationMode _entitlementVerificationMode;
             private bool _pendingTransactionsForPrepaidPlansEnabled;
+            private bool _diagnosticsEnabled;
+            private bool _automaticDeviceIdentifierCollectionEnabled = true;
             private string _preferredUILocaleOverride;
 
             private Builder(string apiKey)
@@ -100,7 +107,8 @@ public partial class Purchases
                 _dangerousSettings = _dangerousSettings ?? new DangerousSettings(true);
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically,
-                    _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _preferredUILocaleOverride);
+                    _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _diagnosticsEnabled,
+                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -159,8 +167,29 @@ public partial class Purchases
             }
 
             /// <summary>
+            /// Enabling diagnostics will send some performance and debugging information from the SDK to RevenueCat servers.
+            /// No personal identifiable information is collected. Disabled by default.
+            /// </summary>
+            public Builder SetDiagnosticsEnabled(bool diagnosticsEnabled)
+            {
+                _diagnosticsEnabled = diagnosticsEnabled;
+                return this;
+            }
+
+            /// <summary>
+            /// Allows collection of device identifiers when setting an attribution network ID (e.g. SetAdjustID),
+            /// as required by some attribution networks. Identifiers are only collected if the user has not limited
+            /// ad tracking on their device. Enabled by default.
+            /// </summary>
+            public Builder SetAutomaticDeviceIdentifierCollectionEnabled(bool automaticDeviceIdentifierCollectionEnabled)
+            {
+                _automaticDeviceIdentifierCollectionEnabled = automaticDeviceIdentifierCollectionEnabled;
+                return this;
+            }
+
+            /// <summary>
             /// Sets a preferred UI locale override (e.g. "de_DE") used by RevenueCat UI components like Paywalls,
-            /// instead of the device locale. Useful for apps with in-app language switching.
+            /// instead of the device locale.
             /// </summary>
             public Builder SetPreferredUILocaleOverride(string preferredUILocaleOverride)
             {
@@ -183,6 +212,8 @@ public partial class Purchases
                 $"{nameof(ShouldShowInAppMessagesAutomatically)}: {ShouldShowInAppMessagesAutomatically}\n" +
                 $"{nameof(EntitlementVerificationMode)}: {EntitlementVerificationMode}\n" +
                 $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n" +
+                $"{nameof(DiagnosticsEnabled)}: {DiagnosticsEnabled}\n" +
+                $"{nameof(AutomaticDeviceIdentifierCollectionEnabled)}: {AutomaticDeviceIdentifierCollectionEnabled}\n" +
                 $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n";
         }
     }

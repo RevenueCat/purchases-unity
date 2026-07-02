@@ -225,6 +225,8 @@ public class PurchasesAPITests : MonoBehaviour
             .SetShouldShowInAppMessagesAutomatically(false)
             .SetEntitlementVerificationMode(Purchases.EntitlementVerificationMode.Informational)
             .SetPendingTransactionsForPrepaidPlansEnabled(true)
+            .SetDiagnosticsEnabled(true)
+            .SetAutomaticDeviceIdentifierCollectionEnabled(false)
             .SetPreferredUILocaleOverride("de_DE")
             .Build();
         purchases.Configure(purchasesConfiguration);
