@@ -89,18 +89,22 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy, Purchases.StoreKitVersion storeKitVersion,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
-        bool pendingTransactionsForPrepaidPlansEnabled)
+        bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
+        string preferredUILocaleOverride)
     {
         Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion, userDefaultsSuiteName, useAmazon,
-            dangerousSettingsJson, shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled);
+            dangerousSettingsJson, shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled,
+            diagnosticsEnabled, automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy, Purchases.StoreKitVersion storeKitVersion,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
-        Purchases.EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled)
+        Purchases.EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled,
+        bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
     {
         CallPurchases("setup", apiKey, appUserId, gameObject, purchasesAreCompletedBy.Name(), userDefaultsSuiteName, useAmazon, shouldShowInAppMessagesAutomatically,
-            dangerousSettingsJson, entitlementVerificationMode.Name(), pendingTransactionsForPrepaidPlansEnabled);
+            dangerousSettingsJson, entitlementVerificationMode.Name(), pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
+            automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
     }
 
     public void RestorePurchases()
@@ -211,6 +215,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void InvalidateCustomerInfoCache()
     {
         CallPurchases("invalidateCustomerInfoCache");
+    }
+
+    public void OverridePreferredUILocale(string locale)
+    {
+        CallPurchases("overridePreferredUILocale", locale);
     }
 
     public void PresentCodeRedemptionSheet()

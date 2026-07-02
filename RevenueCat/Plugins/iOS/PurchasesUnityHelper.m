@@ -81,7 +81,10 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
  dangerousSettingsJson:(NSString *)dangerousSettingsJson
  shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically
- entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode {
+ entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode
+ diagnosticsEnabled:(BOOL)diagnosticsEnabled
+ automaticDeviceIdentifierCollectionEnabled:(BOOL)automaticDeviceIdentifierCollectionEnabled
+ preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride {
     self.products = nil;
     self.gameObject = nil;
 
@@ -108,7 +111,10 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
                      storeKitVersion:storeKitVersion
                    dangerousSettings:dangerousSettings
 shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
-                    verificationMode:entitlementVerificationMode];
+                    verificationMode:entitlementVerificationMode
+                  diagnosticsEnabled:diagnosticsEnabled
+automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
+                     preferredLocale:preferredUILocaleOverride];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -294,6 +300,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 - (void)invalidateCustomerInfoCache {
     [RCCommonFunctionality invalidateCustomerInfoCache];
+}
+
+- (void)overridePreferredUILocale:(nullable NSString *)locale {
+    [RCCommonFunctionality overridePreferredLocale:locale];
 }
 
 - (void)presentCodeRedemptionSheet {
@@ -824,7 +834,10 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *userDefaultsSuiteName,
                        const char *dangerousSettingsJson,
                        const BOOL shouldShowInAppMessagesAutomatically,
-                       const char *entitlementVerificationMode) {
+                       const char *entitlementVerificationMode,
+                       const BOOL diagnosticsEnabled,
+                       const BOOL automaticDeviceIdentifierCollectionEnabled,
+                       const char *preferredUILocaleOverride) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
@@ -833,7 +846,10 @@ void _RCSetupPurchases(const char *gameObject,
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
                      dangerousSettingsJson:convertCString(dangerousSettingsJson)
       shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
-               entitlementVerificationMode:convertCString(entitlementVerificationMode)];
+               entitlementVerificationMode:convertCString(entitlementVerificationMode)
+                        diagnosticsEnabled:diagnosticsEnabled
+automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
+                 preferredUILocaleOverride:convertCString(preferredUILocaleOverride)];
 }
 
 void _RCGetStorefront() {
@@ -961,6 +977,10 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
 
 void _RCInvalidateCustomerInfoCache() {
     [_RCUnityHelperShared() invalidateCustomerInfoCache];
+}
+
+void _RCOverridePreferredUILocale(const char *locale) {
+    [_RCUnityHelperShared() overridePreferredUILocale:convertCString(locale)];
 }
 
 void _RCPresentCodeRedemptionSheet() {

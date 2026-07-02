@@ -6,12 +6,14 @@ public interface IPurchasesWrapper
 {
     void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
         Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled);
+        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
+        bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride);
 
     void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
         Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
         bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
-        bool pendingTransactionsForPrepaidPlansEnabled);
+        bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
+        string preferredUILocaleOverride);
 
     void GetStorefront();
     void GetProducts(string[] productIdentifiers, string type = "subs");
@@ -52,6 +54,7 @@ public interface IPurchasesWrapper
     bool IsConfigured();
     void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers);
     void InvalidateCustomerInfoCache();
+    void OverridePreferredUILocale(string locale);
     void PresentCodeRedemptionSheet();
     void RecordPurchase(string productID);
     void SetSimulatesAskToBuyInSandbox(bool enabled);

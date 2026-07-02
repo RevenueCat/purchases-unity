@@ -7,14 +7,16 @@ public partial class Purchases
     {
         public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
             Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-            bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled)
+            bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
         {
         }
 
         public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
             Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
             bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
-            bool pendingTransactionsForPrepaidPlansEnabled)
+            bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
+            string preferredUILocaleOverride)
         {
         }
 
@@ -133,6 +135,10 @@ public partial class Purchases
         }
 
         public void InvalidateCustomerInfoCache()
+        {
+        }
+
+        public void OverridePreferredUILocale(string locale)
         {
         }
 

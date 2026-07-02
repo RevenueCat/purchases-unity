@@ -11,23 +11,28 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, string purchasesAreCompletedBy,
                                                  string storeKitVersion, string userDefaultsSuiteName,
                                                  string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
-                                                 string entitlementVerificationMode);
+                                                 string entitlementVerificationMode, bool diagnosticsEnabled,
+                                                 bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride);
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
         Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
-        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled)
+        bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
+        bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
     {
-        Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion, 
-            userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, 
-            Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled);
+        Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion,
+            userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically,
+            Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
+            automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
         Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
         bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
-        bool pendingTransactionsForPrepaidPlansEnabled)
+        bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
+        string preferredUILocaleOverride)
     {
         _RCSetupPurchases(gameObject, apiKey, appUserId, purchasesAreCompletedBy.Name(), storeKitVersion.Name(),
-            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name());
+            userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name(),
+            diagnosticsEnabled, automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
     }
 
     [DllImport("__Internal")]
@@ -238,6 +243,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     public void InvalidateCustomerInfoCache()
     {
         _RCInvalidateCustomerInfoCache();
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCOverridePreferredUILocale(string locale);
+    public void OverridePreferredUILocale(string locale)
+    {
+        _RCOverridePreferredUILocale(locale);
     }
 
     [DllImport("__Internal")]

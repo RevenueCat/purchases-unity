@@ -170,6 +170,8 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.CheckTrialOrIntroductoryPriceEligibility(new string[] { "a", "b" },
             eligibilities => { receivedEligibilities = eligibilities; });
         purchases.InvalidateCustomerInfoCache();
+        purchases.OverridePreferredUILocale("de_DE");
+        purchases.OverridePreferredUILocale(null);
         purchases.PresentCodeRedemptionSheet();
         purchases.SetSimulatesAskToBuyInSandbox(true);
 
@@ -223,6 +225,9 @@ public class PurchasesAPITests : MonoBehaviour
             .SetShouldShowInAppMessagesAutomatically(false)
             .SetEntitlementVerificationMode(Purchases.EntitlementVerificationMode.Informational)
             .SetPendingTransactionsForPrepaidPlansEnabled(true)
+            .SetDiagnosticsEnabled(true)
+            .SetAutomaticDeviceIdentifierCollectionEnabled(false)
+            .SetPreferredUILocaleOverride("de_DE")
             .Build();
         purchases.Configure(purchasesConfiguration);
         purchases.RecordPurchase("product_id", (transaction, error) => 

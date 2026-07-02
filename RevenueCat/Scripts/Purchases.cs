@@ -194,7 +194,9 @@ public partial class Purchases : MonoBehaviour
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.PurchasesAreCompletedBy, purchasesConfiguration.StoreKitVersion, purchasesConfiguration.UserDefaultsSuiteName,
             purchasesConfiguration.UseAmazon, dangerousSettings, purchasesConfiguration.ShouldShowInAppMessagesAutomatically,
-            purchasesConfiguration.EntitlementVerificationMode, purchasesConfiguration.PendingTransactionsForPrepaidPlansEnabled);
+            purchasesConfiguration.EntitlementVerificationMode, purchasesConfiguration.PendingTransactionsForPrepaidPlansEnabled,
+            purchasesConfiguration.DiagnosticsEnabled, purchasesConfiguration.AutomaticDeviceIdentifierCollectionEnabled,
+            purchasesConfiguration.PreferredUILocaleOverride);
     }
 
     private bool IsAndroidEmulator()
@@ -831,7 +833,15 @@ public partial class Purchases : MonoBehaviour
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
     }
 
-    ///
+    /// <summary>
+    /// Overrides the preferred UI locale (e.g. "de_DE") used by RevenueCat UI components like Paywalls,
+    /// instead of the device locale. Pass null to clear the override.
+    /// </summary>
+    public void OverridePreferredUILocale(string locale)
+    {
+        _wrapper.OverridePreferredUILocale(locale);
+    }
+
     /// <summary>
     /// Invalidates the cache for customer information.
     /// </summary>
