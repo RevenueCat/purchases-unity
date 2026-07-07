@@ -314,7 +314,7 @@ public partial class Purchases
             * For example, if price is "€7.99", price_amount_micros is 7,990,000. This value represents
             * the localized, rounded price for a particular currency.
             */
-            public readonly int AmountMicros;
+            public readonly long AmountMicros;
 
             /**
             * Returns ISO 4217 currency code for price and original price.
