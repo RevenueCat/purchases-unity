@@ -1,9 +1,7 @@
 {
     "name": "revenuecat.purchases-unity.Editor",
     "rootNamespace": "",
-    "references": [
-        "revenuecat.purchases-unity"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
