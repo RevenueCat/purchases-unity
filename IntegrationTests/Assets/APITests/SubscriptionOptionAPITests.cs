@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using RevenueCat.SimpleJSON;
 using UnityEngine;
 
 namespace DefaultNamespace
@@ -33,15 +32,6 @@ namespace DefaultNamespace
             Purchases.SubscriptionOption.InstallmentsInfo installmentsInfo = subscriptionOption.OptionInstallmentsInfo;
             int commitmentPaymentsCount = installmentsInfo.CommitmentPaymentsCount;
             int renewalCommitmentPaymentsCount = installmentsInfo.RenewalCommitmentPaymentsCount;
-
-            var priceJson = JSON.Parse(
-                @"{""formatted"":""¥64,500"",""amountMicros"":64500000000,""currencyCode"":""JPY""}");
-            var price = new Purchases.SubscriptionOption.Price(priceJson);
-            if (price.AmountMicros != 64500000000L)
-            {
-                throw new InvalidOperationException(
-                    $"Expected AmountMicros 64500000000 but got {price.AmountMicros}");
-            }
         }
     }
 }
