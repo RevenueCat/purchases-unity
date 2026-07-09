@@ -1,10 +1,10 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Add preferred UI locale override, diagnosticsEnabled and automaticDeviceIdentifierCollectionEnabled configuration options (#978) via Álvaro Brey (@AlvaroBrey)
+### 🐞 Bugfixes
+* (breaking) Change SubscriptionOption.Price.AmountMicros from int to long to avoid overflow (#980) via Álvaro Brey (@AlvaroBrey)
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.1.0 (#905) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 10.2.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.2.0)
-  * [iOS 5.68.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.68.0)
-
-### 🔄 Other Changes
-* Bump fastlane from 2.232.2 to 2.233.0 (#908) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `a1eed48` to `e348913` (#907) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `20911d1` to `a1eed48` (#904) via dependabot[bot] (@dependabot[bot])
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.19.0 (#979) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.12.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.12.0)
+  * [iOS 5.80.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.2)
+  * [iOS 5.80.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.1)

@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,9 +19,11 @@ import android.window.OnBackInvokedDispatcher;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
@@ -50,6 +53,7 @@ import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 
 import kotlin.Unit;
 
+@Keep
 public class PaywallViewPresenter {
 
     private static final String TAG = "PurchasesUnity";
@@ -197,14 +201,13 @@ public class PaywallViewPresenter {
         setupBackPressRouting(dialog);
         setupDismissListener(dialog);
 
-        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView);
+        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView, dialog.getWindow());
         dialog.setContentView(container, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         ));
 
         dialog.show();
-        applyEdgeToEdgeFlags(dialog.getWindow());
     }
 
     /**
@@ -371,70 +374,101 @@ public class PaywallViewPresenter {
     // region Edge-to-edge
 
     /**
-     * Wraps the PaywallView in a container that provides corrected window insets.
+     * Wraps the PaywallView in a container whose inset listener forwards the dialog
+     * window's status and navigation bar insets to the Compose content.
      *
-     * FLAG_LAYOUT_NO_LIMITS (applied later) is needed to draw the paywall behind the
-     * status bar and navigation bar, but it causes the system to report zero insets.
-     * This container intercepts the zero insets and replaces them with the real system
-     * bar values so the PaywallView's Compose content can pad itself appropriately.
+     * Insets must be read from the dialog window, not the host activity, because the host
+     * (e.g. Unity with unity.launch-fullscreen=True) may hide system bars, which makes
+     * the activity report zero nav-bar insets while the dialog still shows them.
+     *
+     * The listener also defers FLAG_LAYOUT_NO_LIMITS until after the first inset dispatch
+     * (see {@link InsetsCachingListener}).
      */
-    private static FrameLayout createEdgeToEdgeContainer(Activity activity, PaywallView paywallView) {
-        final Insets statusBarInsets = getActivityInsets(activity, WindowInsetsCompat.Type.statusBars());
-        final Insets navBarInsets = getActivityInsets(activity, WindowInsetsCompat.Type.navigationBars());
-
+    private static FrameLayout createEdgeToEdgeContainer(
+            Activity activity, PaywallView paywallView, @Nullable Window dialogWindow) {
         FrameLayout container = new FrameLayout(activity);
         container.addView(paywallView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         ));
 
-        ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
-            WindowInsetsCompat corrected = new WindowInsetsCompat.Builder(insets)
-                    .setInsets(WindowInsetsCompat.Type.statusBars(), statusBarInsets)
-                    .setInsets(WindowInsetsCompat.Type.navigationBars(), navBarInsets)
-                    .build();
-            ViewCompat.dispatchApplyWindowInsets(paywallView, corrected);
-            return corrected;
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(container,
+                new InsetsCachingListener(paywallView, dialogWindow));
 
         return container;
     }
 
     /**
-     * Reads the real insets of the given type from the activity's window.
-     * Falls back to the status_bar_height system resource for status bar insets
-     * if the activity's insets are not yet available.
+     * Inset listener that forwards the dialog window's status and navigation bar insets to
+     * the PaywallView. Triggers FLAG_LAYOUT_NO_LIMITS on the dialog window once it has
+     * observed a real (non-zero) inset, to avoid a race where the flag would be set before
+     * any inset has been dispatched.
+     *
+     * On API 30+ the typed insets ({@link WindowInsetsCompat.Type#statusBars()} and
+     * {@link WindowInsetsCompat.Type#navigationBars()}) are descriptive: they keep being
+     * dispatched with real values across configuration changes (rotation, fold/unfold,
+     * multi-window resize) regardless of FLAG_LAYOUT_NO_LIMITS, so each new dispatch
+     * refreshes the cache and downstream Compose padding stays correct. FLAG_LAYOUT_NO_LIMITS
+     * only zeroes the legacy {@code getSystemWindowInsets()} surface, which this listener
+     * does not read.
+     *
+     * The cache is kept as a defensive fallback for older APIs or edge configurations where
+     * a dispatch might transiently arrive with zero typed values.
      */
-    private static Insets getActivityInsets(Activity activity, int insetsType) {
-        WindowInsetsCompat activityInsets = ViewCompat.getRootWindowInsets(
-                activity.getWindow().getDecorView());
-        if (activityInsets != null) {
-            return activityInsets.getInsets(insetsType);
+    private static final class InsetsCachingListener implements OnApplyWindowInsetsListener {
+        private final PaywallView paywallView;
+        @Nullable private final Window dialogWindow;
+        @Nullable private Insets cachedStatusBars;
+        @Nullable private Insets cachedNavBars;
+        private boolean edgeToEdgeFlagsApplied;
+
+        InsetsCachingListener(PaywallView paywallView, @Nullable Window dialogWindow) {
+            this.paywallView = paywallView;
+            this.dialogWindow = dialogWindow;
         }
-        if (insetsType == WindowInsetsCompat.Type.statusBars()) {
-            int sbHeight = getSystemBarHeight(activity, "status_bar_height");
-            return Insets.of(0, sbHeight, 0, 0);
+
+        @NonNull
+        @Override
+        public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+            Insets incomingStatusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            Insets incomingNavBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+            if (!Insets.NONE.equals(incomingStatusBars)) {
+                cachedStatusBars = incomingStatusBars;
+            }
+            if (!Insets.NONE.equals(incomingNavBars)) {
+                cachedNavBars = incomingNavBars;
+            }
+
+            Insets effectiveStatusBars = cachedStatusBars != null ? cachedStatusBars : incomingStatusBars;
+            Insets effectiveNavBars = cachedNavBars != null ? cachedNavBars : incomingNavBars;
+
+            WindowInsetsCompat corrected = new WindowInsetsCompat.Builder(insets)
+                    .setInsets(WindowInsetsCompat.Type.statusBars(), effectiveStatusBars)
+                    .setInsets(WindowInsetsCompat.Type.navigationBars(), effectiveNavBars)
+                    .build();
+            ViewCompat.dispatchApplyWindowInsets(paywallView, corrected);
+
+            if (!edgeToEdgeFlagsApplied && (cachedStatusBars != null || cachedNavBars != null)) {
+                edgeToEdgeFlagsApplied = true;
+                v.post(() -> applyEdgeToEdgeFlags(dialogWindow));
+            }
+
+            return corrected;
         }
-        return Insets.NONE;
     }
 
     /**
-     * Applies edge-to-edge window flags after the dialog is shown.
-     * Must be called after {@link Dialog#show()} so the decor view is attached.
+     * Applies edge-to-edge window flags. Called by {@link InsetsCachingListener} after the
+     * first real inset dispatch has been observed and cached.
      */
     private static void applyEdgeToEdgeFlags(@Nullable Window window) {
         if (window == null) return;
-        window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(Color.TRANSPARENT);
-        window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-    }
-
-    private static int getSystemBarHeight(Activity activity, String resourceName) {
-        int resourceId = activity.getResources().getIdentifier(resourceName, "dimen", "android");
-        if (resourceId > 0) {
-            return activity.getResources().getDimensionPixelSize(resourceId);
+        if (Build.VERSION.SDK_INT < 35) {
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
-        return 0;
+        window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
     }
 
     // endregion

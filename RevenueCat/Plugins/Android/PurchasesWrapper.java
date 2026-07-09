@@ -2,6 +2,7 @@ package com.revenuecat.purchasesunity;
 
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -37,6 +38,7 @@ import java.util.Map;
 
 import kotlin.Unit;
 
+@Keep
 public class PurchasesWrapper {
     private static final String RECEIVE_STOREFRONT = "_receiveStorefront";
     private static final String RECEIVE_PRODUCTS = "_receiveProducts";
@@ -64,7 +66,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "9.0.1";
+    private static final String PLUGIN_VERSION = "9.5.0";
 
     private static String gameObject;
 
@@ -90,14 +92,18 @@ public class PurchasesWrapper {
                              boolean shouldShowInAppMessagesAutomatically,
                              String dangerousSettingsJSON,
                              String entitlementVerificationMode,
-                             boolean pendingTransactionsForPrepaidPlansEnabled) {
+                             boolean pendingTransactionsForPrepaidPlansEnabled,
+                             boolean diagnosticsEnabled,
+                             boolean automaticDeviceIdentifierCollectionEnabled,
+                             String preferredUILocaleOverride) {
         PurchasesWrapper.gameObject = gameObject;
         PlatformInfo platformInfo = new PlatformInfo(PLATFORM_NAME, PLUGIN_VERSION);
         Store store = useAmazon ? Store.AMAZON : Store.PLAY_STORE;
         DangerousSettings dangerousSettings = getDangerousSettingsFromJSON(dangerousSettingsJSON);
         CommonKt.configure(UnityPlayer.currentActivity, apiKey, appUserId, purchasesAreCompletedBy, platformInfo, store,
                 dangerousSettings, shouldShowInAppMessagesAutomatically, entitlementVerificationMode,
-                pendingTransactionsForPrepaidPlansEnabled);
+                pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
+                automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
@@ -444,6 +450,10 @@ public class PurchasesWrapper {
         CommonKt.invalidateCustomerInfoCache();
     }
 
+    public static void overridePreferredUILocale(String locale) {
+        CommonKt.overridePreferredLocale(locale);
+    }
+
     public static void setAttributes(String jsonAttributes) {
         try {
             JSONObject jsonObject = new JSONObject(jsonAttributes);
@@ -531,6 +541,15 @@ public class PurchasesWrapper {
 
     public static void setCreative(String creative) {
         SubscriberAttributesKt.setCreative(creative);
+    }
+
+    public static void setAppsFlyerConversionData(String conversionDataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(conversionDataJson);
+            SubscriberAttributesKt.setAppsFlyerConversionData(MappersHelpersKt.convertToMap(jsonObject));
+        } catch (JSONException e) {
+            Log.e("Purchases", "Failure parsing conversion data " + conversionDataJson);
+        }
     }
 
     public static void collectDeviceIdentifiers() {
@@ -708,6 +727,14 @@ public class PurchasesWrapper {
     }
 
     public static void trackCustomPaywallImpression(@Nullable String paywallId, @Nullable String offeringId) {
+        trackCustomPaywallImpression(paywallId, offeringId, null);
+    }
+
+    public static void trackCustomPaywallImpression(
+            @Nullable String paywallId,
+            @Nullable String offeringId,
+            @Nullable String presentedOfferingContextJSON
+    ) {
         Map<String, Object> data = new HashMap<>();
         if (paywallId != null) {
             data.put("paywallId", paywallId);
@@ -715,7 +742,107 @@ public class PurchasesWrapper {
         if (offeringId != null) {
             data.put("offeringId", offeringId);
         }
-        CommonKt.trackCustomPaywallImpression(data);
+        if (presentedOfferingContextJSON != null && !presentedOfferingContextJSON.isEmpty()) {
+            try {
+                JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
+                Object presentedOfferingContext = valueWithoutNullValues(
+                        MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject));
+                if (presentedOfferingContext != null) {
+                    data.put("presentedOfferingContext", presentedOfferingContext);
+                }
+            } catch (JSONException e) {
+                logJSONException(e);
+            }
+        }
+        CommonKt.trackCustomPaywallImpression(mapWithoutNullValues(data));
+    }
+
+    private static HashMap<String, Object> mapWithoutNullValues(@Nullable Map<String, Object> map) {
+        HashMap<String, Object> filteredMap = new HashMap<>();
+        if (map != null) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                Object value = valueWithoutNullValues(entry.getValue());
+                if (value != null) {
+                    filteredMap.put(entry.getKey(), value);
+                }
+            }
+        }
+        return filteredMap;
+    }
+
+    private static Object valueWithoutNullValues(@Nullable Object value) {
+        if (value instanceof Map) {
+            HashMap<String, Object> filteredMap = new HashMap<>();
+            Map<?, ?> originalMap = (Map<?, ?>) value;
+            for (Map.Entry<?, ?> entry : originalMap.entrySet()) {
+                Object filteredValue = valueWithoutNullValues(entry.getValue());
+                if (entry.getKey() instanceof String && filteredValue != null) {
+                    filteredMap.put((String) entry.getKey(), filteredValue);
+                }
+            }
+            return filteredMap;
+        }
+        if (value instanceof List) {
+            ArrayList<Object> filteredList = new ArrayList<>();
+            for (Object item : (List<?>) value) {
+                Object filteredItem = valueWithoutNullValues(item);
+                if (filteredItem != null) {
+                    filteredList.add(filteredItem);
+                }
+            }
+            return filteredList;
+        }
+        return value;
+    }
+
+    public static void trackAdDisplayed(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdDisplayed(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdOpened(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdOpened(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdRevenue(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdRevenue(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdLoaded(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdLoaded(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackAdFailedToLoad(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdFailedToLoad(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
     }
 
     private static void logJSONException(JSONException e) {

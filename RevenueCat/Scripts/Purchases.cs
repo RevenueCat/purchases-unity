@@ -3,7 +3,6 @@ using UnityEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using RevenueCat.SimpleJSON;
-
 #pragma warning disable CS0649
 
 public partial class Purchases : MonoBehaviour
@@ -99,6 +98,8 @@ public partial class Purchases : MonoBehaviour
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
+    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+    public RevenueCat.AdTracker AdTracker { get; private set; }
 
     private void Start()
     {
@@ -109,6 +110,7 @@ public partial class Purchases : MonoBehaviour
 #else
         _wrapper = new PurchasesWrapperNoop();
 #endif
+        AdTracker = new RevenueCat.AdTracker(_wrapper);
         if (!string.IsNullOrEmpty(proxyURL))
         {
             _wrapper.SetProxyURL(proxyURL);
@@ -192,7 +194,9 @@ public partial class Purchases : MonoBehaviour
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.PurchasesAreCompletedBy, purchasesConfiguration.StoreKitVersion, purchasesConfiguration.UserDefaultsSuiteName,
             purchasesConfiguration.UseAmazon, dangerousSettings, purchasesConfiguration.ShouldShowInAppMessagesAutomatically,
-            purchasesConfiguration.EntitlementVerificationMode, purchasesConfiguration.PendingTransactionsForPrepaidPlansEnabled);
+            purchasesConfiguration.EntitlementVerificationMode, purchasesConfiguration.PendingTransactionsForPrepaidPlansEnabled,
+            purchasesConfiguration.DiagnosticsEnabled, purchasesConfiguration.AutomaticDeviceIdentifierCollectionEnabled,
+            purchasesConfiguration.PreferredUILocaleOverride);
     }
 
     private bool IsAndroidEmulator()
@@ -829,7 +833,15 @@ public partial class Purchases : MonoBehaviour
         _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
     }
 
-    ///
+    /// <summary>
+    /// Overrides the preferred UI locale (e.g. "de_DE") used by RevenueCat UI components like Paywalls,
+    /// instead of the device locale. Pass null to clear the override.
+    /// </summary>
+    public void OverridePreferredUILocale(string locale)
+    {
+        _wrapper.OverridePreferredUILocale(locale);
+    }
+
     /// <summary>
     /// Invalidates the cache for customer information.
     /// </summary>
@@ -1164,6 +1176,63 @@ public partial class Purchases : MonoBehaviour
     public void SetCreative(string creative)
     {
         _wrapper.SetCreative(creative);
+    }
+
+    /**
+     * <summary>
+     * Sets conversion data from AppsFlyer's onConversionDataSuccess callback. This method extracts
+     * the relevant attribution fields from the AppsFlyer conversion data and sets the corresponding
+     * RevenueCat subscriber attributes. Note that this method will never unset any attributes.
+     * </summary>
+     * <param name="conversionData">The conversion data from AppsFlyer's onConversionDataSuccess
+     * callback. Pass the result of <c>AppsFlyer.CallbackStringToDictionary(conversionData)</c>.</param>
+     */
+    public void SetAppsFlyerConversionData(Dictionary<string, object> conversionData)
+    {
+        var jsonObject = new JSONObject();
+        foreach (var keyValuePair in conversionData)
+        {
+            jsonObject[keyValuePair.Key] = ConvertToJsonNode(keyValuePair.Value);
+        }
+
+        _wrapper.SetAppsFlyerConversionData(jsonObject.ToString());
+    }
+
+    private static JSONNode ConvertToJsonNode(object value)
+    {
+        switch (value)
+        {
+            case null:
+                return JSONNull.CreateOrGet();
+            case string stringValue:
+                return stringValue;
+            case bool boolValue:
+                return boolValue;
+            case int intValue:
+                return intValue;
+            case long longValue:
+                return longValue;
+            case float floatValue:
+                return floatValue;
+            case double doubleValue:
+                return doubleValue;
+            case IDictionary<string, object> dictValue:
+                var nestedObject = new JSONObject();
+                foreach (var keyValuePair in dictValue)
+                {
+                    nestedObject[keyValuePair.Key] = ConvertToJsonNode(keyValuePair.Value);
+                }
+                return nestedObject;
+            case IEnumerable<object> listValue:
+                var nestedArray = new JSONArray();
+                foreach (var item in listValue)
+                {
+                    nestedArray.Add(ConvertToJsonNode(item));
+                }
+                return nestedArray;
+            default:
+                return value.ToString();
+        }
     }
 
     /**

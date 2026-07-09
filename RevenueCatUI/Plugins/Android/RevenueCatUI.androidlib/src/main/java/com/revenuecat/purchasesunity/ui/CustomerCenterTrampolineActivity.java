@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 
 import kotlin.Unit;
 
+@Keep
 public class CustomerCenterTrampolineActivity extends ComponentActivity {
     private static final String TAG = "PurchasesUnity";
 
