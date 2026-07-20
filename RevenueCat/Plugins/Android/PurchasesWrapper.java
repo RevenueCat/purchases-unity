@@ -64,6 +64,8 @@ public class PurchasesWrapper {
     private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
     private static final String PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = "_purchasePackageWithWinBackOffer";
     private static final String HANDLE_LOG = "_handleLog";
+    private static final String GENERATE_REWARD_VERIFICATION_TOKEN = "_generateRewardVerificationToken";
+    private static final String POLL_REWARD_VERIFICATION = "_pollRewardVerification";
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "9.5.1";
@@ -843,6 +845,25 @@ public class PurchasesWrapper {
         } catch (JSONException e) {
             logJSONException(e);
         }
+    }
+
+    public static void generateRewardVerificationToken(String impressionId) {
+        Map<String, ?> token = CommonKt.generateRewardVerificationToken(impressionId);
+        sendJSONObject(MappersHelpersKt.convertToJson(token), GENERATE_REWARD_VERIFICATION_TOKEN);
+    }
+
+    public static void pollRewardVerification(String clientTransactionId) {
+        CommonKt.pollRewardVerification(clientTransactionId, new OnResult() {
+            @Override
+            public void onReceived(Map<String, ?> map) {
+                sendJSONObject(MappersHelpersKt.convertToJson(map), POLL_REWARD_VERIFICATION);
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendError(errorContainer, POLL_REWARD_VERIFICATION);
+            }
+        });
     }
 
     private static void logJSONException(JSONException e) {
