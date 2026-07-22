@@ -188,10 +188,10 @@ commands:
       - restore_cache:
           keys:
             # This cache key should be updated whenever we change the Ruby version
-            - v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
-      # Ruby 3.2.0 via mise (see mise.toml); avoids a crash with Fastlane and Ruby 3.4.0
-      # https://github.com/fastlane/fastlane/issues/21942
-      # rbenv is deprecated here in favor of mise.
+            - v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
+      # Ruby 3.3.0 via mise (see mise.toml). rbenv is deprecated here in favor of mise.
+      # rb-readline is added in IntegrationTests/Gemfile to avoid a Ruby 3.3+/fastlane
+      # terminfo crash on macOS (https://github.com/fastlane/fastlane/issues/21794).
       - revenuecat/install-mise-tools:
           tools: ruby
       - run:
@@ -206,7 +206,7 @@ commands:
             bundle install
       - save_cache:
           # This cache key should be updated whenever we change the Ruby version
-          key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+          key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
           paths:
             - vendor/bundle
 jobs:
@@ -455,7 +455,7 @@ jobs:
   github-release:
     description: "Creates a github release"
     docker:
-      - image: cimg/ruby:3.2.0
+      - image: cimg/ruby:3.3.0
     steps:
       - checkout
       - attach_workspace:
@@ -471,7 +471,7 @@ jobs:
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
-      - image: cimg/ruby:3.2.0
+      - image: cimg/ruby:3.3.0
     steps:
       - checkout
       - revenuecat/install-gem-mac-dependencies:
@@ -494,7 +494,7 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - revenuecat/danger:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
 
   deploy-check:
     when:
@@ -544,7 +544,7 @@ workflows:
             - archive-ios-cocoapods
           <<: *release-branches
       - revenuecat/tag-current-branch:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
           requires:
             - hold
           <<: *release-branches
@@ -574,14 +574,14 @@ workflows:
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
 
   manual-trigger-bump:
     when:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
 
   update-hybrid-common-versions:
     when:

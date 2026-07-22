@@ -5,4 +5,4 @@ lockfile = true
 compile = false
 
 [tools]
-ruby = "3.2.0"
+ruby = "3.3.0"
