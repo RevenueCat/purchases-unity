@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using RevenueCat.SimpleJSON;
 
 public partial class Purchases
@@ -12,16 +13,24 @@ public partial class Purchases
         public readonly bool AutoSyncPurchases;
 
         /// <summary>
-        /// Enables RevenueCat Workflows (multipage paywalls). Internal RevenueCat use only;
-        /// behavior may change without warning.
+        /// Internal RevenueCat use only. Enables RevenueCat Workflows (multipage paywalls).
+        /// This is unsupported API that will be removed in a future release. Do not use unless
+        /// explicitly directed by RevenueCat; behavior may change without warning.
         /// </summary>
-        internal readonly bool UseWorkflows;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public readonly bool UseWorkflows;
 
         public DangerousSettings(bool autoSyncPurchases) : this(autoSyncPurchases, false)
         {
         }
 
-        internal DangerousSettings(bool autoSyncPurchases, bool useWorkflows)
+        /// <summary>
+        /// Internal RevenueCat use only. Enables RevenueCat Workflows (multipage paywalls).
+        /// This is unsupported API that will be removed in a future release. Do not use unless
+        /// explicitly directed by RevenueCat; behavior may change without warning.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public DangerousSettings(bool autoSyncPurchases, bool useWorkflows)
         {
             AutoSyncPurchases = autoSyncPurchases;
             UseWorkflows = useWorkflows;
