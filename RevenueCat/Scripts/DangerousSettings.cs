@@ -11,21 +11,33 @@ public partial class Purchases
     {
         public readonly bool AutoSyncPurchases;
 
-        public DangerousSettings(bool autoSyncPurchases)
+        /// <summary>
+        /// Enables RevenueCat Workflows (multipage paywalls). Internal RevenueCat use only;
+        /// behavior may change without warning.
+        /// </summary>
+        internal readonly bool UseWorkflows;
+
+        public DangerousSettings(bool autoSyncPurchases) : this(autoSyncPurchases, false)
+        {
+        }
+
+        internal DangerousSettings(bool autoSyncPurchases, bool useWorkflows)
         {
             AutoSyncPurchases = autoSyncPurchases;
+            UseWorkflows = useWorkflows;
         }
 
         public JSONNode Serialize()
         {
             var n = new JSONObject();
             n["AutoSyncPurchases"] = AutoSyncPurchases;
+            n["UseWorkflows"] = UseWorkflows;
             return n;
         }
 
         public override string ToString()
         {
-            return $"{nameof(AutoSyncPurchases)}: {AutoSyncPurchases}";
+            return $"{nameof(AutoSyncPurchases)}: {AutoSyncPurchases}, {nameof(UseWorkflows)}: {UseWorkflows}";
         }
     }
 }
