@@ -4,5 +4,8 @@ source "https://rubygems.org"
 
 git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
+# Works around a Ruby 3.3+ terminfo crash in fastlane on macOS:
+# https://github.com/fastlane/fastlane/issues/21794
+gem 'rb-readline'
 gem 'fastlane'
 gem 'cocoapods', '1.16.2'
