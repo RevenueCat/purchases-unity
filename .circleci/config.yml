@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@3.21.2
+  revenuecat: revenuecat/sdks-common-config@4.5.1
   unity: game-ci/unity@1.7.1
 
 executors:
@@ -188,16 +188,12 @@ commands:
       - restore_cache:
           keys:
             # This cache key should be updated whenever we change the Ruby version
-            - v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
-      - run:
-          # We're using Ruby 3.2.0 here to avoid an issue that caused a crash with Fastlane and Ruby 3.4.0
-          # https://github.com/fastlane/fastlane/issues/21942
-          name: Set Ruby 3.2.0
-          command: |
-            eval "$(rbenv init -)"
-            rbenv install -s 3.2.0
-            rbenv global 3.2.0
-            rbenv rehash
+            - v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+      # Ruby 3.2.0 via mise (see mise.toml); avoids a crash with Fastlane and Ruby 3.4.0
+      # https://github.com/fastlane/fastlane/issues/21942
+      # rbenv is deprecated here in favor of mise.
+      - revenuecat/install-mise-tools:
+          tools: ruby
       - run:
           name: Verify Ruby version
           command: ruby -v
@@ -210,10 +206,9 @@ commands:
             bundle install
       - save_cache:
           # This cache key should be updated whenever we change the Ruby version
-          key: v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+          key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
           paths:
             - vendor/bundle
-            - ~/.rbenv/versions/3.2.0
 jobs:
   check-meta-files:
     docker:
