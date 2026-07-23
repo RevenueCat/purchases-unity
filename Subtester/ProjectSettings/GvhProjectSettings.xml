@@ -16,7 +16,7 @@
   <projectSetting name="Google.IOSResolver.PodToolShellExecutionSetLang" value="True" />
   <projectSetting name="Google.IOSResolver.SwiftFrameworkSupportWorkaroundEnabled" value="True" />
   <projectSetting name="Google.IOSResolver.SwiftLanguageVersion" value="5.0" />
-  <projectSetting name="Google.IOSResolver.SwiftPackageManagerEnabled" value="False" />
+  <projectSetting name="Google.IOSResolver.SwiftPackageManagerEnabled" value="True" />
   <projectSetting name="Google.IOSResolver.VerboseLoggingEnabled" value="True" />
   <projectSetting name="Google.PackageManagerResolver.Enable" value="True" />
   <projectSetting name="Google.PackageManagerResolver.PromptToAddRegistries" value="True" />
