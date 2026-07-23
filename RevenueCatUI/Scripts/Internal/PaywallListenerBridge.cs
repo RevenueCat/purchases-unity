@@ -68,6 +68,21 @@ namespace RevenueCatUI.Internal
         {
             try
             {
+                DispatchEventToListener(listener, eventName, payloadJson);
+            }
+            finally
+            {
+                if (IsTerminalEvent(eventName))
+                {
+                    NotifyTerminalEventProcessed();
+                }
+            }
+        }
+
+        private static void DispatchEventToListener(PaywallListener listener, string eventName, string payloadJson)
+        {
+            try
+            {
                 var payload = string.IsNullOrEmpty(payloadJson) ? null : JSON.Parse(payloadJson);
                 switch (eventName)
                 {
@@ -105,6 +120,38 @@ namespace RevenueCatUI.Internal
             {
                 Debug.LogError($"[RevenueCatUI] Error handling paywall event '{eventName}': {e.Message}");
             }
+        }
+
+        private static bool IsTerminalEvent(string eventName)
+        {
+            return eventName == EventPurchaseCompleted
+                || eventName == EventPurchaseError
+                || eventName == EventPurchaseCancelled
+                || eventName == EventRestoreCompleted
+                || eventName == EventRestoreError;
+        }
+
+        /// <summary>
+        /// Acknowledges to native that a terminal event has been dispatched.
+        /// On Android this clears FLAG_NOT_FOCUSABLE on the paywall dialog, which is kept
+        /// set during a purchase/restore so Unity's window regains focus (and its player
+        /// loop resumes) when the billing activity finishes. The clear is deferred to this
+        /// acknowledgement so the dialog does not take focus back before Unity has pumped
+        /// the queued events.
+        /// </summary>
+        private static void NotifyTerminalEventProcessed()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            try
+            {
+                using var cls = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.RevenueCatUI");
+                cls.CallStatic("notifyPaywallListenerEventProcessed");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI] Failed to notify paywall event processed: {e.Message}");
+            }
+#endif
         }
     }
 }

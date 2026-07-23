@@ -80,6 +80,10 @@ public class RevenueCatUI {
         PaywallViewPresenter.onPurchaseLogicResult(operationType, resultString);
     }
 
+    public static void notifyPaywallListenerEventProcessed() {
+        PaywallViewPresenter.onPaywallListenerEventProcessed();
+    }
+
     public static void resolvePurchaseLogicResult(String requestId, String resultString, String errorMessage) {
         HybridPurchaseLogicBridge.resolveResult(requestId, resultString, errorMessage);
     }

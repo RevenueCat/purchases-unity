@@ -235,9 +235,10 @@ public class PaywallViewPresenter {
 
             // NOTE: FLAG_NOT_FOCUSABLE is NOT set here so the Dialog can receive
             // back navigation events (key events on pre-API 33, gesture back on
-            // API 33+). For PurchaseLogic, FLAG_NOT_FOCUSABLE is toggled on/off
-            // only during active purchase/restore operations to fix a threading
-            // issue with PurchasesAreCompletedBy.MyApp.
+            // API 33+). For PurchaseLogic and paywall listener events,
+            // FLAG_NOT_FOCUSABLE is toggled on/off only during active
+            // purchase/restore operations so Unity's window keeps focus and its
+            // player loop stays running while C# callbacks need to execute.
 
             window.setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -330,19 +331,28 @@ public class PaywallViewPresenter {
         return paywallView;
     }
 
+    // When forwarding events, FLAG_NOT_FOCUSABLE is set on the dialog while a purchase or
+    // restore is in flight, and cleared only after C# acknowledges the terminal event
+    // (see onPaywallListenerEventProcessed). Unity's player loop pauses when its Activity
+    // is paused (e.g. by the billing Activity) and only resumes once Unity's window regains
+    // focus. If the dialog stayed focusable, Unity would remain paused after the billing
+    // sheet closed and queued listener events would not be delivered until the paywall was
+    // dismissed. This mirrors the FLAG_NOT_FOCUSABLE handling used for PurchaseLogic.
     private static PaywallListener createPaywallListener(boolean forwardEvents) {
         return new PaywallListener() {
             @Override
             public void onRestoreError(@NonNull PurchasesError purchasesError) {
-                setDialogNotFocusable(false);
                 if (forwardEvents) {
                     emitErrorEvent("onRestoreError", purchasesError);
+                } else {
+                    setDialogNotFocusable(false);
                 }
             }
 
             @Override
             public void onRestoreStarted() {
                 if (forwardEvents) {
+                    setDialogNotFocusable(true);
                     RevenueCatUI.sendPaywallEvent("onRestoreStarted", null);
                 }
             }
@@ -350,15 +360,17 @@ public class PaywallViewPresenter {
             @Override
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
                 lastResult = RESULT_ERROR;
-                setDialogNotFocusable(false);
                 if (forwardEvents) {
                     emitErrorEvent("onPurchaseError", purchasesError);
+                } else {
+                    setDialogNotFocusable(false);
                 }
             }
 
             @Override
             public void onPurchaseStarted(@NonNull Package aPackage) {
                 if (forwardEvents) {
+                    setDialogNotFocusable(true);
                     try {
                         JSONObject payload = new JSONObject();
                         payload.put("package", MappersHelpersKt.convertToJson(OfferingsMapperKt.map(aPackage)));
@@ -371,9 +383,10 @@ public class PaywallViewPresenter {
 
             @Override
             public void onPurchaseCancelled() {
-                setDialogNotFocusable(false);
                 if (forwardEvents) {
                     RevenueCatUI.sendPaywallEvent("onPurchaseCancelled", null);
+                } else {
+                    setDialogNotFocusable(false);
                 }
             }
 
@@ -391,7 +404,6 @@ public class PaywallViewPresenter {
             public void onPurchaseCompleted(@NonNull CustomerInfo customerInfo,
                                             @NonNull StoreTransaction storeTransaction) {
                 lastResult = RESULT_PURCHASED;
-                setDialogNotFocusable(false);
                 if (forwardEvents) {
                     try {
                         JSONObject payload = new JSONObject();
@@ -400,14 +412,16 @@ public class PaywallViewPresenter {
                         RevenueCatUI.sendPaywallEvent("onPurchaseCompleted", payload.toString());
                     } catch (Throwable e) {
                         Log.w(TAG, "Failed to send onPurchaseCompleted event: " + e.getMessage());
+                        setDialogNotFocusable(false);
                     }
+                } else {
+                    setDialogNotFocusable(false);
                 }
             }
 
             @Override
             public void onRestoreCompleted(@NonNull CustomerInfo customerInfo) {
                 lastResult = RESULT_RESTORED;
-                setDialogNotFocusable(false);
                 if (forwardEvents) {
                     try {
                         JSONObject payload = new JSONObject();
@@ -415,7 +429,10 @@ public class PaywallViewPresenter {
                         RevenueCatUI.sendPaywallEvent("onRestoreCompleted", payload.toString());
                     } catch (Throwable e) {
                         Log.w(TAG, "Failed to send onRestoreCompleted event: " + e.getMessage());
+                        setDialogNotFocusable(false);
                     }
+                } else {
+                    setDialogNotFocusable(false);
                 }
             }
         };
@@ -429,7 +446,20 @@ public class PaywallViewPresenter {
             RevenueCatUI.sendPaywallEvent(eventName, payload.toString());
         } catch (Throwable e) {
             Log.w(TAG, "Failed to send " + eventName + " event: " + e.getMessage());
+            setDialogNotFocusable(false);
         }
+    }
+
+    /**
+     * Called from C# after a terminal paywall listener event (purchase/restore completed,
+     * error, or cancelled) has been dispatched on the Unity main thread. Clears
+     * FLAG_NOT_FOCUSABLE so the dialog receives back navigation again. The clear is
+     * deferred to this acknowledgement (instead of happening in the native listener
+     * callback) so the dialog does not take window focus back before Unity's player loop
+     * has resumed and pumped the queued events.
+     */
+    public static void onPaywallListenerEventProcessed() {
+        new Handler(Looper.getMainLooper()).post(() -> setDialogNotFocusable(false));
     }
 
     // endregion
