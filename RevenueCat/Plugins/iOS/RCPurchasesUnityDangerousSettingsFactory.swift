@@ -6,9 +6,7 @@ import Foundation
 @objc public class RCPurchasesUnityDangerousSettingsFactory: NSObject {
 
     @objc public static func make(autoSyncPurchases: Bool, useWorkflows: Bool) -> DangerousSettings {
-        return useWorkflows
-            ? DangerousSettings(useWorkflows: true)
-            : DangerousSettings(autoSyncPurchases: autoSyncPurchases)
+        return DangerousSettings(autoSyncPurchases: autoSyncPurchases, useWorkflows: useWorkflows)
     }
 
 }
