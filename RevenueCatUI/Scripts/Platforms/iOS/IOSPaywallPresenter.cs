@@ -28,7 +28,7 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            var tcs = new TaskCompletionSource<PaywallResult>();
+            var tcs = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             s_current = tcs;
             try
             {
@@ -79,7 +79,7 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            var tcs = new TaskCompletionSource<PaywallResult>();
+            var tcs = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             s_current = tcs;
             try
             {
@@ -127,22 +127,28 @@ namespace RevenueCatUI.Platforms
         private static void OnResult(string result)
         {
             PaywallListenerBridge.ClearCurrentListener();
+            var current = s_current;
+            s_current = null;
+            if (current == null) return;
+
+            PaywallResult paywallResult;
             try
             {
                 var token = (result ?? "ERROR");
                 var native = token.Split('|')[0];
                 var type = PaywallResultTypeExtensions.FromNativeString(native);
-                s_current?.TrySetResult(new PaywallResult(type));
+                paywallResult = new PaywallResult(type);
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Failed to handle paywall result '{result}': {e.Message}. Setting Error.");
-                s_current?.TrySetResult(PaywallResult.Error);
+                paywallResult = PaywallResult.Error;
             }
-            finally
-            {
-                s_current = null;
-            }
+
+            // Complete the task through the same main thread queue used for listener
+            // events, so any events posted before this result dispatch first regardless
+            // of how the caller awaits (e.g. ConfigureAwait(false)).
+            PaywallListenerBridge.PostToMainThread(() => current.TrySetResult(paywallResult));
         }
 
         [AOT.MonoPInvokeCallback(typeof(PaywallResultCallback))]

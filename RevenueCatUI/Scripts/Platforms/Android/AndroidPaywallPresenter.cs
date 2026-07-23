@@ -53,7 +53,7 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            _current = new TaskCompletionSource<PaywallResult>();
+            _current = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             try
             {
                 var offeringIdentifier = options?.OfferingIdentifier;
@@ -104,7 +104,7 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            _current = new TaskCompletionSource<PaywallResult>();
+            _current = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             try
             {
                 var offeringIdentifier = options?.OfferingIdentifier;
@@ -147,22 +147,27 @@ namespace RevenueCatUI.Platforms
             PurchaseLogicBridge.ClearCurrentPurchaseLogic();
             PaywallListenerBridge.ClearCurrentListener();
             RestoreOrientation();
-            if (_current == null) return;
+            var current = _current;
+            _current = null;
+            if (current == null) return;
+
+            PaywallResult result;
             try
             {
                 var token = resultData?.Split('|')[0] ?? "ERROR";
                 var type = PaywallResultTypeExtensions.FromNativeString(token);
-                _current.TrySetResult(new PaywallResult(type));
+                result = new PaywallResult(type);
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Failed to handle paywall result '{resultData}': {e.Message}. Setting Error.");
-                _current.TrySetResult(PaywallResult.Error);
+                result = PaywallResult.Error;
             }
-            finally
-            {
-                _current = null;
-            }
+
+            // Complete the task through the same main thread queue used for listener
+            // events, so any events posted before this result dispatch first regardless
+            // of how the caller awaits (e.g. ConfigureAwait(false)).
+            PaywallListenerBridge.PostToMainThread(() => current.TrySetResult(result));
         }
 
         /// <summary>

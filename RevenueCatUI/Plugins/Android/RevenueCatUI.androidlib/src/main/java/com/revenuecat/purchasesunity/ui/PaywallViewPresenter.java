@@ -82,6 +82,14 @@ public class PaywallViewPresenter {
     private static PaywallBackPressedOwner backPressedOwner;
     private static volatile HybridPurchaseLogicBridge currentPurchaseLogicBridge;
 
+    // Number of listener-forwarded purchases that set FLAG_NOT_FOCUSABLE and have not yet
+    // been acknowledged by C# (see onPaywallListenerEventProcessed). The flag is only
+    // cleared when this reaches zero, so a stale acknowledgement from a previous purchase
+    // cannot clear the flag while a newer purchase is in flight, and acknowledgements for
+    // events that never set the flag (restore terminals, MY_APP error/cancel events) are
+    // no-ops and cannot clear a flag owned by the PurchaseLogic path.
+    private static int pendingListenerFlagOps = 0;
+
     /**
      * A simple OnBackPressedDispatcherOwner that provides the OnBackPressedDispatcher
      * required by Compose's BackHandler composable. Unity's Activity does not extend
@@ -331,8 +339,8 @@ public class PaywallViewPresenter {
         return paywallView;
     }
 
-    // When forwarding events, FLAG_NOT_FOCUSABLE is set on the dialog while a purchase or
-    // restore is in flight, and cleared only after C# acknowledges the terminal event
+    // When forwarding events, FLAG_NOT_FOCUSABLE is set on the dialog while a purchase
+    // is in flight, and cleared only after C# acknowledges the terminal event
     // (see onPaywallListenerEventProcessed). Unity's player loop pauses when its Activity
     // is paused (e.g. by the billing Activity) and only resumes once Unity's window regains
     // focus. If the dialog stayed focusable, Unity would remain paused after the billing
@@ -343,7 +351,7 @@ public class PaywallViewPresenter {
             @Override
             public void onRestoreError(@NonNull PurchasesError purchasesError) {
                 if (forwardEvents) {
-                    emitErrorEvent("onRestoreError", purchasesError);
+                    emitErrorEvent("onRestoreError", purchasesError, false);
                 } else {
                     setDialogNotFocusable(false);
                 }
@@ -351,8 +359,10 @@ public class PaywallViewPresenter {
 
             @Override
             public void onRestoreStarted() {
+                // No FLAG_NOT_FOCUSABLE here: restores never launch an Activity, so Unity's
+                // player loop keeps running and events deliver without it. Setting it would
+                // only risk dead back navigation on a hung restore without a close button.
                 if (forwardEvents) {
-                    setDialogNotFocusable(true);
                     RevenueCatUI.sendPaywallEvent("onRestoreStarted", null);
                 }
             }
@@ -361,7 +371,7 @@ public class PaywallViewPresenter {
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
                 lastResult = RESULT_ERROR;
                 if (forwardEvents) {
-                    emitErrorEvent("onPurchaseError", purchasesError);
+                    emitErrorEvent("onPurchaseError", purchasesError, true);
                 } else {
                     setDialogNotFocusable(false);
                 }
@@ -370,6 +380,7 @@ public class PaywallViewPresenter {
             @Override
             public void onPurchaseStarted(@NonNull Package aPackage) {
                 if (forwardEvents) {
+                    pendingListenerFlagOps++;
                     setDialogNotFocusable(true);
                     try {
                         JSONObject payload = new JSONObject();
@@ -412,7 +423,8 @@ public class PaywallViewPresenter {
                         RevenueCatUI.sendPaywallEvent("onPurchaseCompleted", payload.toString());
                     } catch (Throwable e) {
                         Log.w(TAG, "Failed to send onPurchaseCompleted event: " + e.getMessage());
-                        setDialogNotFocusable(false);
+                        // No acknowledgement will come for this event; release its flag op.
+                        releaseListenerFlagOp();
                     }
                 } else {
                     setDialogNotFocusable(false);
@@ -429,7 +441,6 @@ public class PaywallViewPresenter {
                         RevenueCatUI.sendPaywallEvent("onRestoreCompleted", payload.toString());
                     } catch (Throwable e) {
                         Log.w(TAG, "Failed to send onRestoreCompleted event: " + e.getMessage());
-                        setDialogNotFocusable(false);
                     }
                 } else {
                     setDialogNotFocusable(false);
@@ -438,7 +449,7 @@ public class PaywallViewPresenter {
         };
     }
 
-    private static void emitErrorEvent(String eventName, PurchasesError purchasesError) {
+    private static void emitErrorEvent(String eventName, PurchasesError purchasesError, boolean releaseFlagOpOnFailure) {
         try {
             JSONObject payload = new JSONObject();
             Map<String, ?> errorMap = PurchasesErrorKt.map(purchasesError, Collections.emptyMap()).getInfo();
@@ -446,20 +457,32 @@ public class PaywallViewPresenter {
             RevenueCatUI.sendPaywallEvent(eventName, payload.toString());
         } catch (Throwable e) {
             Log.w(TAG, "Failed to send " + eventName + " event: " + e.getMessage());
-            setDialogNotFocusable(false);
+            if (releaseFlagOpOnFailure) {
+                releaseListenerFlagOp();
+            }
         }
     }
 
     /**
      * Called from C# after a terminal paywall listener event (purchase/restore completed,
-     * error, or cancelled) has been dispatched on the Unity main thread. Clears
-     * FLAG_NOT_FOCUSABLE so the dialog receives back navigation again. The clear is
-     * deferred to this acknowledgement (instead of happening in the native listener
-     * callback) so the dialog does not take window focus back before Unity's player loop
-     * has resumed and pumped the queued events.
+     * error, or cancelled) has been dispatched on the Unity main thread. Releases one
+     * pending flag op and clears FLAG_NOT_FOCUSABLE when none remain, so the dialog
+     * receives back navigation again. The clear is deferred to this acknowledgement
+     * (instead of happening in the native listener callback) so the dialog does not take
+     * window focus back before Unity's player loop has resumed and pumped the queued
+     * events. Counting (rather than clearing unconditionally) means a stale
+     * acknowledgement from a previous purchase cannot clear the flag while a newer
+     * purchase is in flight, and acknowledgements for events that never set the flag
+     * are no-ops.
      */
     public static void onPaywallListenerEventProcessed() {
-        new Handler(Looper.getMainLooper()).post(() -> setDialogNotFocusable(false));
+        new Handler(Looper.getMainLooper()).post(PaywallViewPresenter::releaseListenerFlagOp);
+    }
+
+    private static void releaseListenerFlagOp() {
+        if (pendingListenerFlagOps > 0 && --pendingListenerFlagOps == 0) {
+            setDialogNotFocusable(false);
+        }
     }
 
     // endregion
@@ -639,6 +662,7 @@ public class PaywallViewPresenter {
         Dialog dialog = currentDialog;
         currentDialog = null;
         lastResult = null;
+        pendingListenerFlagOps = 0;
         if (dialog != null) {
             try {
                 dialog.dismiss();

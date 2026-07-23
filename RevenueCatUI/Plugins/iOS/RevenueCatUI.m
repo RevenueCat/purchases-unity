@@ -89,6 +89,12 @@ static void RCUIEmitPaywallEvent(RCUIPaywallEventCallback callback, const char *
 
     NSString *jsonString = nil;
     if (payload != nil) {
+        // dataWithJSONObject: raises NSInvalidArgumentException (rather than returning an
+        // error) for non-JSON-serializable values, so validate first.
+        if (![NSJSONSerialization isValidJSONObject:payload]) {
+            NSLog(@"[RevenueCatUI] Skipping paywall event %s: payload is not JSON-serializable", eventName);
+            return;
+        }
         NSError *error = nil;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
         if (!jsonData || error) {

@@ -35,11 +35,36 @@ namespace RevenueCatUI.Internal
             // Capture Unity's main thread SynchronizationContext.
             // This is called from the presenter on the main thread.
             s_mainThreadContext = SynchronizationContext.Current;
+            if (s_mainThreadContext == null)
+            {
+                Debug.LogWarning("[RevenueCatUI] Present was called without a SynchronizationContext " +
+                                 "(likely off the Unity main thread). PaywallListener callbacks may be " +
+                                 "invoked off the main thread; call Present from the Unity main thread.");
+            }
         }
 
         internal static void ClearCurrentListener()
         {
             s_currentListener = null;
+        }
+
+        /// <summary>
+        /// Posts an action to the same main thread queue used for listener events, or runs
+        /// it synchronously if no context was captured. Used by the presenters to complete
+        /// the presentation Task after all previously posted events have dispatched, so the
+        /// event-before-result ordering holds regardless of how the caller awaits.
+        /// </summary>
+        internal static void PostToMainThread(Action action)
+        {
+            var context = s_mainThreadContext;
+            if (context != null)
+            {
+                context.Post(_ => action(), null);
+            }
+            else
+            {
+                action();
+            }
         }
 
         /// <summary>
