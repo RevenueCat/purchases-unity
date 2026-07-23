@@ -93,6 +93,15 @@ namespace DefaultNamespace
                 presentationConfiguration: PaywallPresentationConfiguration.FullScreen
             );
 
+            // Test PaywallOptions with listener
+            PaywallOptions options12 = new PaywallOptions(
+                offering: offering,
+                listener: new PaywallListener
+                {
+                    OnPurchaseCompleted = (customerInfo, storeTransaction) => { }
+                }
+            );
+
             // Test positional argument compatibility (must not break existing callers)
             PaywallOptions positional1 = new PaywallOptions(true);
             PaywallOptions positional2 = new PaywallOptions(true, PaywallPresentationConfiguration.FullScreen);

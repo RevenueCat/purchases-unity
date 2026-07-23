@@ -35,6 +35,11 @@ import com.revenuecat.purchases.Package;
 import com.revenuecat.purchases.PresentedOfferingContext;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.PurchasesError;
+import com.revenuecat.purchases.hybridcommon.mappers.CustomerInfoMapperKt;
+import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
+import com.revenuecat.purchases.hybridcommon.mappers.OfferingsMapperKt;
+import com.revenuecat.purchases.hybridcommon.mappers.PurchasesErrorKt;
+import com.revenuecat.purchases.hybridcommon.mappers.StoreTransactionMapperKt;
 import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 import com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback;
 import com.revenuecat.purchases.models.StoreTransaction;
@@ -45,6 +50,7 @@ import com.revenuecat.purchases.ui.revenuecatui.views.PaywallView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -116,7 +122,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -125,7 +132,7 @@ public class PaywallViewPresenter {
         }
 
         activity.runOnUiThread(() ->
-                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic)
+                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener)
         );
     }
 
@@ -136,7 +143,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -158,7 +166,7 @@ public class PaywallViewPresenter {
                     RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
                 } else {
                     activity.runOnUiThread(() ->
-                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic)
+                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener)
                     );
                 }
             }
@@ -180,7 +188,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         if (currentDialog != null) {
             Log.w(TAG, "Paywall is already being presented");
@@ -194,7 +203,7 @@ public class PaywallViewPresenter {
         currentDialog = dialog;
 
         PaywallView paywallView = createPaywallView(
-                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic
+                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener
         );
 
         setupBackPressedOwner(dialog.getWindow());
@@ -257,7 +266,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         PaywallView paywallView = new PaywallView(activity);
 
@@ -273,7 +283,7 @@ public class PaywallViewPresenter {
         }
 
         paywallView.setDisplayDismissButton(displayCloseButton);
-        paywallView.setPaywallListener(createPaywallListener());
+        paywallView.setPaywallListener(createPaywallListener(hasPaywallListener));
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
                 if (currentDialog != null) {
@@ -320,28 +330,51 @@ public class PaywallViewPresenter {
         return paywallView;
     }
 
-    private static PaywallListener createPaywallListener() {
+    private static PaywallListener createPaywallListener(boolean forwardEvents) {
         return new PaywallListener() {
             @Override
             public void onRestoreError(@NonNull PurchasesError purchasesError) {
                 setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    emitErrorEvent("onRestoreError", purchasesError);
+                }
             }
 
             @Override
-            public void onRestoreStarted() {}
+            public void onRestoreStarted() {
+                if (forwardEvents) {
+                    RevenueCatUI.sendPaywallEvent("onRestoreStarted", null);
+                }
+            }
 
             @Override
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
                 lastResult = RESULT_ERROR;
                 setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    emitErrorEvent("onPurchaseError", purchasesError);
+                }
             }
 
             @Override
-            public void onPurchaseStarted(@NonNull Package aPackage) {}
+            public void onPurchaseStarted(@NonNull Package aPackage) {
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("package", MappersHelpersKt.convertToJson(OfferingsMapperKt.map(aPackage)));
+                        RevenueCatUI.sendPaywallEvent("onPurchaseStarted", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onPurchaseStarted event: " + e.getMessage());
+                    }
+                }
+            }
 
             @Override
             public void onPurchaseCancelled() {
                 setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    RevenueCatUI.sendPaywallEvent("onPurchaseCancelled", null);
+                }
             }
 
             @Override
@@ -359,14 +392,44 @@ public class PaywallViewPresenter {
                                             @NonNull StoreTransaction storeTransaction) {
                 lastResult = RESULT_PURCHASED;
                 setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("customerInfo", MappersHelpersKt.convertToJson(CustomerInfoMapperKt.map(customerInfo)));
+                        payload.put("storeTransaction", MappersHelpersKt.convertToJson(StoreTransactionMapperKt.map(storeTransaction)));
+                        RevenueCatUI.sendPaywallEvent("onPurchaseCompleted", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onPurchaseCompleted event: " + e.getMessage());
+                    }
+                }
             }
 
             @Override
             public void onRestoreCompleted(@NonNull CustomerInfo customerInfo) {
                 lastResult = RESULT_RESTORED;
                 setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("customerInfo", MappersHelpersKt.convertToJson(CustomerInfoMapperKt.map(customerInfo)));
+                        RevenueCatUI.sendPaywallEvent("onRestoreCompleted", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onRestoreCompleted event: " + e.getMessage());
+                    }
+                }
             }
         };
+    }
+
+    private static void emitErrorEvent(String eventName, PurchasesError purchasesError) {
+        try {
+            JSONObject payload = new JSONObject();
+            Map<String, ?> errorMap = PurchasesErrorKt.map(purchasesError, Collections.emptyMap()).getInfo();
+            payload.put("error", MappersHelpersKt.convertToJson(errorMap));
+            RevenueCatUI.sendPaywallEvent(eventName, payload.toString());
+        } catch (Throwable e) {
+            Log.w(TAG, "Failed to send " + eventName + " event: " + e.getMessage());
+        }
     }
 
     // endregion

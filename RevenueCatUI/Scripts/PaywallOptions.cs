@@ -66,6 +66,11 @@ namespace RevenueCatUI
         internal PurchaseLogic PurchaseLogic { get; }
 
         /// <summary>
+        /// Optional listener for paywall lifecycle events during the presentation.
+        /// </summary>
+        internal PaywallListener Listener { get; }
+
+        /// <summary>
         /// Creates a new PaywallOptions instance.
         /// Will present the current offering.
         /// </summary>
@@ -73,8 +78,9 @@ namespace RevenueCatUI
         /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
         /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
-        public PaywallOptions(bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
-            : this((OfferingSelection)null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables)
+        /// <param name="listener">Optional listener for paywall lifecycle events. Callbacks are invoked on the Unity main thread during the presentation.</param>
+        public PaywallOptions(bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null, PaywallListener listener = null)
+            : this((OfferingSelection)null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables, listener)
         {
         }
 
@@ -86,23 +92,25 @@ namespace RevenueCatUI
         /// <param name="presentationConfiguration">Optional configuration for how the paywall should be presented on each platform.</param>
         /// <param name="purchaseLogic">Optional custom purchase/restore logic for MY_APP mode.</param>
         /// <param name="customVariables">Custom variables for text substitution in paywalls using {{ custom.variable_name }} syntax. Only available for V2 Paywalls.</param>
-        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
-            : this(offering != null ? new OfferingSelection.OfferingType(offering) : null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables)
+        /// <param name="listener">Optional listener for paywall lifecycle events. Callbacks are invoked on the Unity main thread during the presentation.</param>
+        public PaywallOptions(Purchases.Offering offering, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null, PaywallListener listener = null)
+            : this(offering != null ? new OfferingSelection.OfferingType(offering) : null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables, listener)
         {
         }
 
-        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null)
-            : this(!string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables)
+        internal PaywallOptions(string offeringIdentifier, bool displayCloseButton = false, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, Dictionary<string, CustomVariableValue> customVariables = null, PaywallListener listener = null)
+            : this(!string.IsNullOrEmpty(offeringIdentifier) ? new OfferingSelection.IdentifierType(offeringIdentifier) : null, displayCloseButton, presentationConfiguration, purchaseLogic, customVariables, listener)
         {
         }
 
-        private PaywallOptions(OfferingSelection offeringSelection, bool displayCloseButton, PaywallPresentationConfiguration presentationConfiguration, PurchaseLogic purchaseLogic, Dictionary<string, CustomVariableValue> customVariables)
+        private PaywallOptions(OfferingSelection offeringSelection, bool displayCloseButton, PaywallPresentationConfiguration presentationConfiguration, PurchaseLogic purchaseLogic, Dictionary<string, CustomVariableValue> customVariables, PaywallListener listener)
         {
             _offeringSelection = offeringSelection;
             DisplayCloseButton = displayCloseButton;
             CustomVariables = customVariables;
             PresentationConfiguration = presentationConfiguration;
             PurchaseLogic = purchaseLogic;
+            Listener = listener;
         }
 
         /// <summary>
