@@ -12,8 +12,17 @@ namespace RevenueCatUI
 
         /// <summary>
         /// Presents the paywall as a modal sheet. This is the default iOS behavior.
+        /// On iPad this covers most of the screen; use <see cref="FormSheet"/> for a smaller, centered modal.
         /// </summary>
         public static readonly IOSPaywallPresentationStyle Sheet = new IOSPaywallPresentationStyle("sheet");
+
+        /// <summary>
+        /// Presents the paywall as a form sheet: a smaller, centered modal on iPad.
+        /// On iPhone this renders the same as <see cref="Sheet"/> (the standard bottom sheet).
+        /// Requires a PurchasesHybridCommon version that supports the `presentationMode` option;
+        /// on older versions it falls back to <see cref="Sheet"/>.
+        /// </summary>
+        public static readonly IOSPaywallPresentationStyle FormSheet = new IOSPaywallPresentationStyle("formSheet");
 
         internal string Value { get; }
 

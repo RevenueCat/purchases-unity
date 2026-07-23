@@ -99,6 +99,29 @@ namespace DefaultNamespace
             PaywallOptions positional3 = new PaywallOptions(offering, true);
             PaywallOptions positional4 = new PaywallOptions(offering, true, PaywallPresentationConfiguration.FullScreen);
 
+            // Test iOS presentation styles, including FormSheet (small centered modal on iPad)
+            IOSPaywallPresentationStyle iosFullScreen = IOSPaywallPresentationStyle.FullScreen;
+            IOSPaywallPresentationStyle iosSheet = IOSPaywallPresentationStyle.Sheet;
+            IOSPaywallPresentationStyle iosFormSheet = IOSPaywallPresentationStyle.FormSheet;
+            AndroidPaywallPresentationStyle androidFullScreen = AndroidPaywallPresentationStyle.FullScreen;
+
+            // Test per-platform presentationConfiguration with an iOS-only style (Android stays default)
+            PaywallOptions options12 = new PaywallOptions(
+                presentationConfiguration: new PaywallPresentationConfiguration(
+                    ios: IOSPaywallPresentationStyle.FormSheet
+                )
+            );
+
+            // Test per-platform presentationConfiguration specifying both platforms
+            PaywallOptions options13 = new PaywallOptions(
+                offering: offering,
+                displayCloseButton: true,
+                presentationConfiguration: new PaywallPresentationConfiguration(
+                    ios: IOSPaywallPresentationStyle.FormSheet,
+                    android: AndroidPaywallPresentationStyle.FullScreen
+                )
+            );
+
             // Test CustomVariableValue factory methods
             CustomVariableValue stringValue = CustomVariableValue.String("test");
             CustomVariableValue numberValue = CustomVariableValue.Number(42);
