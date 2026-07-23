@@ -37,3 +37,7 @@ sysinfo.txt
 
 iOS/
 .vscode/
+
+# Local RevenueCat API keys (copy local-api-keys.example.json to Assets/Tester/Resources/local-api-keys.json)
+Assets/Tester/Resources/
+Assets/Tester/Resources.meta
