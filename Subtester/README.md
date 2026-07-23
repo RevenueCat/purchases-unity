@@ -10,7 +10,9 @@ A sample/tester app for the RevenueCat Unity SDK. This project imports the SDK p
 
 1. Open the project in the Unity Editor (6000.2.6f2).
 2. Open the scene: `Assets/Scenes/Main.unity`
-3. Configure RevenueCat API keys: select the Purchases component in the scene and set the API keys in its inspector fields.
+3. Configure RevenueCat API keys:
+   - **Option A (Local JSON)**: Copy `local-api-keys.example.json` to `Assets/Tester/Resources/local-api-keys.json` (this path is gitignored), fill in your keys, and save. The app will load them at runtime.
+   - **Option B (Inspector)**: Select the Purchases component in the scene and set the API keys directly in its inspector fields.
 
 ## How It Works
 
