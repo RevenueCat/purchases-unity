@@ -10,6 +10,14 @@
 @import PurchasesHybridCommon;
 @import RevenueCat;
 
+// Generated header exposing Swift bridge helpers (e.g. RCPurchasesUnityDangerousSettingsFactory).
+// Unity compiles plugin Swift files into the UnityFramework target.
+#if __has_include("UnityFramework-Swift.h")
+#import "UnityFramework-Swift.h"
+#else
+#import <UnityFramework/UnityFramework-Swift.h>
+#endif
+
 @interface NSObject (NSNullMapping)
 
 - (id)mappingNSNullToNil;
@@ -99,7 +107,9 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
         NSLog(@"Error parsing dangerousSettings JSON: %@ %@", dangerousSettingsJson, error.localizedDescription);
     } else {
         BOOL autoSyncPurchases = dangerousSettingsDict[@"AutoSyncPurchases"];
-        dangerousSettings = [[RCDangerousSettings alloc] initWithAutoSyncPurchases:autoSyncPurchases];
+        BOOL useWorkflows = [dangerousSettingsDict[@"UseWorkflows"] boolValue];
+        dangerousSettings = [RCPurchasesUnityDangerousSettingsFactory makeWithAutoSyncPurchases:autoSyncPurchases
+                                                                                  useWorkflows:useWorkflows];
     }
 
     [RCPurchases configureWithAPIKey:apiKey
