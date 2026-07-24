@@ -12,24 +12,24 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         public string[] productIdentifiers;
     }
 
-    public void GetStorefront()
+    public void GetStorefront(string requestId = null)
     {
-        CallPurchases("getStorefront");
+        CallPurchases("getStorefront", requestId);
     }
 
-    public void GetProducts(string[] productIdentifiers, string type = "subs")
+    public void GetProducts(string[] productIdentifiers, string type = "subs", string requestId = null)
     {
         var request = new ProductsRequest
         {
             productIdentifiers = productIdentifiers
         };
-        CallPurchases("getProducts", JsonUtility.ToJson(request), type);
+        CallPurchases("getProducts", JsonUtility.ToJson(request), type, requestId);
     }
 
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-        Purchases.PromotionalOffer discount = null)
+        Purchases.PromotionalOffer discount = null, string requestId = null)
     {
         string presentedOfferingContextJSON = null;
         if (presentedOfferingIdentifier != null) {
@@ -40,34 +40,37 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
         if (oldSku == null)
         {
-            CallPurchases("purchaseProduct", productIdentifier, type);
+            CallPurchases("purchaseProduct", productIdentifier, type, requestId);
         }
         else
         {
-            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode, googleIsPersonalizedPrice, presentedOfferingContextJSON);
+            CallPurchases("purchaseProduct", productIdentifier, type, oldSku, (int)prorationMode,
+                googleIsPersonalizedPrice, presentedOfferingContextJSON, requestId);
         }
     }
 
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
+        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null,
+        string requestId = null)
     {
         string presentedOfferingContextJSON = packageToPurchase.PresentedOfferingContext.ToJsonString();
 
         if (oldSku == null)
         {
-            CallPurchases("purchasePackage", packageToPurchase.Identifier, presentedOfferingContextJSON);
+            CallPurchases("purchasePackage", packageToPurchase.Identifier, presentedOfferingContextJSON, requestId);
         }
         else
         {
             CallPurchases("purchasePackage", packageToPurchase.Identifier, presentedOfferingContextJSON, oldSku,
-                (int)prorationMode, googleIsPersonalizedPrice);
+                (int)prorationMode, googleIsPersonalizedPrice, requestId);
         }
     }
 
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
-        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false,
+        string requestId = null)
     {
         string presentedOfferingContextJSON = null;
         if (subscriptionOption.PresentedOfferingContext != null) {
@@ -77,13 +80,13 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         if (googleProductChangeInfo == null)
         {
             CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.Id,
-                null, 0, googleIsPersonalizedPrice, presentedOfferingContextJSON);
+                null, 0, googleIsPersonalizedPrice, presentedOfferingContextJSON, requestId);
         }
         else
         {
             CallPurchases("purchaseSubscriptionOption", subscriptionOption.ProductId, subscriptionOption.Id,
                 googleProductChangeInfo.OldProductIdentifier, (int)googleProductChangeInfo.ProrationMode, googleIsPersonalizedPrice,
-                presentedOfferingContextJSON);
+                presentedOfferingContextJSON, requestId);
         }
     }
 
@@ -107,19 +110,19 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
             automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
     }
 
-    public void RestorePurchases()
+    public void RestorePurchases(string requestId = null)
     {
-        CallPurchases("restorePurchases");
+        CallPurchases("restorePurchases", requestId);
     }
 
-    public void LogIn(string appUserId)
+    public void LogIn(string appUserId, string requestId = null)
     {
-        CallPurchases("logIn", appUserId);
+        CallPurchases("logIn", appUserId, requestId);
     }
 
-    public void LogOut()
+    public void LogOut(string requestId = null)
     {
-        CallPurchases("logOut");
+        CallPurchases("logOut", requestId);
     }
 
     public void SetAllowSharingStoreAccount(bool allow)
@@ -152,29 +155,29 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         return CallPurchases<string>("getAppUserID");
     }
 
-    public void GetCustomerInfo()
+    public void GetCustomerInfo(string requestId = null)
     {
-        CallPurchases("getCustomerInfo");
+        CallPurchases("getCustomerInfo", requestId);
     }
 
-    public void GetOfferings()
+    public void GetOfferings(string requestId = null)
     {
-        CallPurchases("getOfferings");
+        CallPurchases("getOfferings", requestId);
     }
 
-    public void GetCurrentOfferingForPlacement(string placementIdentifier)
+    public void GetCurrentOfferingForPlacement(string placementIdentifier, string requestId = null)
     {
-        CallPurchases("getCurrentOfferingForPlacement", placementIdentifier);
+        CallPurchases("getCurrentOfferingForPlacement", placementIdentifier, requestId);
     }
 
-    public void SyncAttributesAndOfferingsIfNeeded()
+    public void SyncAttributesAndOfferingsIfNeeded(string requestId = null)
     {
-        CallPurchases("syncAttributesAndOfferingsIfNeeded");
+        CallPurchases("syncAttributesAndOfferingsIfNeeded", requestId);
     }
 
-    public void SyncPurchases()
+    public void SyncPurchases(string requestId = null)
     {
-        CallPurchases("syncPurchases");
+        CallPurchases("syncPurchases", requestId);
     }
 
     public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
@@ -183,9 +186,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("syncAmazonPurchase", productID, receiptID, amazonUserID, isoCurrencyCode, price);
     }
 
-    public void GetAmazonLWAConsentStatus()
+    public void GetAmazonLWAConsentStatus(string requestId = null)
     {
-        CallPurchases("getAmazonLWAConsentStatus");
+        CallPurchases("getAmazonLWAConsentStatus", requestId);
     }
 
     public void EnableAdServicesAttributionTokenCollection()
@@ -203,13 +206,13 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         return CallPurchases<bool>("isConfigured");
     }
 
-    public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+    public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers, string requestId = null)
     {
         var request = new ProductsRequest
         {
             productIdentifiers = productIdentifiers
         };
-        CallPurchases("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request));
+        CallPurchases("checkTrialOrIntroductoryPriceEligibility", JsonUtility.ToJson(request), requestId);
     }
 
     public void InvalidateCustomerInfoCache()
@@ -227,7 +230,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         // NOOP
     }
 
-    public void RecordPurchase(string productID)
+    public void RecordPurchase(string productID, string requestId = null)
     {
         // NOOP
     }
@@ -358,7 +361,7 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         public int[] features;
     }
 
-    public void CanMakePayments(Purchases.BillingFeature[] features)
+    public void CanMakePayments(Purchases.BillingFeature[] features, string requestId = null)
     {
         int[] featuresAsInts = new int[features.Length];
         for (int i = 0; i < features.Length; i++)
@@ -371,12 +374,12 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         {
             features = featuresAsInts
         };
-        CallPurchases("canMakePayments", JsonUtility.ToJson(request));
+        CallPurchases("canMakePayments", JsonUtility.ToJson(request), requestId);
     }
 
-    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier, string requestId = null)
     {
-        CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier);
+        CallPurchases("getPromotionalOffer", productIdentifier, discountIdentifier, requestId);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -400,19 +403,19 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("showInAppMessages", JsonUtility.ToJson(request));
     }
 
-    public void ParseAsWebPurchaseRedemption(string urlString)
+    public void ParseAsWebPurchaseRedemption(string urlString, string requestId = null)
     {
-        CallPurchases("parseAsWebPurchaseRedemption", urlString);
+        CallPurchases("parseAsWebPurchaseRedemption", urlString, requestId);
     }
 
-    public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+    public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption, string requestId = null)
     {
-        CallPurchases("redeemWebPurchase", webPurchaseRedemption.RedemptionLink);
+        CallPurchases("redeemWebPurchase", webPurchaseRedemption.RedemptionLink, requestId);
     }
 
-    public void GetVirtualCurrencies()
+    public void GetVirtualCurrencies(string requestId = null)
     {
-        CallPurchases("getVirtualCurrencies");
+        CallPurchases("getVirtualCurrencies", requestId);
     }
 
     public string GetCachedVirtualCurrencies()
@@ -425,24 +428,27 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("invalidateVirtualCurrenciesCache");
     }
 
-    public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+    public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct, string requestId = null)
     {
-        CallPurchases("getEligibleWinBackOffersForProduct", storeProduct.Identifier);
+        CallPurchases("getEligibleWinBackOffersForProduct", storeProduct.Identifier, requestId);
     }
 
-    public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+    public void GetEligibleWinBackOffersForPackage(Purchases.Package package, string requestId = null)
     {
-        CallPurchases("getEligibleWinBackOffersForPackage", package.StoreProduct.Identifier);
+        CallPurchases("getEligibleWinBackOffersForPackage", package.StoreProduct.Identifier, requestId);
     }
 
-    public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+    public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct,
+        Purchases.WinBackOffer winBackOffer, string requestId = null)
     {
-        CallPurchases("purchaseProductWithWinBackOffer", storeProduct.Identifier, winBackOffer.Identifier);
+        CallPurchases("purchaseProductWithWinBackOffer", storeProduct.Identifier, winBackOffer.Identifier, requestId);
     }
 
-    public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+    public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer,
+        string requestId = null)
     {
-        CallPurchases("purchasePackageWithWinBackOffer", package.Identifier, package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier);
+        CallPurchases("purchasePackageWithWinBackOffer", package.Identifier,
+            package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier, requestId);
     }
 
     public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters)
