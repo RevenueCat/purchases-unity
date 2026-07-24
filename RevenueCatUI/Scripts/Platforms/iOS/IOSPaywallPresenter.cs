@@ -11,11 +11,12 @@ namespace RevenueCatUI.Platforms
         private delegate void PaywallResultCallback(string result);
         private delegate void PurchaseLogicPurchaseCallback(string requestId, string packageJson);
         private delegate void PurchaseLogicRestoreCallback(string requestId);
+        private delegate void PaywallEventCallback(string eventName, string payloadJson);
 
-        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallWithPurchaseLogic(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, PaywallResultCallback resultCallback);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeededWithPurchaseLogic(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, PaywallResultCallback resultCallback);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallWithPurchaseLogic(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeededWithPurchaseLogic(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
@@ -27,13 +28,18 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            var tcs = new TaskCompletionSource<PaywallResult>();
+            var tcs = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             s_current = tcs;
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
                 var customVariablesJson = options?.CustomVariablesToJsonString();
+                var hasPaywallListener = options?.Listener != null;
+                if (hasPaywallListener)
+                {
+                    PaywallListenerBridge.SetCurrentListener(options.Listener);
+                }
                 if (options?.PurchaseLogic != null)
                 {
                     PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
@@ -45,11 +51,13 @@ namespace RevenueCatUI.Platforms
                         customVariablesJson,
                         OnPerformPurchase,
                         OnPerformRestore,
+                        hasPaywallListener,
+                        OnPaywallEvent,
                         OnResultWithPurchaseLogic);
                 }
                 else
                 {
-                    rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, useFullScreen, customVariablesJson, OnResult);
+                    rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, useFullScreen, customVariablesJson, hasPaywallListener, OnPaywallEvent, OnResult);
                 }
             }
             catch (Exception e)
@@ -58,6 +66,7 @@ namespace RevenueCatUI.Platforms
                 tcs.TrySetResult(PaywallResult.Error);
                 s_current = null;
                 PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+                PaywallListenerBridge.ClearCurrentListener();
             }
             return tcs.Task;
         }
@@ -70,13 +79,18 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            var tcs = new TaskCompletionSource<PaywallResult>();
+            var tcs = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             s_current = tcs;
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
                 var customVariablesJson = options?.CustomVariablesToJsonString();
+                var hasPaywallListener = options?.Listener != null;
+                if (hasPaywallListener)
+                {
+                    PaywallListenerBridge.SetCurrentListener(options.Listener);
+                }
                 if (options?.PurchaseLogic != null)
                 {
                     PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
@@ -89,11 +103,13 @@ namespace RevenueCatUI.Platforms
                         customVariablesJson,
                         OnPerformPurchase,
                         OnPerformRestore,
+                        hasPaywallListener,
+                        OnPaywallEvent,
                         OnResultWithPurchaseLogic);
                 }
                 else
                 {
-                    rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, useFullScreen, customVariablesJson, OnResult);
+                    rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, useFullScreen, customVariablesJson, hasPaywallListener, OnPaywallEvent, OnResult);
                 }
             }
             catch (Exception e)
@@ -102,6 +118,7 @@ namespace RevenueCatUI.Platforms
                 tcs.TrySetResult(PaywallResult.Error);
                 s_current = null;
                 PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+                PaywallListenerBridge.ClearCurrentListener();
             }
             return tcs.Task;
         }
@@ -109,22 +126,29 @@ namespace RevenueCatUI.Platforms
         [AOT.MonoPInvokeCallback(typeof(PaywallResultCallback))]
         private static void OnResult(string result)
         {
+            PaywallListenerBridge.ClearCurrentListener();
+            var current = s_current;
+            s_current = null;
+            if (current == null) return;
+
+            PaywallResult paywallResult;
             try
             {
                 var token = (result ?? "ERROR");
                 var native = token.Split('|')[0];
                 var type = PaywallResultTypeExtensions.FromNativeString(native);
-                s_current?.TrySetResult(new PaywallResult(type));
+                paywallResult = new PaywallResult(type);
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError($"[RevenueCatUI][iOS] Failed to handle paywall result '{result}': {e.Message}. Setting Error.");
-                s_current?.TrySetResult(PaywallResult.Error);
+                paywallResult = PaywallResult.Error;
             }
-            finally
-            {
-                s_current = null;
-            }
+
+            // Complete the task through the same main thread queue used for listener
+            // events, so any events posted before this result dispatch first regardless
+            // of how the caller awaits (e.g. ConfigureAwait(false)).
+            PaywallListenerBridge.PostToMainThread(() => current.TrySetResult(paywallResult));
         }
 
         [AOT.MonoPInvokeCallback(typeof(PaywallResultCallback))]
@@ -144,6 +168,12 @@ namespace RevenueCatUI.Platforms
         private static void OnPerformRestore(string requestId)
         {
             PurchaseLogicBridge.OnPerformRestore(requestId);
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(PaywallEventCallback))]
+        private static void OnPaywallEvent(string eventName, string payloadJson)
+        {
+            PaywallListenerBridge.OnPaywallEvent(eventName, payloadJson);
         }
     }
 }

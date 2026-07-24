@@ -40,12 +40,33 @@ namespace RevenueCat.Tester.Screens
             return vars.Count > 0 ? vars : null;
         }
 
-        private PaywallOptions BuildOptions(bool displayCloseButton = true, Purchases.Offering offering = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null)
+        private PaywallOptions BuildOptions(bool displayCloseButton = true, Purchases.Offering offering = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, PaywallListener listener = null)
         {
             var customVars = GetCustomVariables();
             if (offering != null)
-                return new PaywallOptions(offering, displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic);
-            return new PaywallOptions(displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic);
+                return new PaywallOptions(offering, displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic, listener: listener);
+            return new PaywallOptions(displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic, listener: listener);
+        }
+
+        private PaywallListener BuildLoggingListener()
+        {
+            return new PaywallListener
+            {
+                OnPurchaseStarted = package =>
+                    Log($"Listener: purchase started — package: {package?.Identifier}"),
+                OnPurchaseCompleted = (customerInfo, storeTransaction) =>
+                    LogSuccess($"Listener: purchase completed — transaction: {storeTransaction?.TransactionIdentifier}, active entitlements: {customerInfo?.Entitlements?.Active?.Count}"),
+                OnPurchaseError = error =>
+                    LogError($"Listener: purchase error — {error?.Message}"),
+                OnPurchaseCancelled = () =>
+                    Log("Listener: purchase cancelled"),
+                OnRestoreStarted = () =>
+                    Log("Listener: restore started"),
+                OnRestoreCompleted = customerInfo =>
+                    LogSuccess($"Listener: restore completed — active entitlements: {customerInfo?.Entitlements?.Active?.Count}"),
+                OnRestoreError = error =>
+                    LogError($"Listener: restore error — {error?.Message}")
+            };
         }
 
         private async Task<Purchases.Offering> GetOfferingByIdAsync(string offeringId)
@@ -121,6 +142,14 @@ namespace RevenueCat.Tester.Screens
                 Log("Presenting paywall full screen...");
                 var result = await PaywallsPresenter.Present(BuildOptions(offering: offering, presentationConfiguration: PaywallPresentationConfiguration.FullScreen));
                 LogPaywallResult("Paywall (full screen)", result);
+            });
+
+            AddButton("Present Paywall (With Listener)", async () =>
+            {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
+                Log("Presenting paywall with listener...");
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering, listener: BuildLoggingListener()));
+                LogPaywallResult("Paywall (with listener)", result);
             });
 
             AddButton("Present Paywall for Random Offering", async () =>
