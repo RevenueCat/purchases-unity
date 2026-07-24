@@ -53,7 +53,7 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            _current = new TaskCompletionSource<PaywallResult>();
+            _current = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             try
             {
                 var offeringIdentifier = options?.OfferingIdentifier;
@@ -61,16 +61,22 @@ namespace RevenueCatUI.Platforms
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPurchaseLogic = options?.PurchaseLogic != null;
+                var hasPaywallListener = options?.Listener != null;
 
                 if (hasPurchaseLogic)
                 {
                     PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
                 }
 
+                if (hasPaywallListener)
+                {
+                    PaywallListenerBridge.SetCurrentListener(options.Listener);
+                }
+
                 ApplyManifestOrientation();
 
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic });
+                _plugin.CallStatic("presentPaywall", new object[] { currentActivity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener });
             }
             catch (Exception e)
             {
@@ -78,6 +84,7 @@ namespace RevenueCatUI.Platforms
                 _current.TrySetResult(PaywallResult.Error);
                 _current = null;
                 PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+                PaywallListenerBridge.ClearCurrentListener();
                 RestoreOrientation();
             }
             return _current.Task;
@@ -97,7 +104,7 @@ namespace RevenueCatUI.Platforms
                 return Task.FromResult(PaywallResult.Error);
             }
 
-            _current = new TaskCompletionSource<PaywallResult>();
+            _current = new TaskCompletionSource<PaywallResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             try
             {
                 var offeringIdentifier = options?.OfferingIdentifier;
@@ -105,16 +112,22 @@ namespace RevenueCatUI.Platforms
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPurchaseLogic = options?.PurchaseLogic != null;
+                var hasPaywallListener = options?.Listener != null;
 
                 if (hasPurchaseLogic)
                 {
                     PurchaseLogicBridge.SetCurrentPurchaseLogic(options.PurchaseLogic);
                 }
 
+                if (hasPaywallListener)
+                {
+                    PaywallListenerBridge.SetCurrentListener(options.Listener);
+                }
+
                 ApplyManifestOrientation();
 
                 var currentActivity = AndroidActivityUtils.GetCurrentActivity();
-                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic });
+                _plugin.CallStatic("presentPaywallIfNeeded", new object[] { currentActivity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener });
             }
             catch (Exception e)
             {
@@ -122,6 +135,7 @@ namespace RevenueCatUI.Platforms
                 _current.TrySetResult(PaywallResult.Error);
                 _current = null;
                 PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+                PaywallListenerBridge.ClearCurrentListener();
                 RestoreOrientation();
             }
             return _current.Task;
@@ -131,23 +145,29 @@ namespace RevenueCatUI.Platforms
         public void OnPaywallResult(string resultData)
         {
             PurchaseLogicBridge.ClearCurrentPurchaseLogic();
+            PaywallListenerBridge.ClearCurrentListener();
             RestoreOrientation();
-            if (_current == null) return;
+            var current = _current;
+            _current = null;
+            if (current == null) return;
+
+            PaywallResult result;
             try
             {
                 var token = resultData?.Split('|')[0] ?? "ERROR";
                 var type = PaywallResultTypeExtensions.FromNativeString(token);
-                _current.TrySetResult(new PaywallResult(type));
+                result = new PaywallResult(type);
             }
             catch (Exception e)
             {
                 Debug.LogError($"[RevenueCatUI][Android] Failed to handle paywall result '{resultData}': {e.Message}. Setting Error.");
-                _current.TrySetResult(PaywallResult.Error);
+                result = PaywallResult.Error;
             }
-            finally
-            {
-                _current = null;
-            }
+
+            // Complete the task through the same main thread queue used for listener
+            // events, so any events posted before this result dispatch first regardless
+            // of how the caller awaits (e.g. ConfigureAwait(false)).
+            PaywallListenerBridge.PostToMainThread(() => current.TrySetResult(result));
         }
 
         /// <summary>
@@ -228,6 +248,11 @@ namespace RevenueCatUI.Platforms
             public void onPaywallResult(string result)
             {
                 _owner.OnPaywallResult(result);
+            }
+
+            public void onPaywallEvent(string eventName, string payloadJson)
+            {
+                PaywallListenerBridge.OnPaywallEvent(eventName, payloadJson);
             }
         }
 
