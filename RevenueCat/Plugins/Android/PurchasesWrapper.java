@@ -64,6 +64,7 @@ public class PurchasesWrapper {
     private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
     private static final String PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = "_purchasePackageWithWinBackOffer";
     private static final String HANDLE_LOG = "_handleLog";
+    private static final String REQUEST_ID = "requestId";
 
     private static final String PLATFORM_NAME = "unity";
     private static final String PLUGIN_VERSION = "9.5.2";
@@ -76,7 +77,13 @@ public class PurchasesWrapper {
             CustomerInfoMapperKt.mapAsync(
                     customerInfo,
                     map -> {
-                        sendCustomerInfo(map, RECEIVE_CUSTOMER_INFO);
+                        JSONObject response = new JSONObject();
+                        try {
+                            response.put("customerInfo", MappersHelpersKt.convertToJson(map));
+                        } catch (JSONException e) {
+                            logJSONException(e);
+                        }
+                        sendJSONObject(response, RECEIVE_CUSTOMER_INFO);
                         return Unit.INSTANCE;
                     }
             );
@@ -107,18 +114,18 @@ public class PurchasesWrapper {
         Purchases.getSharedInstance().setUpdatedCustomerInfoListener(listener);
     }
 
-    public static void getStorefront() {
+    public static void getStorefront(String requestId) {
         CommonKt.getStorefront(storefrontMap -> {
             if (storefrontMap != null) {
-                sendJSONObject(MappersHelpersKt.convertToJson(storefrontMap), RECEIVE_STOREFRONT);
+                sendJSONObject(MappersHelpersKt.convertToJson(storefrontMap), RECEIVE_STOREFRONT, requestId);
             } else {
-                sendEmptyJSONObject(RECEIVE_STOREFRONT);
+                sendEmptyJSONObject(RECEIVE_STOREFRONT, requestId);
             }
             return null;
         });
     }
 
-    public static void getProducts(String jsonProducts, String type) {
+    public static void getProducts(String jsonProducts, String type, String requestId) {
         try {
             JSONObject request = new JSONObject(jsonProducts);
             JSONArray products = request.getJSONArray("productIdentifiers");
@@ -134,7 +141,7 @@ public class PurchasesWrapper {
                     try {
                         JSONObject object = new JSONObject();
                         object.put("products", MappersHelpersKt.convertToJsonArray(map));
-                        sendJSONObject(object, RECEIVE_PRODUCTS);
+                        sendJSONObject(object, RECEIVE_PRODUCTS, requestId);
                     } catch (JSONException e) {
                         logJSONException(e);
                     }
@@ -142,7 +149,7 @@ public class PurchasesWrapper {
 
                 @Override
                 public void onError(ErrorContainer errorContainer) {
-                    sendError(errorContainer, RECEIVE_PRODUCTS);
+                    sendError(errorContainer, RECEIVE_PRODUCTS, requestId);
                 }
             });
         } catch (JSONException e) {
@@ -155,7 +162,8 @@ public class PurchasesWrapper {
                                        @Nullable final String oldSKU,
                                        final int prorationMode,
                                        final boolean isPersonalized,
-                                       @Nullable final String presentedOfferingContextJSON) {
+                                       @Nullable final String presentedOfferingContextJSON,
+                                       final String requestId) {
         Map<String, ?> presentedOfferingContext = null;
         try {
             if (presentedOfferingContextJSON != null) {
@@ -178,25 +186,37 @@ public class PurchasesWrapper {
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
-                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE, requestId);
                     }
 
                     @Override
                     public void onError(ErrorContainer errorContainer) {
-                        sendErrorPurchase(errorContainer);
+                        sendErrorPurchase(errorContainer, requestId);
                     }
                 });
     }
 
-    public static void purchaseProduct(String productIdentifier, String type) {
-        purchaseProduct(productIdentifier, type, null, 0, false, null);
+    public static void purchaseProduct(
+            String productIdentifier,
+            String type,
+            String requestId
+    ) {
+        purchaseProduct(
+                productIdentifier,
+                type,
+                null,
+                0,
+                false,
+                null,
+                requestId);
     }
 
     public static void purchasePackage(String packageIdentifier,
                                        String presentedOfferingContextJSON,
                                        @Nullable final String oldSKU,
                                        final int prorationMode,
-                                       final boolean isPersonalized) {
+                                       final boolean isPersonalized,
+                                       final String requestId) {
         try {
             JSONObject presentedOfferingContextJSONObject = new JSONObject(presentedOfferingContextJSON);
             Map<String, ?> presentedOfferingContext = MappersHelpersKt.convertToMap(presentedOfferingContextJSONObject);
@@ -211,12 +231,12 @@ public class PurchasesWrapper {
                     new OnResult() {
                         @Override
                         public void onReceived(Map<String, ?> map) {
-                            sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                            sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE, requestId);
                         }
 
                         @Override
                         public void onError(ErrorContainer errorContainer) {
-                            sendErrorPurchase(errorContainer);
+                            sendErrorPurchase(errorContainer, requestId);
                         }
                     });
         } catch (JSONException e) {
@@ -226,8 +246,15 @@ public class PurchasesWrapper {
     }
 
     public static void purchasePackage(String packageIdentifier,
-                                       String offeringIdentifier) {
-        purchasePackage(packageIdentifier, offeringIdentifier, null, 0, false);
+                                       String presentedOfferingContextJSON,
+                                       String requestId) {
+        purchasePackage(
+                packageIdentifier,
+                presentedOfferingContextJSON,
+                null,
+                0,
+                false,
+                requestId);
     }
 
     public static void purchaseSubscriptionOption(final String productIdentifer,
@@ -235,7 +262,8 @@ public class PurchasesWrapper {
                                                   @Nullable final String oldSKU,
                                                   final int prorationMode,
                                                   final boolean isPersonalized,
-                                                  @Nullable final String presentedOfferingContextJSON) {
+                                                  @Nullable final String presentedOfferingContextJSON,
+                                                  final String requestId) {
         Map<String, ?> presentedOfferingContext = null;
         try {
             if (presentedOfferingContextJSON != null) {
@@ -257,40 +285,40 @@ public class PurchasesWrapper {
                 new OnResult() {
                     @Override
                     public void onReceived(Map<String, ?> map) {
-                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE);
+                        sendJSONObject(MappersHelpersKt.convertToJson(map), MAKE_PURCHASE, requestId);
                     }
 
                     @Override
                     public void onError(ErrorContainer errorContainer) {
-                        sendErrorPurchase(errorContainer);
+                        sendErrorPurchase(errorContainer, requestId);
                     }
                 });
     }
 
-    public static void restorePurchases() {
-        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_PURCHASES));
+    public static void restorePurchases(String requestId) {
+        CommonKt.restorePurchases(getCustomerInfoListener(RESTORE_PURCHASES, requestId));
     }
 
-    public static void logIn(String appUserId) {
-        CommonKt.logIn(appUserId, getLogInListener(LOG_IN));
+    public static void logIn(String appUserId, String requestId) {
+        CommonKt.logIn(appUserId, getLogInListener(LOG_IN, requestId));
     }
 
-    public static void logOut() {
-        CommonKt.logOut(getCustomerInfoListener(LOG_OUT));
+    public static void logOut(String requestId) {
+        CommonKt.logOut(getCustomerInfoListener(LOG_OUT, requestId));
     }
 
     public static void setAllowSharingStoreAccount(boolean allowSharingStoreAccount) {
         CommonKt.setAllowSharingAppStoreAccount(allowSharingStoreAccount);
     }
 
-    public static void getOfferings() {
+    public static void getOfferings(String requestId) {
         CommonKt.getOfferings(new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
                 try {
                     JSONObject object = new JSONObject();
                     object.put("offerings", MappersHelpersKt.convertToJson(map));
-                    sendJSONObject(object, GET_OFFERINGS);
+                    sendJSONObject(object, GET_OFFERINGS, requestId);
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
@@ -298,18 +326,18 @@ public class PurchasesWrapper {
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, GET_OFFERINGS);
+                sendError(errorContainer, GET_OFFERINGS, requestId);
             }
         });
     }
 
-    public static void getCurrentOfferingForPlacement(String placementIdentifier) {
+    public static void getCurrentOfferingForPlacement(String placementIdentifier, String requestId) {
         CommonKt.getCurrentOfferingForPlacement(placementIdentifier, new OnNullableResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
                 try {
                     if (map == null) {
-                        sendEmptyJSONObject(GET_CURRENT_OFFERING_FOR_PLACEMENT);
+                        sendEmptyJSONObject(GET_CURRENT_OFFERING_FOR_PLACEMENT, requestId);
                         return;
                     }
                     JSONObject offering = null;
@@ -319,7 +347,7 @@ public class PurchasesWrapper {
 
                     JSONObject object = new JSONObject();
                     object.put("offering", offering);
-                    sendJSONObject(object, GET_CURRENT_OFFERING_FOR_PLACEMENT);
+                    sendJSONObject(object, GET_CURRENT_OFFERING_FOR_PLACEMENT, requestId);
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
@@ -327,19 +355,19 @@ public class PurchasesWrapper {
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, GET_CURRENT_OFFERING_FOR_PLACEMENT);
+                sendError(errorContainer, GET_CURRENT_OFFERING_FOR_PLACEMENT, requestId);
             }
         });
     }
 
-    public static void syncAttributesAndOfferingsIfNeeded() {
+    public static void syncAttributesAndOfferingsIfNeeded(String requestId) {
         CommonKt.syncAttributesAndOfferingsIfNeeded(new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
                 try {
                     JSONObject object = new JSONObject();
                     object.put("offerings", MappersHelpersKt.convertToJson(map));
-                    sendJSONObject(object, SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED);
+                    sendJSONObject(object, SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED, requestId);
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
@@ -347,7 +375,7 @@ public class PurchasesWrapper {
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED);
+                sendError(errorContainer, SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED, requestId);
             }
         });
     }
@@ -363,7 +391,7 @@ public class PurchasesWrapper {
                 amazonUserID, isoCurrencyCode, price);
     }
 
-    public static void getAmazonLWAConsentStatus() {
+    public static void getAmazonLWAConsentStatus(String requestId) {
         CommonKt.getAmazonLWAConsentStatus(new OnResultAny<Boolean>() {
             @Override
             public void onReceived(Boolean amazonLWAConsentStatus) {
@@ -373,12 +401,12 @@ public class PurchasesWrapper {
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
-                sendJSONObject(object, GET_LWA_CONSENT_STATUS);
+                sendJSONObject(object, GET_LWA_CONSENT_STATUS, requestId);
             }
 
             @Override
             public void onError(@Nullable ErrorContainer errorContainer) {
-                sendError(errorContainer, GET_LWA_CONSENT_STATUS);
+                sendError(errorContainer, GET_LWA_CONSENT_STATUS, requestId);
             }
         });
     }
@@ -413,12 +441,12 @@ public class PurchasesWrapper {
         return CommonKt.getAppUserID();
     }
 
-    public static void getCustomerInfo() {
-        CommonKt.getCustomerInfo(getCustomerInfoListener(GET_CUSTOMER_INFO));
+    public static void getCustomerInfo(String requestId) {
+        CommonKt.getCustomerInfo(getCustomerInfoListener(GET_CUSTOMER_INFO, requestId));
     }
 
-    public static void syncPurchases() {
-        CommonKt.syncPurchases(getCustomerInfoListener(SYNC_PURCHASES));
+    public static void syncPurchases(String requestId) {
+        CommonKt.syncPurchases(getCustomerInfoListener(SYNC_PURCHASES, requestId));
     }
 
     public static boolean isAnonymous() {
@@ -429,7 +457,7 @@ public class PurchasesWrapper {
         return Purchases.isConfigured();
     }
 
-    public static void checkTrialOrIntroductoryPriceEligibility(String jsonProducts) {
+    public static void checkTrialOrIntroductoryPriceEligibility(String jsonProducts, String requestId) {
         try {
             JSONObject request = new JSONObject(jsonProducts);
             JSONArray products = request.getJSONArray("productIdentifiers");
@@ -440,7 +468,7 @@ public class PurchasesWrapper {
             }
 
             Map<String, Map<String, Object>> map = CommonKt.checkTrialOrIntroductoryPriceEligibility(productIds);
-            sendJSONObject(MappersHelpersKt.convertToJson(map), CHECK_ELIGIBILITY);
+            sendJSONObject(MappersHelpersKt.convertToJson(map), CHECK_ELIGIBILITY, requestId);
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
         }
@@ -556,7 +584,7 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.collectDeviceIdentifiers();
     }
 
-    public static void canMakePayments(String featuresJson) {
+    public static void canMakePayments(String featuresJson, String requestId) {
         try {
             JSONObject request = new JSONObject(featuresJson);
             JSONArray features = request.getJSONArray("features");
@@ -575,12 +603,12 @@ public class PurchasesWrapper {
                     } catch (JSONException e) {
                         logJSONException(e);
                     }
-                    sendJSONObject(object, CAN_MAKE_PAYMENTS);
+                    sendJSONObject(object, CAN_MAKE_PAYMENTS, requestId);
                 }
 
                 @Override
                 public void onError(ErrorContainer errorContainer) {
-                    sendError(errorContainer, CAN_MAKE_PAYMENTS);
+                    sendError(errorContainer, CAN_MAKE_PAYMENTS, requestId);
                 }
             });
         } catch (JSONException e) {
@@ -588,9 +616,13 @@ public class PurchasesWrapper {
         }
     }
 
-    public static void getPromotionalOffer(String productIdentifier, String discountIdentifier) {
+    public static void getPromotionalOffer(
+            String productIdentifier,
+            String discountIdentifier,
+            String requestId
+    ) {
         ErrorContainer errorContainer = CommonKt.getPromotionalOffer();
-        sendError(errorContainer, GET_PROMOTIONAL_OFFER);
+        sendError(errorContainer, GET_PROMOTIONAL_OFFER, requestId);
     }
 
     public static void showInAppMessages(String messagesJson) {
@@ -621,45 +653,48 @@ public class PurchasesWrapper {
         }
     }
 
-    public static void parseAsWebPurchaseRedemption(String urlString) {
-        boolean isWebPurchaseRedemptionURL = CommonKt.isWebPurchaseRedemptionURL(urlString);
-        if (isWebPurchaseRedemptionURL) {
-            JSONObject object = new JSONObject();
+    public static void parseAsWebPurchaseRedemption(
+            String urlString,
+            String requestId
+    ) {
+        JSONObject response = new JSONObject();
+        if (CommonKt.isWebPurchaseRedemptionURL(urlString)) {
             try {
-                object.put("redemptionLink", urlString);
+                response.put("redemptionLink", urlString);
             } catch (JSONException e) {
                 logJSONException(e);
             }
-            sendJSONObject(object, PARSE_AS_WEB_PURCHASE_REDEMPTION);
-        } else {
-            sendJSONObject(null, PARSE_AS_WEB_PURCHASE_REDEMPTION);
         }
+        sendJSONObject(
+                response,
+                PARSE_AS_WEB_PURCHASE_REDEMPTION,
+                requestId);
     }
 
-    public static void redeemWebPurchase(String redemptionLink) {
+    public static void redeemWebPurchase(String redemptionLink, String requestId) {
         CommonKt.redeemWebPurchase(redemptionLink, new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                sendJSONObject(MappersHelpersKt.convertToJson(map), REDEEM_WEB_PURCHASE);
+                sendJSONObject(MappersHelpersKt.convertToJson(map), REDEEM_WEB_PURCHASE, requestId);
             }
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, REDEEM_WEB_PURCHASE);
+                sendError(errorContainer, REDEEM_WEB_PURCHASE, requestId);
             }
         });
     }
 
-    public static void getVirtualCurrencies() {
+    public static void getVirtualCurrencies(String requestId) {
         CommonKt.getVirtualCurrencies(new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                sendJSONObject(MappersHelpersKt.convertToJson(map), GET_VIRTUAL_CURRENCIES);
+                sendJSONObject(MappersHelpersKt.convertToJson(map), GET_VIRTUAL_CURRENCIES, requestId);
             }
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, GET_VIRTUAL_CURRENCIES);
+                sendError(errorContainer, GET_VIRTUAL_CURRENCIES, requestId);
             }
         });
     }
@@ -680,7 +715,10 @@ public class PurchasesWrapper {
         CommonKt.invalidateVirtualCurrenciesCache();
     }
 
-    public static void getEligibleWinBackOffersForProduct(String productIdentifier) {
+    public static void getEligibleWinBackOffersForProduct(
+            String productIdentifier,
+            String requestId
+    ) {
         // NOOP
         PurchasesError error = new PurchasesError(
                 PurchasesErrorCode.UnsupportedError,
@@ -689,12 +727,15 @@ public class PurchasesWrapper {
         ErrorContainer errorContainer = PurchasesErrorKt.map(
                 error,
                 new HashMap<>());
-        sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT);
+        sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT, requestId);
     }
 
     // This function accepts a product identifier since the PHC code only fetches
     // eligible win-back offers for products
-    public static void getEligibleWinBackOffersForPackage(String productIdentifier) {
+    public static void getEligibleWinBackOffersForPackage(
+            String productIdentifier,
+            String requestId
+    ) {
         // NOOP
         PurchasesError error = new PurchasesError(
                 PurchasesErrorCode.UnsupportedError,
@@ -703,27 +744,36 @@ public class PurchasesWrapper {
         ErrorContainer errorContainer = PurchasesErrorKt.map(
                 error,
                 new HashMap<>());
-        sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE);
+        sendError(errorContainer, GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE, requestId);
     }
 
-    public static void purchaseProductWithWinBackOffer(String productIdentifier, String winBackOfferIdentifier) {
+    public static void purchaseProductWithWinBackOffer(
+            String productIdentifier,
+            String winBackOfferIdentifier,
+            String requestId
+    ) {
         // NOOP
         PurchasesError error = new PurchasesError(
                 PurchasesErrorCode.UnsupportedError,
                 "Win-back offers are not supported on Android.");
 
         ErrorContainer errorContainer = PurchasesErrorKt.map(error, new HashMap<>());
-        sendError(errorContainer, PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER);
+        sendError(errorContainer, PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER, requestId);
     }
 
-    public static void purchasePackageWithWinBackOffer(String packageIdentifier, String presentedOfferingContextJson, String winBackOfferIdentifier) {
+    public static void purchasePackageWithWinBackOffer(
+            String packageIdentifier,
+            String presentedOfferingContextJson,
+            String winBackOfferIdentifier,
+            String requestId
+    ) {
         // NOOP
         PurchasesError error = new PurchasesError(
                 PurchasesErrorCode.UnsupportedError,
                 "Win-back offers are not supported on Android.");
 
         ErrorContainer errorContainer = PurchasesErrorKt.map(error, new HashMap<>());
-        sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER);
+        sendError(errorContainer, PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER, requestId);
     }
 
     public static void trackCustomPaywallImpression(@Nullable String paywallId, @Nullable String offeringId) {
@@ -857,39 +907,72 @@ public class PurchasesWrapper {
         UnityPlayer.UnitySendMessage(gameObject, method, object.toString());
     }
 
-    private static void sendError(ErrorContainer error, String method) {
-        JSONObject jsonObject = new JSONObject();
+    static void sendJSONObject(JSONObject object, String method, String requestId) {
+        JSONObject response = object != null ? object : new JSONObject();
         try {
-            jsonObject.put("error", MappersHelpersKt.convertToJson(error.getInfo()));
+            response.put(REQUEST_ID, requestId);
         } catch (JSONException e) {
             logJSONException(e);
+            return;
         }
-        sendJSONObject(jsonObject, method);
+        sendJSONObject(response, method);
     }
 
-    private static void sendCustomerInfo(Map<String, ?> map, String method) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("customerInfo", MappersHelpersKt.convertToJson(map));
-        } catch (JSONException e) {
-            logJSONException(e);
-        }
-        sendJSONObject(jsonObject, method);
+    static void sendEmptyJSONObject(String method, String requestId) {
+        sendJSONObject(new JSONObject(), method, requestId);
     }
 
-    private static void sendErrorPurchase(ErrorContainer errorContainer) {
-        JSONObject jsonObject = new JSONObject();
+    private static void sendError(
+            ErrorContainer error,
+            String method,
+            String requestId
+    ) {
+        JSONObject response = new JSONObject();
         try {
-            jsonObject.put("error", MappersHelpersKt.convertToJson(errorContainer.getInfo()));
-            jsonObject.put("userCancelled", errorContainer.getInfo().get("userCancelled"));
+            response.put("error", MappersHelpersKt.convertToJson(error.getInfo()));
         } catch (JSONException e) {
             logJSONException(e);
         }
-        sendJSONObject(jsonObject, MAKE_PURCHASE);
+        sendJSONObject(response, method, requestId);
+    }
+
+    private static void sendCustomerInfo(
+            Map<String, ?> map,
+            String method,
+            String requestId
+    ) {
+        JSONObject response = new JSONObject();
+        try {
+            response.put("customerInfo", MappersHelpersKt.convertToJson(map));
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+        sendJSONObject(response, method, requestId);
+    }
+
+    private static void sendErrorPurchase(
+            ErrorContainer errorContainer,
+            String requestId
+    ) {
+        JSONObject response = new JSONObject();
+        try {
+            response.put(
+                    "error",
+                    MappersHelpersKt.convertToJson(errorContainer.getInfo()));
+            response.put(
+                    "userCancelled",
+                    errorContainer.getInfo().get("userCancelled"));
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+        sendJSONObject(response, MAKE_PURCHASE, requestId);
     }
 
     @NonNull
-    private static OnResult getLogInListener(final String method) {
+    private static OnResult getLogInListener(
+            final String method,
+            final String requestId
+    ) {
         return new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
@@ -903,27 +986,30 @@ public class PurchasesWrapper {
                 } catch (JSONException e) {
                     logJSONException(e);
                 }
-                sendJSONObject(jsonObject, method);
+                sendJSONObject(jsonObject, method, requestId);
             }
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, method);
+                sendError(errorContainer, method, requestId);
             }
         };
     }
 
     @NonNull
-    private static OnResult getCustomerInfoListener(final String method) {
+    private static OnResult getCustomerInfoListener(
+            final String method,
+            final String requestId
+    ) {
         return new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
-                sendCustomerInfo(map, method);
+                sendCustomerInfo(map, method, requestId);
             }
 
             @Override
             public void onError(ErrorContainer errorContainer) {
-                sendError(errorContainer, method);
+                sendError(errorContainer, method, requestId);
             }
         };
     }
