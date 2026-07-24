@@ -1,0 +1,21 @@
+{
+    "name": "RevenueCat.Tests.EditMode",
+    "rootNamespace": "RevenueCat.Tests",
+    "references": [
+        "revenuecat.purchases-unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

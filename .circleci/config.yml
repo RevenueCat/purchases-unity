@@ -84,8 +84,10 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
             mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
-            # rename all the .cs files in APITests to .cs.break
-            for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
+            # Hide API fixtures and tests until the SDK assemblies have been imported.
+            find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
+              -type f \( -name "*.cs" -o -name "*.asmdef" \) \
+              -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
 
 
       - run:
@@ -117,8 +119,9 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
-            # rename all the .cs.break files in APITests to .cs
-            for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
+            find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
+              -type f -name "*.break" \
+              -exec sh -c 'for file do mv "$file" "${file%.break}"; done' sh {} +
 
   perform-build:
     description: "Builds Unity project"
@@ -352,6 +355,29 @@ jobs:
       - store_artifacts:
           path: IntegrationTests/Builds/Android/Android.apk
 
+  test-edit-mode:
+    executor: unity
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - unity/prepare-env:
+          project-path: IntegrationTests
+
+      - import-package
+
+      - unity/test:
+          project-path: IntegrationTests
+          test-platform: editmode
+          custom-parameters: -disable-assembly-updater
+
+      - store_artifacts:
+          path: IntegrationTests/editmode-results.xml
+
+      - store_artifacts:
+          path: IntegrationTests/editmode-junit-results.xml
+
   build-integration-tests-ios:
     executor: unity-ios
     parameters:
@@ -518,6 +544,10 @@ workflows:
           context: unity
           requires:
             - export-package
+      - test-edit-mode:
+          context: unity
+          requires:
+            - export-package
       - build-integration-tests-ios:
           variant: spm
           context: unity
@@ -543,6 +573,7 @@ workflows:
           requires:
             - check-android-keep-annotations
             - build-integration-tests-android
+            - test-edit-mode
             - build-subtester-android
             - build-subtester-ios
             - archive-ios

@@ -45,12 +45,6 @@ public partial class Purchases : MonoBehaviour
              "it through PurchasesConfiguration instead")]
     public bool autoSyncPurchases = true;
 
-    [Tooltip("Internal RevenueCat use only. Enables RevenueCat Workflows (multipage paywalls). " +
-             "Experimental: behavior may change or be removed without warning. Not part of the public API.\n" +
-             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true.")]
-    [FormerlySerializedAs("useWorkflows")]
-    [SerializeField] private bool experimentalUseWorkflows = false;
-
     [Tooltip("App user id. Pass in your own ID if your app has accounts.\n" +
              "If blank, RevenueCat will generate a user ID for you.\n" +
              "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
@@ -107,16 +101,21 @@ public partial class Purchases : MonoBehaviour
     /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public RevenueCat.AdTracker AdTracker { get; private set; }
 
+    internal void SetWrapper(IPurchasesWrapper wrapper)
+    {
+        _wrapper = wrapper ?? throw new ArgumentNullException(nameof(wrapper));
+        AdTracker = new RevenueCat.AdTracker(_wrapper);
+    }
+
     private void Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperAndroid();
+        SetWrapper(new PurchasesWrapperAndroid());
 #elif (UNITY_IOS || UNITY_VISIONOS) && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperiOS();
+        SetWrapper(new PurchasesWrapperiOS());
 #else
-        _wrapper = new PurchasesWrapperNoop();
+        SetWrapper(new PurchasesWrapperNoop());
 #endif
-        AdTracker = new RevenueCat.AdTracker(_wrapper);
         if (!string.IsNullOrEmpty(proxyURL))
         {
             _wrapper.SetProxyURL(proxyURL);
@@ -145,7 +144,7 @@ public partial class Purchases : MonoBehaviour
             return;
         }
 
-        var dangerousSettings = new DangerousSettings(autoSyncPurchases, experimentalUseWorkflows);
+        var dangerousSettings = new DangerousSettings(autoSyncPurchases);
         var builder = PurchasesConfiguration.Builder.Init(apiKey)
             .SetAppUserId(newUserId)
             .SetPurchasesAreCompletedBy(purchasesAreCompletedBy, storeKitVersion)

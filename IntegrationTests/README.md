@@ -9,3 +9,12 @@ In order to use it:
 1. Set the RevenueCat API key in the Purchases object
 1. Set the appUserId if needed in the Purchases object
 1. Set the Parent Panel, Button Prefab and Customer Info Label objects in the PurchasesListener. 
+
+### Automated Edit Mode tests
+
+Executable tests live in `Assets/Tests/EditMode`. After importing `Purchases.unitypackage` and
+`PurchasesUI.unitypackage` into this project, run them from **Window > General > Test Runner** by selecting
+**EditMode** and **Run All**.
+
+CircleCI exports and imports both packages before running the same suite, so the tests cover the packaged SDK
+that users install.
