@@ -103,7 +103,44 @@ public partial class Purchases : MonoBehaviour
              "it through PurchasesConfiguration instead")]
     public string proxyURL;
 
+    private const string CallbackRequestIdKey = "requestId";
+    private readonly CallbackRegistry _callbackRegistry = new CallbackRegistry();
     private IPurchasesWrapper _wrapper;
+
+    internal string RegisterCallback<T>(T callback) where T : class
+    {
+        return _callbackRegistry.Register(callback);
+    }
+
+    private bool TryTakeCallback<T>(JSONNode response, out T callback) where T : class
+    {
+        callback = null;
+        var requestIdNode = response?[CallbackRequestIdKey];
+        var requestId =
+            requestIdNode == null || requestIdNode.IsNull
+                ? null
+                : requestIdNode.Value;
+
+        if (string.IsNullOrEmpty(requestId))
+        {
+            Debug.LogWarning("Received callback response without a request ID.");
+            return false;
+        }
+
+        if (!_callbackRegistry.TryTake(requestId, out callback))
+        {
+            Debug.LogWarning($"No pending callback found for request ID '{requestId}'.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void OnDestroy()
+    {
+        _callbackRegistry.Clear();
+    }
+
     /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public RevenueCat.AdTracker AdTracker { get; private set; }
 
@@ -227,16 +264,14 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     public delegate void GetStorefrontFunc(Storefront? storefront);
 
-    private GetStorefrontFunc StorefrontCallback { get; set; }
-
     /// <summary>
     /// Fetches the <c>Storefront</c> for the customer's current store account.
     /// If there is an error, the callback will be called with a null value.
     /// </summary>
     public void GetStorefront(GetStorefrontFunc callback)
     {
-        StorefrontCallback = callback;
-        _wrapper.GetStorefront();
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetStorefront(requestId);
     }
 
     /// <summary>
@@ -244,8 +279,6 @@ public partial class Purchases : MonoBehaviour
     /// Includes a list of products or an error.
     /// </summary>
     public delegate void GetProductsFunc(List<StoreProduct> products, Error error);
-
-    private GetProductsFunc ProductsCallback { get; set; }
 
     // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
@@ -274,8 +307,8 @@ public partial class Purchases : MonoBehaviour
     /// </remarks>
     public void GetProducts(string[] products, GetProductsFunc callback, string type = "subs")
     {
-        ProductsCallback = callback;
-        _wrapper.GetProducts(products, type);
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetProducts(products, type, requestId);
     }
 
     /// <summary>
@@ -287,8 +320,6 @@ public partial class Purchases : MonoBehaviour
     ///
     /// <param name="purchaseResult"> The <see cref="PurchaseResult"/> object for the purchase attempt that just happened.</param>
     public delegate void MakePurchaseFunc(PurchaseResult purchaseResult);
-
-    private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
     ///
     /// <summary>
@@ -326,8 +357,9 @@ public partial class Purchases : MonoBehaviour
         ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode, googleIsPersonalizedPrice);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchaseProduct(productIdentifier, type, oldSku, prorationMode, googleIsPersonalizedPrice,
+            requestId: requestId);
     }
 
     ///
@@ -356,8 +388,8 @@ public partial class Purchases : MonoBehaviour
     public void PurchaseDiscountedProduct(string productIdentifier, PromotionalOffer discount,
         MakePurchaseFunc callback)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchaseProduct(productIdentifier, discount: discount);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchaseProduct(productIdentifier, discount: discount, requestId: requestId);
     }
 
     ///
@@ -392,8 +424,8 @@ public partial class Purchases : MonoBehaviour
         ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchasePackage(package, oldSku, prorationMode, googleIsPersonalizedPrice);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchasePackage(package, oldSku, prorationMode, googleIsPersonalizedPrice, requestId: requestId);
     }
 
     ///
@@ -420,15 +452,16 @@ public partial class Purchases : MonoBehaviour
     ///
     public void PurchaseDiscountedPackage(Package package, PromotionalOffer discount, MakePurchaseFunc callback)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchasePackage(package, discount: discount);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchasePackage(package, discount: discount, requestId: requestId);
     }
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption, MakePurchaseFunc callback,
         Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchaseSubscriptionOption(subscriptionOption, googleProductChangeInfo, googleIsPersonalizedPrice);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchaseSubscriptionOption(subscriptionOption, googleProductChangeInfo, googleIsPersonalizedPrice,
+            requestId);
     }
 
     /// <summary>
@@ -438,8 +471,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="customerInfo"> A <see cref="CustomerInfo"/> if the request was successful, null otherwise. </param>
     /// <param name="error"> An error if the request was not successful, null otherwise. </param>
     public delegate void CustomerInfoFunc(CustomerInfo customerInfo, Error error);
-
-    private CustomerInfoFunc RestorePurchasesCallback { get; set; }
 
     /// <summary>
     ///
@@ -462,8 +493,8 @@ public partial class Purchases : MonoBehaviour
     /// if restoration was successful, or an error otherwise. </param>
     public void RestorePurchases(CustomerInfoFunc callback)
     {
-        RestorePurchasesCallback = callback;
-        _wrapper.RestorePurchases();
+        var requestId = RegisterCallback(callback);
+        _wrapper.RestorePurchases(requestId);
     }
 
     [Obsolete("Deprecated, use set<NetworkId> methods instead.", true)]
@@ -479,8 +510,6 @@ public partial class Purchases : MonoBehaviour
     /// this app.</param>
     /// <param name="error"> If the request was unsuccessful, contains an error. Null otherwise. </param>
     public delegate void LogInFunc(CustomerInfo customerInfo, bool created, Error error);
-
-    private LogInFunc LogInCallback { get; set; }
 
     /// <summary>
     /// This function will log in the current user with an <c>appUserID</c>.
@@ -506,11 +535,9 @@ public partial class Purchases : MonoBehaviour
     /// <seealso cref="appUserID"/>
     public void LogIn(string appUserId, LogInFunc callback)
     {
-        LogInCallback = callback;
-        _wrapper.LogIn(appUserId);
+        var requestId = RegisterCallback(callback);
+        _wrapper.LogIn(appUserId, requestId);
     }
-
-    private CustomerInfoFunc LogOutCallback { get; set; }
 
 
     ///
@@ -531,8 +558,8 @@ public partial class Purchases : MonoBehaviour
     ///
     public void LogOut(CustomerInfoFunc callback)
     {
-        LogOutCallback = callback;
-        _wrapper.LogOut();
+        var requestId = RegisterCallback(callback);
+        _wrapper.LogOut(requestId);
     }
 
     // ReSharper disable once UnusedMember.Global
@@ -618,8 +645,6 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SetLogHandler();
     }
 
-    private CustomerInfoFunc GetCustomerInfoCallback { get; set; }
-
     // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// Get latest available <see cref="CustomerInfo"/>.
@@ -631,8 +656,8 @@ public partial class Purchases : MonoBehaviour
     ///
     public void GetCustomerInfo(CustomerInfoFunc callback)
     {
-        GetCustomerInfoCallback = callback;
-        _wrapper.GetCustomerInfo();
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetCustomerInfo(requestId);
     }
 
     /// <summary>
@@ -642,8 +667,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
     public delegate void GetOfferingsFunc(Offerings offerings, Error error);
 
-    private GetOfferingsFunc GetOfferingsCallback { get; set; }
-
     /// <summary>
     /// Callback for <see cref="Purchases.GetCurrentOfferingForPlacement"/>.
     /// </summary>
@@ -652,16 +675,12 @@ public partial class Purchases : MonoBehaviour
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
     public delegate void GetCurrentOfferingForPlacementFunc(Offering offerings, Error error);
 
-    private GetCurrentOfferingForPlacementFunc GetCurrentOfferingForPlacementCallback { get; set; }
-
     /// <summary>
     /// Callback for <see cref="Purchases.SyncAttributesAndOfferingsIfNeeded"/>.
     /// </summary>
     /// <param name="offerings"> The <see cref="Offerings"/> object if the request was successful, null otherwise.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
     public delegate void SyncAttributesAndOfferingsIfNeededFunc(Offerings offerings, Error error);
-
-    private SyncAttributesAndOfferingsIfNeededFunc SyncAttributesAndOfferingsIfNeededCallback { get; set; }
 
     ///
     /// <summary>
@@ -682,20 +701,20 @@ public partial class Purchases : MonoBehaviour
     ///
     public void GetOfferings(GetOfferingsFunc callback)
     {
-        GetOfferingsCallback = callback;
-        _wrapper.GetOfferings();
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetOfferings(requestId);
     }
 
     public void GetCurrentOfferingForPlacement(string placementIdentifier, GetCurrentOfferingForPlacementFunc callback)
     {
-        GetCurrentOfferingForPlacementCallback = callback;
-        _wrapper.GetCurrentOfferingForPlacement(placementIdentifier);
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetCurrentOfferingForPlacement(placementIdentifier, requestId);
     }
 
     public void SyncAttributesAndOfferingsIfNeeded(SyncAttributesAndOfferingsIfNeededFunc callback)
     {
-        SyncAttributesAndOfferingsIfNeededCallback = callback;
-        _wrapper.SyncAttributesAndOfferingsIfNeeded();
+        var requestId = RegisterCallback(callback);
+        _wrapper.SyncAttributesAndOfferingsIfNeeded(requestId);
     }
 
     /// <summary>
@@ -723,8 +742,6 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SyncPurchases();
     }
 
-    private CustomerInfoFunc SyncPurchasesCallback { get; set; }
-
     /// <summary>
     /// This method will post all purchases associated with the current App Store account to RevenueCat and
     /// become associated with the current <c>appUserID</c>.
@@ -749,8 +766,8 @@ public partial class Purchases : MonoBehaviour
     /// if sync was successful, or an error otherwise. </param>
     public void SyncPurchases(CustomerInfoFunc callback)
     {
-        SyncPurchasesCallback = callback;
-        _wrapper.SyncPurchases();
+        var requestId = RegisterCallback(callback);
+        _wrapper.SyncPurchases(requestId);
     }
 
     /// <summary>
@@ -806,8 +823,6 @@ public partial class Purchases : MonoBehaviour
     /// as <see cref="IntroEligibility"/> objects.</param>
     public delegate void CheckTrialOrIntroductoryPriceEligibilityFunc(Dictionary<string, IntroEligibility> products);
 
-    private CheckTrialOrIntroductoryPriceEligibilityFunc CheckTrialOrIntroductoryPriceEligibilityCallback { get; set; }
-
     ///
     /// <summary>
     /// iOS only. Computes whether or not a user is eligible for the introductory pricing period of a given product.
@@ -835,8 +850,8 @@ public partial class Purchases : MonoBehaviour
     public void CheckTrialOrIntroductoryPriceEligibility(string[] products,
         CheckTrialOrIntroductoryPriceEligibilityFunc callback)
     {
-        CheckTrialOrIntroductoryPriceEligibilityCallback = callback;
-        _wrapper.CheckTrialOrIntroductoryPriceEligibility(products);
+        var requestId = RegisterCallback(callback);
+        _wrapper.CheckTrialOrIntroductoryPriceEligibility(products, requestId);
     }
 
     /// <summary>
@@ -881,8 +896,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
     public delegate void RecordPurchaseFunc(StoreTransaction transaction, Error error);
 
-    private RecordPurchaseFunc RecordPurchaseCallback { get; set; }
-
     /// <summary>
     /// iOS only. Always returns an error on iOS < 15.
     /// Use this method only if you already have your own IAP implementation using StoreKit 2 and want to use
@@ -895,8 +908,8 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback"> A completion block called when the purchase has been recorded, with either a success or an error.</param>
     public void RecordPurchase(string productID, RecordPurchaseFunc callback)
     {
-        RecordPurchaseCallback = callback;
-        _wrapper.RecordPurchase(productID);
+        var requestId = RegisterCallback(callback);
+        _wrapper.RecordPurchase(productID, requestId);
     }
 
     ///
@@ -1264,8 +1277,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="error">An Error object or null if successful.</param>
     public delegate void CanMakePaymentsFunc(bool canMakePayments, Error error);
 
-    private CanMakePaymentsFunc CanMakePaymentsCallback { get; set; }
-
     /// <summary>
     /// Check if billing is supported for the current user (meaning IN-APP purchases are supported)
     /// and whether a list of specified feature types are supported.
@@ -1278,8 +1289,8 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback">A callback receiving a bool for canMakePayments and potentially an Error</param>
     public void CanMakePayments(BillingFeature[] features, CanMakePaymentsFunc callback)
     {
-        CanMakePaymentsCallback = callback;
-        _wrapper.CanMakePayments(features == null ? new BillingFeature[] { } : features);
+        var requestId = RegisterCallback(callback);
+        _wrapper.CanMakePayments(features == null ? new BillingFeature[] { } : features, requestId);
     }
 
     /// <summary>
@@ -1301,8 +1312,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="error">An Error object or null if successful.</param>
     public delegate void GetAmazonLWAConsentStatusFunc(bool hasConsented, Error error);
 
-    private GetAmazonLWAConsentStatusFunc GetAmazonLWAConsentStatusCallback { get; set; }
-
     /// <summary>
     /// Get the Login with Amazon consent status for the current user. Used to implement one-click account creation
     /// using Quick Subscribe.
@@ -1316,8 +1325,8 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback">A callback receiving a bool for hasConsented and potentially an Error</param>
     public void GetAmazonLWAConsentStatus(GetAmazonLWAConsentStatusFunc callback)
     {
-        GetAmazonLWAConsentStatusCallback = callback;
-        _wrapper.GetAmazonLWAConsentStatus();
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetAmazonLWAConsentStatus(requestId);
     }
 
     /// <summary>
@@ -1329,8 +1338,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="error">An Error object or null if successful.</param>
     public delegate void GetPromotionalOfferFunc(PromotionalOffer promotionalOffer, Error error);
 
-    private GetPromotionalOfferFunc GetPromotionalOfferCallback { get; set; }
-
     /// <summary>
     /// iOS only. Use this function to retrieve the Purchases.PromotionalOffer for a given Purchases.Package.
     /// </summary>
@@ -1340,8 +1347,8 @@ public partial class Purchases : MonoBehaviour
     /// incompatible iOS versions.</param>
     public void GetPromotionalOffer(StoreProduct storeProduct, Discount discount, GetPromotionalOfferFunc callback)
     {
-        GetPromotionalOfferCallback = callback;
-        _wrapper.GetPromotionalOffer(storeProduct.Identifier, discount.Identifier);
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetPromotionalOffer(storeProduct.Identifier, discount.Identifier, requestId);
     }
 
     /// Displays the specified store in-app message types to the user if there are any available to be shown.
@@ -1379,35 +1386,29 @@ public partial class Purchases : MonoBehaviour
 
     public delegate void ParseAsWebPurchaseRedemptionFunc(WebPurchaseRedemption webPurchaseRedemption);
 
-    private ParseAsWebPurchaseRedemptionFunc ParseAsWebPurchaseRedemptionCallback { get; set; }
-
     public void ParseAsWebPurchaseRedemption(string urlString, ParseAsWebPurchaseRedemptionFunc callback)
     {
-        ParseAsWebPurchaseRedemptionCallback = callback;
-        _wrapper.ParseAsWebPurchaseRedemption(urlString);
+        var requestId = RegisterCallback(callback);
+        _wrapper.ParseAsWebPurchaseRedemption(urlString, requestId);
     }
 
     public delegate void RedeemWebPurchaseFunc(WebPurchaseRedemptionResult result);
 
-    private RedeemWebPurchaseFunc RedeemWebPurchaseCallback { get; set; }
-
     public void RedeemWebPurchase(WebPurchaseRedemption webPurchaseRedemption, RedeemWebPurchaseFunc callback)
     {
-        RedeemWebPurchaseCallback = callback;
-        _wrapper.RedeemWebPurchase(webPurchaseRedemption);
+        var requestId = RegisterCallback(callback);
+        _wrapper.RedeemWebPurchase(webPurchaseRedemption, requestId);
     }
 
     public delegate void GetVirtualCurrenciesFunc(VirtualCurrencies? virtualCurrencies, Error? error);
-
-    private GetVirtualCurrenciesFunc GetVirtualCurrenciesCallback { get; set; }
 
     /// <summary>
     /// Fetches the virtual currencies for the current user.
     /// </summary>
     public void GetVirtualCurrencies(GetVirtualCurrenciesFunc callback)
     {
-        GetVirtualCurrenciesCallback = callback;
-        _wrapper.GetVirtualCurrencies();
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetVirtualCurrencies(requestId);
     }
 
     /// <summary>
@@ -1447,8 +1448,6 @@ public partial class Purchases : MonoBehaviour
     
     public delegate void GetEligibleWinBackOffersForProductFunc(WinBackOffer[] winBackOffers, Error error);
 
-    private GetEligibleWinBackOffersForProductFunc GetEligibleWinBackOffersForProductCallback { get; set; }
-
     /// <summary>
     /// Gets eligible win-back offers for a given store product. Only available on iOS 18.0+ with StoreKit 2.
     /// Returns an error if the platform is not iOS 18.0+ or if StoreKit 2 is not used.
@@ -1457,13 +1456,11 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback">A callback receiving an array of Purchases.WinBackOffer objects or an error if unsuccessful</param>
     public void GetEligibleWinBackOffersForProduct(StoreProduct storeProduct, GetEligibleWinBackOffersForProductFunc callback)
     {
-        GetEligibleWinBackOffersForProductCallback = callback;
-        _wrapper.GetEligibleWinBackOffersForProduct(storeProduct);
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetEligibleWinBackOffersForProduct(storeProduct, requestId);
     }
 
     public delegate void GetEligibleWinBackOffersForPackageFunc(WinBackOffer[] winBackOffers, Error error);
-
-    private GetEligibleWinBackOffersForPackageFunc GetEligibleWinBackOffersForPackageCallback { get; set; }
 
     /// <summary>
     /// Gets eligible win-back offers for a given package. Only available on iOS 18.0+ with StoreKit 2. 
@@ -1473,8 +1470,8 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback">A callback receiving an array of Purchases.WinBackOffer objects or an error if unsuccessful</param>
     public void GetEligibleWinBackOffersForPackage(Package package, GetEligibleWinBackOffersForPackageFunc callback)
     {
-        GetEligibleWinBackOffersForPackageCallback = callback;
-        _wrapper.GetEligibleWinBackOffersForPackage(package);
+        var requestId = RegisterCallback(callback);
+        _wrapper.GetEligibleWinBackOffersForPackage(package, requestId);
     }
 
     /// <summary>
@@ -1486,8 +1483,8 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback">A callback receiving the product identifier, customer info, user cancellation, and an error if the purchase fails</param>
     public void PurchaseProductWithWinBackOffer(StoreProduct storeProduct, WinBackOffer winBackOffer, MakePurchaseFunc callback)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchaseProductWithWinBackOffer(storeProduct, winBackOffer);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchaseProductWithWinBackOffer(storeProduct, winBackOffer, requestId);
     }
 
     /// <summary>
@@ -1499,48 +1496,34 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback">A callback receiving the product identifier, customer info, user cancellation, and an error if the purchase fails</param>
     public void PurchasePackageWithWinBackOffer(Package package, WinBackOffer winBackOffer, MakePurchaseFunc callback)
     {
-        MakePurchaseCallback = callback;
-        _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer);
+        var requestId = RegisterCallback(callback);
+        _wrapper.PurchasePackageWithWinBackOffer(package, winBackOffer, requestId);
     }
 
     private void _receiveStorefront(string storefrontJson)
     {
         Debug.Log("_receiveStorefront " + storefrontJson);
-
-        if (StorefrontCallback == null) return;
-        var callback = StorefrontCallback;
-        StorefrontCallback = null;
-
-        if (storefrontJson == null || storefrontJson == "{}")
+        var response = JSON.Parse(storefrontJson);
+        if (!TryTakeCallback(response, out GetStorefrontFunc callback) || callback == null)
         {
-            callback(null);
+            return;
         }
-        else
-        {
-            var response = JSON.Parse(storefrontJson);
-            var countryCode = response["countryCode"];
-            if (countryCode == null)
-            {
-                Debug.LogError("StorefrontCallback received null countryCode");
-                callback(null);
-            }
-            else 
-            {
-                callback(new Storefront(countryCode));
-            }
-        }
+
+        var countryCode = response?["countryCode"];
+        callback(countryCode == null || countryCode.IsNull
+            ? null
+            : new Storefront(countryCode.Value));
     }
 
     // ReSharper disable once UnusedMember.Local
     private void _receiveProducts(string productsJson)
     {
         Debug.Log("_receiveProducts " + productsJson);
-
-        if (ProductsCallback == null) return;
-
         var response = JSON.Parse(productsJson);
-        var callback = ProductsCallback;
-        ProductsCallback = null;
+        if (!TryTakeCallback(response, out GetProductsFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1563,8 +1546,12 @@ public partial class Purchases : MonoBehaviour
     private void _getCustomerInfo(string customerInfoJson)
     {
         Debug.Log("_getCustomerInfo " + customerInfoJson);
-        var callback = GetCustomerInfoCallback;
-        GetCustomerInfoCallback = null;
+        var response = JSON.Parse(customerInfoJson);
+        if (!TryTakeCallback(response, out CustomerInfoFunc callback) || callback == null)
+        {
+            return;
+        }
+
         ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
@@ -1572,12 +1559,12 @@ public partial class Purchases : MonoBehaviour
     private void _makePurchase(string makePurchaseResponseJson)
     {
         Debug.Log("_makePurchase " + makePurchaseResponseJson);
-
-        if (MakePurchaseCallback == null) return;
-        var callback = MakePurchaseCallback;
-        MakePurchaseCallback = null;
-
         var response = JSON.Parse(makePurchaseResponseJson);
+        if (!TryTakeCallback(response, out MakePurchaseFunc callback) || callback == null)
+        {
+            return;
+        }
+
         callback(new PurchaseResult(response));
     }
 
@@ -1614,16 +1601,24 @@ public partial class Purchases : MonoBehaviour
     private void _restorePurchases(string customerInfoJson)
     {
         Debug.Log("_restorePurchases " + customerInfoJson);
-        var callback = RestorePurchasesCallback;
-        RestorePurchasesCallback = null;
+        var response = JSON.Parse(customerInfoJson);
+        if (!TryTakeCallback(response, out CustomerInfoFunc callback) || callback == null)
+        {
+            return;
+        }
+
         ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
     private void _syncPurchases(string customerInfoJson)
     {
         Debug.Log("_syncPurchases " + customerInfoJson);
-        var callback = SyncPurchasesCallback;
-        SyncPurchasesCallback = null;
+        var response = JSON.Parse(customerInfoJson);
+        if (!TryTakeCallback(response, out CustomerInfoFunc callback) || callback == null)
+        {
+            return;
+        }
+
         ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
@@ -1631,8 +1626,12 @@ public partial class Purchases : MonoBehaviour
     private void _logIn(string logInResultJson)
     {
         Debug.Log("_logIn " + logInResultJson);
-        var callback = LogInCallback;
-        LogInCallback = null;
+        var response = JSON.Parse(logInResultJson);
+        if (!TryTakeCallback(response, out LogInFunc callback) || callback == null)
+        {
+            return;
+        }
+
         ReceiveLogInResultMethod(logInResultJson, callback);
     }
 
@@ -1640,8 +1639,12 @@ public partial class Purchases : MonoBehaviour
     private void _logOut(string customerInfoJson)
     {
         Debug.Log("_logOut " + customerInfoJson);
-        var callback = LogOutCallback;
-        LogOutCallback = null;
+        var response = JSON.Parse(customerInfoJson);
+        if (!TryTakeCallback(response, out CustomerInfoFunc callback) || callback == null)
+        {
+            return;
+        }
+
         ReceiveCustomerInfoMethod(customerInfoJson, callback);
     }
 
@@ -1649,10 +1652,12 @@ public partial class Purchases : MonoBehaviour
     private void _getOfferings(string offeringsJson)
     {
         Debug.Log("_getOfferings " + offeringsJson);
-        if (GetOfferingsCallback == null) return;
         var response = JSON.Parse(offeringsJson);
-        var callback = GetOfferingsCallback;
-        GetOfferingsCallback = null;
+        if (!TryTakeCallback(response, out GetOfferingsFunc callback) || callback == null)
+        {
+            return;
+        }
+
         if (ResponseHasError(response))
         {
             callback(null, new Error(response["error"]));
@@ -1667,11 +1672,13 @@ public partial class Purchases : MonoBehaviour
     // ReSharper disable once UnusedMember.Local
     private void _getCurrentOfferingForPlacement(string offeringJson)
     {
-        if (GetCurrentOfferingForPlacementCallback == null) return;
         var response = JSON.Parse(offeringJson);
-        var callback = GetCurrentOfferingForPlacementCallback;
-        GetCurrentOfferingForPlacementCallback = null;
-        if (response == null || response["offering"] == null)
+        if (!TryTakeCallback(response, out GetCurrentOfferingForPlacementFunc callback) || callback == null)
+        {
+            return;
+        }
+
+        if (response["offering"] == null)
         {
             callback(null, null);
             return;
@@ -1690,10 +1697,12 @@ public partial class Purchases : MonoBehaviour
     // ReSharper disable once UnusedMember.Local
     private void _syncAttributesAndOfferingsIfNeeded(string offeringsJson)
     {
-        if (SyncAttributesAndOfferingsIfNeededCallback == null) return;
         var response = JSON.Parse(offeringsJson);
-        var callback = SyncAttributesAndOfferingsIfNeededCallback;
-        SyncAttributesAndOfferingsIfNeededCallback = null;
+        if (!TryTakeCallback(response, out SyncAttributesAndOfferingsIfNeededFunc callback) || callback == null)
+        {
+            return;
+        }
+
         if (ResponseHasError(response))
         {
             callback(null, new Error(response["error"]));
@@ -1708,32 +1717,34 @@ public partial class Purchases : MonoBehaviour
     private void _checkTrialOrIntroductoryPriceEligibility(string json)
     {
         Debug.Log("_checkTrialOrIntroductoryPriceEligibility " + json);
-
-        if (CheckTrialOrIntroductoryPriceEligibilityCallback == null) return;
-
         var response = JSON.Parse(json);
+        if (!TryTakeCallback(response, out CheckTrialOrIntroductoryPriceEligibilityFunc callback) || callback == null)
+        {
+            return;
+        }
+
         var dictionary = new Dictionary<string, IntroEligibility>();
         foreach (var keyValuePair in response)
         {
+            if (keyValuePair.Key == CallbackRequestIdKey)
+            {
+                continue;
+            }
+
             dictionary[keyValuePair.Key] = new IntroEligibility(keyValuePair.Value);
         }
 
-        var callback = CheckTrialOrIntroductoryPriceEligibilityCallback;
-        CheckTrialOrIntroductoryPriceEligibilityCallback = null;
-
         callback(dictionary);
-
     }
 
     private void _recordPurchase(string json)
     {
         Debug.Log("_recordPurchase " + json);
-
-        if (RecordPurchaseCallback == null) return;
-
         var response = JSON.Parse(json);
-        var callback = RecordPurchaseCallback;
-        RecordPurchaseCallback = null;
+        if (!TryTakeCallback(response, out RecordPurchaseFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1750,12 +1761,11 @@ public partial class Purchases : MonoBehaviour
     private void _canMakePayments(string canMakePaymentsJson)
     {
         Debug.Log("_canMakePayments" + canMakePaymentsJson);
-
-        if (CanMakePaymentsCallback == null) return;
-
         var response = JSON.Parse(canMakePaymentsJson);
-        var callback = CanMakePaymentsCallback;
-        CanMakePaymentsCallback = null;
+        if (!TryTakeCallback(response, out CanMakePaymentsFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1771,12 +1781,11 @@ public partial class Purchases : MonoBehaviour
     private void _getAmazonLWAConsentStatus(string getAmazonLWAConsentStatusJson)
     {
         Debug.Log("_getAmazonLWAConsentStatus" + getAmazonLWAConsentStatusJson);
-
-        if (GetAmazonLWAConsentStatusCallback == null) return;
-
         var response = JSON.Parse(getAmazonLWAConsentStatusJson);
-        var callback = GetAmazonLWAConsentStatusCallback;
-        GetAmazonLWAConsentStatusCallback = null;
+        if (!TryTakeCallback(response, out GetAmazonLWAConsentStatusFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1787,18 +1796,16 @@ public partial class Purchases : MonoBehaviour
             var amazonLWAConsentStatus = response["amazonLWAConsentStatus"];
             callback(amazonLWAConsentStatus, null);
         }
-
     }
 
     private void _getPromotionalOffer(string getPromotionalOfferJson)
     {
         Debug.Log("_getPromotionalOffer" + getPromotionalOfferJson);
-
-        if (GetPromotionalOfferCallback == null) return;
-
         var response = JSON.Parse(getPromotionalOfferJson);
-        var callback = GetPromotionalOfferCallback;
-        GetPromotionalOfferCallback = null;
+        if (!TryTakeCallback(response, out GetPromotionalOfferFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1814,12 +1821,11 @@ public partial class Purchases : MonoBehaviour
     private void _parseAsWebPurchaseRedemption(string parseAsWebPurchaseRedemptionJSON)
     {
         Debug.Log("_parseAsWebPurchaseRedemption " + parseAsWebPurchaseRedemptionJSON);
-
-        if (ParseAsWebPurchaseRedemptionCallback == null) return;
-
         var response = JSON.Parse(parseAsWebPurchaseRedemptionJSON);
-        var callback = ParseAsWebPurchaseRedemptionCallback;
-        ParseAsWebPurchaseRedemptionCallback = null;
+        if (!TryTakeCallback(response, out ParseAsWebPurchaseRedemptionFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1835,12 +1841,11 @@ public partial class Purchases : MonoBehaviour
     private void _redeemWebPurchase(string redeemWebPurchaseJSON)
     {
         Debug.Log("_redeemWebPurchase " + redeemWebPurchaseJSON);
-
-        if (RedeemWebPurchaseCallback == null) return;
-
         var response = JSON.Parse(redeemWebPurchaseJSON);
-        var callback = RedeemWebPurchaseCallback;
-        RedeemWebPurchaseCallback = null;
+        if (!TryTakeCallback(response, out RedeemWebPurchaseFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1856,12 +1861,11 @@ public partial class Purchases : MonoBehaviour
     private void _getVirtualCurrencies(string getVirtualCurrenciesJson)
     {
         Debug.Log("_getVirtualCurrencies " + getVirtualCurrenciesJson);
-
-        if (GetVirtualCurrenciesCallback == null) return;
-
         var response = JSON.Parse(getVirtualCurrenciesJson);
-        var callback = GetVirtualCurrenciesCallback;
-        GetVirtualCurrenciesCallback = null;
+        if (!TryTakeCallback(response, out GetVirtualCurrenciesFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1877,12 +1881,11 @@ public partial class Purchases : MonoBehaviour
     private void _getEligibleWinBackOffersForProduct(string eligibleWinBackOffersJson)
     {
         Debug.Log("_getEligibleWinBackOffersForProduct " + eligibleWinBackOffersJson);
-
-        if (GetEligibleWinBackOffersForProductCallback == null) return;
-
         var response = JSON.Parse(eligibleWinBackOffersJson);
-        var callback = GetEligibleWinBackOffersForProductCallback;
-        GetEligibleWinBackOffersForProductCallback = null;
+        if (!TryTakeCallback(response, out GetEligibleWinBackOffersForProductFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1904,12 +1907,11 @@ public partial class Purchases : MonoBehaviour
     private void _getEligibleWinBackOffersForPackage(string eligibleWinBackOffersJson)
     {
         Debug.Log("_getEligibleWinBackOffersForPackage " + eligibleWinBackOffersJson);
-
-        if (GetEligibleWinBackOffersForPackageCallback == null) return;
-
         var response = JSON.Parse(eligibleWinBackOffersJson);
-        var callback = GetEligibleWinBackOffersForPackageCallback;
-        GetEligibleWinBackOffersForPackageCallback = null;
+        if (!TryTakeCallback(response, out GetEligibleWinBackOffersForPackageFunc callback) || callback == null)
+        {
+            return;
+        }
 
         if (ResponseHasError(response))
         {
@@ -1926,18 +1928,16 @@ public partial class Purchases : MonoBehaviour
 
             callback(winBackOffers.ToArray(), null);
         }
-
     }
 
     private void _purchaseProductWithWinBackOffer(string purchaseProductWithWinBackOfferJson)
     {
         Debug.Log("_purchaseProductWithWinBackOffer " + purchaseProductWithWinBackOfferJson);
-
-        if (MakePurchaseCallback == null) return;
-
         var response = JSON.Parse(purchaseProductWithWinBackOfferJson);
-        var callback = MakePurchaseCallback;
-        MakePurchaseCallback = null;
+        if (!TryTakeCallback(response, out MakePurchaseFunc callback) || callback == null)
+        {
+            return;
+        }
 
         callback(new PurchaseResult(response));
     }
@@ -1945,12 +1945,11 @@ public partial class Purchases : MonoBehaviour
     private void _purchasePackageWithWinBackOffer(string purchasePackageWithWinBackOfferJson)
     {
         Debug.Log("_purchasePackageWithWinBackOffer " + purchasePackageWithWinBackOfferJson);
-
-        if (MakePurchaseCallback == null) return;
-
         var response = JSON.Parse(purchasePackageWithWinBackOfferJson);
-        var callback = MakePurchaseCallback;
-        MakePurchaseCallback = null;
+        if (!TryTakeCallback(response, out MakePurchaseFunc callback) || callback == null)
+        {
+            return;
+        }
 
         callback(new PurchaseResult(response));
     }
