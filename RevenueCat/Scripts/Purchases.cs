@@ -101,16 +101,21 @@ public partial class Purchases : MonoBehaviour
     /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public RevenueCat.AdTracker AdTracker { get; private set; }
 
+    internal void SetWrapper(IPurchasesWrapper wrapper)
+    {
+        _wrapper = wrapper ?? throw new ArgumentNullException(nameof(wrapper));
+        AdTracker = new RevenueCat.AdTracker(_wrapper);
+    }
+
     private void Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperAndroid();
+        SetWrapper(new PurchasesWrapperAndroid());
 #elif (UNITY_IOS || UNITY_VISIONOS) && !UNITY_EDITOR
-        _wrapper = new PurchasesWrapperiOS();
+        SetWrapper(new PurchasesWrapperiOS());
 #else
-        _wrapper = new PurchasesWrapperNoop();
+        SetWrapper(new PurchasesWrapperNoop());
 #endif
-        AdTracker = new RevenueCat.AdTracker(_wrapper);
         if (!string.IsNullOrEmpty(proxyURL))
         {
             _wrapper.SetProxyURL(proxyURL);
