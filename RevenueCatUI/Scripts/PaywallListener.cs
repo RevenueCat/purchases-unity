@@ -11,9 +11,8 @@ namespace RevenueCatUI
     /// <see cref="PaywallsPresenter.PresentIfNeeded"/> completes.
     /// Callbacks never fire in the Unity Editor or on unsupported platforms.
     ///
-    /// When combined with <see cref="PurchaseLogic"/> (purchasesAreCompletedBy MY_APP), the
-    /// native paywall does not emit purchase/restore started or completed events; only
-    /// error and cancellation events fire. Observe purchase outcomes through the
+    /// When combined with <see cref="PurchaseLogic"/> (purchasesAreCompletedBy MY_APP),
+    /// most listener events will not be sent. Observe purchase outcomes through the
     /// PurchaseLogic handlers instead.
     /// </summary>
     public class PaywallListener
