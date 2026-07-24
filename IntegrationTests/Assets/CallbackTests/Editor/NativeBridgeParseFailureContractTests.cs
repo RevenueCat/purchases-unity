@@ -24,24 +24,33 @@ public class NativeBridgeParseFailureContractTests
     [Test]
     public void AndroidGetProductsParseFailureReturnsEmptyProducts()
     {
-        var branch = GetLastJavaJsonCatch(
+        var function = GetAndroidFunction(
             "public static void getProducts(");
+        var branch = GetLastJavaJsonCatch(function);
 
         AssertAndroidFallback(
-            branch,
+            function,
             "Failure parsing product identifiers",
             "RECEIVE_PRODUCTS");
         Assert.That(branch, Does.Contain("\"products\""));
         Assert.That(branch, Does.Contain("new JSONArray()"));
+        Assert.That(
+            branch,
+            Does.Contain(
+                "sendJSONObject(response, RECEIVE_PRODUCTS, requestId);"));
     }
 
     [Test]
     public void AndroidPurchasePackageParseFailureReturnsEmptyPurchase()
     {
-        var branch = GetLastJavaJsonCatch(
+        var function = GetAndroidFunction(
             "public static void purchasePackage(String packageIdentifier,");
+        var branch = GetLastJavaJsonCatch(function);
 
-        AssertAndroidFallback(branch, "logJSONException(e);", "MAKE_PURCHASE");
+        AssertAndroidFallback(
+            function,
+            "logJSONException(e);",
+            "MAKE_PURCHASE");
         Assert.That(
             branch,
             Does.Contain("sendEmptyJSONObject(MAKE_PURCHASE, requestId);"));
@@ -50,11 +59,12 @@ public class NativeBridgeParseFailureContractTests
     [Test]
     public void AndroidEligibilityParseFailureReturnsEmptyObject()
     {
-        var branch = GetLastJavaJsonCatch(
+        var function = GetAndroidFunction(
             "public static void checkTrialOrIntroductoryPriceEligibility(");
+        var branch = GetLastJavaJsonCatch(function);
 
         AssertAndroidFallback(
-            branch,
+            function,
             "Failure parsing product identifiers",
             "CHECK_ELIGIBILITY");
         Assert.That(
@@ -65,21 +75,30 @@ public class NativeBridgeParseFailureContractTests
     [Test]
     public void AndroidCanMakePaymentsParseFailureReturnsFalse()
     {
-        var branch = GetLastJavaJsonCatch(
+        var function = GetAndroidFunction(
             "public static void canMakePayments(");
+        var branch = GetLastJavaJsonCatch(function);
 
-        AssertAndroidFallback(branch, "logJSONException(e);", "CAN_MAKE_PAYMENTS");
+        AssertAndroidFallback(
+            function,
+            "logJSONException(e);",
+            "CAN_MAKE_PAYMENTS");
         Assert.That(branch, Does.Contain("\"canMakePayments\""));
         Assert.That(branch, Does.Contain("false"));
+        Assert.That(
+            branch,
+            Does.Contain(
+                "sendJSONObject(response, CAN_MAKE_PAYMENTS, requestId);"));
     }
 
     [Test]
     public void IosGetProductsParseFailureReturnsEmptyProducts()
     {
-        var branch = GetObjectiveCErrorBranch("void _RCGetProducts(");
+        var function = GetIosFunction("void _RCGetProducts(");
+        var branch = GetObjectiveCErrorBranch(function);
 
         AssertIosFallback(
-            branch,
+            function,
             "Error parsing productIdentifiers JSON",
             "RECEIVE_PRODUCTS",
             "getProducts:");
@@ -89,10 +108,11 @@ public class NativeBridgeParseFailureContractTests
     [Test]
     public void IosPurchasePackageParseFailureReturnsEmptyPurchase()
     {
-        var branch = GetObjectiveCErrorBranch("void _RCPurchasePackage(");
+        var function = GetIosFunction("void _RCPurchasePackage(");
+        var branch = GetObjectiveCErrorBranch(function);
 
         AssertIosFallback(
-            branch,
+            function,
             "Error parsing presentedOfferingContext JSON",
             "MAKE_PURCHASE",
             "purchasePackage:");
@@ -102,11 +122,12 @@ public class NativeBridgeParseFailureContractTests
     [Test]
     public void IosEligibilityParseFailureReturnsEmptyObject()
     {
-        var branch = GetObjectiveCErrorBranch(
+        var function = GetIosFunction(
             "void _RCCheckTrialOrIntroductoryPriceEligibility(");
+        var branch = GetObjectiveCErrorBranch(function);
 
         AssertIosFallback(
-            branch,
+            function,
             "Error parsing productIdentifiers JSON",
             "CHECK_ELIGIBILITY",
             "checkTrialOrIntroductoryPriceEligibility:");
@@ -116,10 +137,11 @@ public class NativeBridgeParseFailureContractTests
     [Test]
     public void IosCanMakePaymentsParseFailureReturnsFalse()
     {
-        var branch = GetObjectiveCErrorBranch("void _RCCanMakePayments(");
+        var function = GetIosFunction("void _RCCanMakePayments(");
+        var branch = GetObjectiveCErrorBranch(function);
 
         AssertIosFallback(
-            branch,
+            function,
             "Error parsing features JSON",
             "CAN_MAKE_PAYMENTS",
             "canMakePaymentsWithFeatures:");
@@ -139,27 +161,39 @@ public class NativeBridgeParseFailureContractTests
                 "response[RCCallbackRequestIdKey] = requestId ?: @\"\";"));
     }
 
-    private string GetLastJavaJsonCatch(string methodSignature)
+    private string GetAndroidFunction(string methodSignature)
     {
-        var method = ExtractBlock(_androidSource, methodSignature);
-        var catchIndex = method.LastIndexOf(
+        return ExtractBlock(_androidSource, methodSignature);
+    }
+
+    private string GetIosFunction(string functionSignature)
+    {
+        return ExtractBlock(_iosSource, functionSignature);
+    }
+
+    private static string GetLastJavaJsonCatch(string function)
+    {
+        var catchIndex = function.LastIndexOf(
             "catch (JSONException e)",
             StringComparison.Ordinal);
         Assert.That(catchIndex, Is.GreaterThanOrEqualTo(0));
-        return ExtractBlock(method, "catch (JSONException e)", catchIndex);
+        return ExtractBlock(
+            function,
+            "catch (JSONException e)",
+            catchIndex);
     }
 
-    private string GetObjectiveCErrorBranch(string functionSignature)
+    private static string GetObjectiveCErrorBranch(string function)
     {
-        var function = ExtractBlock(_iosSource, functionSignature);
         return ExtractBlock(function, "if (error)");
     }
 
     private static void AssertAndroidFallback(
-        string branch,
+        string function,
         string logMarker,
         string responseMethod)
     {
+        var branch = GetLastJavaJsonCatch(function);
         Assert.That(branch, Does.Contain(logMarker));
         Assert.That(branch, Does.Contain(responseMethod));
         Assert.That(branch, Does.Contain("requestId"));
@@ -168,14 +202,24 @@ public class NativeBridgeParseFailureContractTests
             CountOccurrences(branch, "sendEmptyJSONObject("),
             Is.EqualTo(1));
         Assert.That(branch, Does.Not.Contain("CommonKt."));
+
+        var branchIndex = function.LastIndexOf(
+            branch,
+            StringComparison.Ordinal);
+        var afterCatch = function.Substring(branchIndex + branch.Length);
+        Assert.That(
+            afterCatch.Trim(),
+            Is.EqualTo("}"),
+            "The parse-failure catch must terminate the Java function.");
     }
 
     private static void AssertIosFallback(
-        string branch,
+        string function,
         string logMarker,
         string responseMethod,
         string nativeOperation)
     {
+        var branch = GetObjectiveCErrorBranch(function);
         Assert.That(branch, Does.Contain(logMarker));
         Assert.That(branch, Does.Contain(responseMethod));
         Assert.That(
@@ -185,6 +229,25 @@ public class NativeBridgeParseFailureContractTests
             CountOccurrences(branch, "sendJSONObject:"),
             Is.EqualTo(1));
         Assert.That(branch, Does.Not.Contain(nativeOperation));
+
+        var responseIndex = branch.IndexOf(
+            "sendJSONObject:",
+            StringComparison.Ordinal);
+        var returnIndex = branch.IndexOf(
+            "return;",
+            responseIndex,
+            StringComparison.Ordinal);
+        Assert.That(
+            returnIndex,
+            Is.GreaterThan(responseIndex),
+            "The parse-failure response must be followed by a return.");
+        Assert.That(
+            CountOccurrences(branch, "return;"),
+            Is.EqualTo(1));
+        Assert.That(
+            branch.Substring(returnIndex + "return;".Length).Trim(),
+            Is.EqualTo("}"),
+            "The return must terminate the iOS parse-failure branch.");
     }
 
     private static string ExtractBlock(
