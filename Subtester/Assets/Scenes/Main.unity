@@ -200,6 +200,7 @@ MonoBehaviour:
   revenueCatAPIKeyAmazon: 
   useAmazon: 0
   autoSyncPurchases: 1
+  useWorkflows: 0
   appUserID: 
   productIdentifiers: []
   listener: {fileID: 0}
@@ -305,7 +306,7 @@ GameObject:
   - component: {fileID: 1572256517}
   - component: {fileID: 1572256516}
   m_Layer: 5
-  m_Name: UIDocument
+  m_Name: TesterApp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -325,7 +326,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RevenueCat.Tester.TesterApp
   styleSheet: {fileID: 7433441132597879392, guid: afe86b1785bae4efca33abf7cb98997a,
     type: 3}
-  defaultOfferingIdentifier: facundo.test.restore
+  configureAtRuntime: 1
+  useWorkflows: 0
+  defaultOfferingIdentifier: for_exit_offers
   defaultCustomVariables:
   - key: rosie_player_name
     type: 0

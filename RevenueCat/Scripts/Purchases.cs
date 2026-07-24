@@ -45,6 +45,12 @@ public partial class Purchases : MonoBehaviour
              "it through PurchasesConfiguration instead")]
     public bool autoSyncPurchases = true;
 
+    [Tooltip("Internal RevenueCat use only. Enables RevenueCat Workflows (multipage paywalls). " +
+             "Experimental: behavior may change or be removed without warning. Not part of the public API.\n" +
+             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true.")]
+    [FormerlySerializedAs("useWorkflows")]
+    [SerializeField] private bool experimentalUseWorkflows = false;
+
     [Tooltip("App user id. Pass in your own ID if your app has accounts.\n" +
              "If blank, RevenueCat will generate a user ID for you.\n" +
              "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
@@ -139,7 +145,7 @@ public partial class Purchases : MonoBehaviour
             return;
         }
 
-        var dangerousSettings = new DangerousSettings(autoSyncPurchases);
+        var dangerousSettings = new DangerousSettings(autoSyncPurchases, experimentalUseWorkflows);
         var builder = PurchasesConfiguration.Builder.Init(apiKey)
             .SetAppUserId(newUserId)
             .SetPurchasesAreCompletedBy(purchasesAreCompletedBy, storeKitVersion)

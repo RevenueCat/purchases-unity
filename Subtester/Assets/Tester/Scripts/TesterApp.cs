@@ -6,10 +6,22 @@ using RevenueCat.Tester.Screens;
 
 namespace RevenueCat.Tester
 {
+    // Runs after Purchases.Start() (default order 0) so the native wrapper is initialized before
+    // we configure programmatically in Start().
+    [DefaultExecutionOrder(1000)]
     [RequireComponent(typeof(UIDocument))]
     public class TesterApp : Purchases.UpdatedCustomerInfoListener
     {
         [SerializeField] private StyleSheet styleSheet;
+
+        [Header("Runtime setup (testing only)")]
+        [Tooltip("Forces programmatic runtime setup instead of the Inspector auto-configure. " +
+                 "Reuses the API keys set on the Purchases component.")]
+        [SerializeField] private bool configureAtRuntime;
+
+        [Tooltip("When Configure At Runtime is on, enables RevenueCat Workflows (multipage paywalls). " +
+                 "Internal, testing only.")]
+        [SerializeField] private bool useWorkflows;
 
         [Header("Paywall Defaults")]
         [Tooltip("Default offering identifier to pre-populate in the Paywalls screen. Leave empty for current offering.")]
@@ -37,10 +49,24 @@ namespace RevenueCat.Tester
                              $"Active subs: {customerInfo.ActiveSubscriptions.Count}");
         }
 
+        private void Awake()
+        {
+            _purchases = FindFirstObjectByType<Purchases>();
+            if (_purchases != null && configureAtRuntime)
+            {
+                // Skip the Inspector-driven auto-configure so we can configure programmatically in Start().
+                // Setting this in Awake guarantees Purchases.Start() sees it (all Awakes run before any Start).
+                _purchases.useRuntimeSetup = true;
+            }
+        }
+
         private void OnEnable()
         {
             _uiDocument = GetComponent<UIDocument>();
-            _purchases = FindFirstObjectByType<Purchases>();
+            if (_purchases == null)
+            {
+                _purchases = FindFirstObjectByType<Purchases>();
+            }
 
             if (_purchases == null)
             {
@@ -54,6 +80,36 @@ namespace RevenueCat.Tester
             }
 
             BuildUI();
+        }
+
+        private void Start()
+        {
+            if (!configureAtRuntime || _purchases == null)
+            {
+                return;
+            }
+
+            string apiKey;
+            if (Application.platform == RuntimePlatform.IPhonePlayer
+                || Application.platform == RuntimePlatform.OSXPlayer)
+            {
+                apiKey = _purchases.revenueCatAPIKeyApple;
+            }
+            else
+            {
+                apiKey = _purchases.useAmazon ? _purchases.revenueCatAPIKeyAmazon : _purchases.revenueCatAPIKeyGoogle;
+            }
+
+            var dangerousSettings = new Purchases.DangerousSettings(autoSyncPurchases: true, useWorkflows: useWorkflows);
+            var configuration = Purchases.PurchasesConfiguration.Builder.Init(apiKey)
+                .SetAppUserId(string.IsNullOrEmpty(_purchases.appUserID) ? null : _purchases.appUserID)
+                .SetDangerousSettings(dangerousSettings)
+                .Build();
+
+            _logConsole?.Log($"[RuntimeSetup] Configuring at runtime (useWorkflows={useWorkflows})");
+            Debug.Log($"[RuntimeSetup] Configuring Purchases at runtime (useWorkflows={useWorkflows}).");
+            _purchases.Configure(configuration);
+            _purchases.GetProducts(_purchases.productIdentifiers, null);
         }
 
         private void BuildUI()

@@ -66,7 +66,7 @@ public class PurchasesWrapper {
     private static final String HANDLE_LOG = "_handleLog";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "9.5.1";
+    private static final String PLUGIN_VERSION = "9.5.3";
 
     private static String gameObject;
 
@@ -935,7 +935,10 @@ public class PurchasesWrapper {
         try {
             jsonObject = new JSONObject(dangerousSettingsJSON);
             boolean autoSyncPurchases = jsonObject.getBoolean("AutoSyncPurchases");
-            dangerousSettings = new DangerousSettings(autoSyncPurchases);
+            boolean useWorkflows = jsonObject.optBoolean("UseWorkflows", false);
+            dangerousSettings = useWorkflows
+                ? DangerousSettings.forWorkflows(autoSyncPurchases)
+                : new DangerousSettings(autoSyncPurchases);
         } catch (JSONException e) {
             Log.e("Purchases", "Error parsing dangerousSettings JSON: " + dangerousSettingsJSON);
             logJSONException(e);
