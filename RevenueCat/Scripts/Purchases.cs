@@ -739,7 +739,8 @@ public partial class Purchases : MonoBehaviour
     ///
     public void SyncPurchases()
     {
-        _wrapper.SyncPurchases();
+        var requestId = RegisterCallback<CustomerInfoFunc>(null);
+        _wrapper.SyncPurchases(requestId);
     }
 
     /// <summary>

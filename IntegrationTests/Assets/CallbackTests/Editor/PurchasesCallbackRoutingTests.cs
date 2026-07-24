@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -70,5 +72,46 @@ public class PurchasesCallbackRoutingTests
         _purchases.SendMessage("_receiveStorefront", response);
 
         Assert.That(calls, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ParameterlessSyncPurchasesRegistersAndConsumesNullCallback()
+    {
+        _purchases.useRuntimeSetup = true;
+        typeof(Purchases)
+            .GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.Invoke(_purchases, null);
+
+        _purchases.SyncPurchases();
+
+        var callbacks = GetPendingCallbacks();
+        Assert.That(callbacks.Count, Is.EqualTo(1));
+        var callbackEnumerator = callbacks.Keys.GetEnumerator();
+        Assert.That(callbackEnumerator.MoveNext(), Is.True);
+        var requestId = (string)callbackEnumerator.Current;
+
+        LogAssert.Expect(
+            LogType.Assert,
+            "Assertion failed on expression: 'ShouldRunBehaviour()'");
+        LogAssert.Expect(
+            LogType.Log,
+            $"_syncPurchases {{\"requestId\":\"{requestId}\"}}");
+        _purchases.SendMessage(
+            "_syncPurchases",
+            $"{{\"requestId\":\"{requestId}\"}}");
+
+        Assert.That(callbacks.Count, Is.Zero);
+        LogAssert.NoUnexpectedReceived();
+    }
+
+    private IDictionary GetPendingCallbacks()
+    {
+        var registry = typeof(Purchases)
+            .GetField("_callbackRegistry", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.GetValue(_purchases);
+        return (IDictionary)registry
+            ?.GetType()
+            .GetField("_callbacks", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.GetValue(registry);
     }
 }
