@@ -36,10 +36,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetStorefront();
-    public void GetStorefront()
+    private static extern void _RCGetStorefront(string requestId);
+    public void GetStorefront(string requestId = null)
     {
-        _RCGetStorefront();
+        _RCGetStorefront(requestId);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -49,37 +49,40 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetProducts(string productIdentifiersJson, string type);
-    public void GetProducts(string[] productIdentifiers, string type = "subs")
+    private static extern void _RCGetProducts(string productIdentifiersJson, string type, string requestId);
+    public void GetProducts(string[] productIdentifiers, string type = "subs", string requestId = null)
     {
         var request = new ProductsRequest
         {
             productIdentifiers = productIdentifiers
         };
 
-        _RCGetProducts(JsonUtility.ToJson(request), type);
+        _RCGetProducts(JsonUtility.ToJson(request), type, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp);
+    private static extern void _RCPurchaseProduct(string productIdentifier, string signedDiscountTimestamp,
+        string requestId);
     public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
         bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-        Purchases.PromotionalOffer discount = null)
+        Purchases.PromotionalOffer discount = null, string requestId = null)
     {
         string discountTimestamp = null;
         if (discount != null)
         {
             discountTimestamp = discount.Timestamp.ToString();
         }
-        _RCPurchaseProduct(productIdentifier, discountTimestamp);
+        _RCPurchaseProduct(productIdentifier, discountTimestamp, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchasePackage(string packageIdentifier, string presentedOfferingContextJSON, string signedDiscountTimestamp);
+    private static extern void _RCPurchasePackage(string packageIdentifier, string presentedOfferingContextJSON,
+        string signedDiscountTimestamp, string requestId);
     public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
         Purchases.ProrationMode prorationMode = Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
+        bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null,
+        string requestId = null)
     {
         string discountTimestamp = null;
         if (discount != null)
@@ -87,27 +90,29 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             discountTimestamp = discount.Timestamp.ToString();
         }
 
-        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.PresentedOfferingContext.ToJsonString(), discountTimestamp);
+        _RCPurchasePackage(packageToPurchase.Identifier, packageToPurchase.PresentedOfferingContext.ToJsonString(),
+            discountTimestamp, requestId);
     }
 
     public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
-        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+        Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false,
+        string requestId = null)
     {
         // No-Op
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCRestorePurchases();
-    public void RestorePurchases()
+    private static extern void _RCRestorePurchases(string requestId);
+    public void RestorePurchases(string requestId = null)
     {
-        _RCRestorePurchases();
+        _RCRestorePurchases(requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCSyncPurchases();
-    public void SyncPurchases()
+    private static extern void _RCSyncPurchases(string requestId);
+    public void SyncPurchases(string requestId = null)
     {
-        _RCSyncPurchases();
+        _RCSyncPurchases(requestId);
     }
 
     public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
@@ -116,23 +121,23 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         // No-Op
     }
 
-    public void GetAmazonLWAConsentStatus()
+    public void GetAmazonLWAConsentStatus(string requestId = null)
     {
         // No-Op
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCLogIn(string appUserId);
-    public void LogIn(string appUserId)
+    private static extern void _RCLogIn(string appUserId, string requestId);
+    public void LogIn(string appUserId, string requestId = null)
     {
-        _RCLogIn(appUserId);
+        _RCLogIn(appUserId, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCLogOut();
-    public void LogOut()
+    private static extern void _RCLogOut(string requestId);
+    public void LogOut(string requestId = null)
     {
-        _RCLogOut();
+        _RCLogOut(requestId);
     }
 
     [DllImport("__Internal")]
@@ -178,31 +183,31 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetCustomerInfo();
-    public void GetCustomerInfo()
+    private static extern void _RCGetCustomerInfo(string requestId);
+    public void GetCustomerInfo(string requestId = null)
     {
-        _RCGetCustomerInfo();
+        _RCGetCustomerInfo(requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetOfferings();
-    public void GetOfferings()
+    private static extern void _RCGetOfferings(string requestId);
+    public void GetOfferings(string requestId = null)
     {
-        _RCGetOfferings();
+        _RCGetOfferings(requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetCurrentOfferingForPlacement(string placementIdentifier);
-    public void GetCurrentOfferingForPlacement(string placementIdentifier)
+    private static extern void _RCGetCurrentOfferingForPlacement(string placementIdentifier, string requestId);
+    public void GetCurrentOfferingForPlacement(string placementIdentifier, string requestId = null)
     {
-        _RCGetCurrentOfferingForPlacement(placementIdentifier);
+        _RCGetCurrentOfferingForPlacement(placementIdentifier, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCSyncAttributesAndOfferingsIfNeeded();
-    public void SyncAttributesAndOfferingsIfNeeded()
+    private static extern void _RCSyncAttributesAndOfferingsIfNeeded(string requestId);
+    public void SyncAttributesAndOfferingsIfNeeded(string requestId = null)
     {
-        _RCSyncAttributesAndOfferingsIfNeeded();
+        _RCSyncAttributesAndOfferingsIfNeeded(requestId);
     }
 
     [DllImport("__Internal")]
@@ -227,15 +232,16 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCCheckTrialOrIntroductoryPriceEligibility(string productIdentifiersJson);
-    public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+    private static extern void _RCCheckTrialOrIntroductoryPriceEligibility(string productIdentifiersJson,
+        string requestId);
+    public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers, string requestId = null)
     {
         var request = new ProductsRequest
         {
             productIdentifiers = productIdentifiers
         };
 
-        _RCCheckTrialOrIntroductoryPriceEligibility(JsonUtility.ToJson(request));
+        _RCCheckTrialOrIntroductoryPriceEligibility(JsonUtility.ToJson(request), requestId);
     }
 
     [DllImport("__Internal")]
@@ -260,10 +266,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCRecordPurchase(string productID);
-    public void RecordPurchase(string productID)
+    private static extern void _RCRecordPurchase(string productID, string requestId);
+    public void RecordPurchase(string productID, string requestId = null)
     {
-        _RCRecordPurchase(productID);
+        _RCRecordPurchase(productID, requestId);
     }
 
     [DllImport("__Internal")]
@@ -441,8 +447,8 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCCanMakePayments(string featuresJson);
-    public void CanMakePayments(Purchases.BillingFeature[] features)
+    private static extern void _RCCanMakePayments(string featuresJson, string requestId);
+    public void CanMakePayments(Purchases.BillingFeature[] features, string requestId = null)
     {
         int[] featuresAsInts = new int[features.Length];
         for (int i = 0; i < features.Length; i++) {
@@ -455,14 +461,15 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             features = featuresAsInts
         };
 
-        _RCCanMakePayments(JsonUtility.ToJson(request));
+        _RCCanMakePayments(JsonUtility.ToJson(request), requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetPromotionalOffer(string productIdentifier, string discountIdentifier);
-    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+    private static extern void _RCGetPromotionalOffer(string productIdentifier, string discountIdentifier,
+        string requestId);
+    public void GetPromotionalOffer(string productIdentifier, string discountIdentifier, string requestId = null)
     {
-        _RCGetPromotionalOffer(productIdentifier, discountIdentifier);
+        _RCGetPromotionalOffer(productIdentifier, discountIdentifier, requestId);
     }
 
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
@@ -490,24 +497,24 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCParseAsWebPurchaseRedemption(string urlString);
-    public void ParseAsWebPurchaseRedemption(string urlString)
+    private static extern void _RCParseAsWebPurchaseRedemption(string urlString, string requestId);
+    public void ParseAsWebPurchaseRedemption(string urlString, string requestId = null)
     {
-        _RCParseAsWebPurchaseRedemption(urlString);
+        _RCParseAsWebPurchaseRedemption(urlString, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCRedeemWebPurchase(string resultJson);
-    public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+    private static extern void _RCRedeemWebPurchase(string resultJson, string requestId);
+    public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption, string requestId = null)
     {
-        _RCRedeemWebPurchase(webPurchaseRedemption.RedemptionLink);
+        _RCRedeemWebPurchase(webPurchaseRedemption.RedemptionLink, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetVirtualCurrencies();
-    public void GetVirtualCurrencies()
+    private static extern void _RCGetVirtualCurrencies(string requestId);
+    public void GetVirtualCurrencies(string requestId = null)
     {
-        _RCGetVirtualCurrencies();
+        _RCGetVirtualCurrencies(requestId);
     }
 
     [DllImport("__Internal")]
@@ -525,31 +532,36 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetEligibleWinBackOffersForProduct(string productIdentifier);
-    public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+    private static extern void _RCGetEligibleWinBackOffersForProduct(string productIdentifier, string requestId);
+    public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct, string requestId = null)
     {
-        _RCGetEligibleWinBackOffersForProduct(storeProduct.Identifier);
+        _RCGetEligibleWinBackOffersForProduct(storeProduct.Identifier, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCGetEligibleWinBackOffersForPackage(string productIdentifier);
-    public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+    private static extern void _RCGetEligibleWinBackOffersForPackage(string productIdentifier, string requestId);
+    public void GetEligibleWinBackOffersForPackage(Purchases.Package package, string requestId = null)
     {
-        _RCGetEligibleWinBackOffersForPackage(package.StoreProduct.Identifier);
+        _RCGetEligibleWinBackOffersForPackage(package.StoreProduct.Identifier, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchaseProductWithWinBackOffer(string productIdentifier, string winBackOfferIdentifier);
-    public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+    private static extern void _RCPurchaseProductWithWinBackOffer(string productIdentifier,
+        string winBackOfferIdentifier, string requestId);
+    public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct,
+        Purchases.WinBackOffer winBackOffer, string requestId = null)
     {
-        _RCPurchaseProductWithWinBackOffer(storeProduct.Identifier, winBackOffer.Identifier);
+        _RCPurchaseProductWithWinBackOffer(storeProduct.Identifier, winBackOffer.Identifier, requestId);
     }
 
     [DllImport("__Internal")]
-    private static extern void _RCPurchasePackageWithWinBackOffer(string packageIdentifier, string presentedOfferingContextJson, string winBackOfferIdentifier);
-    public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+    private static extern void _RCPurchasePackageWithWinBackOffer(string packageIdentifier,
+        string presentedOfferingContextJson, string winBackOfferIdentifier, string requestId);
+    public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer,
+        string requestId = null)
     {
-        _RCPurchasePackageWithWinBackOffer(package.Identifier, package.PresentedOfferingContext.ToJsonString(), winBackOffer.Identifier);
+        _RCPurchasePackageWithWinBackOffer(package.Identifier, package.PresentedOfferingContext.ToJsonString(),
+            winBackOffer.Identifier, requestId);
     }
     [DllImport("__Internal")]
     private static extern void _RCTrackCustomPaywallImpression(string paywallId, string offeringId, string presentedOfferingContextJSON);

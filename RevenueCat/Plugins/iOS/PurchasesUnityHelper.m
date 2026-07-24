@@ -48,6 +48,7 @@ static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = @"_getEligible
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = @"_getEligibleWinBackOffersForPackage";
 static NSString *const PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = @"_purchaseProductWithWinBackOffer";
 static NSString *const PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = @"_purchasePackageWithWinBackOffer";
+static NSString * const RCCallbackRequestIdKey = @"requestId";
 #pragma mark Utility Methods
 
 NSString *convertCString(const char *string) {
@@ -131,27 +132,29 @@ automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEn
 }
 
 - (void)getProducts:(NSArray *)productIdentifiers
-               type:(NSString *)type {
+               type:(NSString *)type
+          requestId:(NSString *)requestId {
     [RCCommonFunctionality getProductInfo:productIdentifiers completionBlock:^(NSArray<NSDictionary *> *productObjects) {
         NSDictionary *response = @{
             @"products": productObjects
         };
-        [self sendJSONObject:response toMethod:RECEIVE_PRODUCTS];
+        [self sendJSONObject:response requestId:requestId toMethod:RECEIVE_PRODUCTS];
     }];
 }
 
-- (void)getStorefront {
+- (void)getStorefrontWithRequestId:(NSString *)requestId {
     [RCCommonFunctionality getStorefrontWithCompletion:^(NSDictionary *_Nullable responseDictionary) {
         if (responseDictionary == nil) {
-            [self sendEmptyResponseToMethod:RECEIVE_STOREFRONT];
+            [self sendJSONObject:nil requestId:requestId toMethod:RECEIVE_STOREFRONT];
         } else {
-            [self sendJSONObject:responseDictionary toMethod:RECEIVE_STOREFRONT];
+            [self sendJSONObject:responseDictionary requestId:requestId toMethod:RECEIVE_STOREFRONT];
         }
     }];
 }
 
 - (void)purchaseProduct:(NSString *)productIdentifier
-signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
+signedDiscountTimestamp:(NSString *)signedDiscountTimestamp
+              requestId:(NSString *)requestId {
     [RCCommonFunctionality purchaseProduct:productIdentifier
                    signedDiscountTimestamp:signedDiscountTimestamp
                            completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
@@ -160,18 +163,19 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary new];
             response[@"error"] = error.info;
             response[@"userCancelled"] = error.info[@"userCancelled"];
-            [self sendJSONObject:response toMethod:MAKE_PURCHASE];
+            [self sendJSONObject:response requestId:requestId toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = false;
         }
-        [self sendJSONObject:response toMethod:MAKE_PURCHASE];
+        [self sendJSONObject:response requestId:requestId toMethod:MAKE_PURCHASE];
     }];
 }
 
 - (void)purchasePackage:(NSString *)packageIdentifier
 presentedOfferingContext:(NSDictionary *)presentedOfferingContext
-signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
+signedDiscountTimestamp:(NSString *)signedDiscountTimestamp
+               requestId:(NSString *)requestId {
     [RCCommonFunctionality purchasePackage:packageIdentifier
                   presentedOfferingContext:presentedOfferingContext
                    signedDiscountTimestamp:signedDiscountTimestamp
@@ -181,39 +185,44 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary new];
             response[@"error"] = error.info;
             response[@"userCancelled"] = error.info[@"userCancelled"];
-            [self sendJSONObject:response toMethod:MAKE_PURCHASE];
+            [self sendJSONObject:response requestId:requestId toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = @NO;
         }
-        [self sendJSONObject:response toMethod:MAKE_PURCHASE];
+        [self sendJSONObject:response requestId:requestId toMethod:MAKE_PURCHASE];
     }];
 }
 
-- (void)restorePurchases {
-    [RCCommonFunctionality restorePurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_PURCHASES]];
+- (void)restorePurchasesWithRequestId:(NSString *)requestId {
+    [RCCommonFunctionality restorePurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:RESTORE_PURCHASES
+                                                                                              requestId:requestId]];
 }
 
-- (void)syncPurchases {
+- (void)syncPurchasesWithRequestId:(NSString *)requestId {
     // on Android, syncPurchases doesn't have a completion block. So instead of
     // calling getCustomerInfoCompletionBlockFor:SYNC_PURCHASES, we just
     // print the response, to match Android behavior.
-    [RCCommonFunctionality syncPurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:SYNC_PURCHASES]];
+    [RCCommonFunctionality syncPurchasesWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:SYNC_PURCHASES
+                                                                                           requestId:requestId]];
 }
 
-- (void)logInWithAppUserID:(NSString *)appUserID {
-    [RCCommonFunctionality logInWithAppUserID:appUserID completionBlock:[self getLogInCompletionBlockForMethod:LOG_IN]];
+- (void)logInWithAppUserID:(NSString *)appUserID
+                 requestId:(NSString *)requestId {
+    [RCCommonFunctionality logInWithAppUserID:appUserID
+                              completionBlock:[self getLogInCompletionBlockForMethod:LOG_IN requestId:requestId]];
 }
 
-- (void)logOut {
-    [RCCommonFunctionality logOutWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:LOG_OUT]];
+- (void)logOutWithRequestId:(NSString *)requestId {
+    [RCCommonFunctionality logOutWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:LOG_OUT
+                                                                                   requestId:requestId]];
 }
 
 - (void)setAllowSharingStoreAccount:(BOOL)allow {
     [RCCommonFunctionality setAllowSharingStoreAccount:allow];
 }
 
-- (void)getOfferings {
+- (void)getOfferingsWithRequestId:(NSString *)requestId {
     [RCCommonFunctionality getOfferingsWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
         if (error) {
@@ -222,11 +231,12 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"offerings"] = responseDictionary;
         }
 
-        [self sendJSONObject:response toMethod:GET_OFFERINGS];
+        [self sendJSONObject:response requestId:requestId toMethod:GET_OFFERINGS];
     }];
 }
 
-- (void)getCurrentOfferingForPlacement:(NSString*)placementIdentifier {
+- (void)getCurrentOfferingForPlacement:(NSString*)placementIdentifier
+                             requestId:(NSString *)requestId {
     [RCCommonFunctionality getCurrentOfferingForPlacement:placementIdentifier completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
         if (error) {
@@ -235,12 +245,12 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"offering"] = responseDictionary;
         }
 
-        [self sendJSONObject:response toMethod:GET_CURRENT_OFFERING_FOR_PLACEMENT];
+        [self sendJSONObject:response requestId:requestId toMethod:GET_CURRENT_OFFERING_FOR_PLACEMENT];
     }];
 }
 
 
-- (void)syncAttributesAndOfferingsIfNeeded {
+- (void)syncAttributesAndOfferingsIfNeededWithRequestId:(NSString *)requestId {
     [RCCommonFunctionality syncAttributesAndOfferingsIfNeededWithCompletionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
         if (error) {
@@ -249,7 +259,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"offerings"] = responseDictionary;
         }
 
-        [self sendJSONObject:response toMethod:SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED];
+        [self sendJSONObject:response requestId:requestId toMethod:SYNC_ATTRIBUTES_AND_OFFERINGS_IF_NEEDED];
     }];
 }
 
@@ -271,8 +281,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setProxyURLString:proxyURLString];
 }
 
-- (void)getCustomerInfo {
-    [RCCommonFunctionality getCustomerInfoWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:GET_CUSTOMER_INFO]];
+- (void)getCustomerInfoWithRequestId:(NSString *)requestId {
+    [RCCommonFunctionality getCustomerInfoWithCompletionBlock:[self getCustomerInfoCompletionBlockFor:GET_CUSTOMER_INFO
+                                                                                           requestId:requestId]];
 }
 
 - (void)enableAdServicesAttributionTokenCollection {
@@ -301,10 +312,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     return RCPurchases.isConfigured;
 }
 
-- (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers {
+- (void)checkTrialOrIntroductoryPriceEligibility:(NSArray *)productIdentifiers
+                                       requestId:(NSString *)requestId {
     [RCCommonFunctionality checkTrialOrIntroductoryPriceEligibility:productIdentifiers
                                                     completionBlock:^(NSDictionary<NSString *,NSDictionary *> * _Nonnull responseDictionary) {
-        [self sendJSONObject:responseDictionary toMethod:CHECK_ELIGIBILITY];
+        [self sendJSONObject:responseDictionary requestId:requestId toMethod:CHECK_ELIGIBILITY];
     }];
 }
 
@@ -324,7 +336,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
      }
 }
 
-- (void)recordPurchase:(NSString *)productID {
+- (void)recordPurchase:(NSString *)productID
+             requestId:(NSString *)requestId {
     [RCCommonFunctionality recordPurchaseForProductID:productID completion:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
         if (error) {
@@ -333,7 +346,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"transaction"] = responseDictionary;
         }
 
-        [self sendJSONObject:response toMethod:RECORD_PURCHASE];
+        [self sendJSONObject:response requestId:requestId toMethod:RECORD_PURCHASE];
     }];
 }
 
@@ -341,19 +354,21 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
      [RCCommonFunctionality setSimulatesAskToBuyInSandbox:enabled];
 }
 
-- (void)canMakePaymentsWithFeatures:(NSArray<NSNumber *> *)features {
+- (void)canMakePaymentsWithFeatures:(NSArray<NSNumber *> *)features
+                          requestId:(NSString *)requestId {
     BOOL canMakePayments = [RCCommonFunctionality canMakePaymentsWithFeatures:features];
 
     NSDictionary *response = @{
         @"canMakePayments": @(canMakePayments)
     };
 
-    [self sendJSONObject:response toMethod:CAN_MAKE_PAYMENTS];
+    [self sendJSONObject:response requestId:requestId toMethod:CAN_MAKE_PAYMENTS];
 }
 
 
 - (void)promotionalOfferForProductIdentifier:(NSString *)productIdentifier
-                                    discount:(NSString *)discountIdentifier {
+                                    discount:(NSString *)discountIdentifier
+                                   requestId:(NSString *)requestId {
     [RCCommonFunctionality promotionalOfferForProductIdentifier:productIdentifier
                                                        discount:discountIdentifier
                                                 completionBlock:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
@@ -370,7 +385,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         }
         : responseDictionary;
 
-        [self sendJSONObject:response toMethod:GET_PROMOTIONAL_OFFER];
+        [self sendJSONObject:response requestId:requestId toMethod:GET_PROMOTIONAL_OFFER];
     }];
 }
 
@@ -491,7 +506,8 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     #endif
 }
 
-- (void)getEligibleWinBackOffersForProduct:(NSString *)productIdentifier {
+- (void)getEligibleWinBackOffersForProduct:(NSString *)productIdentifier
+                                 requestId:(NSString *)requestId {
     // Checking for win-back offer APIs being available in the current OS is handled at the PHC level.
     [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
                                                      completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
@@ -507,19 +523,20 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         // Send error if present
         if (finalErrorContainer != nil) {
             NSDictionary *response = @{@"error": finalErrorContainer.info};
-            [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
+            [self sendJSONObject:response requestId:requestId toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
             return;
         }
 
         // Send response dictionary if present
         NSArray *offers = eligibleWinBackOffers ?: @[];
         NSDictionary *response = @{@"eligibleWinBackOffers": offers};
-        [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
+        [self sendJSONObject:response requestId:requestId toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT];
     }];
 }
 
 // This function accepts a product identifier since the PHC code only fetches eligible win-back offers for products
-- (void)getEligibleWinBackOffersForPackage:(NSString *)productIdentifier {
+- (void)getEligibleWinBackOffersForPackage:(NSString *)productIdentifier
+                                 requestId:(NSString *)requestId {
     // Checking for win-back offer API availability in the current OS is handled at the PHC level.
     [RCCommonFunctionality eligibleWinBackOffersForProductIdentifier:productIdentifier
                                                      completionBlock:^(NSArray<NSDictionary *> * _Nullable eligibleWinBackOffers, RCErrorContainer * _Nullable errorContainer) {
@@ -535,18 +552,20 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         // Send error if present
         if (finalErrorContainer != nil) {
             NSDictionary *response = @{@"error": finalErrorContainer.info};
-            [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
+            [self sendJSONObject:response requestId:requestId toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
             return;
         }
 
         // Send response dictionary if present
         NSArray *offers = eligibleWinBackOffers ?: @[];
         NSDictionary *response = @{@"eligibleWinBackOffers": offers};
-        [self sendJSONObject:response toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
+        [self sendJSONObject:response requestId:requestId toMethod:GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE];
     }];
 }
 
-- (void)purchaseProductWithWinBackOffer:(NSString *)productIdentifier winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
+- (void)purchaseProductWithWinBackOffer:(NSString *)productIdentifier
+                 winBackOfferIdentifier:(NSString *)winBackOfferIdentifier
+                              requestId:(NSString *)requestId {
     // Checking for win-back offer API availability in the current OS is handled at the PHC level.
     [RCCommonFunctionality purchaseProduct:productIdentifier
                             winBackOfferID:winBackOfferIdentifier
@@ -560,11 +579,14 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = false;
         }
-        [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
+        [self sendJSONObject:response requestId:requestId toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
     }];
 }
 
-- (void)purchasePackageWithWinBackOffer:(NSString *)packageIdentifier presentedOfferingContextJson:(NSString *)presentedOfferingContextJson winBackOfferIdentifier:(NSString *)winBackOfferIdentifier {
+- (void)purchasePackageWithWinBackOffer:(NSString *)packageIdentifier
+          presentedOfferingContextJson:(NSString *)presentedOfferingContextJson
+                 winBackOfferIdentifier:(NSString *)winBackOfferIdentifier
+                              requestId:(NSString *)requestId {
     NSError *jsonError = nil;
     NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *presentedOfferingContextDict = [NSJSONSerialization JSONObjectWithData:jsonData
@@ -577,7 +599,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
                                                   userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse presentedOfferingContext"}];
         RCErrorContainer *errorContainer = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
         NSDictionary *response = @{@"error": errorContainer.info};
-        [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
+        [self sendJSONObject:response requestId:requestId toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
         return;
     }
 
@@ -595,7 +617,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = false;
         }
-        [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
+        [self sendJSONObject:response requestId:requestId toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
     }];
 }
 
@@ -695,16 +717,20 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
-- (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
+- (void)parseAsWebPurchaseRedemption:(NSString *)urlString
+                           requestId:(NSString *)requestId {
     BOOL isWebPurchaseRedemptionURL = [RCCommonFunctionality isWebPurchaseRedemptionURL:urlString];
     if (isWebPurchaseRedemptionURL) {
-        [self sendJSONObject:@{@"redemptionLink": urlString} toMethod:PARSE_AS_WEB_PURCHASE_REDEMPTION];
+        [self sendJSONObject:@{@"redemptionLink": urlString}
+                   requestId:requestId
+                    toMethod:PARSE_AS_WEB_PURCHASE_REDEMPTION];
     } else {
-        [self sendJSONObject:nil toMethod:PARSE_AS_WEB_PURCHASE_REDEMPTION];
+        [self sendJSONObject:nil requestId:requestId toMethod:PARSE_AS_WEB_PURCHASE_REDEMPTION];
     }
 }
 
-- (void)redeemWebPurchase:(NSString *)redemptionLink {
+- (void)redeemWebPurchase:(NSString *)redemptionLink
+                requestId:(NSString *)requestId {
     [RCCommonFunctionality redeemWebPurchaseWithUrlString:redemptionLink
                                                completion:^(NSDictionary *_Nullable responseDictionary,
                                                             RCErrorContainer *_Nullable error) {
@@ -721,11 +747,11 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         }
         : responseDictionary;
 
-        [self sendJSONObject:response toMethod:REDEEM_WEB_PURCHASE];
+        [self sendJSONObject:response requestId:requestId toMethod:REDEEM_WEB_PURCHASE];
     }];
 }
 
-- (void)getVirtualCurrencies {
+- (void)getVirtualCurrenciesWithRequestId:(NSString *)requestId {
     [RCCommonFunctionality getVirtualCurrenciesWithCompletion:^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         if (error == nil && responseDictionary == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
@@ -740,7 +766,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         }
         : responseDictionary;
 
-        [self sendJSONObject:response toMethod:GET_VIRTUAL_CURRENCIES];
+        [self sendJSONObject:response requestId:requestId toMethod:GET_VIRTUAL_CURRENCIES];
     }];
 }
 
@@ -769,10 +795,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
 #pragma mark Helper Methods
 
-- (void)sendEmptyResponseToMethod:(NSString *)methodName {
-    UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, "{}");
-}
-
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName {
     NSError *error = nil;
     NSData *responseJSONData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
@@ -788,7 +810,18 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
-- (void (^)(NSDictionary *, RCErrorContainer *))getCustomerInfoCompletionBlockFor:(NSString *)method {
+- (void)sendJSONObject:(nullable NSDictionary *)jsonObject
+             requestId:(NSString *)requestId
+              toMethod:(NSString *)methodName {
+    NSMutableDictionary *response = jsonObject
+        ? [jsonObject mutableCopy]
+        : [NSMutableDictionary new];
+    response[RCCallbackRequestIdKey] = requestId ?: @"";
+    [self sendJSONObject:response toMethod:methodName];
+}
+
+- (void (^)(NSDictionary *, RCErrorContainer *))getCustomerInfoCompletionBlockFor:(NSString *)method
+                                                                          requestId:(NSString *)requestId {
     return ^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
 
@@ -797,11 +830,12 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
         } else {
             response[@"customerInfo"] = responseDictionary;
         }
-        [self sendJSONObject:response toMethod:method];
+        [self sendJSONObject:response requestId:requestId toMethod:method];
     };
 }
 
-- (void (^)(NSDictionary *, RCErrorContainer *))getLogInCompletionBlockForMethod:(NSString *)method {
+- (void (^)(NSDictionary *, RCErrorContainer *))getLogInCompletionBlockForMethod:(NSString *)method
+                                                                         requestId:(NSString *)requestId {
     return ^(NSDictionary *_Nullable responseDictionary, RCErrorContainer *_Nullable error) {
         NSMutableDictionary *response = [NSMutableDictionary new];
 
@@ -811,7 +845,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"customerInfo"] = responseDictionary[@"customerInfo"];
             response[@"created"] = responseDictionary[@"created"];
         }
-        [self sendJSONObject:response toMethod:method];
+        [self sendJSONObject:response requestId:requestId toMethod:method];
     };
 }
 
@@ -862,71 +896,88 @@ automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEn
                  preferredUILocaleOverride:convertCString(preferredUILocaleOverride)];
 }
 
-void _RCGetStorefront() {
-    [_RCUnityHelperShared() getStorefront];
+void _RCGetStorefront(const char *requestId) {
+    [_RCUnityHelperShared() getStorefrontWithRequestId:convertCString(requestId)];
 }
 
-void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
+void _RCGetProducts(const char *productIdentifiersJSON, const char *type, const char *requestId) {
     NSError *error = nil;
     NSDictionary *productsRequest = [NSJSONSerialization JSONObjectWithData:[convertCString(productIdentifiersJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
 
     if (error) {
         NSLog(@"Error parsing productIdentifiers JSON: %s %@", productIdentifiersJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:@{@"products": @[]}
+                                    requestId:convertCString(requestId)
+                                     toMethod:RECEIVE_PRODUCTS];
         return;
     }
 
-    [_RCUnityHelperShared() getProducts:productsRequest[@"productIdentifiers"] type:convertCString(type)];
+    [_RCUnityHelperShared() getProducts:productsRequest[@"productIdentifiers"]
+                                  type:convertCString(type)
+                             requestId:convertCString(requestId)];
 }
 
-void _RCPurchaseProduct(const char *productIdentifier, const char *signedDiscountTimestamp) {
+void _RCPurchaseProduct(const char *productIdentifier,
+                        const char *signedDiscountTimestamp,
+                        const char *requestId) {
     [_RCUnityHelperShared() purchaseProduct:convertCString(productIdentifier)
-                    signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
+                    signedDiscountTimestamp:convertCString(signedDiscountTimestamp)
+                              requestId:convertCString(requestId)];
 }
 
-void _RCPurchasePackage(const char *packageIdentifier, const char *presentedOfferingContextJSON, const char *signedDiscountTimestamp) {
+void _RCPurchasePackage(const char *packageIdentifier,
+                        const char *presentedOfferingContextJSON,
+                        const char *signedDiscountTimestamp,
+                        const char *requestId) {
     NSError *error = nil;
     NSDictionary *presentedOfferingContext = [NSJSONSerialization JSONObjectWithData:[convertCString(presentedOfferingContextJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
 
     if (error) {
         NSLog(@"Error parsing presentedOfferingContext JSON: %s %@", presentedOfferingContextJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:nil
+                                    requestId:convertCString(requestId)
+                                     toMethod:MAKE_PURCHASE];
         return;
     }
 
     [_RCUnityHelperShared() purchasePackage:convertCString(packageIdentifier)
                    presentedOfferingContext:presentedOfferingContext
-                    signedDiscountTimestamp:convertCString(signedDiscountTimestamp)];
+                    signedDiscountTimestamp:convertCString(signedDiscountTimestamp)
+                               requestId:convertCString(requestId)];
 }
 
-void _RCRestorePurchases() {
-    [_RCUnityHelperShared() restorePurchases];
+void _RCRestorePurchases(const char *requestId) {
+    [_RCUnityHelperShared() restorePurchasesWithRequestId:convertCString(requestId)];
 }
 
-void _RCSyncPurchases() {
-    [_RCUnityHelperShared() syncPurchases];
+void _RCSyncPurchases(const char *requestId) {
+    [_RCUnityHelperShared() syncPurchasesWithRequestId:convertCString(requestId)];
 }
 
-void _RCLogIn(const char *appUserID) {
-    [_RCUnityHelperShared() logInWithAppUserID:convertCString(appUserID)];
+void _RCLogIn(const char *appUserID, const char *requestId) {
+    [_RCUnityHelperShared() logInWithAppUserID:convertCString(appUserID)
+                                    requestId:convertCString(requestId)];
 }
 
-void _RCLogOut() {
-    [_RCUnityHelperShared() logOut];
+void _RCLogOut(const char *requestId) {
+    [_RCUnityHelperShared() logOutWithRequestId:convertCString(requestId)];
 }
 
 void _RCSetAllowSharingStoreAccount(const BOOL allow) {
     [_RCUnityHelperShared() setAllowSharingStoreAccount:allow];
 }
 
-void _RCGetOfferings() {
-    [_RCUnityHelperShared() getOfferings];
+void _RCGetOfferings(const char *requestId) {
+    [_RCUnityHelperShared() getOfferingsWithRequestId:convertCString(requestId)];
 }
 
-void _RCGetCurrentOfferingForPlacement(const char *placementIdentifier) {
-    [_RCUnityHelperShared() getCurrentOfferingForPlacement:convertCString(placementIdentifier)];
+void _RCGetCurrentOfferingForPlacement(const char *placementIdentifier, const char *requestId) {
+    [_RCUnityHelperShared() getCurrentOfferingForPlacement:convertCString(placementIdentifier)
+                                                requestId:convertCString(requestId)];
 }
 
-void _RCSyncAttributesAndOfferingsIfNeeded() {
-    [_RCUnityHelperShared() syncAttributesAndOfferingsIfNeeded];
+void _RCSyncAttributesAndOfferingsIfNeeded(const char *requestId) {
+    [_RCUnityHelperShared() syncAttributesAndOfferingsIfNeededWithRequestId:convertCString(requestId)];
 }
 
 void _RCSetDebugLogsEnabled(const BOOL enabled) {
@@ -945,16 +996,17 @@ void _RCSetProxyURLString(const char *proxyURLString) {
     [_RCUnityHelperShared() setProxyURLString:convertCString(proxyURLString)];
 }
 
-void _RCRecordPurchase(const char *productID) {
-    [_RCUnityHelperShared() recordPurchase:convertCString(productID)];
+void _RCRecordPurchase(const char *productID, const char *requestId) {
+    [_RCUnityHelperShared() recordPurchase:convertCString(productID)
+                                requestId:convertCString(requestId)];
 }
 
 void _RCSetSimulatesAskToBuyInSandbox(const BOOL enabled) {
     [_RCUnityHelperShared() setSimulatesAskToBuyInSandbox:enabled];
 }
 
-void _RCGetCustomerInfo() {
-    [_RCUnityHelperShared() getCustomerInfo];
+void _RCGetCustomerInfo(const char *requestId) {
+    [_RCUnityHelperShared() getCustomerInfoWithRequestId:convertCString(requestId)];
 }
 
 char * _RCGetAppUserID() {
@@ -973,16 +1025,21 @@ BOOL _RCIsConfigured() {
     return [_RCUnityHelperShared() isConfigured];
 }
 
-void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJSON) {
+void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJSON,
+                                                 const char *requestId) {
     NSError *error = nil;
     NSDictionary *productsRequest = [NSJSONSerialization JSONObjectWithData:[convertCString(productIdentifiersJSON) dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
 
     if (error) {
         NSLog(@"Error parsing productIdentifiers JSON: %s %@", productIdentifiersJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:nil
+                                    requestId:convertCString(requestId)
+                                     toMethod:CHECK_ELIGIBILITY];
         return;
     }
 
-    [_RCUnityHelperShared() checkTrialOrIntroductoryPriceEligibility:productsRequest[@"productIdentifiers"]];
+    [_RCUnityHelperShared() checkTrialOrIntroductoryPriceEligibility:productsRequest[@"productIdentifiers"]
+                                                          requestId:convertCString(requestId)];
 }
 
 void _RCInvalidateCustomerInfoCache() {
@@ -1111,7 +1168,7 @@ void _RCCollectDeviceIdentifiers() {
     [_RCUnityHelperShared() collectDeviceIdentifiers];
 }
 
-void _RCCanMakePayments(const char *featuresJSON) {
+void _RCCanMakePayments(const char *featuresJSON, const char *requestId) {
     NSError *error = nil;
 
     NSData *data = [convertCString(featuresJSON) dataUsingEncoding:NSUTF8StringEncoding];
@@ -1121,16 +1178,23 @@ void _RCCanMakePayments(const char *featuresJSON) {
 
     if (error) {
         NSLog(@"Error parsing features JSON: %s %@", featuresJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:@{@"canMakePayments": @NO}
+                                    requestId:convertCString(requestId)
+                                     toMethod:CAN_MAKE_PAYMENTS];
         return;
     }
 
-    [_RCUnityHelperShared() canMakePaymentsWithFeatures:canMakePaymentsRequest[@"features"]];
+    [_RCUnityHelperShared() canMakePaymentsWithFeatures:canMakePaymentsRequest[@"features"]
+                                             requestId:convertCString(requestId)];
 }
 
 
-void _RCGetPromotionalOffer(const char *productIdentifier, const char *discountIdentifier) {
+void _RCGetPromotionalOffer(const char *productIdentifier,
+                            const char *discountIdentifier,
+                            const char *requestId) {
     [_RCUnityHelperShared() promotionalOfferForProductIdentifier:convertCString(productIdentifier)
-                                                        discount:convertCString(discountIdentifier)];
+                                                        discount:convertCString(discountIdentifier)
+                                                       requestId:convertCString(requestId)];
 }
 
 void _RCShowInAppMessages(const char *messagesJSON) {
@@ -1149,16 +1213,18 @@ void _RCShowInAppMessages(const char *messagesJSON) {
     [_RCUnityHelperShared() showInAppMessages:messagesDictionary[@"messageTypes"]];
 }
 
-void _RCParseAsWebPurchaseRedemption(const char *urlString) {
-    [_RCUnityHelperShared() parseAsWebPurchaseRedemption:convertCString(urlString)];
+void _RCParseAsWebPurchaseRedemption(const char *urlString, const char *requestId) {
+    [_RCUnityHelperShared() parseAsWebPurchaseRedemption:convertCString(urlString)
+                                              requestId:convertCString(requestId)];
 }
 
-void _RCRedeemWebPurchase(const char *redemptionLink) {
-    [_RCUnityHelperShared() redeemWebPurchase:convertCString(redemptionLink)];
+void _RCRedeemWebPurchase(const char *redemptionLink, const char *requestId) {
+    [_RCUnityHelperShared() redeemWebPurchase:convertCString(redemptionLink)
+                                   requestId:convertCString(requestId)];
 }
 
-void _RCGetVirtualCurrencies() {
-    [_RCUnityHelperShared() getVirtualCurrencies];
+void _RCGetVirtualCurrencies(const char *requestId) {
+    [_RCUnityHelperShared() getVirtualCurrenciesWithRequestId:convertCString(requestId)];
 }
 
 char * _RCGetCachedVirtualCurrencies() {
@@ -1169,28 +1235,40 @@ void _RCInvalidateVirtualCurrenciesCache() {
     [_RCUnityHelperShared() invalidateVirtualCurrenciesCache];
 }
 
-void _RCGetEligibleWinBackOffersForProduct(const char *productIdentifier) {
+void _RCGetEligibleWinBackOffersForProduct(const char *productIdentifier, const char *requestId) {
     NSString *productIdentifierString = convertCString(productIdentifier);
-    [_RCUnityHelperShared() getEligibleWinBackOffersForProduct:productIdentifierString];
+    [_RCUnityHelperShared() getEligibleWinBackOffersForProduct:productIdentifierString
+                                                    requestId:convertCString(requestId)];
 }
 
 // This function accepts a product identifier since the PHC code only fetches eligible win-back offers for products
-void _RCGetEligibleWinBackOffersForPackage(const char *productIdentifier) {
+void _RCGetEligibleWinBackOffersForPackage(const char *productIdentifier, const char *requestId) {
     NSString *productIdentifierString = convertCString(productIdentifier);
-    [_RCUnityHelperShared() getEligibleWinBackOffersForPackage:productIdentifierString];
+    [_RCUnityHelperShared() getEligibleWinBackOffersForPackage:productIdentifierString
+                                                    requestId:convertCString(requestId)];
 }
 
-void _RCPurchaseProductWithWinBackOffer(const char *productIdentifier, const char *winBackOfferIdentifier) {
+void _RCPurchaseProductWithWinBackOffer(const char *productIdentifier,
+                                        const char *winBackOfferIdentifier,
+                                        const char *requestId) {
     NSString *productIdentifierString = convertCString(productIdentifier);
     NSString *winBackOfferIdentifierString = convertCString(winBackOfferIdentifier);
-    [_RCUnityHelperShared() purchaseProductWithWinBackOffer:productIdentifierString winBackOfferIdentifier:winBackOfferIdentifierString];
+    [_RCUnityHelperShared() purchaseProductWithWinBackOffer:productIdentifierString
+                                    winBackOfferIdentifier:winBackOfferIdentifierString
+                                                 requestId:convertCString(requestId)];
 }
 
-void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const char *presentedOfferingContextJson, const char *winBackOfferIdentifier) {
+void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier,
+                                        const char *presentedOfferingContextJson,
+                                        const char *winBackOfferIdentifier,
+                                        const char *requestId) {
     NSString *packageIdentifierString = convertCString(packageIdentifier);
     NSString *presentedOfferingContextJsonString = convertCString(presentedOfferingContextJson);
     NSString *winBackOfferIdentifierString = convertCString(winBackOfferIdentifier);
-    [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
+    [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString
+                              presentedOfferingContextJson:presentedOfferingContextJsonString
+                                    winBackOfferIdentifier:winBackOfferIdentifierString
+                                                 requestId:convertCString(requestId)];
 }
 
 void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId, const char *presentedOfferingContextJson) {

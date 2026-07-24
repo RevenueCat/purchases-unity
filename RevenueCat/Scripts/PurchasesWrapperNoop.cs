@@ -20,11 +20,11 @@ public partial class Purchases
         {
         }
 
-        public void GetStorefront()
+        public void GetStorefront(string requestId = null)
         {
         }
 
-        public void GetProducts(string[] productIdentifiers, string type = "subs")
+        public void GetProducts(string[] productIdentifiers, string type = "subs", string requestId = null)
         {
         }
 
@@ -35,30 +35,32 @@ public partial class Purchases
         public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
             bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-            Purchases.PromotionalOffer discount = null)
+            Purchases.PromotionalOffer discount = null, string requestId = null)
         {
         }
 
         public void PurchasePackage(Package packageToPurchase, string oldSku = null,
             ProrationMode prorationMode = ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null)
+            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null,
+            string requestId = null)
         {
         }
 
         public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
-            Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false)
+            Purchases.GoogleProductChangeInfo googleProductChangeInfo = null, bool googleIsPersonalizedPrice = false,
+            string requestId = null)
         {
         }
 
-        public void RestorePurchases()
+        public void RestorePurchases(string requestId = null)
         {
         }
 
-        public void LogIn(string appUserId)
+        public void LogIn(string appUserId, string requestId = null)
         {
         }
 
-        public void LogOut()
+        public void LogOut(string requestId = null)
         {
         }
 
@@ -87,23 +89,23 @@ public partial class Purchases
         {
         }
 
-        public void GetCustomerInfo()
+        public void GetCustomerInfo(string requestId = null)
         {
         }
 
-        public void GetOfferings()
+        public void GetOfferings(string requestId = null)
         {
         }
 
-        public void GetCurrentOfferingForPlacement(string placementIdentifier)
+        public void GetCurrentOfferingForPlacement(string placementIdentifier, string requestId = null)
         {
         }
 
-        public void SyncAttributesAndOfferingsIfNeeded()
+        public void SyncAttributesAndOfferingsIfNeeded(string requestId = null)
         {
         }
 
-        public void SyncPurchases()
+        public void SyncPurchases(string requestId = null)
         {
         }
 
@@ -112,7 +114,7 @@ public partial class Purchases
         {
         }
         
-        public void GetAmazonLWAConsentStatus()
+        public void GetAmazonLWAConsentStatus(string requestId = null)
         {
         }
 
@@ -130,7 +132,7 @@ public partial class Purchases
             return false;
         }
 
-        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers)
+        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers, string requestId = null)
         {
         }
 
@@ -146,7 +148,7 @@ public partial class Purchases
         {
         }
 
-        public void RecordPurchase(string productID)
+        public void RecordPurchase(string productID, string requestId = null)
         {
         }
 
@@ -246,11 +248,11 @@ public partial class Purchases
         {
         }
 
-        public void CanMakePayments(Purchases.BillingFeature[] features)
+        public void CanMakePayments(Purchases.BillingFeature[] features, string requestId = null)
         {
         }
 
-        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier)
+        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier, string requestId = null)
         {
         }
 
@@ -258,15 +260,15 @@ public partial class Purchases
         {
         }
 
-        public void ParseAsWebPurchaseRedemption(string urlString)
+        public void ParseAsWebPurchaseRedemption(string urlString, string requestId = null)
         {
         }
 
-        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption)
+        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption, string requestId = null)
         {
         }
 
-        public void GetVirtualCurrencies()
+        public void GetVirtualCurrencies(string requestId = null)
         {
         }
 
@@ -279,19 +281,21 @@ public partial class Purchases
         {
         }
 
-        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct)
+        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct, string requestId = null)
         {
         }
 
-        public void GetEligibleWinBackOffersForPackage(Purchases.Package package)
+        public void GetEligibleWinBackOffersForPackage(Purchases.Package package, string requestId = null)
         {
         }
 
-        public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct, Purchases.WinBackOffer winBackOffer)
+        public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct,
+            Purchases.WinBackOffer winBackOffer, string requestId = null)
         {
         }
 
-        public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer)
+        public void PurchasePackageWithWinBackOffer(Purchases.Package package, Purchases.WinBackOffer winBackOffer,
+            string requestId = null)
         {
         }
 
