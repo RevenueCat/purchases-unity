@@ -595,7 +595,11 @@ jobs:
       - run:
           name: Install Java for Maestro
           command: |
-            brew install openjdk@17
+            # `brew install` exits non-zero when a dependency's post-install step fails
+            # (glib's does on this image) even though openjdk@17 itself installs fine, so
+            # don't let that abort the step. The `java -version` check below is what
+            # actually verifies the JDK is usable.
+            brew install openjdk@17 || echo "brew install exited non-zero, verifying the JDK anyway"
             # openjdk@17 is keg-only, so point JAVA_HOME at the keg directly instead
             # of symlinking into /Library/Java/JavaVirtualMachines (which doesn't
             # necessarily exist on the runner) and resolving it via java_home.
