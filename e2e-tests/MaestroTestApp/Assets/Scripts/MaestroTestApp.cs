@@ -49,8 +49,35 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         }
 #endif
 
+        WireButtons();
+
         ShowTestCases();
         Debug.Log("MaestroTestApp: ShowTestCases() done");
+    }
+
+    // The buttons are wired here rather than in the scene because SceneSetup builds
+    // Main.unity from an editor script, and only persistent listeners survive
+    // serialization. Anything added there with onClick.AddListener is dropped when the
+    // scene is saved, which ships an app whose buttons do nothing.
+    private void WireButtons()
+    {
+        WireButton(testCasesScreen, "PurchaseButton", ShowPurchaseScreen);
+        WireButton(purchaseScreen, "PaywallButton", PresentPaywall);
+        WireButton(purchaseScreen, "BackButton", ShowTestCases);
+    }
+
+    private void WireButton(GameObject screen, string buttonName, UnityEngine.Events.UnityAction action)
+    {
+        var button = screen == null ? null : screen.transform.Find(buttonName)?.GetComponent<Button>();
+        if (button == null)
+        {
+            Debug.LogError($"MaestroTestApp: could not find button '{buttonName}'");
+            return;
+        }
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(action);
+        Debug.Log($"MaestroTestApp: wired button '{buttonName}'");
     }
 
     public void ShowTestCases()
@@ -64,6 +91,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 
     public void ShowPurchaseScreen()
     {
+        Debug.Log("MaestroTestApp: ShowPurchaseScreen() called");
         testCasesScreen.SetActive(false);
         purchaseScreen.SetActive(true);
         ClearError();
