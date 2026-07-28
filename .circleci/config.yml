@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@3.16.0
+  revenuecat: revenuecat/sdks-common-config@4.5.1
   unity: game-ci/unity@1.7.1
 
 executors:
@@ -84,8 +84,10 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
             mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
-            # rename all the .cs files in APITests to .cs.break
-            for file in IntegrationTests/Assets/APITests/*.cs ; do mv "$file" "${file%%}.break" ; done
+            # Hide API fixtures and tests until the SDK assemblies have been imported.
+            find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
+              -type f \( -name "*.cs" -o -name "*.asmdef" \) \
+              -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
 
 
       - run:
@@ -117,8 +119,9 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
-            # rename all the .cs.break files in APITests to .cs
-            for file in IntegrationTests/Assets/APITests/*.cs.break ; do mv "$file" "${file%.*}" ; done
+            find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
+              -type f -name "*.break" \
+              -exec sh -c 'for file do mv "$file" "${file%.break}"; done' sh {} +
 
   perform-build:
     description: "Builds Unity project"
@@ -188,16 +191,12 @@ commands:
       - restore_cache:
           keys:
             # This cache key should be updated whenever we change the Ruby version
-            - v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
-      - run:
-          # We're using Ruby 3.2.0 here to avoid an issue that caused a crash with Fastlane and Ruby 3.4.0
-          # https://github.com/fastlane/fastlane/issues/21942
-          name: Set Ruby 3.2.0
-          command: |
-            eval "$(rbenv init -)"
-            rbenv install -s 3.2.0
-            rbenv global 3.2.0
-            rbenv rehash
+            - v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
+      # Ruby 3.3.0 via mise (see mise.toml). rbenv is deprecated here in favor of mise.
+      # rb-readline is added in IntegrationTests/Gemfile to avoid a Ruby 3.3+/fastlane
+      # terminfo crash on macOS (https://github.com/fastlane/fastlane/issues/21794).
+      - revenuecat/install-mise-tools:
+          tools: ruby
       - run:
           name: Verify Ruby version
           command: ruby -v
@@ -210,10 +209,9 @@ commands:
             bundle install
       - save_cache:
           # This cache key should be updated whenever we change the Ruby version
-          key: v4-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.2.0
+          key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
           paths:
             - vendor/bundle
-            - ~/.rbenv/versions/3.2.0
 jobs:
   check-meta-files:
     docker:
@@ -223,6 +221,18 @@ jobs:
       - run:
           name: Check for missing .meta files
           command: bash scripts/check-meta-files.sh
+
+  check-android-keep-annotations:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Test the @Keep check against its fixtures
+          command: bash scripts/test-check-android-keep-annotations.sh
+      - run:
+          name: Check Android Java types are annotated with @Keep
+          command: bash scripts/check-android-keep-annotations.sh
 
   export-package:
     executor: unity
@@ -340,8 +350,8 @@ jobs:
       - store_artifacts:
           path: IntegrationTests/Builds/Android/Android.apk
 
-  build-integration-tests-ios:
-    executor: unity-ios
+  test-edit-mode:
+    executor: unity
     steps:
       - checkout
       - attach_workspace:
@@ -352,6 +362,48 @@ jobs:
 
       - import-package
 
+      - unity/test:
+          project-path: IntegrationTests
+          test-platform: editmode
+          custom-parameters: -disable-assembly-updater
+
+      - store_artifacts:
+          path: IntegrationTests/editmode-results.xml
+
+      - store_artifacts:
+          path: IntegrationTests/editmode-junit-results.xml
+
+  build-integration-tests-ios:
+    executor: unity-ios
+    parameters:
+      variant:
+        type: enum
+        enum: [spm, cocoapods]
+        default: spm
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - unity/prepare-env:
+          project-path: IntegrationTests
+
+      - import-package
+
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - run:
+                name: Disable SPM in iOS Resolver settings
+                command: |
+                  XML=IntegrationTests/ProjectSettings/GvhProjectSettings.xml
+                  if grep -q SwiftPackageManagerEnabled "$XML"; then
+                    sed -i 's|SwiftPackageManagerEnabled" value="True"|SwiftPackageManagerEnabled" value="False"|' "$XML"
+                  else
+                    sed -i 's|</projectSettings>|  <projectSetting name="Google.IOSResolver.SwiftPackageManagerEnabled" value="False" />\n</projectSettings>|' "$XML"
+                  fi
+
       - resolve-dependencies:
           project: IntegrationTests
           target: iOS
@@ -360,51 +412,76 @@ jobs:
           project: IntegrationTests
           target: iOS
 
+      - run:
+          name: Move build to variant-specific dir
+          command: mv IntegrationTests/buildiOS IntegrationTests/buildiOS-<< parameters.variant >>
+
       - persist_to_workspace:
           root: .
           paths:
-            - IntegrationTests/buildiOS
+            - IntegrationTests/buildiOS-<< parameters.variant >>
 
   archive-ios:
     description: "Run iOS integration tests for Unity"
+    parameters:
+      variant:
+        type: enum
+        enum: [spm, cocoapods]
+        default: spm
     macos:
       xcode: 16.4.0
     steps:
       - checkout
       - attach_workspace:
           at: .
-      
+
       - install-bundle-dependencies:
           directory: IntegrationTests
 
-      - restore_cache:
-          key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - restore_cache:
+                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
 
-      - run:
-          name: Install Pods
-          working_directory: IntegrationTests/buildiOS
-          command: bundle exec pod install --repo-update --verbose
+            - run:
+                name: Install Pods
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec pod install --repo-update --verbose
 
-      - save_cache:
-          key: 1-pods-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
-          paths:
-            - IntegrationTests/buildiOS/Pods
+            - save_cache:
+                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+                paths:
+                  - IntegrationTests/buildiOS-<< parameters.variant >>/Pods
 
       - run:
           name: Setup fastlane
-          working_directory: IntegrationTests/buildiOS
-          command: |
-            ln -s ../fastlane .
+          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+          command: ln -s ../fastlane .
 
-      - run:
-          name: Archive
-          working_directory: IntegrationTests/buildiOS
-          command: bundle exec fastlane archive workspace:"buildiOS/Unity-iPhone.xcworkspace"
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - run:
+                name: Archive
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec fastlane archive workspace:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcworkspace"
+
+      - when:
+          condition:
+            equal: [spm, << parameters.variant >>]
+          steps:
+            - run:
+                name: Archive
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                command: bundle exec fastlane archive project:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcodeproj"
 
   github-release:
     description: "Creates a github release"
     docker:
-      - image: cimg/ruby:3.2.0
+      - image: cimg/ruby:3.3.0
     steps:
       - checkout
       - attach_workspace:
@@ -420,7 +497,7 @@ jobs:
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
-      - image: cimg/ruby:3.2.0
+      - image: cimg/ruby:3.3.0
     steps:
       - checkout
       - revenuecat/install-gem-mac-dependencies:
@@ -443,7 +520,7 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - revenuecat/danger:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
 
   deploy-check:
     when:
@@ -451,6 +528,7 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - check-meta-files
+      - check-android-keep-annotations
       - export-package:
           context: unity
       - build-subtester-android:
@@ -461,23 +539,43 @@ workflows:
           context: unity
           requires:
             - export-package
+      - test-edit-mode:
+          context: unity
+          requires:
+            - export-package
       - build-integration-tests-ios:
+          variant: spm
+          context: unity
+          requires:
+            - export-package
+      - build-integration-tests-ios:
+          name: build-integration-tests-ios-cocoapods
+          variant: cocoapods
           context: unity
           requires:
             - export-package
       - archive-ios:
+          variant: spm
           requires:
             - build-integration-tests-ios
+      - archive-ios:
+          name: archive-ios-cocoapods
+          variant: cocoapods
+          requires:
+            - build-integration-tests-ios-cocoapods
       - hold:
           type: approval
           requires:
+            - check-android-keep-annotations
             - build-integration-tests-android
+            - test-edit-mode
             - build-subtester-android
             - build-subtester-ios
             - archive-ios
+            - archive-ios-cocoapods
           <<: *release-branches
       - revenuecat/tag-current-branch:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
           requires:
             - hold
           <<: *release-branches
@@ -507,14 +605,14 @@ workflows:
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
 
   manual-trigger-bump:
     when:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump:
-          ruby_version: "3.2.0"
+          ruby_version: "3.3.0"
 
   update-hybrid-common-versions:
     when:

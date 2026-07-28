@@ -16,7 +16,7 @@ namespace RevenueCat.Tester.Screens
                 {
                     if (error != null) { LogError(error); return; }
                     LogSuccess("Offerings received");
-                    Log(offerings.ToString());
+                    LogOfferingsSummary(offerings);
                 });
             });
 
@@ -27,7 +27,7 @@ namespace RevenueCat.Tester.Screens
                 {
                     if (error != null) { LogError(error); return; }
                     LogSuccess("Synced attributes and offerings");
-                    Log(offerings.ToString());
+                    LogOfferingsSummary(offerings);
                 });
             });
 
@@ -148,6 +148,30 @@ namespace RevenueCat.Tester.Screens
                     }
                 });
             });
+        }
+
+        private void LogOfferingsSummary(Purchases.Offerings offerings)
+        {
+            if (offerings == null)
+            {
+                Log("Offerings: <null>");
+                return;
+            }
+
+            var currentOfferingId = offerings.Current?.Identifier ?? "none";
+            var offeringCount = offerings.All?.Count ?? 0;
+            Log($"Current offering: {currentOfferingId}");
+            Log($"Offerings count: {offeringCount}");
+
+            if (offerings.All == null) return;
+
+            foreach (var offering in offerings.All.Values)
+            {
+                var packageCount = offering.AvailablePackages?.Count ?? 0;
+                var context = packageCount > 0 ? offering.AvailablePackages[0].PresentedOfferingContext : null;
+                var contextOfferingId = context?.OfferingIdentifier ?? "none";
+                Log($"  - {offering.Identifier}: {packageCount} package(s), context offering: {contextOfferingId}");
+            }
         }
     }
 }
