@@ -107,7 +107,11 @@ static class BuildScript
             scenes = scenes,
             locationPathName = BuildPathAndroid,
             target = BuildTarget.Android,
-            options = BuildOptions.None
+            // A development build produces a debuggable APK, which the RevenueCat SDK
+            // requires before it accepts the Test Store API key the E2E tests configure.
+            // A release build instead shows a "Test Store API key used in release build"
+            // dialog and closes the app before any test can run.
+            options = BuildOptions.Development
         };
 
         var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
