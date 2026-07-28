@@ -3,18 +3,26 @@ package com.revenuecat.purchasesunity.ui;
 import android.app.Activity;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 
+@Keep
 public class RevenueCatUI {
-    public interface PaywallCallbacks { void onPaywallResult(String result); }
+    @Keep
+    public interface PaywallCallbacks {
+        void onPaywallResult(String result);
+        void onPaywallEvent(String eventName, String payloadJson);
+    }
 
+    @Keep
     public interface PurchaseLogicCallbacks {
         void onPerformPurchase(String requestId, String packageJson);
         void onPerformRestore(String requestId);
     }
 
+    @Keep
     public interface CustomerCenterCallbacks {
         void onCustomerCenterDismissed();
         void onCustomerCenterError();
@@ -45,23 +53,35 @@ public class RevenueCatUI {
     public static void unregisterCustomerCenterCallbacks() { customerCenterCallbacks = null; }
 
     public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
-        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, null, false);
+        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, null, false, false);
     }
 
     public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton, String customVariablesJson, boolean hasPurchaseLogic) {
-        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic);
+        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, false);
+    }
+
+    public static void presentPaywall(Activity activity, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton, String customVariablesJson, boolean hasPurchaseLogic, boolean hasPaywallListener) {
+        PaywallViewPresenter.presentPaywall(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener);
     }
 
     public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton) {
-        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, null, false);
+        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, null, false, false);
     }
 
     public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton, String customVariablesJson, boolean hasPurchaseLogic) {
-        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic);
+        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, false);
+    }
+
+    public static void presentPaywallIfNeeded(Activity activity, String requiredEntitlementIdentifier, String offeringIdentifier, String presentedOfferingContextJson, boolean displayCloseButton, String customVariablesJson, boolean hasPurchaseLogic, boolean hasPaywallListener) {
+        PaywallViewPresenter.presentPaywallIfNeeded(activity, requiredEntitlementIdentifier, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener);
     }
 
     public static void notifyPurchaseLogicResult(String operationType, String resultString) {
         PaywallViewPresenter.onPurchaseLogicResult(operationType, resultString);
+    }
+
+    public static void notifyPaywallListenerEventProcessed() {
+        PaywallViewPresenter.onPaywallListenerEventProcessed();
     }
 
     public static void resolvePurchaseLogicResult(String requestId, String resultString, String errorMessage) {
@@ -82,6 +102,19 @@ public class RevenueCatUI {
             }
         } catch (Throwable e) {
             Log.e(TAG, "Error sending paywall result: " + e.getMessage());
+        }
+    }
+
+    public static void sendPaywallEvent(String eventName, String payloadJson) {
+        try {
+            PaywallCallbacks cb = paywallCallbacks;
+            if (cb != null) {
+                cb.onPaywallEvent(eventName, payloadJson);
+            } else {
+                Log.w(TAG, "No callback registered to receive paywall event: " + eventName);
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "Error sending paywall event: " + e.getMessage());
         }
     }
 

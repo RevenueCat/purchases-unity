@@ -19,9 +19,11 @@ files_with_version_number = {
 }
 ANDROID_PHC_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common:[{x}]'
 ANDROID_PHC_UI_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common-ui:[{x}]'
+SPM_PHC_DEPENDENCY_PATTERN = 'purchases-hybrid-common.git" version="{x}"'
 files_to_update_phc_version = {
     'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml' => [
         ANDROID_PHC_DEPENDENCY_PATTERN,
+        SPM_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommon" version="{x}"'
     ],
     'Subtester/Assets/Plugins/Android/mainTemplate.gradle' => [
@@ -34,6 +36,7 @@ files_to_update_phc_version = {
     ],
     'RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml' => [
         ANDROID_PHC_UI_DEPENDENCY_PATTERN,
+        SPM_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommonUI" version="~> {x}"'
     ],
     'RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build.gradle' => [
@@ -48,7 +51,6 @@ versions_path = './VERSIONS.md'
 
 before_all do
   setup_circle_ci
-  update_fastlane
 end
 
 desc "Bump version, edit changelog, and create pull request"
@@ -183,29 +185,18 @@ lane :xcode_build_maestro_test_app do
   xcode_project_path = "#{project_path}/build/ios"
   derived_data_path = "#{project_path}/build/xcode"
 
-  podfile_path = "#{xcode_project_path}/Podfile"
-  unless File.exist?(podfile_path)
-    File.write(podfile_path, <<~PODFILE)
-      platform :ios, '13.0'
-      use_frameworks! :linkage => :static
-      target 'UnityFramework' do
-        pod 'PurchasesHybridCommon', '18.1.0'
-        pod 'PurchasesHybridCommonUI', '~> 18.1.0'
-      end
-    PODFILE
-  end
-
-  xcode_abs_path = File.expand_path(xcode_project_path)
-  sh("cd '#{xcode_abs_path}' && pod install --repo-update")
-
+  # PurchasesHybridCommon is injected as a Swift Package during the Unity build
+  # (see BuildScript.AddPurchasesHybridCommonSwiftPackage), so we build the
+  # Unity-generated Xcode project directly and let xcodebuild resolve packages.
   sh(
     "xcodebuild", "build",
-    "-workspace", "#{xcode_project_path}/Unity-iPhone.xcworkspace",
+    "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
     "-sdk", "iphonesimulator",
     "-arch", "arm64",
     "-derivedDataPath", derived_data_path,
+    "-scmProvider", "system",
     "SUPPORTED_PLATFORMS=iphonesimulator",
     "CODE_SIGN_IDENTITY=-",
     "CODE_SIGNING_REQUIRED=NO",

@@ -33,18 +33,36 @@ public partial class Purchases
          */
         public readonly DateTime PurchaseDate;
 
+        /**
+         * <summary>
+         * The original purchase JSON as a string. Android only, null on iOS and some stores.
+         * </summary>
+         */
+        public readonly string OriginalJson;
+
+        /**
+         * <summary>
+         * The purchase signature. Google Play only, null on iOS and other stores.
+         * </summary>
+         */
+        public readonly string Signature;
+
         public StoreTransaction(JSONNode response)
         {
             TransactionIdentifier = response["transactionIdentifier"];
             ProductIdentifier = response["productIdentifier"];
             PurchaseDate = FromUnixTimeInMilliseconds(response["purchaseDateMillis"].AsLong);
+            OriginalJson = response["originalJson"];
+            Signature = response["signature"];
         }
 
         public override string ToString()
         {
             return $"{nameof(TransactionIdentifier)}: {TransactionIdentifier}\n" +
                    $"{nameof(ProductIdentifier)}: {ProductIdentifier}\n" +
-                   $"{nameof(PurchaseDate)}: {PurchaseDate}";
+                   $"{nameof(PurchaseDate)}: {PurchaseDate}\n" +
+                   $"{nameof(OriginalJson)}: {OriginalJson}\n" +
+                   $"{nameof(Signature)}: {Signature}";
         }
     }
 }

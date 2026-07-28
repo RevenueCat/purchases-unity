@@ -23,6 +23,10 @@ namespace DefaultNamespace
             string? storeTransactionId = subscriptionInfo.StoreTransactionId;
             bool isActive = subscriptionInfo.IsActive;
             bool willRenew = subscriptionInfo.WillRenew;
+            DateTime? autoResumeDate = subscriptionInfo.AutoResumeDate;
+            string? displayName = subscriptionInfo.DisplayName;
+            string? managementURL = subscriptionInfo.ManagementURL;
+            string? productPlanIdentifier = subscriptionInfo.ProductPlanIdentifier;
         }
     }
 }

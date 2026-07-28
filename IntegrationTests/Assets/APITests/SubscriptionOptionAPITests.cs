@@ -19,7 +19,7 @@ namespace DefaultNamespace
             Purchases.SubscriptionOption.RecurrenceMode recurrenceMode = pricingPhase.RecurrenceMode;
             int BillingCycleCount = pricingPhase.BillingCycleCount;
             string Formatted = pricingPhase.Price.Formatted;
-            int AmountMicros = pricingPhase.Price.AmountMicros;
+            long AmountMicros = pricingPhase.Price.AmountMicros;
             string CurrencyCode = pricingPhase.Price.CurrencyCode;
             Purchases.SubscriptionOption.OfferPaymentMode OfferPaymentMode = pricingPhase.OfferPaymentMode;
             Purchases.SubscriptionOption.PricingPhase FullPricePhase = subscriptionOption.FullPricePhase;

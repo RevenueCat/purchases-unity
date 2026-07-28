@@ -1,10 +1,9 @@
 ## RevenueCat SDK
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.1.0 (#905) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 10.2.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.2.0)
-  * [iOS 5.68.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.68.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.23.0 (#1002) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.15.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.15.0)
+  * [iOS 5.81.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.81.2)
 
 ### 🔄 Other Changes
-* Bump fastlane from 2.232.2 to 2.233.0 (#908) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `a1eed48` to `e348913` (#907) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `20911d1` to `a1eed48` (#904) via dependabot[bot] (@dependabot[bot])
+* Add DangerousSettings support for enabling workflows (#996) via Cesar de la Vega (@vegaro)
+* Clean up Subtester sample project (#999) via Cesar de la Vega (@vegaro)
