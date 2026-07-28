@@ -732,16 +732,14 @@ workflows:
             - build-integration-tests-ios-cocoapods
       - build-maestro-test-app-android:
           context:
-            - maestro-e2e-tests
+            - e2e-tests
             - unity
       - run-maestro-e2e-tests-ios:
           context:
-            - maestro-e2e-tests
             - e2e-tests
             - unity
       - run-maestro-e2e-tests-android:
           context:
-            - maestro-e2e-tests
             - e2e-tests
           requires:
             - build-maestro-test-app-android
@@ -803,7 +801,6 @@ workflows:
     jobs:
       - run-maestro-e2e-tests-ios:
           context:
-            - maestro-e2e-tests
             - e2e-tests
             - unity
 
@@ -814,11 +811,10 @@ workflows:
     jobs:
       - build-maestro-test-app-android:
           context:
-            - maestro-e2e-tests
+            - e2e-tests
             - unity
       - run-maestro-e2e-tests-android:
           context:
-            - maestro-e2e-tests
             - e2e-tests
           requires:
             - build-maestro-test-app-android
