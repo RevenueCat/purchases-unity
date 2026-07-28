@@ -38,6 +38,20 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void StoreProductParsesKnownProductCategory()
+        {
+            var response = JSONNode.Parse(
+                "{\"title\":\"Monthly\",\"identifier\":\"monthly\",\"description\":\"Monthly access\"," +
+                "\"price\":9.99,\"priceString\":\"$9.99\",\"currencyCode\":\"USD\"," +
+                "\"productCategory\":\"SUBSCRIPTION\"}"
+            );
+
+            var product = new Purchases.StoreProduct(response);
+
+            Assert.That(product.ProductCategory, Is.EqualTo(Purchases.ProductCategory.SUBSCRIPTION));
+        }
+
+        [Test]
         public void StoreProductFallsBackToUnknownProductCategory()
         {
             var response = JSONNode.Parse(

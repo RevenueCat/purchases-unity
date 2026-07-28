@@ -35,7 +35,7 @@ namespace RevenueCat.Tests
                     Purchases.StoreKitVersion.StoreKit2)
                 .SetUserDefaultsSuiteName("suite_name")
                 .SetUseAmazon(true)
-                .SetDangerousSettings(new Purchases.DangerousSettings(false))
+                .SetDangerousSettings(new Purchases.DangerousSettings(false, true))
                 .SetShouldShowInAppMessagesAutomatically(true)
                 .SetEntitlementVerificationMode(Purchases.EntitlementVerificationMode.Informational)
                 .SetPendingTransactionsForPrepaidPlansEnabled(true)
@@ -46,7 +46,7 @@ namespace RevenueCat.Tests
 
             _purchases.Configure(configuration);
 
-            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.Setup), 14);
+            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 14);
             Assert.That(invocation.Arguments[0], Is.EqualTo(_gameObject.name));
             Assert.That(invocation.Arguments[1], Is.EqualTo("test_api_key"));
             Assert.That(invocation.Arguments[2], Is.EqualTo("app_user_id"));
@@ -54,7 +54,9 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[4], Is.EqualTo(Purchases.StoreKitVersion.StoreKit2));
             Assert.That(invocation.Arguments[5], Is.EqualTo("suite_name"));
             Assert.That(invocation.Arguments[6], Is.True);
-            Assert.That(JSONNode.Parse((string)invocation.Arguments[7])["AutoSyncPurchases"].AsBool, Is.False);
+            var dangerousSettings = JSONNode.Parse((string)invocation.Arguments[7]);
+            Assert.That(dangerousSettings["AutoSyncPurchases"].AsBool, Is.False);
+            Assert.That(dangerousSettings["UseWorkflows"].AsBool, Is.True);
             Assert.That(invocation.Arguments[8], Is.True);
             Assert.That(invocation.Arguments[9], Is.EqualTo(Purchases.EntitlementVerificationMode.Informational));
             Assert.That(invocation.Arguments[10], Is.True);
@@ -63,12 +65,14 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[13], Is.EqualTo("de_DE"));
         }
 
-        private PurchasesWrapperSpy.Invocation AssertLastInvocation(string method, int argumentCount)
+        private PurchasesWrapperSpy.Invocation AssertOnlyInvocation(string method, int argumentCount)
         {
             Assert.That(_wrapper.Invocations, Has.Count.EqualTo(1));
-            Assert.That(_wrapper.LastInvocation.Method, Is.EqualTo(method));
-            Assert.That(_wrapper.LastInvocation.Arguments, Has.Length.EqualTo(argumentCount));
-            return _wrapper.LastInvocation;
+
+            var invocation = _wrapper.Invocations[0];
+            Assert.That(invocation.Method, Is.EqualTo(method));
+            Assert.That(invocation.Arguments, Has.Length.EqualTo(argumentCount));
+            return invocation;
         }
     }
 }
