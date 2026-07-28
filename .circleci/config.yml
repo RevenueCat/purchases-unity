@@ -213,6 +213,26 @@ commands:
           key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
           paths:
             - vendor/bundle
+
+  replace-maestro-api-key:
+    steps:
+      - run:
+          name: Replace API key
+          command: |
+            CS_PATH=e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+            if [ -z "$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE" ]; then
+              echo "RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set (is the e2e-tests context attached?)"
+              exit 1
+            fi
+            # `|` as the delimiter so a key containing a slash can't break the expression.
+            sed -i "s|MAESTRO_TESTS_REVENUECAT_API_KEY|$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE|g" "$CS_PATH"
+            # An unreplaced placeholder configures the SDK with a bogus key, which only
+            # surfaces much later as an unexplained Maestro assertion failure.
+            if grep -q MAESTRO_TESTS_REVENUECAT_API_KEY "$CS_PATH"; then
+              echo "API key placeholder was not replaced in $CS_PATH"
+              exit 1
+            fi
+            echo "API key placeholder replaced"
 jobs:
   check-meta-files:
     docker:
@@ -501,11 +521,7 @@ jobs:
       - checkout
       - unity/prepare-env:
           project-path: e2e-tests/MaestroTestApp
-      - run:
-          name: Replace API key
-          command: |
-            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
-              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+      - replace-maestro-api-key
       - run:
           name: Build Maestro test app (Unity Android)
           command: |
@@ -528,15 +544,7 @@ jobs:
       - checkout
       - unity/prepare-env:
           project-path: e2e-tests/MaestroTestApp
-      - run:
-          name: Replace API key
-          command: |
-            if [ -z "$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE" ]; then
-              echo "RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set (is the e2e-tests context attached?)"
-              exit 1
-            fi
-            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
-              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+      - replace-maestro-api-key
       - run:
           name: Build Maestro test app (Unity iOS)
           command: |
