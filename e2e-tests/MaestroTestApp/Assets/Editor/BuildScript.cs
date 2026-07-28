@@ -56,6 +56,11 @@ static class BuildScript
             Console.WriteLine("::   " + scene);
         }
 
+        // Maestro drives the app on the iOS Simulator, so IL2CPP has to emit a simulator
+        // slice. With the default device SDK the generated il2cpp.a is device-only and
+        // linking UnityFramework for iphonesimulator fails.
+        PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
+
         var buildPlayerOptions = new BuildPlayerOptions
         {
             scenes = scenes,
