@@ -21,8 +21,8 @@ static class BuildScript
     // UnityFramework target) able to resolve their `@import PurchasesHybridCommon`
     // (and transitively `RevenueCat`) modules.
     private const string PhcSwiftPackageUrl = "https://github.com/RevenueCat/purchases-hybrid-common.git";
-    private const string PhcDependenciesPath =
-        "Packages/com.revenuecat.purchases-unity/Plugins/Editor/RevenueCatDependencies.xml";
+    private const string RevenueCatPackageAssetPath = "Packages/com.revenuecat.purchases-unity";
+    private const string PhcDependenciesRelativePath = "Plugins/Editor/RevenueCatDependencies.xml";
 
     static string[] GetEnabledScenes()
     {
@@ -153,18 +153,29 @@ static class BuildScript
 
     private static string ResolvePurchasesHybridCommonVersion()
     {
-        if (!File.Exists(PhcDependenciesPath))
+        // RevenueCat is referenced as a local `file:` package, so it is resolved in place
+        // rather than copied under the project's Packages directory, and its asset path
+        // doesn't exist on disk. PackageInfo is qualified because UnityEditor also
+        // declares a legacy type with that name.
+        var package = UnityEditor.PackageManager.PackageInfo.FindForAssetPath(RevenueCatPackageAssetPath);
+        if (package == null)
         {
-            throw new Exception($"Could not find RevenueCat dependencies file at {PhcDependenciesPath}");
+            throw new Exception($"Could not resolve the package at {RevenueCatPackageAssetPath}");
+        }
+
+        var dependenciesPath = Path.Combine(package.resolvedPath, PhcDependenciesRelativePath);
+        if (!File.Exists(dependenciesPath))
+        {
+            throw new Exception($"Could not find RevenueCat dependencies file at {dependenciesPath}");
         }
 
         var document = new XmlDocument();
-        document.Load(PhcDependenciesPath);
+        document.Load(dependenciesPath);
 
         var version = document.SelectSingleNode("//remoteSwiftPackage")?.Attributes?["version"]?.Value;
         if (string.IsNullOrEmpty(version))
         {
-            throw new Exception($"Could not resolve the PurchasesHybridCommon Swift Package version from {PhcDependenciesPath}");
+            throw new Exception($"Could not resolve the PurchasesHybridCommon Swift Package version from {dependenciesPath}");
         }
 
         return version;
