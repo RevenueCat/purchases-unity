@@ -111,7 +111,13 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             string text = "Entitlements: " + (hasPro ? "pro" : "none");
             entitlementsLabel.text = text;
 #if UNITY_ANDROID && !UNITY_EDITOR
-            SetOverlayElement("entitlements", text, entitlementsLabel.rectTransform);
+            // Customer info also arrives while the test cases screen is showing. Exposing
+            // the label then would let an "Entitlements: ..." assertion pass on the wrong
+            // screen and hide a navigation that never happened.
+            if (purchaseScreen != null && purchaseScreen.activeSelf)
+            {
+                SetOverlayElement("entitlements", text, entitlementsLabel.rectTransform);
+            }
 #endif
         }
     }
