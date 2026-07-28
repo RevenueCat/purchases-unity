@@ -534,7 +534,10 @@ jobs:
       - install-bundle-dependencies
       - restore_cache:
           keys:
-            - v1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
+            # Throwaway key: the previous cache held an editor without the iOS
+            # playback engine, so it kept short-circuiting the install below. Once
+            # we settle on how this job gets Unity, replace this with a stable key.
+            - tmp-probe1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
       - run:
           name: Install Unity Hub and Editor
           command: |
@@ -547,13 +550,8 @@ jobs:
                 --architecture arm64 --module ios --childModules
             fi
           no_output_timeout: 30m
-      - save_cache:
-          key: v1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
-          paths:
-            - /Applications/Unity/Hub/Editor/6000.2.6f2
-            - /Applications/Unity Hub.app
       - run:
-          name: Link iOS module into Unity app bundle
+          name: Verify the iOS playback engine is installed
           command: |
             EDITOR_DIR="/Applications/Unity/Hub/Editor/$UNITY_VERSION"
             APP_ENGINES="$EDITOR_DIR/Unity.app/Contents/PlaybackEngines"
@@ -561,9 +559,24 @@ jobs:
             if [ -d "$TOP_ENGINES/iOSSupport" ] && [ ! -e "$APP_ENGINES/iOSSupport" ]; then
               ln -s "$TOP_ENGINES/iOSSupport" "$APP_ENGINES/iOSSupport"
               echo "Symlinked iOSSupport into app bundle"
-            else
-              echo "iOSSupport already in place or not found"
             fi
+            echo "--- $TOP_ENGINES"
+            ls -la "$TOP_ENGINES" 2>&1 || true
+            echo "--- $APP_ENGINES"
+            ls -la "$APP_ENGINES" 2>&1 || true
+            # Without this module Unity only reports "build target was unsupported",
+            # and it does so 25 minutes into the build. Fail here instead, and don't
+            # cache an editor that can't build for iOS.
+            if ! ls "$APP_ENGINES/iOSSupport/"UnityEditor.iOS*.dll >/dev/null 2>&1; then
+              echo "iOS playback engine is missing or incomplete"
+              exit 1
+            fi
+            echo "iOS playback engine looks complete"
+      - save_cache:
+          key: tmp-probe1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
+          paths:
+            - /Applications/Unity/Hub/Editor/6000.2.6f2
+            - /Applications/Unity Hub.app
       - run:
           name: Install Rosetta 2
           command: softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
