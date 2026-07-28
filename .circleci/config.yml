@@ -522,89 +522,46 @@ jobs:
           paths:
             - e2e-tests/MaestroTestApp/build/android
 
+  build-maestro-test-app-ios:
+    executor: unity-ios
+    steps:
+      - checkout
+      - unity/prepare-env:
+          project-path: e2e-tests/MaestroTestApp
+      - run:
+          name: Replace API key
+          command: |
+            if [ -z "$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE" ]; then
+              echo "RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set (is the e2e-tests context attached?)"
+              exit 1
+            fi
+            sed -i "s/MAESTRO_TESTS_REVENUECAT_API_KEY/$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE/g" \
+              e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs
+      - run:
+          name: Build Maestro test app (Unity iOS)
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath e2e-tests/MaestroTestApp \
+              -quit \
+              -batchmode \
+              -buildTarget iOS \
+              -executeMethod BuildScript.BuildIOS \
+              -nographics \
+              -logFile /dev/stdout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - e2e-tests/MaestroTestApp/build/ios
+
   run-maestro-e2e-tests-ios:
     macos:
       xcode: 26.3.0
     resource_class: m4pro.medium
-    environment:
-      UNITY_VERSION: 6000.2.6f2
-      UNITY_PATH: /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - install-bundle-dependencies
-      - restore_cache:
-          keys:
-            # Throwaway key: the previous cache held an editor without the iOS
-            # playback engine, so it kept short-circuiting the install below. Once
-            # we settle on how this job gets Unity, replace this with a stable key.
-            - tmp-probe1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
-      - run:
-          name: Install Unity Hub and Editor
-          command: |
-            if [ -x "$UNITY_PATH" ]; then
-              echo "Unity already installed from cache"
-            else
-              brew install --cask unity-hub
-              /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install \
-                --version "$UNITY_VERSION" --changeset 4a4dcaec6541 \
-                --architecture arm64 --module ios --childModules
-            fi
-          no_output_timeout: 30m
-      - run:
-          name: Verify the iOS playback engine is installed
-          command: |
-            EDITOR_DIR="/Applications/Unity/Hub/Editor/$UNITY_VERSION"
-            APP_ENGINES="$EDITOR_DIR/Unity.app/Contents/PlaybackEngines"
-            TOP_ENGINES="$EDITOR_DIR/PlaybackEngines"
-            if [ -d "$TOP_ENGINES/iOSSupport" ] && [ ! -e "$APP_ENGINES/iOSSupport" ]; then
-              ln -s "$TOP_ENGINES/iOSSupport" "$APP_ENGINES/iOSSupport"
-              echo "Symlinked iOSSupport into app bundle"
-            fi
-            echo "--- $TOP_ENGINES"
-            ls -la "$TOP_ENGINES" 2>&1 || true
-            echo "--- $APP_ENGINES"
-            ls -la "$APP_ENGINES" 2>&1 || true
-            # Without this module Unity only reports "build target was unsupported",
-            # and it does so 25 minutes into the build. Fail here instead, and don't
-            # cache an editor that can't build for iOS.
-            if ! ls "$APP_ENGINES/iOSSupport/"UnityEditor.iOS*.dll >/dev/null 2>&1; then
-              echo "iOS playback engine is missing or incomplete"
-              exit 1
-            fi
-            echo "iOS playback engine looks complete"
-      - save_cache:
-          key: tmp-probe1-unity-hub-macos-{{ arch }}-6000.2.6f2-ios
-          paths:
-            - /Applications/Unity/Hub/Editor/6000.2.6f2
-            - /Applications/Unity Hub.app
-      - run:
-          name: Install Rosetta 2
-          command: softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
-      - run:
-          name: Activate Unity license
-          command: |
-            for attempt in 1 2 3; do
-              echo "License activation attempt $attempt..."
-              "$UNITY_PATH" -batchmode -quit -nographics \
-                -serial "$UNITY_SERIAL" \
-                -username "$UNITY_EMAIL" \
-                -password "$UNITY_PASSWORD" \
-                -logFile /dev/stdout 2>&1 && break
-              echo "Attempt $attempt failed, waiting 30s before retry..."
-              sleep 30
-            done
-            # Verify license file exists
-            ULF_DIR="$HOME/Library/Application Support/Unity"
-            if ls "$ULF_DIR"/*.ulf 1>/dev/null 2>&1; then
-              echo "License file found"
-            else
-              echo "WARNING: No .ulf license file found in $ULF_DIR"
-              ls -la "$ULF_DIR/" 2>/dev/null || echo "Directory does not exist"
-            fi
-          no_output_timeout: 5m
-      - run:
-          name: Replace API key
-          command: bundle exec fastlane change_maestro_test_app_api_key
       - run:
           name: Install Java for Maestro
           command: |
@@ -626,8 +583,8 @@ jobs:
           command: xcrun simctl boot "iPhone 17" || true
           background: true
       - run:
-          name: Build Maestro test app (Unity + Xcode)
-          command: bundle exec fastlane build_maestro_test_app platform:ios
+          name: Build the Unity-generated Xcode project
+          command: bundle exec fastlane xcode_build_maestro_test_app
           no_output_timeout: 30m
       - run:
           name: Wait for iOS Simulator
@@ -636,11 +593,6 @@ jobs:
           name: Run Maestro E2E Tests (iOS)
           command: bundle exec fastlane run_maestro_e2e_tests_ios
           no_output_timeout: 15m
-      - run:
-          name: Return Unity license
-          command: |
-            "$UNITY_PATH" -batchmode -quit -nographics -returnlicense 2>&1 || true
-          when: always
       - store_test_results:
           path: fastlane/test_output
       - store_artifacts:
@@ -751,10 +703,15 @@ workflows:
           context:
             - e2e-tests
             - unity
-      - run-maestro-e2e-tests-ios:
+      - build-maestro-test-app-ios:
           context:
             - e2e-tests
             - unity
+      - run-maestro-e2e-tests-ios:
+          context:
+            - e2e-tests
+          requires:
+            - build-maestro-test-app-ios
       - run-maestro-e2e-tests-android:
           context:
             - e2e-tests
@@ -816,10 +773,15 @@ workflows:
       or:
         - equal: ["maestro_e2e_tests", << pipeline.schedule.name >>]
     jobs:
-      - run-maestro-e2e-tests-ios:
+      - build-maestro-test-app-ios:
           context:
             - e2e-tests
             - unity
+      - run-maestro-e2e-tests-ios:
+          context:
+            - e2e-tests
+          requires:
+            - build-maestro-test-app-ios
 
   maestro-e2e-tests-android:
     when:
