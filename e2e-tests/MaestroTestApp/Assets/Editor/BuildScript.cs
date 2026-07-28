@@ -58,8 +58,11 @@ static class BuildScript
 
         // Maestro drives the app on the iOS Simulator, so IL2CPP has to emit a simulator
         // slice. With the default device SDK the generated il2cpp.a is device-only and
-        // linking UnityFramework for iphonesimulator fails.
+        // linking UnityFramework for iphonesimulator fails. The simulator architecture
+        // defaults to the deprecated x86_64, which the Apple silicon CI runners can't
+        // link against.
         PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
+        PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
 
         var buildPlayerOptions = new BuildPlayerOptions
         {
