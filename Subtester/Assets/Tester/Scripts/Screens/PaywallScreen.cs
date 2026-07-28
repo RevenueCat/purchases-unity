@@ -144,6 +144,15 @@ namespace RevenueCat.Tester.Screens
                 LogPaywallResult("Paywall (full screen)", result);
             });
 
+            AddButton("Present Paywall Form Sheet", async () =>
+            {
+                var offering = await GetOfferingByIdAsync(_offeringIdField.value);
+                Log("Presenting paywall form sheet...");
+                var result = await PaywallsPresenter.Present(BuildOptions(offering: offering,
+                    presentationConfiguration: new PaywallPresentationConfiguration(ios: IOSPaywallPresentationStyle.FormSheet)));
+                LogPaywallResult("Paywall (form sheet)", result);
+            });
+
             AddButton("Present Paywall (With Listener)", async () =>
             {
                 var offering = await GetOfferingByIdAsync(_offeringIdField.value);
