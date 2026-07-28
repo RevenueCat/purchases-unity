@@ -13,10 +13,10 @@ namespace RevenueCatUI.Platforms
         private delegate void PurchaseLogicRestoreCallback(string requestId);
         private delegate void PaywallEventCallback(string eventName, string payloadJson);
 
-        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallWithPurchaseLogic(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
-        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeededWithPurchaseLogic(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywall(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallWithPurchaseLogic(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
+        [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeededWithPurchaseLogic(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
@@ -34,6 +34,7 @@ namespace RevenueCatUI.Platforms
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
+                var presentationMode = options?.PresentationConfiguration?.IOS?.Value;
                 var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPaywallListener = options?.Listener != null;
                 if (hasPaywallListener)
@@ -48,6 +49,7 @@ namespace RevenueCatUI.Platforms
                         presentedOfferingContextJson,
                         options.DisplayCloseButton,
                         useFullScreen,
+                        presentationMode,
                         customVariablesJson,
                         OnPerformPurchase,
                         OnPerformRestore,
@@ -57,7 +59,7 @@ namespace RevenueCatUI.Platforms
                 }
                 else
                 {
-                    rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, useFullScreen, customVariablesJson, hasPaywallListener, OnPaywallEvent, OnResult);
+                    rcui_presentPaywall(options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? false, useFullScreen, presentationMode, customVariablesJson, hasPaywallListener, OnPaywallEvent, OnResult);
                 }
             }
             catch (Exception e)
@@ -85,6 +87,7 @@ namespace RevenueCatUI.Platforms
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
                 var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
+                var presentationMode = options?.PresentationConfiguration?.IOS?.Value;
                 var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPaywallListener = options?.Listener != null;
                 if (hasPaywallListener)
@@ -100,6 +103,7 @@ namespace RevenueCatUI.Platforms
                         presentedOfferingContextJson,
                         options.DisplayCloseButton,
                         useFullScreen,
+                        presentationMode,
                         customVariablesJson,
                         OnPerformPurchase,
                         OnPerformRestore,
@@ -109,7 +113,7 @@ namespace RevenueCatUI.Platforms
                 }
                 else
                 {
-                    rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, useFullScreen, customVariablesJson, hasPaywallListener, OnPaywallEvent, OnResult);
+                    rcui_presentPaywallIfNeeded(requiredEntitlementIdentifier, options?.OfferingIdentifier, presentedOfferingContextJson, options?.DisplayCloseButton ?? true, useFullScreen, presentationMode, customVariablesJson, hasPaywallListener, OnPaywallEvent, OnResult);
                 }
             }
             catch (Exception e)
