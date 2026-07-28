@@ -1,0 +1,8 @@
+[settings]
+lockfile = true
+
+[settings.ruby]
+compile = false
+
+[tools]
+ruby = "3.3.0"

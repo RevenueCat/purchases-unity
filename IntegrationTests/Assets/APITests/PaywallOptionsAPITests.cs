@@ -93,11 +93,43 @@ namespace DefaultNamespace
                 presentationConfiguration: PaywallPresentationConfiguration.FullScreen
             );
 
+            // Test PaywallOptions with listener
+            PaywallOptions options12 = new PaywallOptions(
+                offering: offering,
+                listener: new PaywallListener
+                {
+                    OnPurchaseCompleted = (customerInfo, storeTransaction) => { }
+                }
+            );
+
             // Test positional argument compatibility (must not break existing callers)
             PaywallOptions positional1 = new PaywallOptions(true);
             PaywallOptions positional2 = new PaywallOptions(true, PaywallPresentationConfiguration.FullScreen);
             PaywallOptions positional3 = new PaywallOptions(offering, true);
             PaywallOptions positional4 = new PaywallOptions(offering, true, PaywallPresentationConfiguration.FullScreen);
+
+            // Test iOS presentation styles, including FormSheet (small centered modal on iPad)
+            IOSPaywallPresentationStyle iosFullScreen = IOSPaywallPresentationStyle.FullScreen;
+            IOSPaywallPresentationStyle iosSheet = IOSPaywallPresentationStyle.Sheet;
+            IOSPaywallPresentationStyle iosFormSheet = IOSPaywallPresentationStyle.FormSheet;
+            AndroidPaywallPresentationStyle androidFullScreen = AndroidPaywallPresentationStyle.FullScreen;
+
+            // Test per-platform presentationConfiguration with an iOS-only style (Android stays default)
+            PaywallOptions options13 = new PaywallOptions(
+                presentationConfiguration: new PaywallPresentationConfiguration(
+                    ios: IOSPaywallPresentationStyle.FormSheet
+                )
+            );
+
+            // Test per-platform presentationConfiguration specifying both platforms
+            PaywallOptions options14 = new PaywallOptions(
+                offering: offering,
+                displayCloseButton: true,
+                presentationConfiguration: new PaywallPresentationConfiguration(
+                    ios: IOSPaywallPresentationStyle.FormSheet,
+                    android: AndroidPaywallPresentationStyle.FullScreen
+                )
+            );
 
             // Test CustomVariableValue factory methods
             CustomVariableValue stringValue = CustomVariableValue.String("test");
