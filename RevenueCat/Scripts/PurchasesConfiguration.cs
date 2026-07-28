@@ -84,9 +84,9 @@ public partial class Purchases
             private string _userDefaultsSuiteName;
             private bool _useAmazon;
             private DangerousSettings _dangerousSettings;
-            private StoreKitVersion _storeKitVersion;
-            private bool _shouldShowInAppMessagesAutomatically;
-            private EntitlementVerificationMode _entitlementVerificationMode;
+            private StoreKitVersion _storeKitVersion = StoreKitVersion.Default;
+            private bool _shouldShowInAppMessagesAutomatically = true;
+            private EntitlementVerificationMode _entitlementVerificationMode = EntitlementVerificationMode.Informational;
             private bool _pendingTransactionsForPrepaidPlansEnabled;
             private bool _diagnosticsEnabled;
             private bool _automaticDeviceIdentifierCollectionEnabled = true;

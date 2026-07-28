@@ -5,16 +5,11 @@ namespace RevenueCat.Tests
     public class PurchasesConfigurationTests
     {
         /// <remarks>
-        /// This locks in what the builder does today, which is not what the SDK documents.
-        /// The builder leaves StoreKitVersion, ShouldShowInAppMessagesAutomatically and
-        /// EntitlementVerificationMode at their C# zero values, so the runtime-setup path defaults to
-        /// StoreKit 1, in-app messages disabled and verification disabled, while the inspector fields on
-        /// Purchases default to StoreKitVersion.Default, in-app messages enabled and Informational.
-        /// Those divergences look unintentional, but aligning the builder changes runtime behavior for
-        /// apps using runtime setup, so it is handled separately from these tests.
+        /// These must stay in sync with the inspector defaults on Purchases, so that configuring through
+        /// runtime setup and configuring through the inspector behave the same when a setter is not called.
         /// </remarks>
         [Test]
-        public void BuildUsesBuilderDefaults()
+        public void BuildUsesDocumentedDefaults()
         {
             var configuration = Purchases.PurchasesConfiguration.Builder
                 .Init("test_api_key")
@@ -26,12 +21,9 @@ namespace RevenueCat.Tests
             Assert.That(configuration.UserDefaultsSuiteName, Is.Null);
             Assert.That(configuration.UseAmazon, Is.False);
             Assert.That(configuration.DangerousSettings.AutoSyncPurchases, Is.True);
-            // Diverges from the Purchases inspector default (StoreKitVersion.Default).
-            Assert.That(configuration.StoreKitVersion, Is.EqualTo(Purchases.StoreKitVersion.StoreKit1));
-            // Diverges from the documented default (in-app messages are shown automatically).
-            Assert.That(configuration.ShouldShowInAppMessagesAutomatically, Is.False);
-            // Diverges from the Purchases inspector default (EntitlementVerificationMode.Informational).
-            Assert.That(configuration.EntitlementVerificationMode, Is.EqualTo(Purchases.EntitlementVerificationMode.Disabled));
+            Assert.That(configuration.StoreKitVersion, Is.EqualTo(Purchases.StoreKitVersion.Default));
+            Assert.That(configuration.ShouldShowInAppMessagesAutomatically, Is.True);
+            Assert.That(configuration.EntitlementVerificationMode, Is.EqualTo(Purchases.EntitlementVerificationMode.Informational));
             Assert.That(configuration.PendingTransactionsForPrepaidPlansEnabled, Is.False);
             Assert.That(configuration.DiagnosticsEnabled, Is.False);
             Assert.That(configuration.AutomaticDeviceIdentifierCollectionEnabled, Is.True);
