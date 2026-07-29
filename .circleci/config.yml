@@ -601,6 +601,17 @@ jobs:
           name: Run Maestro E2E Tests (iOS)
           command: bundle exec fastlane run_maestro_e2e_tests_ios
           no_output_timeout: 15m
+      - run:
+          name: Capture simulator diagnostics on failure
+          command: |
+            mkdir -p fastlane/test_output/diagnostics
+            # Simulator crashes are written to the host's DiagnosticReports directory.
+            cp ~/Library/Logs/DiagnosticReports/MaestroTestApp*.ips \
+              fastlane/test_output/diagnostics/ 2>/dev/null || echo "no crash reports found"
+            xcrun simctl spawn booted log show --last 15m --style compact \
+              --predicate 'process == "MaestroTestApp"' \
+              > fastlane/test_output/diagnostics/app.log 2>&1 || true
+          when: on_fail
       - store_test_results:
           path: fastlane/test_output
       - store_artifacts:
