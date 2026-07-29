@@ -113,15 +113,20 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     public async void PresentPaywall()
     {
         ClearError();
-        try
+
+        // Present() traps its own exceptions and reports failure through the result, so
+        // there is nothing here to catch; the result has to be inspected instead.
+        var result = await PaywallsPresenter.Present();
+
+        if (result.Result == PaywallResultType.Error)
         {
-            await PaywallsPresenter.Present();
+            ShowError("Paywall presentation failed");
+            return;
         }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Failed to present paywall: {e}");
-            ShowError(e.Message);
-        }
+
+        // Refreshed here rather than relying on CustomerInfoReceived, so the entitlement
+        // text is settled by the time the paywall is gone and assertions can run.
+        UpdateEntitlements();
     }
 
     public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo)
@@ -133,6 +138,12 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     {
         purchases.GetCustomerInfo((info, error) =>
         {
+            if (error != null)
+            {
+                ShowError(error.Message);
+                return;
+            }
+
             if (info != null)
             {
                 UpdateEntitlementsFromInfo(info);
