@@ -1,0 +1,10 @@
+plugins {
+    // 8.8.2 is compatible with Unity 6000.2 which ships Gradle 8.11
+    id 'com.android.application' version '8.8.2' apply false
+    id 'com.android.library' version '8.8.2' apply false
+    **BUILD_SCRIPT_DEPS**
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
+}

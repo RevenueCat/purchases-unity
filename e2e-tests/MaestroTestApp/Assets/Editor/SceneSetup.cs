@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
@@ -31,7 +32,7 @@ static class SceneSetup
         CreateText(testCasesScreen.transform, "Title", "Test Cases", 24, FontStyle.Bold,
             new Vector2(0, 0.5f), new Vector2(1, 1f), TextAnchor.MiddleCenter);
 
-        var purchaseBtn = CreateButton(testCasesScreen.transform, "PurchaseButton", "Purchase through paywall",
+        CreateButton(testCasesScreen.transform, "PurchaseButton", "Purchase through paywall",
             new Vector2(0.1f, 0.3f), new Vector2(0.9f, 0.4f));
 
         var purchaseScreen = CreatePanel(canvas.transform, "PurchaseScreen");
@@ -40,7 +41,7 @@ static class SceneSetup
         var entitlementsLabel = CreateText(purchaseScreen.transform, "EntitlementsLabel", "Entitlements: none", 16, FontStyle.Normal,
             new Vector2(0, 0.6f), new Vector2(1, 0.7f), TextAnchor.MiddleCenter);
 
-        var paywallBtn = CreateButton(purchaseScreen.transform, "PaywallButton", "Present Paywall",
+        CreateButton(purchaseScreen.transform, "PaywallButton", "Present Paywall",
             new Vector2(0.1f, 0.4f), new Vector2(0.9f, 0.5f));
 
         var errorLabel = CreateText(purchaseScreen.transform, "ErrorLabel", "", 14, FontStyle.Normal,
@@ -48,7 +49,7 @@ static class SceneSetup
         errorLabel.color = Color.red;
         errorLabel.gameObject.SetActive(false);
 
-        var backBtn = CreateButton(purchaseScreen.transform, "BackButton", "Back",
+        CreateButton(purchaseScreen.transform, "BackButton", "Back",
             new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.2f));
 
         var purchasesGO = new GameObject("Purchases");
@@ -61,14 +62,9 @@ static class SceneSetup
         maestroApp.entitlementsLabel = entitlementsLabel;
         maestroApp.errorLabel = errorLabel;
 
-        var purchaseBtnComp = purchaseBtn.GetComponent<Button>();
-        purchaseBtnComp.onClick.AddListener(maestroApp.ShowPurchaseScreen);
-
-        var paywallBtnComp = paywallBtn.GetComponent<Button>();
-        paywallBtnComp.onClick.AddListener(maestroApp.PresentPaywall);
-
-        var backBtnComp = backBtn.GetComponent<Button>();
-        backBtnComp.onClick.AddListener(maestroApp.ShowTestCases);
+        // Button onClick handlers are deliberately not wired here: SaveScene only
+        // serializes persistent listeners, so anything added with AddListener would be
+        // silently dropped. MaestroTestApp.WireButtons does it at runtime instead.
 
         Directory.CreateDirectory("Assets/Scenes");
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Main.unity");
@@ -82,6 +78,10 @@ static class SceneSetup
         PlayerSettings.productName = "MaestroTestApp";
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "com.revenuecat.automatedsdktests");
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.revenuecat.automatedsdktests");
+        PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+        PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
+        PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
 
         Debug.Log(":: Scene setup completed successfully");
     }
