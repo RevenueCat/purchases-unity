@@ -1,7 +1,13 @@
 {
   "dependencies": {
-    "com.revenuecat.purchases-unity": "file:../../../RevenueCat",
     "com.revenuecat.purchases-ui-unity": "file:../../../RevenueCatUI",
-    "com.unity.ugui": "2.0.0"
+    "com.revenuecat.purchases-unity": "file:../../../RevenueCat",
+    "com.unity.ugui": "2.0.0",
+    "com.unity.modules.androidjni": "1.0.0",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0",
+    "com.unity.modules.unitywebrequest": "1.0.0"
   }
 }
