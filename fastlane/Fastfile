@@ -19,9 +19,11 @@ files_with_version_number = {
 }
 ANDROID_PHC_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common:[{x}]'
 ANDROID_PHC_UI_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common-ui:[{x}]'
+SPM_PHC_DEPENDENCY_PATTERN = 'purchases-hybrid-common.git" version="{x}"'
 files_to_update_phc_version = {
     'RevenueCat/Plugins/Editor/RevenueCatDependencies.xml' => [
         ANDROID_PHC_DEPENDENCY_PATTERN,
+        SPM_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommon" version="{x}"'
     ],
     'Subtester/Assets/Plugins/Android/mainTemplate.gradle' => [
@@ -32,8 +34,13 @@ files_to_update_phc_version = {
         ANDROID_PHC_DEPENDENCY_PATTERN,
         ANDROID_PHC_UI_DEPENDENCY_PATTERN
     ],
+    'e2e-tests/MaestroTestApp/Assets/Plugins/Android/mainTemplate.gradle' => [
+        ANDROID_PHC_DEPENDENCY_PATTERN,
+        ANDROID_PHC_UI_DEPENDENCY_PATTERN
+    ],
     'RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml' => [
         ANDROID_PHC_UI_DEPENDENCY_PATTERN,
+        SPM_PHC_DEPENDENCY_PATTERN,
         'name="PurchasesHybridCommonUI" version="~> {x}"'
     ],
     'RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build.gradle' => [
@@ -48,7 +55,6 @@ versions_path = './VERSIONS.md'
 
 before_all do
   setup_circle_ci
-  update_fastlane
 end
 
 desc "Bump version, edit changelog, and create pull request"
@@ -130,101 +136,66 @@ lane :update_hybrid_common do |options|
   )
 end
 
-desc "Run maestro E2E tests on iOS"
-lane :run_maestro_e2e_tests_ios do
-  UI.user_error!("RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set") if ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"].to_s.empty?
+desc "Build the Unity-generated Xcode project for iOS Simulator"
+lane :xcode_build_maestro_test_app do
   project_path = "../e2e-tests/MaestroTestApp"
   xcode_project_path = "#{project_path}/build/ios"
   derived_data_path = "#{project_path}/build/xcode"
 
-  cs_path = "#{project_path}/Assets/Scripts/MaestroTestApp.cs"
-  cs_path_from_root = "e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs"
-  replace_text_in_files(
-    previous_text: "MAESTRO_TESTS_REVENUECAT_API_KEY",
-    new_text: ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"],
-    paths_of_files_to_update: [cs_path_from_root]
-  )
-  UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
-
-  unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
-
+  # PurchasesHybridCommon is injected as a Swift Package during the Unity build
+  # (see BuildScript.AddPurchasesHybridCommonSwiftPackage), so we build the
+  # Unity-generated Xcode project directly and let xcodebuild resolve packages.
   sh(
-    "#{unity_path}",
-    "-batchmode",
-    "-quit",
-    "-projectPath", project_path,
-    "-executeMethod", "SceneSetup.SetupScene",
-    "-nographics",
-    "-logFile", "-"
-  )
-
-  sh(
-    "#{unity_path}",
-    "-batchmode",
-    "-quit",
-    "-projectPath", project_path,
-    "-buildTarget", "iOS",
-    "-executeMethod", "BuildScript.BuildIOS",
-    "-nographics",
-    "-logFile", "-"
-  )
-
-  sh(
-    "xcodebuild",
+    "xcodebuild", "build",
     "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
     "-scheme", "Unity-iPhone",
     "-configuration", "Debug",
     "-sdk", "iphonesimulator",
-    "-destination", "platform=iOS Simulator,name=iPhone 17",
-    "-derivedDataPath", derived_data_path
+    "-arch", "arm64",
+    "-derivedDataPath", derived_data_path,
+    "-scmProvider", "system",
+    "SUPPORTED_PLATFORMS=iphonesimulator",
+    "CODE_SIGN_IDENTITY=-",
+    "CODE_SIGNING_REQUIRED=NO",
+    "CODE_SIGNING_ALLOWED=NO"
   )
 
-  app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
-  sh("xcrun simctl install booted '#{app_path}'")
+  products_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator"
 
+  # Xcode builds a resource bundle for each Swift package target that has resources
+  # but embeds none of them, because the packages are attached to the UnityFramework
+  # target rather than to the app. Without them RevenueCatUI's Bundle.module lookup
+  # reaches a fatalError and the app dies the moment a paywall is presented.
+  bundles = Dir.glob("#{products_path}/*.bundle")
+  if bundles.empty?
+    UI.user_error!("No Swift package resource bundles found in #{products_path}")
+  end
+  bundles.each do |bundle|
+    FileUtils.cp_r(bundle, "#{products_path}/MaestroTestApp.app/", remove_destination: true)
+  end
+  UI.message("Embedded resource bundles: #{bundles.map { |bundle| File.basename(bundle) }.join(', ')}")
+end
+
+desc "Run maestro E2E tests on iOS (booted simulator required)"
+lane :run_maestro_e2e_tests_ios do
+  project_path = "../e2e-tests/MaestroTestApp"
+  derived_data_path = "#{project_path}/build/xcode"
+  app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
+  unless File.directory?(app_path)
+    xcode_build_maestro_test_app
+  end
+  sh("xcrun simctl install booted '#{app_path}'")
   run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
 end
 
-desc "Run maestro E2E tests on Android"
+desc "Run maestro E2E tests on Android (running emulator required)"
 lane :run_maestro_e2e_tests_android do
-  UI.user_error!("RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE is not set") if ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"].to_s.empty?
   project_path = "../e2e-tests/MaestroTestApp"
   apk_path = "#{project_path}/build/android/MaestroTestApp.apk"
-
-  cs_path = "#{project_path}/Assets/Scripts/MaestroTestApp.cs"
-  cs_path_from_root = "e2e-tests/MaestroTestApp/Assets/Scripts/MaestroTestApp.cs"
-  replace_text_in_files(
-    previous_text: "MAESTRO_TESTS_REVENUECAT_API_KEY",
-    new_text: ENV["RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE"],
-    paths_of_files_to_update: [cs_path_from_root]
-  )
-  UI.user_error!("API key placeholder was not replaced in MaestroTestApp.cs") if File.read(cs_path).include?("MAESTRO_TESTS_REVENUECAT_API_KEY")
-
-  unity_path = ENV['UNITY_PATH'] || '/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity'
-
-  sh(
-    "#{unity_path}",
-    "-batchmode",
-    "-quit",
-    "-projectPath", project_path,
-    "-executeMethod", "SceneSetup.SetupScene",
-    "-nographics",
-    "-logFile", "-"
-  )
-
-  sh(
-    "#{unity_path}",
-    "-batchmode",
-    "-quit",
-    "-projectPath", project_path,
-    "-buildTarget", "Android",
-    "-executeMethod", "BuildScript.BuildAndroid",
-    "-nographics",
-    "-logFile", "-"
-  )
-
+  unless File.exist?(apk_path)
+    UI.user_error!("APK not found at #{apk_path}. Build it first by running Unity with -executeMethod BuildScript.BuildAndroid, as build-maestro-test-app-android does.")
+  end
   sh("adb install '#{apk_path}'")
-
   run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
 end
 

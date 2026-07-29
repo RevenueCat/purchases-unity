@@ -10,6 +10,20 @@
 @import PurchasesHybridCommon;
 @import RevenueCat;
 
+// Generated header exposing Swift bridge helpers (e.g. RCPurchasesUnityDangerousSettingsFactory).
+// Unity compiles plugin Swift files into the UnityFramework target.
+#if __has_include("UnityFramework-Swift.h")
+#import "UnityFramework-Swift.h"
+#else
+#import <UnityFramework/UnityFramework-Swift.h>
+#endif
+
+@interface NSObject (NSNullMapping)
+
+- (id)mappingNSNullToNil;
+
+@end
+
 static NSString *const RECEIVE_STOREFRONT = @"_receiveStorefront";
 static NSString *const RECEIVE_PRODUCTS = @"_receiveProducts";
 static NSString *const RECEIVE_CUSTOMER_INFO = @"_receiveCustomerInfo";
@@ -75,7 +89,10 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
  userDefaultsSuiteName:(nullable NSString *)userDefaultsSuiteName
  dangerousSettingsJson:(NSString *)dangerousSettingsJson
  shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically
- entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode {
+ entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode
+ diagnosticsEnabled:(BOOL)diagnosticsEnabled
+ automaticDeviceIdentifierCollectionEnabled:(BOOL)automaticDeviceIdentifierCollectionEnabled
+ preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride {
     self.products = nil;
     self.gameObject = nil;
 
@@ -90,7 +107,9 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
         NSLog(@"Error parsing dangerousSettings JSON: %@ %@", dangerousSettingsJson, error.localizedDescription);
     } else {
         BOOL autoSyncPurchases = dangerousSettingsDict[@"AutoSyncPurchases"];
-        dangerousSettings = [[RCDangerousSettings alloc] initWithAutoSyncPurchases:autoSyncPurchases];
+        BOOL useWorkflows = [dangerousSettingsDict[@"UseWorkflows"] boolValue];
+        dangerousSettings = [RCPurchasesUnityDangerousSettingsFactory makeWithAutoSyncPurchases:autoSyncPurchases
+                                                                                  useWorkflows:useWorkflows];
     }
 
     [RCPurchases configureWithAPIKey:apiKey
@@ -102,7 +121,10 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
                      storeKitVersion:storeKitVersion
                    dangerousSettings:dangerousSettings
 shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
-                    verificationMode:entitlementVerificationMode];
+                    verificationMode:entitlementVerificationMode
+                  diagnosticsEnabled:diagnosticsEnabled
+automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
+                     preferredLocale:preferredUILocaleOverride];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -290,6 +312,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality invalidateCustomerInfoCache];
 }
 
+- (void)overridePreferredUILocale:(nullable NSString *)locale {
+    [RCCommonFunctionality overridePreferredLocale:locale];
+}
+
 - (void)presentCodeRedemptionSheet {
     if (@available(iOS 14.0, *)) {
          [RCCommonFunctionality presentCodeRedemptionSheet];
@@ -442,6 +468,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setCreative:creative];
 }
 
+- (void)setAppsFlyerConversionData:(nullable NSDictionary *)data {
+    [RCCommonFunctionality setAppsFlyerConversionData:data];
+}
+
 - (void)showInAppMessages:(NSArray<NSNumber*>*)messageTypes {
     #if TARGET_OS_IPHONE
     if (@available(iOS 16.0, *)) {
@@ -569,7 +599,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }];
 }
 
-- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId offeringId:(nullable NSString *)offeringId {
+- (void)trackCustomPaywallImpression:(nullable NSString *)paywallId
+                          offeringId:(nullable NSString *)offeringId
+            presentedOfferingContext:(nullable NSString *)presentedOfferingContextJson {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
     if (paywallId) {
         data[@"paywallId"] = paywallId;
@@ -577,7 +609,90 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     if (offeringId) {
         data[@"offeringId"] = offeringId;
     }
-    [RCCommonFunctionality trackCustomPaywallImpression:data];
+    if (presentedOfferingContextJson.length > 0) {
+        NSError *error = nil;
+        NSData *jsonData = [presentedOfferingContextJson dataUsingEncoding:NSUTF8StringEncoding];
+        id presentedOfferingContext = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+        if (error) {
+            NSLog(@"Error parsing presentedOfferingContext JSON: %@ %@", presentedOfferingContextJson, error.localizedDescription);
+        } else if (presentedOfferingContext) {
+            id filteredPresentedOfferingContext = [presentedOfferingContext mappingNSNullToNil];
+            if (filteredPresentedOfferingContext) {
+                data[@"presentedOfferingContext"] = filteredPresentedOfferingContext;
+            }
+        }
+    }
+    [RCCommonFunctionality trackCustomPaywallImpression:data.mappingNSNullToNil ?: @{}];
+}
+
+- (void)trackAdDisplayed:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdDisplayed: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdDisplayed:data];
+    } else {
+        NSLog(@"[Purchases] trackAdDisplayed: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdOpened:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdOpened: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdOpened:data];
+    } else {
+        NSLog(@"[Purchases] trackAdOpened: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdRevenue:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdRevenue: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdRevenue:data];
+    } else {
+        NSLog(@"[Purchases] trackAdRevenue: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdLoaded:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdLoaded: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdLoaded:data];
+    } else {
+        NSLog(@"[Purchases] trackAdLoaded: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackAdFailedToLoad:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdFailedToLoad: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdFailedToLoad:data];
+    } else {
+        NSLog(@"[Purchases] trackAdFailedToLoad: requires iOS 15.0+, skipping");
+    }
 }
 
 - (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
@@ -705,7 +820,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"9.0.1";
+    return @"9.5.3";
 }
 
 @end
@@ -729,7 +844,10 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *userDefaultsSuiteName,
                        const char *dangerousSettingsJson,
                        const BOOL shouldShowInAppMessagesAutomatically,
-                       const char *entitlementVerificationMode) {
+                       const char *entitlementVerificationMode,
+                       const BOOL diagnosticsEnabled,
+                       const BOOL automaticDeviceIdentifierCollectionEnabled,
+                       const char *preferredUILocaleOverride) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
@@ -738,7 +856,10 @@ void _RCSetupPurchases(const char *gameObject,
                      userDefaultsSuiteName:convertCString(userDefaultsSuiteName)
                      dangerousSettingsJson:convertCString(dangerousSettingsJson)
       shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
-               entitlementVerificationMode:convertCString(entitlementVerificationMode)];
+               entitlementVerificationMode:convertCString(entitlementVerificationMode)
+                        diagnosticsEnabled:diagnosticsEnabled
+automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
+                 preferredUILocaleOverride:convertCString(preferredUILocaleOverride)];
 }
 
 void _RCGetStorefront() {
@@ -868,6 +989,10 @@ void _RCInvalidateCustomerInfoCache() {
     [_RCUnityHelperShared() invalidateCustomerInfoCache];
 }
 
+void _RCOverridePreferredUILocale(const char *locale) {
+    [_RCUnityHelperShared() overridePreferredUILocale:convertCString(locale)];
+}
+
 void _RCPresentCodeRedemptionSheet() {
     [_RCUnityHelperShared() presentCodeRedemptionSheet];
 }
@@ -967,6 +1092,21 @@ void _RCSetCreative(const char *creative) {
     [_RCUnityHelperShared() setCreative:convertCString(creative)];
 }
 
+void _RCSetAppsFlyerConversionData(const char *conversionDataJSON) {
+    NSError *error = nil;
+    NSData *conversionDataAsData = [convertCString(conversionDataJSON) dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *conversionData = [NSJSONSerialization JSONObjectWithData:conversionDataAsData
+                                                                  options:0
+                                                                    error:&error];
+
+    if (error) {
+        NSLog(@"Error parsing conversion data JSON: %s %@", conversionDataJSON, error.localizedDescription);
+        return;
+    }
+
+    [_RCUnityHelperShared() setAppsFlyerConversionData:conversionData];
+}
+
 void _RCCollectDeviceIdentifiers() {
     [_RCUnityHelperShared() collectDeviceIdentifiers];
 }
@@ -1053,6 +1193,67 @@ void _RCPurchasePackageWithWinBackOffer(const char *packageIdentifier, const cha
     [_RCUnityHelperShared() purchasePackageWithWinBackOffer:packageIdentifierString presentedOfferingContextJson:presentedOfferingContextJsonString winBackOfferIdentifier:winBackOfferIdentifierString];
 }
 
-void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId) {
-    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId) offeringId:convertCString(offeringId)];
+void _RCTrackCustomPaywallImpression(const char *paywallId, const char *offeringId, const char *presentedOfferingContextJson) {
+    [_RCUnityHelperShared() trackCustomPaywallImpression:convertCString(paywallId)
+                                              offeringId:convertCString(offeringId)
+                                presentedOfferingContext:convertCString(presentedOfferingContextJson)];
 }
+
+void _RCTrackAdDisplayed(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdDisplayed:convertCString(dataJson)];
+}
+
+void _RCTrackAdOpened(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdOpened:convertCString(dataJson)];
+}
+
+void _RCTrackAdRevenue(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdRevenue:convertCString(dataJson)];
+}
+
+void _RCTrackAdLoaded(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdLoaded:convertCString(dataJson)];
+}
+
+void _RCTrackAdFailedToLoad(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
+}
+
+@implementation NSObject (NSNullMapping)
+
+- (id)mappingNSNullToNil {
+    if ([self isKindOfClass:[NSNull class]]) {
+        return nil;
+    } else if ([self isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *filteredDict = [NSMutableDictionary dictionary];
+        NSDictionary *originalDict = (NSDictionary *)self;
+
+        for (id key in originalDict) {
+            id value = [originalDict[key] mappingNSNullToNil];
+            if (value) {
+                // Only add non-nil values to the dictionary
+                filteredDict[key] = value;
+            }
+        }
+
+        return [NSDictionary dictionaryWithDictionary:filteredDict];
+
+    } else if ([self isKindOfClass:NSArray.class]) {
+        NSMutableArray *filteredArray = [NSMutableArray array];
+        NSArray *originalArray = (NSArray *)self;
+
+        for (id value in originalArray) {
+            id newValue = [value mappingNSNullToNil];
+            if (newValue) {
+                // Only add non-nil values to the array
+                [filteredArray addObject:newValue];
+            }
+        }
+
+        return [NSArray arrayWithArray:filteredArray];
+    }
+
+    return self;
+}
+
+@end

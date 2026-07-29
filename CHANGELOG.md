@@ -1,3 +1,185 @@
+## 9.5.3
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.23.0 (#1002) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.15.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.15.0)
+  * [iOS 5.81.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.81.2)
+
+### 🔄 Other Changes
+* Add DangerousSettings support for enabling workflows (#996) via Cesar de la Vega (@vegaro)
+* Clean up Subtester sample project (#999) via Cesar de la Vega (@vegaro)
+
+## 9.5.2
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.22.2 (#993) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.14.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.14.1)
+  * [Android 10.14.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.14.0)
+  * [Android 10.13.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.13.0)
+  * [iOS 5.81.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.81.1)
+  * [iOS 5.81.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.81.0)
+  * [iOS 5.80.3](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.3)
+
+### 🔄 Other Changes
+* Bump fastlane-plugin-revenuecat_internal from `9b928b6` to `b52fca5` (#994) via dependabot[bot] (@dependabot[bot])
+* chore: bump fastlane-plugin-revenuecat_internal to unblock hybrid bumps (#992) via Antonio Pallares (@ajpallares)
+* Bump fastlane-plugin-revenuecat_internal from `dab6765` to `c970fb6` (#989) via dependabot[bot] (@dependabot[bot])
+
+## 9.5.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.21.0 (#986) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.13.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.13.0)
+  * [iOS 5.80.3](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.3)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.19.1 (#982) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump excon from 0.112.0 to 1.5.0 in /IntegrationTests (#987) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane from 2.236.1 to 2.237.0 (#983) via dependabot[bot] (@dependabot[bot])
+
+## 9.5.0
+## RevenueCat SDK
+### ✨ New Features
+* Add preferred UI locale override, diagnosticsEnabled and automaticDeviceIdentifierCollectionEnabled configuration options (#978) via Álvaro Brey (@AlvaroBrey)
+### 🐞 Bugfixes
+* (breaking) Change SubscriptionOption.Price.AmountMicros from int to long to avoid overflow (#980) via Álvaro Brey (@AlvaroBrey)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.19.0 (#979) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.12.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.12.0)
+  * [iOS 5.80.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.2)
+  * [iOS 5.80.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.1)
+
+## 9.4.0
+## RevenueCat SDK
+### ✨ New Features
+* feat: Expose autoResumeDate/displayName/managementURL/productPlanIdentifier on SubscriptionInfo (#968) via Álvaro Brey (@AlvaroBrey)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.18.0 (#972) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.11.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.11.0)
+  * [Android 10.10.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.10.0)
+  * [iOS 5.80.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.80.0)
+  * [iOS 5.79.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.79.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.17.0 (#970) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.16.0 (#969) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump faraday from 1.10.5 to 1.10.6 (#974) via dependabot[bot] (@dependabot[bot])
+* Bump faraday from 1.10.5 to 1.10.6 in /IntegrationTests (#975) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `70bf5c7` to `dab6765` (#973) via dependabot[bot] (@dependabot[bot])
+* Bump concurrent-ruby from 1.3.6 to 1.3.7 in /IntegrationTests (#965) via dependabot[bot] (@dependabot[bot])
+* Bump nokogiri from 1.19.3 to 1.19.4 (#966) via dependabot[bot] (@dependabot[bot])
+* Bump danger from 9.5.3 to 9.6.0 (#964) via dependabot[bot] (@dependabot[bot])
+* Update sdks-common-config orb to 3.21.2 (#963) via Antonio Pallares (@ajpallares)
+
+## 9.3.0
+## RevenueCat SDK
+### ✨ New Features
+* Add presentedOfferingContext support to custom paywall impression events (#959) via Rick (@rickvdl)
+* feat: Add SetAppsFlyerConversionData (#956) via Toni Rico (@tonidero)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.15.1 (#958) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.9.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.9.1)
+  * [Android 10.9.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.9.0)
+  * [iOS 5.78.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.78.0)
+  * [iOS 5.77.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.77.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.15.0 (#955) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.14.1 (#954) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* chore: Add 3-day Dependabot cooldown, excluding fastlane plugin (#961) via Toni Rico (@tonidero)
+* Bump fastlane-plugin-revenuecat_internal from `ce6a7ef` to `70bf5c7` (#957) via dependabot[bot] (@dependabot[bot])
+* ci: Enforce @Keep on public Android bridge types (#953) via Toni Rico (@tonidero)
+* refactor: Add keep rules for java types (#949) via Toni Rico (@tonidero)
+* Bump fastlane from 2.236.0 to 2.236.1 (#951) via dependabot[bot] (@dependabot[bot])
+
+## 9.2.0
+## RevenueCat SDK
+### ✨ New Features
+* Expose OriginalJson and Signature on StoreTransaction (#943) via Toni Rico (@tonidero)
+### 🐞 Bugfixes
+* fix(android): remove unused RevenueCatUI ProGuard config (#945) via Rick (@rickvdl)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.11.0 (#946) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump fastlane from 2.235.0 to 2.236.0 (#947) via dependabot[bot] (@dependabot[bot])
+
+## 9.1.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix Android paywall ignoring bottom safe area in fullscreen Unity host (#926) via Toni Rico (@tonidero)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.10.0 (#942) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.8.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.8.0)
+  * [iOS 5.76.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.76.0)
+
+## 9.1.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.9.1 (#938) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.7.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.7.0)
+  * [iOS 5.75.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.75.0)
+
+### 🔄 Other Changes
+* Bump fastlane-plugin-revenuecat_internal from `af7bb5c` to `ce6a7ef` (#940) via dependabot[bot] (@dependabot[bot])
+* Bump jwt from 2.10.2 to 3.2.0 in /IntegrationTests (#935) via dependabot[bot] (@dependabot[bot])
+
+## 9.1.0
+## RevenueCat SDK
+### ✨ New Features
+* feat: ad tracking API (#927) via Peter Porfy (@peterporfy)
+* Add SPM support for iOS dependencies (#916) via Rick (@rickvdl)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.8.0 (#933) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.6.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.6.1)
+  * [iOS 5.74.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.74.0)
+  * [iOS 5.73.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.73.1)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.7.1 (#932) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump fastlane from 2.234.0 to 2.235.0 (#934) via dependabot[bot] (@dependabot[bot])
+
+## 9.0.4
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.7.0 (#929) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.6.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.6.0)
+  * [iOS 5.73.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.73.0)
+
+## 9.0.3
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.6.0 (#924) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.5.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.5.0)
+  * [Android 10.4.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.4.0)
+  * [iOS 5.72.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.72.0)
+  * [iOS 5.71.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.71.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.5.0 (#923) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump fastlane from 2.233.1 to 2.234.0 (#925) via dependabot[bot] (@dependabot[bot])
+
+## 9.0.2
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.4.0 (#921) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.3.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.3.1)
+  * [Android 10.3.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.3.0)
+  * [Android 10.2.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.2.1)
+  * [iOS 5.70.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.70.0)
+  * [iOS 5.69.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.69.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.3.0 (#918) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.2.0 (#914) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Bump fastlane-plugin-revenuecat_internal from `21e02ec` to `af7bb5c` (#920) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `2d11430` to `21e02ec` (#919) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `d24ab26` to `2d11430` (#915) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane from 2.233.0 to 2.233.1 (#913) via dependabot[bot] (@dependabot[bot])
+* Remove update_fastlane from before_all (#912) via Antonio Pallares (@ajpallares)
+* Bump fastlane-plugin-revenuecat_internal from `b822f01` to `d24ab26` (#911) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `e348913` to `b822f01` (#910) via dependabot[bot] (@dependabot[bot])
+
 ## 9.0.1
 ## RevenueCat SDK
 ### 📦 Dependency Updates

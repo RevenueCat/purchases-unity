@@ -51,6 +51,14 @@ namespace RevenueCat.Tester.Screens
                 Log($"simulatesAskToBuyInSandbox = {_simulatesAskToBuy}");
             });
 
+            var localeField = AddTextField("Preferred UI Locale", "e.g. es_ES", "es_ES");
+            AddSecondaryButton("Override Preferred UI Locale", () =>
+            {
+                var locale = string.IsNullOrEmpty(localeField.value) ? null : localeField.value;
+                Purchases.OverridePreferredUILocale(locale);
+                Log($"OverridePreferredUILocale({locale ?? "null"})");
+            });
+
             AddSecondaryButton("Present Code Redemption Sheet", () =>
             {
                 Log("Presenting code redemption sheet...");

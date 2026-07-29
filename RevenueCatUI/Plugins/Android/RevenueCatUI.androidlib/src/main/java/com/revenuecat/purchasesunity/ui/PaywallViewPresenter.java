@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,9 +19,11 @@ import android.window.OnBackInvokedDispatcher;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
@@ -32,6 +35,11 @@ import com.revenuecat.purchases.Package;
 import com.revenuecat.purchases.PresentedOfferingContext;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.PurchasesError;
+import com.revenuecat.purchases.hybridcommon.mappers.CustomerInfoMapperKt;
+import com.revenuecat.purchases.hybridcommon.mappers.MappersHelpersKt;
+import com.revenuecat.purchases.hybridcommon.mappers.OfferingsMapperKt;
+import com.revenuecat.purchases.hybridcommon.mappers.PurchasesErrorKt;
+import com.revenuecat.purchases.hybridcommon.mappers.StoreTransactionMapperKt;
 import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 import com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback;
 import com.revenuecat.purchases.models.StoreTransaction;
@@ -42,6 +50,7 @@ import com.revenuecat.purchases.ui.revenuecatui.views.PaywallView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -50,6 +59,7 @@ import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 
 import kotlin.Unit;
 
+@Keep
 public class PaywallViewPresenter {
 
     private static final String TAG = "PurchasesUnity";
@@ -71,6 +81,14 @@ public class PaywallViewPresenter {
     private static volatile String lastResult;
     private static PaywallBackPressedOwner backPressedOwner;
     private static volatile HybridPurchaseLogicBridge currentPurchaseLogicBridge;
+
+    // Number of listener-forwarded purchases that set FLAG_NOT_FOCUSABLE and have not yet
+    // been acknowledged by C# (see onPaywallListenerEventProcessed). The flag is only
+    // cleared when this reaches zero, so a stale acknowledgement from a previous purchase
+    // cannot clear the flag while a newer purchase is in flight, and acknowledgements for
+    // events that never set the flag (restore terminals, MY_APP error/cancel events) are
+    // no-ops and cannot clear a flag owned by the PurchaseLogic path.
+    private static int pendingListenerFlagOps = 0;
 
     /**
      * A simple OnBackPressedDispatcherOwner that provides the OnBackPressedDispatcher
@@ -112,7 +130,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -121,7 +140,7 @@ public class PaywallViewPresenter {
         }
 
         activity.runOnUiThread(() ->
-                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic)
+                showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener)
         );
     }
 
@@ -132,7 +151,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         if (activity == null) {
             Log.e(TAG, "Activity is null; cannot present paywall");
@@ -154,7 +174,7 @@ public class PaywallViewPresenter {
                     RevenueCatUI.sendPaywallResult(RESULT_NOT_PRESENTED);
                 } else {
                     activity.runOnUiThread(() ->
-                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic)
+                            showPaywallView(activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener)
                     );
                 }
             }
@@ -176,7 +196,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         if (currentDialog != null) {
             Log.w(TAG, "Paywall is already being presented");
@@ -190,21 +211,20 @@ public class PaywallViewPresenter {
         currentDialog = dialog;
 
         PaywallView paywallView = createPaywallView(
-                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic
+                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener
         );
 
         setupBackPressedOwner(dialog.getWindow());
         setupBackPressRouting(dialog);
         setupDismissListener(dialog);
 
-        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView);
+        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView, dialog.getWindow());
         dialog.setContentView(container, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         ));
 
         dialog.show();
-        applyEdgeToEdgeFlags(dialog.getWindow());
     }
 
     /**
@@ -223,9 +243,10 @@ public class PaywallViewPresenter {
 
             // NOTE: FLAG_NOT_FOCUSABLE is NOT set here so the Dialog can receive
             // back navigation events (key events on pre-API 33, gesture back on
-            // API 33+). For PurchaseLogic, FLAG_NOT_FOCUSABLE is toggled on/off
-            // only during active purchase/restore operations to fix a threading
-            // issue with PurchasesAreCompletedBy.MyApp.
+            // API 33+). For PurchaseLogic and paywall listener events,
+            // FLAG_NOT_FOCUSABLE is toggled on/off only during active
+            // purchase/restore operations so Unity's window keeps focus and its
+            // player loop stays running while C# callbacks need to execute.
 
             window.setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -254,7 +275,8 @@ public class PaywallViewPresenter {
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
-            boolean hasPurchaseLogic
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
     ) {
         PaywallView paywallView = new PaywallView(activity);
 
@@ -270,7 +292,7 @@ public class PaywallViewPresenter {
         }
 
         paywallView.setDisplayDismissButton(displayCloseButton);
-        paywallView.setPaywallListener(createPaywallListener());
+        paywallView.setPaywallListener(createPaywallListener(hasPaywallListener));
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
                 if (currentDialog != null) {
@@ -317,28 +339,66 @@ public class PaywallViewPresenter {
         return paywallView;
     }
 
-    private static PaywallListener createPaywallListener() {
+    // When forwarding events, FLAG_NOT_FOCUSABLE is set on the dialog while a purchase
+    // is in flight, and cleared only after C# acknowledges the terminal event
+    // (see onPaywallListenerEventProcessed). Unity's player loop pauses when its Activity
+    // is paused (e.g. by the billing Activity) and only resumes once Unity's window regains
+    // focus. If the dialog stayed focusable, Unity would remain paused after the billing
+    // sheet closed and queued listener events would not be delivered until the paywall was
+    // dismissed. This mirrors the FLAG_NOT_FOCUSABLE handling used for PurchaseLogic.
+    private static PaywallListener createPaywallListener(boolean forwardEvents) {
         return new PaywallListener() {
             @Override
             public void onRestoreError(@NonNull PurchasesError purchasesError) {
-                setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    emitErrorEvent("onRestoreError", purchasesError, false);
+                } else {
+                    setDialogNotFocusable(false);
+                }
             }
 
             @Override
-            public void onRestoreStarted() {}
+            public void onRestoreStarted() {
+                // No FLAG_NOT_FOCUSABLE here: restores never launch an Activity, so Unity's
+                // player loop keeps running and events deliver without it. Setting it would
+                // only risk dead back navigation on a hung restore without a close button.
+                if (forwardEvents) {
+                    RevenueCatUI.sendPaywallEvent("onRestoreStarted", null);
+                }
+            }
 
             @Override
             public void onPurchaseError(@NonNull PurchasesError purchasesError) {
                 lastResult = RESULT_ERROR;
-                setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    emitErrorEvent("onPurchaseError", purchasesError, true);
+                } else {
+                    setDialogNotFocusable(false);
+                }
             }
 
             @Override
-            public void onPurchaseStarted(@NonNull Package aPackage) {}
+            public void onPurchaseStarted(@NonNull Package aPackage) {
+                if (forwardEvents) {
+                    pendingListenerFlagOps++;
+                    setDialogNotFocusable(true);
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("package", MappersHelpersKt.convertToJson(OfferingsMapperKt.map(aPackage)));
+                        RevenueCatUI.sendPaywallEvent("onPurchaseStarted", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onPurchaseStarted event: " + e.getMessage());
+                    }
+                }
+            }
 
             @Override
             public void onPurchaseCancelled() {
-                setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    RevenueCatUI.sendPaywallEvent("onPurchaseCancelled", null);
+                } else {
+                    setDialogNotFocusable(false);
+                }
             }
 
             @Override
@@ -355,15 +415,74 @@ public class PaywallViewPresenter {
             public void onPurchaseCompleted(@NonNull CustomerInfo customerInfo,
                                             @NonNull StoreTransaction storeTransaction) {
                 lastResult = RESULT_PURCHASED;
-                setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("customerInfo", MappersHelpersKt.convertToJson(CustomerInfoMapperKt.map(customerInfo)));
+                        payload.put("storeTransaction", MappersHelpersKt.convertToJson(StoreTransactionMapperKt.map(storeTransaction)));
+                        RevenueCatUI.sendPaywallEvent("onPurchaseCompleted", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onPurchaseCompleted event: " + e.getMessage());
+                        // No acknowledgement will come for this event; release its flag op.
+                        releaseListenerFlagOp();
+                    }
+                } else {
+                    setDialogNotFocusable(false);
+                }
             }
 
             @Override
             public void onRestoreCompleted(@NonNull CustomerInfo customerInfo) {
                 lastResult = RESULT_RESTORED;
-                setDialogNotFocusable(false);
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("customerInfo", MappersHelpersKt.convertToJson(CustomerInfoMapperKt.map(customerInfo)));
+                        RevenueCatUI.sendPaywallEvent("onRestoreCompleted", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onRestoreCompleted event: " + e.getMessage());
+                    }
+                } else {
+                    setDialogNotFocusable(false);
+                }
             }
         };
+    }
+
+    private static void emitErrorEvent(String eventName, PurchasesError purchasesError, boolean releaseFlagOpOnFailure) {
+        try {
+            JSONObject payload = new JSONObject();
+            Map<String, ?> errorMap = PurchasesErrorKt.map(purchasesError, Collections.emptyMap()).getInfo();
+            payload.put("error", MappersHelpersKt.convertToJson(errorMap));
+            RevenueCatUI.sendPaywallEvent(eventName, payload.toString());
+        } catch (Throwable e) {
+            Log.w(TAG, "Failed to send " + eventName + " event: " + e.getMessage());
+            if (releaseFlagOpOnFailure) {
+                releaseListenerFlagOp();
+            }
+        }
+    }
+
+    /**
+     * Called from C# after a terminal paywall listener event (purchase/restore completed,
+     * error, or cancelled) has been dispatched on the Unity main thread. Releases one
+     * pending flag op and clears FLAG_NOT_FOCUSABLE when none remain, so the dialog
+     * receives back navigation again. The clear is deferred to this acknowledgement
+     * (instead of happening in the native listener callback) so the dialog does not take
+     * window focus back before Unity's player loop has resumed and pumped the queued
+     * events. Counting (rather than clearing unconditionally) means a stale
+     * acknowledgement from a previous purchase cannot clear the flag while a newer
+     * purchase is in flight, and acknowledgements for events that never set the flag
+     * are no-ops.
+     */
+    public static void onPaywallListenerEventProcessed() {
+        new Handler(Looper.getMainLooper()).post(PaywallViewPresenter::releaseListenerFlagOp);
+    }
+
+    private static void releaseListenerFlagOp() {
+        if (pendingListenerFlagOps > 0 && --pendingListenerFlagOps == 0) {
+            setDialogNotFocusable(false);
+        }
     }
 
     // endregion
@@ -371,70 +490,101 @@ public class PaywallViewPresenter {
     // region Edge-to-edge
 
     /**
-     * Wraps the PaywallView in a container that provides corrected window insets.
+     * Wraps the PaywallView in a container whose inset listener forwards the dialog
+     * window's status and navigation bar insets to the Compose content.
      *
-     * FLAG_LAYOUT_NO_LIMITS (applied later) is needed to draw the paywall behind the
-     * status bar and navigation bar, but it causes the system to report zero insets.
-     * This container intercepts the zero insets and replaces them with the real system
-     * bar values so the PaywallView's Compose content can pad itself appropriately.
+     * Insets must be read from the dialog window, not the host activity, because the host
+     * (e.g. Unity with unity.launch-fullscreen=True) may hide system bars, which makes
+     * the activity report zero nav-bar insets while the dialog still shows them.
+     *
+     * The listener also defers FLAG_LAYOUT_NO_LIMITS until after the first inset dispatch
+     * (see {@link InsetsCachingListener}).
      */
-    private static FrameLayout createEdgeToEdgeContainer(Activity activity, PaywallView paywallView) {
-        final Insets statusBarInsets = getActivityInsets(activity, WindowInsetsCompat.Type.statusBars());
-        final Insets navBarInsets = getActivityInsets(activity, WindowInsetsCompat.Type.navigationBars());
-
+    private static FrameLayout createEdgeToEdgeContainer(
+            Activity activity, PaywallView paywallView, @Nullable Window dialogWindow) {
         FrameLayout container = new FrameLayout(activity);
         container.addView(paywallView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         ));
 
-        ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
-            WindowInsetsCompat corrected = new WindowInsetsCompat.Builder(insets)
-                    .setInsets(WindowInsetsCompat.Type.statusBars(), statusBarInsets)
-                    .setInsets(WindowInsetsCompat.Type.navigationBars(), navBarInsets)
-                    .build();
-            ViewCompat.dispatchApplyWindowInsets(paywallView, corrected);
-            return corrected;
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(container,
+                new InsetsCachingListener(paywallView, dialogWindow));
 
         return container;
     }
 
     /**
-     * Reads the real insets of the given type from the activity's window.
-     * Falls back to the status_bar_height system resource for status bar insets
-     * if the activity's insets are not yet available.
+     * Inset listener that forwards the dialog window's status and navigation bar insets to
+     * the PaywallView. Triggers FLAG_LAYOUT_NO_LIMITS on the dialog window once it has
+     * observed a real (non-zero) inset, to avoid a race where the flag would be set before
+     * any inset has been dispatched.
+     *
+     * On API 30+ the typed insets ({@link WindowInsetsCompat.Type#statusBars()} and
+     * {@link WindowInsetsCompat.Type#navigationBars()}) are descriptive: they keep being
+     * dispatched with real values across configuration changes (rotation, fold/unfold,
+     * multi-window resize) regardless of FLAG_LAYOUT_NO_LIMITS, so each new dispatch
+     * refreshes the cache and downstream Compose padding stays correct. FLAG_LAYOUT_NO_LIMITS
+     * only zeroes the legacy {@code getSystemWindowInsets()} surface, which this listener
+     * does not read.
+     *
+     * The cache is kept as a defensive fallback for older APIs or edge configurations where
+     * a dispatch might transiently arrive with zero typed values.
      */
-    private static Insets getActivityInsets(Activity activity, int insetsType) {
-        WindowInsetsCompat activityInsets = ViewCompat.getRootWindowInsets(
-                activity.getWindow().getDecorView());
-        if (activityInsets != null) {
-            return activityInsets.getInsets(insetsType);
+    private static final class InsetsCachingListener implements OnApplyWindowInsetsListener {
+        private final PaywallView paywallView;
+        @Nullable private final Window dialogWindow;
+        @Nullable private Insets cachedStatusBars;
+        @Nullable private Insets cachedNavBars;
+        private boolean edgeToEdgeFlagsApplied;
+
+        InsetsCachingListener(PaywallView paywallView, @Nullable Window dialogWindow) {
+            this.paywallView = paywallView;
+            this.dialogWindow = dialogWindow;
         }
-        if (insetsType == WindowInsetsCompat.Type.statusBars()) {
-            int sbHeight = getSystemBarHeight(activity, "status_bar_height");
-            return Insets.of(0, sbHeight, 0, 0);
+
+        @NonNull
+        @Override
+        public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+            Insets incomingStatusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            Insets incomingNavBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+            if (!Insets.NONE.equals(incomingStatusBars)) {
+                cachedStatusBars = incomingStatusBars;
+            }
+            if (!Insets.NONE.equals(incomingNavBars)) {
+                cachedNavBars = incomingNavBars;
+            }
+
+            Insets effectiveStatusBars = cachedStatusBars != null ? cachedStatusBars : incomingStatusBars;
+            Insets effectiveNavBars = cachedNavBars != null ? cachedNavBars : incomingNavBars;
+
+            WindowInsetsCompat corrected = new WindowInsetsCompat.Builder(insets)
+                    .setInsets(WindowInsetsCompat.Type.statusBars(), effectiveStatusBars)
+                    .setInsets(WindowInsetsCompat.Type.navigationBars(), effectiveNavBars)
+                    .build();
+            ViewCompat.dispatchApplyWindowInsets(paywallView, corrected);
+
+            if (!edgeToEdgeFlagsApplied && (cachedStatusBars != null || cachedNavBars != null)) {
+                edgeToEdgeFlagsApplied = true;
+                v.post(() -> applyEdgeToEdgeFlags(dialogWindow));
+            }
+
+            return corrected;
         }
-        return Insets.NONE;
     }
 
     /**
-     * Applies edge-to-edge window flags after the dialog is shown.
-     * Must be called after {@link Dialog#show()} so the decor view is attached.
+     * Applies edge-to-edge window flags. Called by {@link InsetsCachingListener} after the
+     * first real inset dispatch has been observed and cached.
      */
     private static void applyEdgeToEdgeFlags(@Nullable Window window) {
         if (window == null) return;
-        window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(Color.TRANSPARENT);
-        window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-    }
-
-    private static int getSystemBarHeight(Activity activity, String resourceName) {
-        int resourceId = activity.getResources().getIdentifier(resourceName, "dimen", "android");
-        if (resourceId > 0) {
-            return activity.getResources().getDimensionPixelSize(resourceId);
+        if (Build.VERSION.SDK_INT < 35) {
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
-        return 0;
+        window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
     }
 
     // endregion
@@ -512,6 +662,7 @@ public class PaywallViewPresenter {
         Dialog dialog = currentDialog;
         currentDialog = null;
         lastResult = null;
+        pendingListenerFlagOps = 0;
         if (dialog != null) {
             try {
                 dialog.dismiss();
