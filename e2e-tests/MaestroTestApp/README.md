@@ -23,14 +23,19 @@ for detailed step-by-step instructions.
 ## API Key
 
 The app initialises RevenueCat with the placeholder `MAESTRO_TESTS_REVENUECAT_API_KEY`.
-In CI, the Fastlane lane replaces this placeholder with the real key from the
+CI replaces this placeholder with the real key from the
 `RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE` environment variable (provided by the
 CircleCI `e2e-tests` context) before building.
 
 To run locally, either:
 - Replace the placeholder in `Assets/Scripts/MaestroTestApp.cs` with a valid API key
   (do **not** commit it), or
-- Export the env var and run the same `sed` command the Fastlane lane uses.
+- Substitute it the same way CI does:
+
+```sh
+sed -i '' "s|MAESTRO_TESTS_REVENUECAT_API_KEY|$RC_E2E_TEST_API_KEY_PRODUCTION_TEST_STORE|g" \
+  Assets/Scripts/MaestroTestApp.cs
+```
 
 ## RevenueCat Project
 
