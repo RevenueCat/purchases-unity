@@ -1,6 +1,12 @@
+// Both players need a native accessibility overlay for Maestro to see the uGUI.
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+#define ACCESSIBILITY_OVERLAY
+#endif
+
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Runtime.InteropServices;
 using RevenueCatUI;
 
 [DefaultExecutionOrder(100)]
@@ -15,8 +21,21 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 
     private Purchases purchases;
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if ACCESSIBILITY_OVERLAY
+    private bool overlayReady;
+#if UNITY_ANDROID
     private AndroidJavaClass nativeOverlay;
+#else
+    [DllImport("__Internal")]
+    private static extern void NativeAccessibilityOverlayInit();
+
+    [DllImport("__Internal")]
+    private static extern void NativeAccessibilityOverlaySetElement(string id, string text,
+        int left, int top, int right, int bottom);
+
+    [DllImport("__Internal")]
+    private static extern void NativeAccessibilityOverlayClear();
+#endif
 #endif
 
     void Start()
@@ -35,18 +54,8 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             errorLabel.gameObject.SetActive(false);
         }
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        try
-        {
-            nativeOverlay = new AndroidJavaClass("com.revenuecat.accessibility.NativeAccessibilityOverlay");
-            nativeOverlay.CallStatic("init");
-            Debug.Log("MaestroTestApp: NativeAccessibilityOverlay initialized");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("NativeAccessibilityOverlay init failed: " + e);
-            nativeOverlay = null;
-        }
+#if ACCESSIBILITY_OVERLAY
+        InitOverlay();
 #endif
 
         WireButtons();
@@ -84,7 +93,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     {
         testCasesScreen.SetActive(true);
         purchaseScreen.SetActive(false);
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if ACCESSIBILITY_OVERLAY
         StartCoroutine(UpdateOverlay("testCases"));
 #endif
     }
@@ -96,7 +105,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         purchaseScreen.SetActive(true);
         ClearError();
         UpdateEntitlements();
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if ACCESSIBILITY_OVERLAY
         StartCoroutine(UpdateOverlay("purchase"));
 #endif
     }
@@ -138,7 +147,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         {
             string text = "Entitlements: " + (hasPro ? "pro" : "none");
             entitlementsLabel.text = text;
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if ACCESSIBILITY_OVERLAY
             // Customer info also arrives while the test cases screen is showing. Exposing
             // the label then would let an "Entitlements: ..." assertion pass on the wrong
             // screen and hide a navigation that never happened.
@@ -167,13 +176,37 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         }
     }
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if ACCESSIBILITY_OVERLAY
+    private void InitOverlay()
+    {
+        try
+        {
+#if UNITY_ANDROID
+            nativeOverlay = new AndroidJavaClass("com.revenuecat.accessibility.NativeAccessibilityOverlay");
+            nativeOverlay.CallStatic("init");
+#else
+            NativeAccessibilityOverlayInit();
+#endif
+            overlayReady = true;
+            Debug.Log("MaestroTestApp: NativeAccessibilityOverlay initialized");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("NativeAccessibilityOverlay init failed: " + e);
+            overlayReady = false;
+        }
+    }
+
     private IEnumerator UpdateOverlay(string screen)
     {
         yield return null; // wait one frame for layout
 
-        if (nativeOverlay == null) yield break;
+        if (!overlayReady) yield break;
+#if UNITY_ANDROID
         nativeOverlay.CallStatic("clear");
+#else
+        NativeAccessibilityOverlayClear();
+#endif
 
         if (screen == "testCases")
         {
@@ -202,7 +235,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 
     private void SetOverlayElement(string id, string text, RectTransform rt)
     {
-        if (rt == null || nativeOverlay == null) return;
+        if (rt == null || !overlayReady) return;
 
         Vector3[] corners = new Vector3[4];
         rt.GetWorldCorners(corners);
@@ -212,7 +245,11 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         int top    = Screen.height - Mathf.RoundToInt(corners[1].y);
         int bottom = Screen.height - Mathf.RoundToInt(corners[0].y);
 
+#if UNITY_ANDROID
         nativeOverlay.CallStatic("setElement", id, text, left, top, right, bottom);
+#else
+        NativeAccessibilityOverlaySetElement(id, text, left, top, right, bottom);
+#endif
     }
 #endif
 }
