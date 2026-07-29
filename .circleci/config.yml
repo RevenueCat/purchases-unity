@@ -533,6 +533,20 @@ jobs:
               -executeMethod BuildScript.BuildAndroid \
               -nographics \
               -logFile /dev/stdout
+      - run:
+          name: Check the resolved native dependency matches the SDK
+          command: |
+            TEMPLATE=e2e-tests/MaestroTestApp/Assets/Plugins/Android/mainTemplate.gradle
+            DECLARED=$(sed -n 's/.*purchases-hybrid-common:\[\([^]]*\)\].*/\1/p' \
+              RevenueCat/Plugins/Editor/RevenueCatDependencies.xml | head -1)
+            RESOLVED=$(sed -n 's/.*purchases-hybrid-common:\[\([^]]*\)\].*/\1/p' "$TEMPLATE" | head -1)
+            echo "declared=$DECLARED resolved=$RESOLVED"
+            # An empty resolved version means dependency resolution never ran, which
+            # would silently test against whatever this file happened to contain.
+            if [ "$DECLARED" != "$RESOLVED" ]; then
+              echo "The Android build resolved PurchasesHybridCommon '$RESOLVED' but the SDK declares '$DECLARED'"
+              exit 1
+            fi
       - persist_to_workspace:
           root: .
           paths:

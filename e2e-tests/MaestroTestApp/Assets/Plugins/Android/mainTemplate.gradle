@@ -15,10 +15,9 @@ apply plugin: 'com.android.library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 // Android Resolver Dependencies Start
-    implementation 'androidx.annotation:annotation:[1.2.0]'
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[18.1.0]'
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:[18.1.0]'
-    implementation 'androidx.activity:activity:1.8.2'
+// Left empty on purpose: the External Dependency Manager fills this in from the
+// SDK's *Dependencies.xml at resolution time. Pinning versions here by hand is
+// how this file ended up two dozen minor versions behind the SDK.
 // Android Resolver Dependencies End
 **DEPS**}
 
