@@ -90,8 +90,9 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             return;
         }
 
-        // Refreshed here rather than relying on CustomerInfoReceived, so the entitlement
-        // text is settled by the time the paywall is gone and assertions can run.
+        // Kick off a refresh rather than relying on CustomerInfoReceived alone. The fetch
+        // is async, so the label changes only once the callback lands, which is why the
+        // flows wait for the entitlement text instead of asserting on it straight away.
         UpdateEntitlements();
     }
 
