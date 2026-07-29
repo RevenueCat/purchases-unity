@@ -593,15 +593,6 @@ jobs:
       - run:
           name: Build the Unity-generated Xcode project
           command: bundle exec fastlane xcode_build_maestro_test_app
-          no_output_timeout: 30m
-      - run:
-          name: List Swift package resource bundles
-          command: |
-            PRODUCTS=e2e-tests/MaestroTestApp/build/xcode/Build/Products/Debug-iphonesimulator
-            echo "--- bundles built by the package ---"
-            find "$PRODUCTS" -maxdepth 1 -name "*.bundle" || true
-            echo "--- bundles embedded in the app ---"
-            find "$PRODUCTS/MaestroTestApp.app" -name "*.bundle" || true
       - run:
           name: Wait for iOS Simulator
           command: xcrun simctl bootstatus "iPhone 17" -b
