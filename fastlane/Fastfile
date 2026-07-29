@@ -34,6 +34,10 @@ files_to_update_phc_version = {
         ANDROID_PHC_DEPENDENCY_PATTERN,
         ANDROID_PHC_UI_DEPENDENCY_PATTERN
     ],
+    'e2e-tests/MaestroTestApp/Assets/Plugins/Android/mainTemplate.gradle' => [
+        ANDROID_PHC_DEPENDENCY_PATTERN,
+        ANDROID_PHC_UI_DEPENDENCY_PATTERN
+    ],
     'RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml' => [
         ANDROID_PHC_UI_DEPENDENCY_PATTERN,
         SPM_PHC_DEPENDENCY_PATTERN,
