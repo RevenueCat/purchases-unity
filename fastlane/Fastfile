@@ -214,7 +214,9 @@ lane :run_maestro_e2e_tests_android do
   unless File.exist?(apk_path)
     UI.user_error!("APK not found at #{apk_path}. Build it first with build_maestro_test_app platform:android")
   end
-  sh("adb install '#{apk_path}'")
+  # -r because the flows clear app state but never uninstall, so a second run
+  # against the same emulator would hit INSTALL_FAILED_ALREADY_EXISTS.
+  sh("adb install -r '#{apk_path}'")
   run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
 end
 
