@@ -155,6 +155,21 @@ lane :xcode_build_maestro_test_app do
     "CODE_SIGNING_REQUIRED=NO",
     "CODE_SIGNING_ALLOWED=NO"
   )
+
+  products_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator"
+
+  # Xcode builds a resource bundle for each Swift package target that has resources
+  # but embeds none of them, because the packages are attached to the UnityFramework
+  # target rather than to the app. Without them RevenueCatUI's Bundle.module lookup
+  # reaches a fatalError and the app dies the moment a paywall is presented.
+  bundles = Dir.glob("#{products_path}/*.bundle")
+  if bundles.empty?
+    UI.user_error!("No Swift package resource bundles found in #{products_path}")
+  end
+  bundles.each do |bundle|
+    FileUtils.cp_r(bundle, "#{products_path}/MaestroTestApp.app/", remove_destination: true)
+  end
+  UI.message("Embedded resource bundles: #{bundles.map { |bundle| File.basename(bundle) }.join(', ')}")
 end
 
 desc "Run maestro E2E tests on iOS (booted simulator required)"
