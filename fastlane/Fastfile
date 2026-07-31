@@ -136,6 +136,71 @@ lane :update_hybrid_common do |options|
   )
 end
 
+desc "Build the Unity-generated Xcode project for iOS Simulator"
+lane :xcode_build_maestro_test_app do
+  project_path = "../e2e-tests/MaestroTestApp"
+  xcode_project_path = "#{project_path}/build/ios"
+  derived_data_path = "#{project_path}/build/xcode"
+
+  # PurchasesHybridCommon is injected as a Swift Package during the Unity build
+  # (see BuildScript.AddPurchasesHybridCommonSwiftPackage), so we build the
+  # Unity-generated Xcode project directly and let xcodebuild resolve packages.
+  sh(
+    "xcodebuild", "build",
+    "-project", "#{xcode_project_path}/Unity-iPhone.xcodeproj",
+    "-scheme", "Unity-iPhone",
+    "-configuration", "Debug",
+    "-sdk", "iphonesimulator",
+    "-arch", "arm64",
+    "-derivedDataPath", derived_data_path,
+    "-scmProvider", "system",
+    "SUPPORTED_PLATFORMS=iphonesimulator",
+    "CODE_SIGN_IDENTITY=-",
+    "CODE_SIGNING_REQUIRED=NO",
+    "CODE_SIGNING_ALLOWED=NO"
+  )
+
+  products_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator"
+
+  # Xcode builds a resource bundle for each Swift package target that has resources
+  # but embeds none of them, because the packages are attached to the UnityFramework
+  # target rather than to the app. Without them RevenueCatUI's Bundle.module lookup
+  # reaches a fatalError and the app dies the moment a paywall is presented.
+  bundles = Dir.glob("#{products_path}/*.bundle")
+  if bundles.empty?
+    UI.user_error!("No Swift package resource bundles found in #{products_path}")
+  end
+  bundles.each do |bundle|
+    FileUtils.cp_r(bundle, "#{products_path}/MaestroTestApp.app/", remove_destination: true)
+  end
+  UI.message("Embedded resource bundles: #{bundles.map { |bundle| File.basename(bundle) }.join(', ')}")
+end
+
+desc "Run maestro E2E tests on iOS (booted simulator required)"
+lane :run_maestro_e2e_tests_ios do
+  project_path = "../e2e-tests/MaestroTestApp"
+  derived_data_path = "#{project_path}/build/xcode"
+  app_path = "#{derived_data_path}/Build/Products/Debug-iphonesimulator/MaestroTestApp.app"
+  unless File.directory?(app_path)
+    xcode_build_maestro_test_app
+  end
+  sh("xcrun simctl install booted '#{app_path}'")
+  run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
+end
+
+desc "Run maestro E2E tests on Android (running emulator required)"
+lane :run_maestro_e2e_tests_android do
+  project_path = "../e2e-tests/MaestroTestApp"
+  apk_path = "#{project_path}/build/android/MaestroTestApp.apk"
+  unless File.exist?(apk_path)
+    UI.user_error!("APK not found at #{apk_path}. Build it first by running Unity with -executeMethod BuildScript.BuildAndroid, as build-maestro-test-app-android does.")
+  end
+  # -r because the flows clear app state but never uninstall, so a second run
+  # against the same emulator would hit INSTALL_FAILED_ALREADY_EXISTS.
+  sh("adb install -r '#{apk_path}'")
+  run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
+end
+
 desc "Tag current branch with current version number"
 lane :tag_current_branch do |options|
   version_number = current_version_number
