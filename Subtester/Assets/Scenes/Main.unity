@@ -200,7 +200,6 @@ MonoBehaviour:
   revenueCatAPIKeyAmazon: 
   useAmazon: 0
   autoSyncPurchases: 1
-  useWorkflows: 0
   appUserID: 
   productIdentifiers: []
   listener: {fileID: 0}
@@ -327,7 +326,6 @@ MonoBehaviour:
   styleSheet: {fileID: 7433441132597879392, guid: afe86b1785bae4efca33abf7cb98997a,
     type: 3}
   configureAtRuntime: 1
-  useWorkflows: 0
   defaultOfferingIdentifier: for_exit_offers
   defaultCustomVariables:
   - key: rosie_player_name

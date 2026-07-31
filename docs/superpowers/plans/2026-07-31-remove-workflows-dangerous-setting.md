@@ -63,9 +63,9 @@ UNITY_BIN=/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Uni
     -type f \( -name "*.cs" -o -name "*.asmdef" \) \
     -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
   "$UNITY_BIN" -projectPath IntegrationTests -quit -batchmode -nographics \
-    -disable-assembly-updater -importPackage ../Purchases.unitypackage -logFile .context/import-purchases-red.log
+    -disable-assembly-updater -importPackage ../Purchases.unitypackage -logFile /tmp/tbilisi-import-purchases-red.log
   "$UNITY_BIN" -projectPath IntegrationTests -quit -batchmode -nographics \
-    -disable-assembly-updater -importPackage ../PurchasesUI.unitypackage -logFile .context/import-purchases-ui-red.log
+    -disable-assembly-updater -importPackage ../PurchasesUI.unitypackage -logFile /tmp/tbilisi-import-purchases-ui-red.log
 )
 ```
 
@@ -73,10 +73,10 @@ Then run:
 
 ```bash
 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-  -projectPath IntegrationTests -quit -batchmode -nographics \
+  -projectPath IntegrationTests -batchmode -nographics \
   -disable-assembly-updater -runTests -testPlatform editmode \
   -testFilter RevenueCat.Tests.PurchasesCallTests.ConfigureForwardsEveryConfigurationValue \
-  -testResults .context/workflows-red.xml -logFile .context/workflows-red.log
+  -testResults /tmp/tbilisi-workflows-red.xml -logFile /tmp/tbilisi-workflows-red.log
 ```
 
 Expected: FAIL because the serialized object still contains `UseWorkflows`.
@@ -112,6 +112,8 @@ Remove the unused `System.ComponentModel` import. Remove `experimentalUseWorkflo
 var dangerousSettings = new DangerousSettings(autoSyncPurchases);
 ```
 
+Before exporting, also perform Task 2 Step 4 because the package exporter compiles Subtester against the modified SDK.
+
 - [ ] **Step 4: Re-export/import and verify the focused test passes**
 
 Export and import the packages after the production change:
@@ -134,15 +136,15 @@ UNITY_BIN=/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Uni
     -type f \( -name "*.cs" -o -name "*.asmdef" \) \
     -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
   "$UNITY_BIN" -projectPath IntegrationTests -quit -batchmode -nographics \
-    -disable-assembly-updater -importPackage ../Purchases.unitypackage -logFile .context/import-purchases-green.log
+    -disable-assembly-updater -importPackage ../Purchases.unitypackage -logFile /tmp/tbilisi-import-purchases-green.log
   "$UNITY_BIN" -projectPath IntegrationTests -quit -batchmode -nographics \
-    -disable-assembly-updater -importPackage ../PurchasesUI.unitypackage -logFile .context/import-purchases-ui-green.log
+    -disable-assembly-updater -importPackage ../PurchasesUI.unitypackage -logFile /tmp/tbilisi-import-purchases-ui-green.log
 )
 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-  -projectPath IntegrationTests -quit -batchmode -nographics \
+  -projectPath IntegrationTests -batchmode -nographics \
   -disable-assembly-updater -runTests -testPlatform editmode \
   -testFilter RevenueCat.Tests.PurchasesCallTests.ConfigureForwardsEveryConfigurationValue \
-  -testResults .context/workflows-green.xml -logFile .context/workflows-green.log
+  -testResults /tmp/tbilisi-workflows-green.xml -logFile /tmp/tbilisi-workflows-green.log
 ```
 
 Expected: PASS with one executed test and zero failures.
@@ -156,7 +158,7 @@ git commit -m "fix: remove workflows dangerous setting"
 
 ---
 
-### Task 2: Remove workflows-specific native and Subtester plumbing
+### Task 2: Remove workflows-specific native plumbing and finish Subtester cleanup
 
 **Files:**
 - Modify: `RevenueCat/Plugins/Android/PurchasesWrapper.java:932-943`
@@ -268,9 +270,9 @@ UNITY_BIN=/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Uni
     -type f \( -name "*.cs" -o -name "*.asmdef" \) \
     -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
   "$UNITY_BIN" -projectPath IntegrationTests -quit -batchmode -nographics \
-    -disable-assembly-updater -importPackage ../Purchases.unitypackage -logFile .context/import-purchases-final.log
+    -disable-assembly-updater -importPackage ../Purchases.unitypackage -logFile /tmp/tbilisi-import-purchases-final.log
   "$UNITY_BIN" -projectPath IntegrationTests -quit -batchmode -nographics \
-    -disable-assembly-updater -importPackage ../PurchasesUI.unitypackage -logFile .context/import-purchases-ui-final.log
+    -disable-assembly-updater -importPackage ../PurchasesUI.unitypackage -logFile /tmp/tbilisi-import-purchases-ui-final.log
 )
 ```
 
@@ -278,9 +280,9 @@ UNITY_BIN=/Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Uni
 
 ```bash
 /Applications/Unity/Hub/Editor/6000.2.6f2/Unity.app/Contents/MacOS/Unity \
-  -projectPath IntegrationTests -quit -batchmode -nographics \
+  -projectPath IntegrationTests -batchmode -nographics \
   -disable-assembly-updater -runTests -testPlatform editmode \
-  -testResults .context/editmode-results.xml -logFile .context/editmode.log
+  -testResults /tmp/tbilisi-editmode-results.xml -logFile /tmp/tbilisi-editmode.log
 ```
 
 Expected: Unity exits 0 and the results contain zero failures.
