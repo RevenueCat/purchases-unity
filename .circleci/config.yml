@@ -745,6 +745,8 @@ workflows:
             - build-subtester-ios
             - archive-ios
             - archive-ios-cocoapods
+            - run-maestro-e2e-tests-ios
+            - run-maestro-e2e-tests-android
           <<: *release-branches
       - revenuecat/tag-current-branch:
           ruby_version: "3.3.0"
