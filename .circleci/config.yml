@@ -516,16 +516,20 @@ workflows:
   version: 2
   danger:
     when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      and:
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ build, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/danger:
           ruby_version: "3.3.0"
 
   deploy-check:
     when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      and:
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ build, << pipeline.parameters.action >> ]
     jobs:
       - check-meta-files
       - check-android-keep-annotations
@@ -582,10 +586,12 @@ workflows:
 
   deploy:
     when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      and:
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ build, << pipeline.parameters.action >> ]
     jobs:
-      - export-package: 
+      - export-package:
           context: unity
           <<: *release-tags
       - github-release:
