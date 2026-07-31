@@ -65,7 +65,11 @@ namespace RevenueCat.Tester.Screens
                 OnRestoreCompleted = customerInfo =>
                     LogSuccess($"Listener: restore completed — active entitlements: {customerInfo?.Entitlements?.Active?.Count}"),
                 OnRestoreError = error =>
-                    LogError($"Listener: restore error — {error?.Message}")
+                    LogError($"Listener: restore error — {error?.Message}"),
+                OnWebCheckoutOpened = () =>
+                    Log("Listener: web checkout opened"),
+                OnUrlOpened = url =>
+                    Log($"Listener: url opened: {url}")
             };
         }
 

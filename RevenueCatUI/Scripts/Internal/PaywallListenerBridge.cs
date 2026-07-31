@@ -23,6 +23,8 @@ namespace RevenueCatUI.Internal
         private const string EventRestoreStarted = "onRestoreStarted";
         private const string EventRestoreCompleted = "onRestoreCompleted";
         private const string EventRestoreError = "onRestoreError";
+        private const string EventWebCheckoutOpened = "onWebCheckoutOpened";
+        private const string EventUrlOpened = "onUrlOpened";
 
         private static PaywallListener s_currentListener;
         private static SynchronizationContext s_mainThreadContext;
@@ -136,6 +138,12 @@ namespace RevenueCatUI.Internal
                     case EventRestoreError:
                         listener.OnRestoreError?.Invoke(new Purchases.Error(payload["error"]));
                         break;
+                    case EventWebCheckoutOpened:
+                        listener.OnWebCheckoutOpened?.Invoke();
+                        break;
+                    case EventUrlOpened:
+                        listener.OnUrlOpened?.Invoke(payload["url"].Value);
+                        break;
                     default:
                         Debug.LogWarning($"[RevenueCatUI] Unknown paywall event '{eventName}'; ignoring.");
                         break;
@@ -149,6 +157,9 @@ namespace RevenueCatUI.Internal
 
         private static bool IsTerminalEvent(string eventName)
         {
+            // OnWebCheckoutOpened is not included here: it does not set the not-focusable
+            // flag on Android (see PaywallViewPresenter.onWebCheckoutOpened), so there is
+            // no flag op to release for it.
             return eventName == EventPurchaseCompleted
                 || eventName == EventPurchaseError
                 || eventName == EventPurchaseCancelled

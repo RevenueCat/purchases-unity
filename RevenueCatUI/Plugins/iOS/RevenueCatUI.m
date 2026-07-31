@@ -212,6 +212,15 @@ didFailPurchasingWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDictio
     RCUIEmitPaywallEvent(self.eventCallback, "onRestoreStarted", nil);
 }
 
+- (void)paywallViewControllerDidOpenWebCheckout:(RCPaywallViewController *)controller API_AVAILABLE(ios(15.0)) {
+    RCUIEmitPaywallEvent(self.eventCallback, "onWebCheckoutOpened", nil);
+}
+
+- (void)paywallViewController:(RCPaywallViewController *)controller
+                   didOpenURL:(NSString *)url API_AVAILABLE(ios(15.0)) {
+    RCUIEmitPaywallEvent(self.eventCallback, "onUrlOpened", @{@"url": url ?: @""});
+}
+
 - (void)paywallViewController:(RCPaywallViewController *)controller
 didFinishRestoringWithCustomerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary API_AVAILABLE(ios(15.0)) {
     RCUIEmitPaywallEvent(self.eventCallback, "onRestoreCompleted", @{@"customerInfo": customerInfoDictionary ?: @{}});
