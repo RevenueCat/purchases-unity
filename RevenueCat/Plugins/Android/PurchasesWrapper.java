@@ -935,10 +935,7 @@ public class PurchasesWrapper {
         try {
             jsonObject = new JSONObject(dangerousSettingsJSON);
             boolean autoSyncPurchases = jsonObject.getBoolean("AutoSyncPurchases");
-            boolean useWorkflows = jsonObject.optBoolean("UseWorkflows", false);
-            dangerousSettings = useWorkflows
-                ? DangerousSettings.forWorkflows(autoSyncPurchases)
-                : new DangerousSettings(autoSyncPurchases);
+            dangerousSettings = new DangerousSettings(autoSyncPurchases);
         } catch (JSONException e) {
             Log.e("Purchases", "Error parsing dangerousSettings JSON: " + dangerousSettingsJSON);
             logJSONException(e);
