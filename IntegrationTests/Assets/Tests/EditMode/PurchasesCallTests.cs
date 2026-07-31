@@ -35,7 +35,7 @@ namespace RevenueCat.Tests
                     Purchases.StoreKitVersion.StoreKit2)
                 .SetUserDefaultsSuiteName("suite_name")
                 .SetUseAmazon(true)
-                .SetDangerousSettings(new Purchases.DangerousSettings(false, true))
+                .SetDangerousSettings(new Purchases.DangerousSettings(false))
                 .SetShouldShowInAppMessagesAutomatically(true)
                 .SetEntitlementVerificationMode(Purchases.EntitlementVerificationMode.Informational)
                 .SetPendingTransactionsForPrepaidPlansEnabled(true)
@@ -56,7 +56,7 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[6], Is.True);
             var dangerousSettings = JSONNode.Parse((string)invocation.Arguments[7]);
             Assert.That(dangerousSettings["AutoSyncPurchases"].AsBool, Is.False);
-            Assert.That(dangerousSettings["UseWorkflows"].AsBool, Is.True);
+            Assert.That(dangerousSettings.HasKey("UseWorkflows"), Is.False);
             Assert.That(invocation.Arguments[8], Is.True);
             Assert.That(invocation.Arguments[9], Is.EqualTo(Purchases.EntitlementVerificationMode.Informational));
             Assert.That(invocation.Arguments[10], Is.True);
