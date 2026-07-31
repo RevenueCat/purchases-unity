@@ -216,7 +216,7 @@ Run:
 
 ```bash
 if rg -n "UseWorkflows|useWorkflows|experimentalUseWorkflows|forWorkflows|RCPurchasesUnityDangerousSettingsFactory" \
-  RevenueCat Subtester IntegrationTests/Assets/Tests; then
+  RevenueCat Subtester; then
   exit 1
 fi
 ```
@@ -293,7 +293,7 @@ Run:
 
 ```bash
 if rg -n "UseWorkflows|useWorkflows|experimentalUseWorkflows|forWorkflows|RCPurchasesUnityDangerousSettingsFactory" \
-  RevenueCat Subtester IntegrationTests/Assets/Tests; then
+  RevenueCat Subtester; then
   exit 1
 fi
 git diff --check origin/main...
