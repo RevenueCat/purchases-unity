@@ -7,6 +7,7 @@
 
 ## RevenueCatUI SDK
 ### ✨ New Features
+* Enables support for multipage paywalls
 * Add onWebCheckoutOpened and onUrlOpened callbacks to PaywallListener (#1016) via Álvaro Brey (@AlvaroBrey)
 
 ### 🔄 Other Changes
