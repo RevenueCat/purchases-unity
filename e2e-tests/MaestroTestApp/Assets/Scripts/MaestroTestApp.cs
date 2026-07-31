@@ -6,6 +6,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using RevenueCatUI;
 
@@ -13,6 +14,17 @@ using RevenueCatUI;
 public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 {
     private const string API_KEY = "MAESTRO_TESTS_REVENUECAT_API_KEY";
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern string GetLaunchTestFlow();
+#endif
+
+    private static readonly Dictionary<string, System.Action<MaestroTestApp>> TestFlowScreenMap =
+        new Dictionary<string, System.Action<MaestroTestApp>>
+        {
+            { "purchase_through_paywall", app => app.ShowPurchaseScreen() }
+        };
 
     public GameObject testCasesScreen;
     public GameObject purchaseScreen;
@@ -60,8 +72,37 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 
         WireButtons();
 
-        ShowTestCases();
-        Debug.Log("MaestroTestApp: ShowTestCases() done");
+        string testFlow = GetTestFlow();
+        if (testFlow != null && TestFlowScreenMap.TryGetValue(testFlow, out var navigateAction))
+        {
+            Debug.Log($"MaestroTestApp: launching straight into '{testFlow}'");
+            navigateAction(this);
+        }
+        else
+        {
+            ShowTestCases();
+        }
+    }
+
+    private string GetTestFlow()
+    {
+#if UNITY_IOS && !UNITY_EDITOR
+        return GetLaunchTestFlow();
+#elif UNITY_ANDROID && !UNITY_EDITOR
+        try
+        {
+            using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            using var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            using var intent = activity.Call<AndroidJavaObject>("getIntent");
+            return intent.Call<string>("getStringExtra", "e2e_test_flow");
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
+#else
+        return null;
+#endif
     }
 
     // The buttons are wired here rather than in the scene because SceneSetup builds
