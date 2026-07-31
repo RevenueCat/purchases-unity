@@ -641,7 +641,11 @@ jobs:
           no_output_timeout: 15m
       - run:
           name: Capture logcat on failure
-          command: adb logcat -d > fastlane/test_output/logcat.txt 2>&1 || true
+          command: |
+            # Maestro creates test_output, but the failure may have happened before it
+            # ran, and then the redirect below fails and `|| true` hides that.
+            mkdir -p fastlane/test_output
+            adb logcat -d > fastlane/test_output/logcat.txt 2>&1 || true
           when: on_fail
       - store_test_results:
           path: fastlane/test_output
