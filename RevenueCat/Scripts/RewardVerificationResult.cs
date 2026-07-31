@@ -34,12 +34,12 @@ public partial class Purchases
 
             if (response["reward"] != null && !response["reward"].IsNull)
             {
-                Reward = new VerifiedReward(response["reward"]);
+                Reward = VerifiedReward.FromJson(response["reward"]);
             }
 
             foreach (JSONNode rewardNode in response["moreRewards"].AsArray)
             {
-                MoreRewards.Add(new VerifiedReward(rewardNode));
+                MoreRewards.Add(VerifiedReward.FromJson(rewardNode));
             }
         }
 

@@ -6,20 +6,22 @@ namespace DefaultNamespace
     {
         private void Start()
         {
-            Purchases.VerifiedReward reward = new Purchases.VerifiedReward(null);
-            Purchases.VerifiedReward.RewardType type = reward.Type;
-            string code = reward.Code;
-            int amount = reward.Amount;
-            string identifier = reward.Identifier;
-            string expiresAt = reward.ExpiresAt;
-            long expiresAtMillis = reward.ExpiresAtMillis;
+            Purchases.VerifiedReward reward = Purchases.VerifiedReward.FromJson(null);
 
-            switch (type)
+            switch (reward)
             {
-                case Purchases.VerifiedReward.RewardType.VirtualCurrency:
-                case Purchases.VerifiedReward.RewardType.Entitlement:
-                case Purchases.VerifiedReward.RewardType.NoReward:
-                case Purchases.VerifiedReward.RewardType.Unsupported:
+                case Purchases.VerifiedReward.VirtualCurrency virtualCurrency:
+                    string code = virtualCurrency.Code;
+                    int amount = virtualCurrency.Amount;
+                    break;
+                case Purchases.VerifiedReward.Entitlement entitlement:
+                    string identifier = entitlement.Identifier;
+                    string expiresAt = entitlement.ExpiresAt;
+                    long expiresAtMillis = entitlement.ExpiresAtMillis;
+                    break;
+                case Purchases.VerifiedReward.NoReward noReward:
+                    break;
+                case Purchases.VerifiedReward.Unsupported unsupported:
                     break;
             }
         }

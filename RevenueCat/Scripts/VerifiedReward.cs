@@ -3,96 +3,98 @@ using RevenueCat.SimpleJSON;
 public partial class Purchases
 {
     /// <summary>
-    /// A reward granted after a verified rewarded ad. Inspect <see cref="Type"/> to
-    /// determine which fields are populated.
+    /// A reward granted after a verified rewarded ad. Switch on the concrete subtype to read the
+    /// fields relevant to that reward.
     /// </summary>
     /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
-    public class VerifiedReward
+    public abstract class VerifiedReward
     {
-        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
-        public enum RewardType
+        private VerifiedReward() { }
+
+        /// <summary>
+        /// A virtual currency reward.
+        /// </summary>
+        public sealed class VirtualCurrency : VerifiedReward
         {
-            /// A virtual currency reward. <see cref="Code"/> and <see cref="Amount"/> are populated.
-            VirtualCurrency,
-            /// An entitlement reward. <see cref="Identifier"/>, <see cref="ExpiresAt"/> and
-            /// <see cref="ExpiresAtMillis"/> are populated.
-            Entitlement,
-            /// Verification completed but nothing was granted.
-            NoReward,
-            /// Verification completed but the reward type isn't modeled by this SDK version.
-            Unsupported
+            /// The virtual currency code.
+            public readonly string Code;
+
+            /// The virtual currency amount granted.
+            public readonly int Amount;
+
+            public VirtualCurrency(string code, int amount)
+            {
+                Code = code;
+                Amount = amount;
+            }
+
+            public override string ToString() =>
+                $"{nameof(VirtualCurrency)}({nameof(Code)}: {Code}, {nameof(Amount)}: {Amount})";
         }
 
         /// <summary>
-        /// The kind of reward. Determines which of the fields below are populated.
+        /// An entitlement reward.
         /// </summary>
-        public readonly RewardType Type;
+        public sealed class Entitlement : VerifiedReward
+        {
+            /// The entitlement identifier.
+            public readonly string Identifier;
+
+            /// ISO 8601 expiration date string.
+            public readonly string ExpiresAt;
+
+            /// Expiration date in milliseconds since epoch.
+            public readonly long ExpiresAtMillis;
+
+            public Entitlement(string identifier, string expiresAt, long expiresAtMillis)
+            {
+                Identifier = identifier;
+                ExpiresAt = expiresAt;
+                ExpiresAtMillis = expiresAtMillis;
+            }
+
+            public override string ToString() =>
+                $"{nameof(Entitlement)}({nameof(Identifier)}: {Identifier}, " +
+                $"{nameof(ExpiresAt)}: {ExpiresAt}, {nameof(ExpiresAtMillis)}: {ExpiresAtMillis})";
+        }
 
         /// <summary>
-        /// The virtual currency code. Populated when <see cref="Type"/> is
-        /// <see cref="RewardType.VirtualCurrency"/>.
+        /// Verification completed but nothing was granted.
         /// </summary>
-        public readonly string Code;
+        public sealed class NoReward : VerifiedReward
+        {
+            private NoReward() { }
+            public static NoReward Instance { get; } = new NoReward();
+
+            public override string ToString() => nameof(NoReward);
+        }
 
         /// <summary>
-        /// The virtual currency amount granted. Populated when <see cref="Type"/> is
-        /// <see cref="RewardType.VirtualCurrency"/>.
+        /// Verification completed but the reward type isn't modeled by this SDK version.
         /// </summary>
-        public readonly int Amount;
+        public sealed class Unsupported : VerifiedReward
+        {
+            private Unsupported() { }
+            public static Unsupported Instance { get; } = new Unsupported();
 
-        /// <summary>
-        /// The entitlement identifier. Populated when <see cref="Type"/> is
-        /// <see cref="RewardType.Entitlement"/>.
-        /// </summary>
-        public readonly string Identifier;
+            public override string ToString() => nameof(Unsupported);
+        }
 
-        /// <summary>
-        /// ISO 8601 expiration date string. Populated when <see cref="Type"/> is
-        /// <see cref="RewardType.Entitlement"/>.
-        /// </summary>
-        public readonly string ExpiresAt;
-
-        /// <summary>
-        /// Expiration date in milliseconds since epoch. Populated when <see cref="Type"/> is
-        /// <see cref="RewardType.Entitlement"/>.
-        /// </summary>
-        public readonly long ExpiresAtMillis;
-
-        public VerifiedReward(JSONNode response)
+        public static VerifiedReward FromJson(JSONNode response)
         {
             switch ((string) response["type"])
             {
                 case "virtual_currency":
-                    Type = RewardType.VirtualCurrency;
-                    Code = response["code"];
-                    Amount = response["amount"];
-                    break;
+                    return new VirtualCurrency(response["code"], response["amount"]);
                 case "entitlement":
-                    Type = RewardType.Entitlement;
-                    Identifier = response["identifier"];
-                    ExpiresAt = response["expiresAt"];
-                    ExpiresAtMillis = response["expiresAtMillis"].AsLong;
-                    break;
+                    return new Entitlement(
+                        response["identifier"],
+                        response["expiresAt"],
+                        response["expiresAtMillis"].AsLong);
                 case "no_reward":
-                    Type = RewardType.NoReward;
-                    break;
+                    return NoReward.Instance;
                 default:
-                    Type = RewardType.Unsupported;
-                    break;
-            }
-        }
-
-        public override string ToString()
-        {
-            switch (Type)
-            {
-                case RewardType.VirtualCurrency:
-                    return $"{nameof(Type)}: {Type}, {nameof(Code)}: {Code}, {nameof(Amount)}: {Amount}";
-                case RewardType.Entitlement:
-                    return $"{nameof(Type)}: {Type}, {nameof(Identifier)}: {Identifier}, " +
-                           $"{nameof(ExpiresAt)}: {ExpiresAt}, {nameof(ExpiresAtMillis)}: {ExpiresAtMillis}";
-                default:
-                    return $"{nameof(Type)}: {Type}";
+                    return Unsupported.Instance;
             }
         }
     }
