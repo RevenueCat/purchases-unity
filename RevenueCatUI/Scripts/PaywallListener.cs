@@ -52,5 +52,17 @@ namespace RevenueCatUI
         /// Invoked when a restore fails.
         /// </summary>
         public Action<Purchases.Error> OnRestoreError { get; set; }
+
+        /// <summary>
+        /// Invoked when the user taps a web checkout CTA and leaves the app to complete
+        /// payment externally.
+        /// </summary>
+        public Action OnWebCheckoutOpened { get; set; }
+
+        /// <summary>
+        /// Invoked when the paywall successfully opens a URL, either from a button with a URL
+        /// destination or from a link inside a text component. Not called for web checkout URLs.
+        /// </summary>
+        public Action<string> OnUrlOpened { get; set; }
     }
 }
