@@ -446,6 +446,14 @@ public class PaywallViewPresenter {
                     setDialogNotFocusable(false);
                 }
             }
+
+            @Override
+            public void onWebCheckoutOpened() {
+            }
+
+            @Override
+            public void onUrlOpened(@NonNull String url) {
+            }
         };
     }
 
