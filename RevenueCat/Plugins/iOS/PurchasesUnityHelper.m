@@ -693,6 +693,13 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 - (void)pollRewardVerification:(NSString *)clientTransactionId {
     [RCCommonFunctionality pollRewardVerificationWithClientTransactionId:clientTransactionId
                                                              completion:^(NSDictionary *_Nullable result, RCErrorContainer *_Nullable error) {
+        if (error == nil && result == nil) {
+            NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are null"}];
+            error = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
+
         NSMutableDictionary *response = [NSMutableDictionary new];
         if (error) {
             response[@"error"] = error.info;
