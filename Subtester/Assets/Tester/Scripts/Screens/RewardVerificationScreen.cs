@@ -136,13 +136,13 @@ namespace RevenueCat.Tester.Screens
 
         private static string DescribeReward(Purchases.VerifiedReward reward)
         {
-            switch (reward.Type)
+            switch (reward)
             {
-                case Purchases.VerifiedReward.RewardType.VirtualCurrency:
-                    return $"+{reward.Amount} {reward.Code}";
-                case Purchases.VerifiedReward.RewardType.Entitlement:
-                    return $"entitlement \"{reward.Identifier}\"";
-                case Purchases.VerifiedReward.RewardType.NoReward:
+                case Purchases.VerifiedReward.VirtualCurrency virtualCurrency:
+                    return $"+{virtualCurrency.Amount} {virtualCurrency.Code}";
+                case Purchases.VerifiedReward.Entitlement entitlement:
+                    return $"entitlement \"{entitlement.Identifier}\"";
+                case Purchases.VerifiedReward.NoReward _:
                     return "no reward";
                 default:
                     return "unsupported reward";
