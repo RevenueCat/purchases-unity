@@ -742,11 +742,16 @@ public partial class Purchases : MonoBehaviour
     /// <param name="clientTransactionId"> The <see cref="RewardVerificationToken.ClientTransactionId"/>
     /// from <see cref="GenerateRewardVerificationToken"/>.</param>
     /// <param name="callback"> Called with the verification result, or an error if polling failed.</param>
+    /// <param name="trackingMetadata"> Pass to have the SDK automatically track reward-verification
+    /// events for the ad it belongs to; omit to poll without tracking.</param>
     /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
-    public void PollRewardVerification(string clientTransactionId, PollRewardVerificationFunc callback)
+    public void PollRewardVerification(
+        string clientTransactionId,
+        PollRewardVerificationFunc callback,
+        RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null)
     {
         PollRewardVerificationCallback = callback;
-        _wrapper.PollRewardVerification(clientTransactionId);
+        _wrapper.PollRewardVerification(clientTransactionId, trackingMetadata);
     }
 
     /// <summary>

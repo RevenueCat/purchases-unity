@@ -100,5 +100,5 @@ public interface IPurchasesWrapper
     void TrackAdLoaded(AdLoadedData data);
     void TrackAdFailedToLoad(AdFailedToLoadData data);
     void GenerateRewardVerificationToken(string impressionId);
-    void PollRewardVerification(string clientTransactionId);
+    void PollRewardVerification(string clientTransactionId, RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null);
 }
