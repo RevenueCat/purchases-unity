@@ -470,8 +470,8 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void GenerateRewardVerificationToken(string impressionId) =>
         CallPurchases("generateRewardVerificationToken", impressionId);
 
-    public void PollRewardVerification(string clientTransactionId) =>
-        CallPurchases("pollRewardVerification", clientTransactionId);
+    public void PollRewardVerification(string clientTransactionId, RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null) =>
+        CallPurchases("pollRewardVerification", clientTransactionId, trackingMetadata?.ToJsonString());
 
     private const string PurchasesWrapper = "com.revenuecat.purchasesunity.PurchasesWrapper";
 

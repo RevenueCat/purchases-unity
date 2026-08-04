@@ -281,6 +281,9 @@ public class PurchasesAPITests : MonoBehaviour
             Purchases.VerifiedReward reward = result.Reward;
             List<Purchases.VerifiedReward> moreRewards = result.MoreRewards;
         });
+        purchases.PollRewardVerification("client_transaction_id", (result, error) =>
+        {
+        }, new RewardedAdTrackingMetadata(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "ad_unit", "imp_007", networkName: "network", placement: "main_menu"));
 
         // Win-back offer API tests
         // Purchasing win-back offers with a product

@@ -591,8 +591,8 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCGenerateRewardVerificationToken(impressionId);
 
     [DllImport("__Internal")]
-    private static extern void _RCPollRewardVerification(string clientTransactionId);
-    public void PollRewardVerification(string clientTransactionId) =>
-        _RCPollRewardVerification(clientTransactionId);
+    private static extern void _RCPollRewardVerification(string clientTransactionId, string trackingMetadataJson);
+    public void PollRewardVerification(string clientTransactionId, RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null) =>
+        _RCPollRewardVerification(clientTransactionId, trackingMetadata?.ToJsonString());
 }
 #endif

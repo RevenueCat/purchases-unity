@@ -690,8 +690,18 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [self sendJSONObject:token toMethod:GENERATE_REWARD_VERIFICATION_TOKEN];
 }
 
-- (void)pollRewardVerification:(NSString *)clientTransactionId {
+- (void)pollRewardVerification:(NSString *)clientTransactionId trackingMetadataJson:(NSString *)trackingMetadataJson {
+    NSDictionary *trackingMetadata = nil;
+    if (trackingMetadataJson) {
+        NSError *error = nil;
+        trackingMetadata = [NSJSONSerialization JSONObjectWithData:[trackingMetadataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+        if (error) {
+            NSLog(@"[Purchases] pollRewardVerification: trackingMetadata JSON parse error: %@", error.localizedDescription);
+            trackingMetadata = nil;
+        }
+    }
     [RCCommonFunctionality pollRewardVerificationWithClientTransactionId:clientTransactionId
+                                                        trackingMetadata:trackingMetadata
                                                              completion:^(NSDictionary *_Nullable result, RCErrorContainer *_Nullable error) {
         if (error == nil && result == nil) {
             NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
@@ -1238,8 +1248,9 @@ void _RCGenerateRewardVerificationToken(const char *impressionId) {
     [_RCUnityHelperShared() generateRewardVerificationToken:convertCString(impressionId)];
 }
 
-void _RCPollRewardVerification(const char *clientTransactionId) {
-    [_RCUnityHelperShared() pollRewardVerification:convertCString(clientTransactionId)];
+void _RCPollRewardVerification(const char *clientTransactionId, const char *trackingMetadataJson) {
+    [_RCUnityHelperShared() pollRewardVerification:convertCString(clientTransactionId)
+                              trackingMetadataJson:convertCString(trackingMetadataJson)];
 }
 
 @implementation NSObject (NSNullMapping)
