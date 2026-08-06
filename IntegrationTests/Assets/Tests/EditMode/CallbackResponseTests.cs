@@ -10,7 +10,7 @@ namespace RevenueCat.Tests
     /// <summary>
     /// Exercises the <c>_*</c> receivers that the native wrappers call through
     /// <c>UnitySendMessage</c>. Every JSON payload here mirrors what
-    /// purchases-hybrid-common 18.29.0 hands to <c>PurchasesUnityHelper.m</c> /
+    /// purchases-hybrid-common hands to <c>PurchasesUnityHelper.m</c> /
     /// <c>PurchasesWrapper.java</c>, which forward it verbatim.
     ///
     /// Two properties of that wire format are easy to get wrong:
@@ -60,7 +60,7 @@ namespace RevenueCat.Tests
             "\"presentedOfferingIdentifier\":null,\"presentedOfferingContext\":null}";
 
         /// Offering.map() / Offering.dictionary for an offering with no packages.
-        private const string OfferingJson =
+        private const string OfferingWithoutPackagesJson =
             "{\"identifier\":\"default\",\"serverDescription\":\"desc\",\"metadata\":{}," +
             "\"availablePackages\":[],\"lifetime\":null,\"annual\":null,\"sixMonth\":null," +
             "\"threeMonth\":null,\"twoMonth\":null,\"monthly\":null,\"weekly\":null," +
@@ -608,7 +608,7 @@ namespace RevenueCat.Tests
 
             _purchases.GetCurrentOfferingForPlacement("onboarding", (offering, error) => receivedOffering = offering);
 
-            SendNativeResponse("_getCurrentOfferingForPlacement", "{\"offering\":" + OfferingJson + "}");
+            SendNativeResponse("_getCurrentOfferingForPlacement", "{\"offering\":" + OfferingWithoutPackagesJson + "}");
 
             Assert.That(receivedOffering, Is.Not.Null);
             Assert.That(receivedOffering.Identifier, Is.EqualTo("default"));
@@ -717,7 +717,7 @@ namespace RevenueCat.Tests
 
         private static Purchases.Offering CreateOffering()
         {
-            return new Purchases.Offering(JSONNode.Parse(OfferingJson));
+            return new Purchases.Offering(JSONNode.Parse(OfferingWithoutPackagesJson));
         }
     }
 }
