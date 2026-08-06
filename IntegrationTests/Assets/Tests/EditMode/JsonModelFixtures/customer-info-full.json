@@ -1,0 +1,71 @@
+{
+  "entitlements": {
+    "all": {
+      "premium": {
+        "identifier": "premium",
+        "isActive": true,
+        "willRenew": true,
+        "periodType": "NORMAL",
+        "latestPurchaseDateMillis": 1700000000000,
+        "originalPurchaseDateMillis": 1690000000000,
+        "store": "APP_STORE",
+        "productIdentifier": "monthly",
+        "isSandbox": false
+      }
+    },
+    "active": {
+      "premium": {
+        "identifier": "premium",
+        "isActive": true,
+        "willRenew": true,
+        "periodType": "NORMAL",
+        "latestPurchaseDateMillis": 1700000000000,
+        "originalPurchaseDateMillis": 1690000000000,
+        "store": "APP_STORE",
+        "productIdentifier": "monthly",
+        "isSandbox": false
+      }
+    },
+    "verification": "NOT_REQUESTED"
+  },
+  "activeSubscriptions": [
+    "monthly"
+  ],
+  "allPurchasedProductIdentifiers": [
+    "monthly",
+    "lifetime"
+  ],
+  "firstSeenMillis": 1700000000000,
+  "originalAppUserId": "user_1",
+  "requestDateMillis": 1700000000001,
+  "originalPurchaseDateMillis": 1690000000000,
+  "latestExpirationDateMillis": 1720000000000,
+  "managementURL": "https://mgmt",
+  "allExpirationDatesMillis": {
+    "monthly": 1720000000000,
+    "lifetime": 0
+  },
+  "allPurchaseDatesMillis": {
+    "monthly": 1700000000000,
+    "lifetime": 0
+  },
+  "originalApplicationVersion": "1.0",
+  "nonSubscriptionTransactions": [
+    {
+      "transactionIdentifier": "txn_1",
+      "productIdentifier": "lifetime",
+      "purchaseDateMillis": 1700000000000
+    }
+  ],
+  "subscriptionsByProductIdentifier": {
+    "monthly": {
+      "productIdentifier": "monthly",
+      "purchaseDate": "2023-01-01T00:00:00Z",
+      "store": "APP_STORE",
+      "isSandbox": false,
+      "periodType": "NORMAL",
+      "isActive": true,
+      "willRenew": true
+    }
+  }
+}

@@ -1,39 +1,23 @@
 using System;
+using System.IO;
 using NUnit.Framework;
 using RevenueCat.SimpleJSON;
+using UnityEngine;
 
 namespace RevenueCat.Tests
 {
     public class JsonModelTests
     {
-        /// purchases-hybrid-common's CustomerInfo.map() (Android) / CustomerInfo.dictionary (iOS)
-        /// for a user with no purchases. Every optional field is present as an explicit null rather
-        /// than absent: Android's Map.convertToJson() maps Kotlin null to JSONObject.NULL and the
-        /// iOS mappers use NSNull(). SimpleJSON treats a null node and an absent node alike, but
-        /// the fixture spells them out so it matches what actually ships.
-        private const string MinimalCustomerInfoJson =
-            "{\"entitlements\":{\"all\":{},\"active\":{},\"verification\":\"NOT_REQUESTED\"}," +
-            "\"activeSubscriptions\":[],\"allPurchasedProductIdentifiers\":[]," +
-            "\"latestExpirationDate\":null,\"latestExpirationDateMillis\":null," +
-            "\"firstSeen\":\"2023-11-14T22:13:20.000Z\",\"firstSeenMillis\":1700000000000," +
-            "\"originalAppUserId\":\"user_1\"," +
-            "\"requestDate\":\"2023-11-14T22:13:20.001Z\",\"requestDateMillis\":1700000000001," +
-            "\"allExpirationDates\":{},\"allExpirationDatesMillis\":{}," +
-            "\"allPurchaseDates\":{},\"allPurchaseDatesMillis\":{}," +
-            "\"originalApplicationVersion\":null," +
-            "\"originalPurchaseDate\":null,\"originalPurchaseDateMillis\":null," +
-            "\"managementURL\":null,\"nonSubscriptionTransactions\":[]," +
-            "\"subscriptionsByProductIdentifier\":{}}";
+        private static JSONNode LoadFixture(string filename)
+        {
+            var path = Path.Combine(Application.dataPath, "Tests", "EditMode", "JsonModelFixtures", filename);
+            return JSONNode.Parse(File.ReadAllText(path));
+        }
 
         [Test]
         public void VirtualCurrenciesParsesCurrenciesByCode()
         {
-            var response = JSONNode.Parse(
-                "{\"all\":{" +
-                "\"COIN\":{\"balance\":120,\"name\":\"Coins\",\"code\":\"COIN\",\"serverDescription\":\"Earned in game\"}," +
-                "\"GEM\":{\"balance\":4,\"name\":\"Gems\",\"code\":\"GEM\",\"serverDescription\":null}" +
-                "}}"
-            );
+            var response = LoadFixture("virtual-currencies.json");
 
             var virtualCurrencies = new Purchases.VirtualCurrencies(response);
 
@@ -48,9 +32,7 @@ namespace RevenueCat.Tests
         [Test]
         public void SubscriptionPriceSupportsValuesAboveInt32Range()
         {
-            var response = JSONNode.Parse(
-                "{\"formatted\":\"$4,294.97\",\"amountMicros\":4294970000,\"currencyCode\":\"USD\"}"
-            );
+            var response = LoadFixture("subscription-price-large-amount.json");
 
             var price = new Purchases.SubscriptionOption.Price(response);
 
@@ -60,11 +42,7 @@ namespace RevenueCat.Tests
         [Test]
         public void StoreProductParsesKnownProductCategory()
         {
-            var response = JSONNode.Parse(
-                "{\"title\":\"Monthly\",\"identifier\":\"monthly\",\"description\":\"Monthly access\"," +
-                "\"price\":9.99,\"priceString\":\"$9.99\",\"currencyCode\":\"USD\"," +
-                "\"productCategory\":\"SUBSCRIPTION\"}"
-            );
+            var response = LoadFixture("store-product-known-category.json");
 
             var product = new Purchases.StoreProduct(response);
 
@@ -77,11 +55,7 @@ namespace RevenueCat.Tests
             // "UNRECOGNIZED" is deliberately synthetic: StoreProductMapper can only send
             // SUBSCRIPTION, NON_SUBSCRIPTION or UNKNOWN. This pins down the parser's fallback for
             // a category added natively before Unity knows about it.
-            var response = JSONNode.Parse(
-                "{\"title\":\"Lifetime\",\"identifier\":\"lifetime\",\"description\":\"Lifetime access\"," +
-                "\"price\":99.99,\"priceString\":\"$99.99\",\"currencyCode\":\"USD\"," +
-                "\"productCategory\":\"UNRECOGNIZED\"}"
-            );
+            var response = LoadFixture("store-product-unrecognized-category.json");
 
             var product = new Purchases.StoreProduct(response);
 
@@ -94,33 +68,7 @@ namespace RevenueCat.Tests
         [Test]
         public void CustomerInfoParsesFullPayload()
         {
-            var response = JSONNode.Parse(
-                "{\"entitlements\":{" +
-                "\"all\":{\"premium\":{\"identifier\":\"premium\",\"isActive\":true,\"willRenew\":true," +
-                "\"periodType\":\"NORMAL\",\"latestPurchaseDateMillis\":1700000000000," +
-                "\"originalPurchaseDateMillis\":1690000000000,\"store\":\"APP_STORE\"," +
-                "\"productIdentifier\":\"monthly\",\"isSandbox\":false}}," +
-                "\"active\":{\"premium\":{\"identifier\":\"premium\",\"isActive\":true,\"willRenew\":true," +
-                "\"periodType\":\"NORMAL\",\"latestPurchaseDateMillis\":1700000000000," +
-                "\"originalPurchaseDateMillis\":1690000000000,\"store\":\"APP_STORE\"," +
-                "\"productIdentifier\":\"monthly\",\"isSandbox\":false}}," +
-                "\"verification\":\"NOT_REQUESTED\"}," +
-                "\"activeSubscriptions\":[\"monthly\"]," +
-                "\"allPurchasedProductIdentifiers\":[\"monthly\",\"lifetime\"]," +
-                "\"firstSeenMillis\":1700000000000,\"originalAppUserId\":\"user_1\"," +
-                "\"requestDateMillis\":1700000000001," +
-                "\"originalPurchaseDateMillis\":1690000000000," +
-                "\"latestExpirationDateMillis\":1720000000000," +
-                "\"managementURL\":\"https://mgmt\"," +
-                "\"allExpirationDatesMillis\":{\"monthly\":1720000000000,\"lifetime\":0}," +
-                "\"allPurchaseDatesMillis\":{\"monthly\":1700000000000,\"lifetime\":0}," +
-                "\"originalApplicationVersion\":\"1.0\"," +
-                "\"nonSubscriptionTransactions\":[{\"transactionIdentifier\":\"txn_1\"," +
-                "\"productIdentifier\":\"lifetime\",\"purchaseDateMillis\":1700000000000}]," +
-                "\"subscriptionsByProductIdentifier\":{\"monthly\":{\"productIdentifier\":\"monthly\"," +
-                "\"purchaseDate\":\"2023-01-01T00:00:00Z\",\"store\":\"APP_STORE\",\"isSandbox\":false," +
-                "\"periodType\":\"NORMAL\",\"isActive\":true,\"willRenew\":true}}}"
-            );
+            var response = LoadFixture("customer-info-full.json");
 
             var customerInfo = new Purchases.CustomerInfo(response);
 
@@ -148,21 +96,7 @@ namespace RevenueCat.Tests
         [Test]
         public void SubscriptionOptionParsesFullPayloadWithPricingPhases()
         {
-            const string pricingPhaseJson =
-                "{\"billingPeriod\":{\"unit\":\"MONTH\",\"value\":1,\"iso8601\":\"P1M\"}," +
-                "\"recurrenceMode\":\"INFINITE_RECURRING\",\"billingCycleCount\":0," +
-                "\"price\":{\"formatted\":\"$9.99\",\"amountMicros\":9990000,\"currencyCode\":\"USD\"}," +
-                "\"offerPaymentMode\":\"SINGLE_PAYMENT\"}";
-
-            var response = JSONNode.Parse(
-                "{\"id\":\"monthly:base\",\"storeProductId\":\"monthly\",\"productId\":\"monthly\"," +
-                "\"tags\":[\"tag1\"],\"isBasePlan\":true," +
-                "\"billingPeriod\":{\"unit\":\"MONTH\",\"value\":1,\"iso8601\":\"P1M\"},\"isPrepaid\":false," +
-                "\"pricingPhases\":[" + pricingPhaseJson + "]," +
-                "\"fullPricePhase\":" + pricingPhaseJson + "," +
-                "\"presentedOfferingContext\":{\"offeringIdentifier\":\"default\"}," +
-                "\"installmentsInfo\":{\"commitmentPaymentsCount\":3,\"renewalCommitmentPaymentsCount\":1}}"
-            );
+            var response = LoadFixture("subscription-option-full.json");
 
             var option = new Purchases.SubscriptionOption(response);
 
@@ -180,11 +114,7 @@ namespace RevenueCat.Tests
         [Test]
         public void SubscriptionOptionParsesMinimalPayloadWithoutOptionalFields()
         {
-            var response = JSONNode.Parse(
-                "{\"id\":\"monthly:base\",\"storeProductId\":\"monthly\",\"productId\":\"monthly\"," +
-                "\"tags\":[],\"isBasePlan\":true," +
-                "\"billingPeriod\":{\"unit\":\"MONTH\",\"value\":1,\"iso8601\":\"P1M\"},\"isPrepaid\":false}"
-            );
+            var response = LoadFixture("subscription-option-minimal.json");
 
             var option = new Purchases.SubscriptionOption(response);
 
@@ -202,15 +132,7 @@ namespace RevenueCat.Tests
             // "BOGUS" is deliberately synthetic, like the UNRECOGNIZED category above: it stands in
             // for a recurrenceMode or offerPaymentMode that Android starts sending before Unity
             // knows the name, and pins down the UNKNOWN fallback.
-            var response = JSONNode.Parse(
-                "{\"id\":\"monthly:base\",\"storeProductId\":\"monthly\",\"productId\":\"monthly\"," +
-                "\"tags\":[],\"isBasePlan\":true," +
-                "\"billingPeriod\":{\"unit\":\"MONTH\",\"value\":1,\"iso8601\":\"P1M\"},\"isPrepaid\":false," +
-                "\"fullPricePhase\":{\"billingPeriod\":{\"unit\":\"MONTH\",\"value\":1,\"iso8601\":\"P1M\"}," +
-                "\"recurrenceMode\":\"BOGUS\",\"billingCycleCount\":0," +
-                "\"price\":{\"formatted\":\"$9.99\",\"amountMicros\":9990000,\"currencyCode\":\"USD\"}," +
-                "\"offerPaymentMode\":\"BOGUS\"}}"
-            );
+            var response = LoadFixture("subscription-option-unrecognized-enums.json");
 
             var option = new Purchases.SubscriptionOption(response);
 
@@ -231,9 +153,10 @@ namespace RevenueCat.Tests
         [Test]
         public void WebPurchaseRedemptionResultParsesSuccessVariant()
         {
-            var response = JSONNode.Parse(
-                "{\"result\":\"SUCCESS\",\"customerInfo\":" + MinimalCustomerInfoJson + "}"
-            );
+            // The nested CustomerInfo comes from purchases-hybrid-common's CustomerInfo.map()
+            // (Android) / CustomerInfo.dictionary (iOS) for a user with no purchases. Every
+            // optional field is an explicit null, matching the payload that actually ships.
+            var response = LoadFixture("web-purchase-redemption-success.json");
 
             var result = Purchases.WebPurchaseRedemptionResult.FromJson(response);
 
@@ -244,16 +167,10 @@ namespace RevenueCat.Tests
         [Test]
         public void WebPurchaseRedemptionResultParsesErrorVariant()
         {
-            var response = JSONNode.Parse(
-                // readableErrorCode is ErrorCode.codeName on iOS and PurchasesErrorCode.name on
-                // Android; both duplicate it under the deprecated readable_error_code. Code 11 is
-                // InvalidCredentialsError, so these are the iOS values for that code.
-                "{\"result\":\"ERROR\",\"error\":{\"message\":\"There was a credentials issue. " +
-                "Check the underlying error for more details.\",\"code\":11," +
-                "\"underlyingErrorMessage\":\"Backend rejected\"," +
-                "\"readableErrorCode\":\"INVALID_CREDENTIALS\"," +
-                "\"readable_error_code\":\"INVALID_CREDENTIALS\"}}"
-            );
+            // readableErrorCode is ErrorCode.codeName on iOS and PurchasesErrorCode.name on
+            // Android; both duplicate it under the deprecated readable_error_code. Code 11 is
+            // InvalidCredentialsError, so these are the iOS values for that code.
+            var response = LoadFixture("web-purchase-redemption-error.json");
 
             var result = Purchases.WebPurchaseRedemptionResult.FromJson(response);
 
@@ -264,7 +181,7 @@ namespace RevenueCat.Tests
         [Test]
         public void WebPurchaseRedemptionResultParsesInvalidTokenVariant()
         {
-            var response = JSONNode.Parse("{\"result\":\"INVALID_TOKEN\"}");
+            var response = LoadFixture("web-purchase-redemption-invalid-token.json");
 
             var result = Purchases.WebPurchaseRedemptionResult.FromJson(response);
 
@@ -274,7 +191,7 @@ namespace RevenueCat.Tests
         [Test]
         public void WebPurchaseRedemptionResultParsesExpiredVariant()
         {
-            var response = JSONNode.Parse("{\"result\":\"EXPIRED\",\"obfuscatedEmail\":\"a***@b.com\"}");
+            var response = LoadFixture("web-purchase-redemption-expired.json");
 
             var result = Purchases.WebPurchaseRedemptionResult.FromJson(response);
 
@@ -286,7 +203,7 @@ namespace RevenueCat.Tests
         [Test]
         public void WebPurchaseRedemptionResultParsesPurchaseBelongsToOtherUserVariant()
         {
-            var response = JSONNode.Parse("{\"result\":\"PURCHASE_BELONGS_TO_OTHER_USER\"}");
+            var response = LoadFixture("web-purchase-redemption-other-user.json");
 
             var result = Purchases.WebPurchaseRedemptionResult.FromJson(response);
 
@@ -296,7 +213,7 @@ namespace RevenueCat.Tests
         [Test]
         public void WebPurchaseRedemptionResultThrowsForUnrecognizedResultType()
         {
-            var response = JSONNode.Parse("{\"result\":\"SOMETHING_ELSE\"}");
+            var response = LoadFixture("web-purchase-redemption-unrecognized.json");
 
             Assert.Throws<ArgumentException>(() => Purchases.WebPurchaseRedemptionResult.FromJson(response));
         }

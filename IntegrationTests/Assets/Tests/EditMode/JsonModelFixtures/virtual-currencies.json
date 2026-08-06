@@ -1,0 +1,16 @@
+{
+  "all": {
+    "COIN": {
+      "balance": 120,
+      "name": "Coins",
+      "code": "COIN",
+      "serverDescription": "Earned in game"
+    },
+    "GEM": {
+      "balance": 4,
+      "name": "Gems",
+      "code": "GEM",
+      "serverDescription": null
+    }
+  }
+}

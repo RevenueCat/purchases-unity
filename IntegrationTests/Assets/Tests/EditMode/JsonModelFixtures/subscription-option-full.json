@@ -1,0 +1,54 @@
+{
+  "id": "monthly:base",
+  "storeProductId": "monthly",
+  "productId": "monthly",
+  "tags": [
+    "tag1"
+  ],
+  "isBasePlan": true,
+  "billingPeriod": {
+    "unit": "MONTH",
+    "value": 1,
+    "iso8601": "P1M"
+  },
+  "isPrepaid": false,
+  "pricingPhases": [
+    {
+      "billingPeriod": {
+        "unit": "MONTH",
+        "value": 1,
+        "iso8601": "P1M"
+      },
+      "recurrenceMode": "INFINITE_RECURRING",
+      "billingCycleCount": 0,
+      "price": {
+        "formatted": "$9.99",
+        "amountMicros": 9990000,
+        "currencyCode": "USD"
+      },
+      "offerPaymentMode": "SINGLE_PAYMENT"
+    }
+  ],
+  "fullPricePhase": {
+    "billingPeriod": {
+      "unit": "MONTH",
+      "value": 1,
+      "iso8601": "P1M"
+    },
+    "recurrenceMode": "INFINITE_RECURRING",
+    "billingCycleCount": 0,
+    "price": {
+      "formatted": "$9.99",
+      "amountMicros": 9990000,
+      "currencyCode": "USD"
+    },
+    "offerPaymentMode": "SINGLE_PAYMENT"
+  },
+  "presentedOfferingContext": {
+    "offeringIdentifier": "default"
+  },
+  "installmentsInfo": {
+    "commitmentPaymentsCount": 3,
+    "renewalCommitmentPaymentsCount": 1
+  }
+}

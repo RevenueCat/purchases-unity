@@ -1,0 +1,10 @@
+{
+  "result": "ERROR",
+  "error": {
+    "message": "There was a credentials issue. Check the underlying error for more details.",
+    "code": 11,
+    "underlyingErrorMessage": "Backend rejected",
+    "readableErrorCode": "INVALID_CREDENTIALS",
+    "readable_error_code": "INVALID_CREDENTIALS"
+  }
+}
