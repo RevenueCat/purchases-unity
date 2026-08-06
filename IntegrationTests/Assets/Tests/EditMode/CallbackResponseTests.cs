@@ -617,7 +617,7 @@ namespace RevenueCat.Tests
         }
 
         [Test]
-        public void GetCurrentOfferingForPlacementDropsNativeError()
+        public void GetCurrentOfferingForPlacementDeliversNativeError()
         {
             Purchases.Offering receivedOffering = CreateOffering();
             Purchases.Error receivedError = null;
@@ -630,16 +630,16 @@ namespace RevenueCat.Tests
                 receivedError = error;
             });
 
-            // Both wrappers send only the "error" key on failure — no "offering" key. The
-            // receiver's missing-offering guard runs before its error check, so the error is
-            // dropped and the caller cannot tell a failure from "no offering for placement".
-            // This documents current behaviour, not desired behaviour.
+            // Both wrappers send only the "error" key on failure — no "offering" key — so a
+            // failure has to be distinguishable from "no offering configured for this placement".
             SendNativeResponse("_getCurrentOfferingForPlacement",
                 ErrorJson(10, "A network error has occurred.", "NETWORK_ERROR"));
 
             Assert.That(callbackCount, Is.EqualTo(1));
             Assert.That(receivedOffering, Is.Null);
-            Assert.That(receivedError, Is.Null);
+            Assert.That(receivedError, Is.Not.Null);
+            Assert.That(receivedError.Code, Is.EqualTo(10));
+            Assert.That(receivedError.ReadableErrorCode, Is.EqualTo("NETWORK_ERROR"));
         }
 
         [Test]

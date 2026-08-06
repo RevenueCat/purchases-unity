@@ -1669,20 +1669,20 @@ public partial class Purchases : MonoBehaviour
         var response = JSON.Parse(offeringJson);
         var callback = GetCurrentOfferingForPlacementCallback;
         GetCurrentOfferingForPlacementCallback = null;
+        // The error check has to come first: both native wrappers send only an "error" key on
+        // failure, so testing for a missing "offering" first reports every failure as
+        // "no offering configured for this placement".
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+            return;
+        }
         if (response == null || response["offering"] == null)
         {
             callback(null, null);
             return;
         }
-        if (ResponseHasError(response))
-        {
-            callback(null, new Error(response["error"]));
-        }
-        else
-        {
-            var offeringResponse = response["offering"];
-            callback(new Offering(offeringResponse), null);
-        }
+        callback(new Offering(response["offering"]), null);
     }
 
     // ReSharper disable once UnusedMember.Local
