@@ -150,10 +150,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary new];
             response[@"error"] = error.info;
             response[@"userCancelled"] = error.info[@"userCancelled"];
-            [self sendJSONObject:response toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:MAKE_PURCHASE];
     }];
@@ -171,7 +170,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary new];
             response[@"error"] = error.info;
             response[@"userCancelled"] = error.info[@"userCancelled"];
-            [self sendJSONObject:response toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = @NO;
@@ -548,7 +546,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"userCancelled"] = error.info[@"userCancelled"];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
     }];
@@ -583,7 +581,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"userCancelled"] = error.info[@"userCancelled"];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
     }];
