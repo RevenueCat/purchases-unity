@@ -92,8 +92,9 @@ public partial class Purchases : MonoBehaviour
     [Header("Advanced")]
     [Tooltip("Set this property to your proxy URL before configuring Purchases *only* if you've received " +
              "a proxy key value from your RevenueCat contact.\n" +
-             "NOTE: This value will be ignored if \"Use Runtime Setup\" is true. For Runtime Setup, you can configure " +
-             "it through PurchasesConfiguration instead")]
+             "NOTE: Unlike the other fields here, this one is applied even when \"Use Runtime Setup\" is true. " +
+             "If you configure at runtime you can set it through " +
+             "PurchasesConfiguration.Builder.SetProxyURL instead.")]
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
@@ -115,6 +116,11 @@ public partial class Purchases : MonoBehaviour
 #else
         SetWrapper(new PurchasesWrapperNoop());
 #endif
+        // Deliberately applied above the early return, so it takes effect on both the inspector and the
+        // runtime-setup paths. That makes it the one inspector field runtime setup does not ignore: the
+        // others are read by Configure below, which runtime setup skips. Aligning it with them would stop
+        // runtime-setup apps from picking up an inspector-set proxy URL, silently sending their traffic
+        // straight to RevenueCat, so that change is deferred to the next major.
         if (!string.IsNullOrEmpty(proxyURL))
         {
             _wrapper.SetProxyURL(proxyURL);
@@ -194,6 +200,14 @@ public partial class Purchases : MonoBehaviour
     ///
     public void Configure(PurchasesConfiguration purchasesConfiguration)
     {
+        // Only forwarded when set, for two reasons: it mirrors how the inspector field is applied in
+        // Start, and it keeps a configuration that carries no proxy URL from clearing one that was
+        // already set through the inspector.
+        if (!string.IsNullOrEmpty(purchasesConfiguration.ProxyURL))
+        {
+            _wrapper.SetProxyURL(purchasesConfiguration.ProxyURL);
+        }
+
         var dangerousSettings = purchasesConfiguration.DangerousSettings.Serialize().ToString();
         _wrapper.Setup(gameObject.name, purchasesConfiguration.ApiKey, purchasesConfiguration.AppUserId,
             purchasesConfiguration.PurchasesAreCompletedBy, purchasesConfiguration.StoreKitVersion, purchasesConfiguration.UserDefaultsSuiteName,
