@@ -6,12 +6,23 @@ namespace RevenueCat.Tests
 {
     public class JsonModelTests
     {
+        /// CustomerInfo.map() / CustomerInfo.dictionary in purchases-hybrid-common 18.29.0 for a
+        /// user with no purchases. Every optional field is present as an explicit null rather than
+        /// absent: Android's Map.convertToJson() maps Kotlin null to JSONObject.NULL and the iOS
+        /// mappers use NSNull(). SimpleJSON treats a null node and an absent node alike, but the
+        /// fixture spells them out so it matches what actually ships.
         private const string MinimalCustomerInfoJson =
-            "{\"entitlements\":{\"all\":{},\"active\":{}}," +
+            "{\"entitlements\":{\"all\":{},\"active\":{},\"verification\":\"NOT_REQUESTED\"}," +
             "\"activeSubscriptions\":[],\"allPurchasedProductIdentifiers\":[]," +
-            "\"firstSeenMillis\":1700000000000,\"originalAppUserId\":\"user_1\"," +
-            "\"requestDateMillis\":1700000000001,\"allExpirationDatesMillis\":{}," +
-            "\"allPurchaseDatesMillis\":{},\"nonSubscriptionTransactions\":[]," +
+            "\"latestExpirationDate\":null,\"latestExpirationDateMillis\":null," +
+            "\"firstSeen\":\"2023-11-14T22:13:20.000Z\",\"firstSeenMillis\":1700000000000," +
+            "\"originalAppUserId\":\"user_1\"," +
+            "\"requestDate\":\"2023-11-14T22:13:20.001Z\",\"requestDateMillis\":1700000000001," +
+            "\"allExpirationDates\":{},\"allExpirationDatesMillis\":{}," +
+            "\"allPurchaseDates\":{},\"allPurchaseDatesMillis\":{}," +
+            "\"originalApplicationVersion\":null," +
+            "\"originalPurchaseDate\":null,\"originalPurchaseDateMillis\":null," +
+            "\"managementURL\":null,\"nonSubscriptionTransactions\":[]," +
             "\"subscriptionsByProductIdentifier\":{}}";
 
         [Test]
@@ -63,6 +74,9 @@ namespace RevenueCat.Tests
         [Test]
         public void StoreProductFallsBackToUnknownProductCategory()
         {
+            // "UNRECOGNIZED" is deliberately synthetic: StoreProductMapper can only send
+            // SUBSCRIPTION, NON_SUBSCRIPTION or UNKNOWN. This pins down the parser's fallback for
+            // a category added natively before Unity knows about it.
             var response = JSONNode.Parse(
                 "{\"title\":\"Lifetime\",\"identifier\":\"lifetime\",\"description\":\"Lifetime access\"," +
                 "\"price\":99.99,\"priceString\":\"$99.99\",\"currencyCode\":\"USD\"," +
@@ -89,7 +103,8 @@ namespace RevenueCat.Tests
                 "\"active\":{\"premium\":{\"identifier\":\"premium\",\"isActive\":true,\"willRenew\":true," +
                 "\"periodType\":\"NORMAL\",\"latestPurchaseDateMillis\":1700000000000," +
                 "\"originalPurchaseDateMillis\":1690000000000,\"store\":\"APP_STORE\"," +
-                "\"productIdentifier\":\"monthly\",\"isSandbox\":false}}}," +
+                "\"productIdentifier\":\"monthly\",\"isSandbox\":false}}," +
+                "\"verification\":\"NOT_REQUESTED\"}," +
                 "\"activeSubscriptions\":[\"monthly\"]," +
                 "\"allPurchasedProductIdentifiers\":[\"monthly\",\"lifetime\"]," +
                 "\"firstSeenMillis\":1700000000000,\"originalAppUserId\":\"user_1\"," +
@@ -184,6 +199,9 @@ namespace RevenueCat.Tests
         [Test]
         public void SubscriptionOptionPricingPhaseFallsBackToUnknownForUnrecognizedEnums()
         {
+            // "BOGUS" is deliberately synthetic, like the UNRECOGNIZED category above: it stands in
+            // for a recurrenceMode or offerPaymentMode that Android starts sending before Unity
+            // knows the name, and pins down the UNKNOWN fallback.
             var response = JSONNode.Parse(
                 "{\"id\":\"monthly:base\",\"storeProductId\":\"monthly\",\"productId\":\"monthly\"," +
                 "\"tags\":[],\"isBasePlan\":true," +
@@ -227,8 +245,14 @@ namespace RevenueCat.Tests
         public void WebPurchaseRedemptionResultParsesErrorVariant()
         {
             var response = JSONNode.Parse(
-                "{\"result\":\"ERROR\",\"error\":{\"message\":\"Redemption failed\",\"code\":11," +
-                "\"underlyingErrorMessage\":\"Backend rejected\",\"readableErrorCode\":\"UNKNOWN_ERROR\"}}"
+                // readableErrorCode is ErrorCode.codeName on iOS and PurchasesErrorCode.name on
+                // Android; both duplicate it under the deprecated readable_error_code. Code 11 is
+                // InvalidCredentialsError, so these are the iOS values for that code.
+                "{\"result\":\"ERROR\",\"error\":{\"message\":\"There was a credentials issue. " +
+                "Check the underlying error for more details.\",\"code\":11," +
+                "\"underlyingErrorMessage\":\"Backend rejected\"," +
+                "\"readableErrorCode\":\"INVALID_CREDENTIALS\"," +
+                "\"readable_error_code\":\"INVALID_CREDENTIALS\"}}"
             );
 
             var result = Purchases.WebPurchaseRedemptionResult.FromJson(response);
