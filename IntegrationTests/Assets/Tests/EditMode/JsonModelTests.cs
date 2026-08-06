@@ -6,11 +6,11 @@ namespace RevenueCat.Tests
 {
     public class JsonModelTests
     {
-        /// CustomerInfo.map() / CustomerInfo.dictionary in purchases-hybrid-common 18.29.0 for a
-        /// user with no purchases. Every optional field is present as an explicit null rather than
-        /// absent: Android's Map.convertToJson() maps Kotlin null to JSONObject.NULL and the iOS
-        /// mappers use NSNull(). SimpleJSON treats a null node and an absent node alike, but the
-        /// fixture spells them out so it matches what actually ships.
+        /// purchases-hybrid-common's CustomerInfo.map() (Android) / CustomerInfo.dictionary (iOS)
+        /// for a user with no purchases. Every optional field is present as an explicit null rather
+        /// than absent: Android's Map.convertToJson() maps Kotlin null to JSONObject.NULL and the
+        /// iOS mappers use NSNull(). SimpleJSON treats a null node and an absent node alike, but
+        /// the fixture spells them out so it matches what actually ships.
         private const string MinimalCustomerInfoJson =
             "{\"entitlements\":{\"all\":{},\"active\":{},\"verification\":\"NOT_REQUESTED\"}," +
             "\"activeSubscriptions\":[],\"allPurchasedProductIdentifiers\":[]," +
