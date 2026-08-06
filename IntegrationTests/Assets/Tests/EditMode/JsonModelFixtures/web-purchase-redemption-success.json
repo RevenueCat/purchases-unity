@@ -1,0 +1,29 @@
+{
+  "result": "SUCCESS",
+  "customerInfo": {
+    "entitlements": {
+      "all": {},
+      "active": {},
+      "verification": "NOT_REQUESTED"
+    },
+    "activeSubscriptions": [],
+    "allPurchasedProductIdentifiers": [],
+    "latestExpirationDate": null,
+    "latestExpirationDateMillis": null,
+    "firstSeen": "2023-11-14T22:13:20.000Z",
+    "firstSeenMillis": 1700000000000,
+    "originalAppUserId": "user_1",
+    "requestDate": "2023-11-14T22:13:20.001Z",
+    "requestDateMillis": 1700000000001,
+    "allExpirationDates": {},
+    "allExpirationDatesMillis": {},
+    "allPurchaseDates": {},
+    "allPurchaseDatesMillis": {},
+    "originalApplicationVersion": null,
+    "originalPurchaseDate": null,
+    "originalPurchaseDateMillis": null,
+    "managementURL": null,
+    "nonSubscriptionTransactions": [],
+    "subscriptionsByProductIdentifier": {}
+  }
+}
