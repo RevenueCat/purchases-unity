@@ -19,10 +19,6 @@ namespace RevenueCat.Tester
                  "Reuses the API keys set on the Purchases component.")]
         [SerializeField] private bool configureAtRuntime;
 
-        [Tooltip("When Configure At Runtime is on, enables RevenueCat Workflows (multipage paywalls). " +
-                 "Internal, testing only.")]
-        [SerializeField] private bool useWorkflows;
-
         [Header("Paywall Defaults")]
         [Tooltip("Default offering identifier to pre-populate in the Paywalls screen. Leave empty for current offering.")]
         [SerializeField] private string defaultOfferingIdentifier;
@@ -100,14 +96,12 @@ namespace RevenueCat.Tester
                 apiKey = _purchases.useAmazon ? _purchases.revenueCatAPIKeyAmazon : _purchases.revenueCatAPIKeyGoogle;
             }
 
-            var dangerousSettings = new Purchases.DangerousSettings(autoSyncPurchases: true, useWorkflows: useWorkflows);
             var configuration = Purchases.PurchasesConfiguration.Builder.Init(apiKey)
                 .SetAppUserId(string.IsNullOrEmpty(_purchases.appUserID) ? null : _purchases.appUserID)
-                .SetDangerousSettings(dangerousSettings)
                 .Build();
 
-            _logConsole?.Log($"[RuntimeSetup] Configuring at runtime (useWorkflows={useWorkflows})");
-            Debug.Log($"[RuntimeSetup] Configuring Purchases at runtime (useWorkflows={useWorkflows}).");
+            _logConsole?.Log("[RuntimeSetup] Configuring at runtime");
+            Debug.Log("[RuntimeSetup] Configuring Purchases at runtime.");
             _purchases.Configure(configuration);
             _purchases.GetProducts(_purchases.productIdentifiers, null);
         }

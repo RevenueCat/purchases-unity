@@ -446,6 +446,34 @@ public class PaywallViewPresenter {
                     setDialogNotFocusable(false);
                 }
             }
+
+            @Override
+            public void onWebCheckoutOpened() {
+                // No FLAG_NOT_FOCUSABLE here, unlike onPurchaseStarted: there is no later
+                // native signal for when the web checkout closes, so C# would have to
+                // acknowledge this same event as terminal, releasing the flag on its own
+                // round trip (roughly one frame) rather than when the browser Activity
+                // actually backgrounds Unity (typically 100ms+ later). That window is too
+                // short to protect anything and would clear the flag before it matters.
+                if (forwardEvents) {
+                    RevenueCatUI.sendPaywallEvent("onWebCheckoutOpened", null);
+                }
+            }
+
+            @Override
+            public void onUrlOpened(@NonNull String url) {
+                // No FLAG_NOT_FOCUSABLE here: opening a URL is not a purchase/restore flow with
+                // a terminal acknowledgement, same as onWebCheckoutOpened above.
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("url", url);
+                        RevenueCatUI.sendPaywallEvent("onUrlOpened", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onUrlOpened event: " + e.getMessage());
+                    }
+                }
+            }
         };
     }
 
