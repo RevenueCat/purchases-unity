@@ -1,0 +1,28 @@
+{
+  "id": "monthly:base",
+  "storeProductId": "monthly",
+  "productId": "monthly",
+  "tags": [],
+  "isBasePlan": true,
+  "billingPeriod": {
+    "unit": "MONTH",
+    "value": 1,
+    "iso8601": "P1M"
+  },
+  "isPrepaid": false,
+  "fullPricePhase": {
+    "billingPeriod": {
+      "unit": "MONTH",
+      "value": 1,
+      "iso8601": "P1M"
+    },
+    "recurrenceMode": "BOGUS",
+    "billingCycleCount": 0,
+    "price": {
+      "formatted": "$9.99",
+      "amountMicros": 9990000,
+      "currencyCode": "USD"
+    },
+    "offerPaymentMode": "BOGUS"
+  }
+}

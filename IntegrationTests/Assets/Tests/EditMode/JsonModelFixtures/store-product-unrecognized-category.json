@@ -1,0 +1,9 @@
+{
+  "title": "Lifetime",
+  "identifier": "lifetime",
+  "description": "Lifetime access",
+  "price": 99.99,
+  "priceString": "$99.99",
+  "currencyCode": "USD",
+  "productCategory": "UNRECOGNIZED"
+}

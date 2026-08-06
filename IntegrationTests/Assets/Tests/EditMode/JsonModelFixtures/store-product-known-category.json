@@ -1,0 +1,9 @@
+{
+  "title": "Monthly",
+  "identifier": "monthly",
+  "description": "Monthly access",
+  "price": 9.99,
+  "priceString": "$9.99",
+  "currencyCode": "USD",
+  "productCategory": "SUBSCRIPTION"
+}
