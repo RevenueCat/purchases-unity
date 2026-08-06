@@ -225,6 +225,20 @@ namespace RevenueCat.Tests
             Assert.That(receivedResult.StoreTransaction, Is.Null);
         }
 
+        [Test]
+        public void DuplicateNativeResponseDeliversCallbackOnce()
+        {
+            var callbackCount = 0;
+            _purchases.PurchaseProduct("monthly", _ => callbackCount++);
+
+            var response = FailedPurchaseResponse(2, "STORE_PROBLEM", "There was a problem with the App Store.",
+                false);
+            SendNativeResponse("_makePurchase", response);
+            SendNativeResponse("_makePurchase", response);
+
+            Assert.That(callbackCount, Is.EqualTo(1));
+        }
+
         private PurchasesWrapperSpy.Invocation AssertLastInvocation(string method, int argumentCount)
         {
             Assert.That(_wrapper.Invocations, Has.Count.EqualTo(1));
