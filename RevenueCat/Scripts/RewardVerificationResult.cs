@@ -37,7 +37,7 @@ public partial class Purchases
                 Reward = VerifiedReward.FromJson(response["reward"]);
             }
 
-            foreach (JSONNode rewardNode in response["moreRewards"].AsArray)
+            foreach (JSONNode rewardNode in response["moreRewards"])
             {
                 MoreRewards.Add(VerifiedReward.FromJson(rewardNode));
             }
