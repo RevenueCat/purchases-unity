@@ -852,7 +852,16 @@ public class PurchasesWrapper {
         sendJSONObject(MappersHelpersKt.convertToJson(token), GENERATE_REWARD_VERIFICATION_TOKEN);
     }
 
-    public static void pollRewardVerification(String clientTransactionId) {
+    public static void pollRewardVerification(String clientTransactionId, @Nullable String trackingMetadataJson) {
+        Map<String, ?> trackingMetadata = null;
+        if (trackingMetadataJson != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(trackingMetadataJson);
+                trackingMetadata = MappersHelpersKt.convertToMap(jsonObject);
+            } catch (JSONException e) {
+                logJSONException(e);
+            }
+        }
         CommonKt.pollRewardVerification(clientTransactionId, new OnResult() {
             @Override
             public void onReceived(Map<String, ?> map) {
@@ -863,7 +872,7 @@ public class PurchasesWrapper {
             public void onError(ErrorContainer errorContainer) {
                 sendError(errorContainer, POLL_REWARD_VERIFICATION);
             }
-        });
+        }, trackingMetadata);
     }
 
     private static void logJSONException(JSONException e) {
