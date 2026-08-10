@@ -1,17 +1,17 @@
 {
   "dependencies": {
     "com.google.ads.mobile": {
-      "version": "11.3.0",
+      "version": "10.6.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.google.external-dependency-manager": "1.2.187",
+        "com.google.external-dependency-manager": "1.2.186",
         "com.unity.modules.androidjni": "1.0.0"
       },
       "url": "https://package.openupm.com"
     },
     "com.google.external-dependency-manager": {
-      "version": "1.2.187",
+      "version": "1.2.186",
       "depth": 1,
       "source": "registry",
       "dependencies": {},

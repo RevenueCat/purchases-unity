@@ -2,7 +2,7 @@
   "dependencies": {
     "com.revenuecat.purchases-ui-unity": "file:../../RevenueCatUI",
     "com.revenuecat.purchases-unity": "file:../../RevenueCat",
-    "com.google.ads.mobile": "11.3.0",
+    "com.google.ads.mobile": "10.6.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "4.12.0",
