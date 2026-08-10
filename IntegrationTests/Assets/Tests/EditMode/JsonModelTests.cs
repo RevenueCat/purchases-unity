@@ -217,5 +217,101 @@ namespace RevenueCat.Tests
 
             Assert.Throws<ArgumentException>(() => Purchases.WebPurchaseRedemptionResult.FromJson(response));
         }
+
+        [Test]
+        public void RewardVerificationTokenParsesFields()
+        {
+            var response = LoadFixture("reward-verification-token.json");
+
+            var token = new Purchases.RewardVerificationToken(response);
+
+            Assert.That(token.CustomData, Is.EqualTo("txn_abc123"));
+            Assert.That(token.ClientTransactionId, Is.EqualTo("txn_abc123"));
+            Assert.That(token.AppUserID, Is.EqualTo("user_1"));
+        }
+
+        [Test]
+        public void VerifiedRewardParsesVirtualCurrencyVariant()
+        {
+            var response = LoadFixture("verified-reward-virtual-currency.json");
+
+            var reward = (Purchases.VerifiedReward.VirtualCurrency)Purchases.VerifiedReward.FromJson(response);
+
+            Assert.That(reward.Code, Is.EqualTo("COIN"));
+            Assert.That(reward.Amount, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void VerifiedRewardParsesEntitlementVariant()
+        {
+            var response = LoadFixture("verified-reward-entitlement.json");
+
+            var reward = (Purchases.VerifiedReward.Entitlement)Purchases.VerifiedReward.FromJson(response);
+
+            Assert.That(reward.Identifier, Is.EqualTo("premium"));
+            Assert.That(reward.ExpiresAt, Is.EqualTo("2023-11-14T22:13:20.000Z"));
+            Assert.That(reward.ExpiresAtMillis, Is.EqualTo(1700000000000));
+        }
+
+        [Test]
+        public void VerifiedRewardParsesNoRewardVariant()
+        {
+            var response = LoadFixture("verified-reward-no-reward.json");
+
+            var reward = Purchases.VerifiedReward.FromJson(response);
+
+            Assert.That(reward, Is.SameAs(Purchases.VerifiedReward.NoReward.Instance));
+        }
+
+        [Test]
+        public void VerifiedRewardFallsBackToUnsupportedForUnrecognizedType()
+        {
+            // Deliberately synthetic, like the UNRECOGNIZED category tests above: stands in for a
+            // reward type added natively before Unity knows about it.
+            var response = LoadFixture("verified-reward-unsupported.json");
+
+            var reward = Purchases.VerifiedReward.FromJson(response);
+
+            Assert.That(reward, Is.SameAs(Purchases.VerifiedReward.Unsupported.Instance));
+        }
+
+        [Test]
+        public void RewardVerificationResultParsesRewardAndMoreRewards()
+        {
+            var response = LoadFixture("reward-verification-result-success.json");
+
+            var result = new Purchases.RewardVerificationResult(response);
+
+            Assert.That(result.Failed, Is.False);
+            Assert.That(result.Reward, Is.InstanceOf<Purchases.VerifiedReward.VirtualCurrency>());
+            Assert.That(result.MoreRewards, Has.Count.EqualTo(1));
+            Assert.That(result.MoreRewards[0], Is.InstanceOf<Purchases.VerifiedReward.Entitlement>());
+        }
+
+        [Test]
+        public void RewardVerificationResultLeavesRewardNullWhenFailed()
+        {
+            var response = LoadFixture("reward-verification-result-failed.json");
+
+            var result = new Purchases.RewardVerificationResult(response);
+
+            Assert.That(result.Failed, Is.True);
+            Assert.That(result.Reward, Is.Null);
+            Assert.That(result.MoreRewards, Is.Empty);
+        }
+
+        [Test]
+        public void RewardVerificationResultTreatsExplicitNullMoreRewardsAsEmpty()
+        {
+            // moreRewards can arrive as an explicit JSON null rather than an empty array or a
+            // missing key; this must not throw.
+            var response = LoadFixture("reward-verification-result-null-more-rewards.json");
+
+            var result = new Purchases.RewardVerificationResult(response);
+
+            Assert.That(result.Failed, Is.False);
+            Assert.That(result.Reward, Is.InstanceOf<Purchases.VerifiedReward.VirtualCurrency>());
+            Assert.That(result.MoreRewards, Is.Empty);
+        }
     }
 }

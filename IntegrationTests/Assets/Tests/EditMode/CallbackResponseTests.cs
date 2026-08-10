@@ -686,6 +686,103 @@ namespace RevenueCat.Tests
             Assert.That(receivedError.ReadableErrorCode, Is.EqualTo("StoreProblemError"));
         }
 
+        [Test]
+        public void GenerateRewardVerificationTokenDeliversToken()
+        {
+            Purchases.RewardVerificationToken receivedToken = null;
+
+            _purchases.GenerateRewardVerificationToken("impression_1", (token, error) => receivedToken = token);
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.GenerateRewardVerificationToken), 1);
+            Assert.That(invocation.Arguments[0], Is.EqualTo("impression_1"));
+
+            SendNativeResponse("_generateRewardVerificationToken",
+                "{\"customData\":\"txn_abc123\",\"clientTransactionId\":\"txn_abc123\",\"appUserID\":\"user_1\"}");
+
+            Assert.That(receivedToken, Is.Not.Null);
+            Assert.That(receivedToken.ClientTransactionId, Is.EqualTo("txn_abc123"));
+        }
+
+        [Test]
+        public void GenerateRewardVerificationTokenDeliversNativeError()
+        {
+            Purchases.RewardVerificationToken receivedToken = null;
+            Purchases.Error receivedError = null;
+
+            _purchases.GenerateRewardVerificationToken("impression_1", (token, error) =>
+            {
+                receivedToken = token;
+                receivedError = error;
+            });
+
+            SendNativeResponse("_generateRewardVerificationToken", ErrorJson(10, "There was a network error.",
+                "NETWORK_ERROR"));
+
+            Assert.That(receivedToken, Is.Null);
+            Assert.That(receivedError, Is.Not.Null);
+            Assert.That(receivedError.Code, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void PollRewardVerificationDeliversRewardResult()
+        {
+            Purchases.RewardVerificationResult receivedResult = null;
+
+            _purchases.PollRewardVerification("txn_abc123", (result, error) => receivedResult = result);
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.PollRewardVerification), 1);
+            Assert.That(invocation.Arguments[0], Is.EqualTo("txn_abc123"));
+
+            SendNativeResponse("_pollRewardVerification",
+                "{\"failed\":false,\"reward\":{\"type\":\"virtual_currency\",\"code\":\"COIN\",\"amount\":50}," +
+                "\"moreRewards\":[]}");
+
+            Assert.That(receivedResult, Is.Not.Null);
+            Assert.That(receivedResult.Failed, Is.False);
+            Assert.That(receivedResult.Reward, Is.InstanceOf<Purchases.VerifiedReward.VirtualCurrency>());
+        }
+
+        [Test]
+        public void PollRewardVerificationDeliversFailedResultWithoutError()
+        {
+            // A rejected/timed-out verification is reported as Failed = true, not as an error.
+            Purchases.RewardVerificationResult receivedResult = null;
+            Purchases.Error receivedError = null;
+
+            _purchases.PollRewardVerification("txn_abc123", (result, error) =>
+            {
+                receivedResult = result;
+                receivedError = error;
+            });
+
+            SendNativeResponse("_pollRewardVerification", "{\"failed\":true,\"reward\":null,\"moreRewards\":null}");
+
+            Assert.That(receivedResult, Is.Not.Null);
+            Assert.That(receivedResult.Failed, Is.True);
+            Assert.That(receivedResult.Reward, Is.Null);
+            Assert.That(receivedError, Is.Null);
+        }
+
+        [Test]
+        public void PollRewardVerificationDeliversNativeError()
+        {
+            Purchases.RewardVerificationResult receivedResult = null;
+            Purchases.Error receivedError = null;
+
+            _purchases.PollRewardVerification("txn_abc123", (result, error) =>
+            {
+                receivedResult = result;
+                receivedError = error;
+            });
+
+            SendNativeResponse("_pollRewardVerification", ErrorJson(10, "There was a network error.",
+                "NETWORK_ERROR"));
+
+            Assert.That(receivedResult, Is.Null);
+            Assert.That(receivedError, Is.Not.Null);
+            Assert.That(receivedError.Code, Is.EqualTo(10));
+        }
+
         private PurchasesWrapperSpy.Invocation AssertLastInvocation(string method, int argumentCount)
         {
             Assert.That(_wrapper.Invocations, Has.Count.EqualTo(1));
