@@ -464,15 +464,27 @@ jobs:
             equal: [cocoapods, << parameters.variant >>]
           steps:
             - restore_cache:
-                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+                key: 2-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}-{{ checksum "RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml" }}
 
             - run:
                 name: Install Pods
                 working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-                command: bundle exec pod install --repo-update --verbose
+                command: |
+                  RETRY_COUNT=0
+                  MAX_RETRIES=3
+                  until bundle exec pod install --repo-update --verbose; do
+                    RETRY_COUNT=$((RETRY_COUNT + 1))
+                    if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+                      echo "pod install failed after $MAX_RETRIES attempts"
+                      exit 1
+                    fi
+                    echo "pod install failed (attempt $RETRY_COUNT/$MAX_RETRIES), clearing CDN cache and retrying in 60s..."
+                    rm -rf ~/.cocoapods/repos/trunk
+                    sleep 60
+                  done
 
             - save_cache:
-                key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
+                key: 2-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}-{{ checksum "RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml" }}
                 paths:
                   - IntegrationTests/buildiOS-<< parameters.variant >>/Pods
 
