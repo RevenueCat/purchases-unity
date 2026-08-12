@@ -2,6 +2,7 @@
   "dependencies": {
     "com.revenuecat.purchases-ui-unity": "file:../../RevenueCatUI",
     "com.revenuecat.purchases-unity": "file:../../RevenueCat",
+    "com.google.ads.mobile": "10.6.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "4.12.0",
@@ -51,10 +52,11 @@
   },
   "scopedRegistries": [
     {
-      "name": "Game Package Registry by Google",
-      "url": "https://unityregistry-pa.googleapis.com",
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
       "scopes": [
-        "com.google"
+        "com.google.ads.mobile",
+        "com.google.external-dependency-manager"
       ]
     }
   ]

@@ -30,22 +30,23 @@ MonoBehaviour:
     m_Compliance:
       m_Status: 0
       m_Violations: []
-  - m_Id: scoped:project:Game Package Registry by Google
-    m_Name: Game Package Registry by Google
-    m_Url: https://unityregistry-pa.googleapis.com
+  - m_Id: scoped:project:package.openupm.com
+    m_Name: package.openupm.com
+    m_Url: https://package.openupm.com
     m_Scopes:
-    - com.google
+    - com.google.ads.mobile
+    - com.google.external-dependency-manager
     m_IsDefault: 0
     m_Capabilities: 0
     m_ConfigSource: 4
     m_Compliance:
       m_Status: 0
       m_Violations: []
-  m_UserSelectedRegistryName: Game Package Registry by Google
+  m_UserSelectedRegistryName: package.openupm.com
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:
     m_Modified: 0
     m_ErrorMessage: 
-    m_UserModificationsInstanceId: -888
-    m_OriginalInstanceId: -892
+    m_UserModificationsInstanceId: -874
+    m_OriginalInstanceId: -878
   m_LoadAssets: 0
