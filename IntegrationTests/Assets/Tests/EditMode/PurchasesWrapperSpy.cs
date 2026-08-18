@@ -217,7 +217,8 @@ namespace RevenueCat.Tests
         public void GenerateRewardVerificationToken(string impressionId) =>
             Record(nameof(GenerateRewardVerificationToken), impressionId);
 
-        public void PollRewardVerification(string clientTransactionId) =>
-            Record(nameof(PollRewardVerification), clientTransactionId);
+        public void PollRewardVerification(string clientTransactionId,
+            RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null) =>
+            Record(nameof(PollRewardVerification), clientTransactionId, trackingMetadata);
     }
 }
