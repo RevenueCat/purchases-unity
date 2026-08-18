@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using NUnit.Framework;
+using RevenueCat;
 using RevenueCat.SimpleJSON;
 using UnityEngine;
 
@@ -312,6 +313,42 @@ namespace RevenueCat.Tests
             Assert.That(result.Failed, Is.False);
             Assert.That(result.Reward, Is.InstanceOf<Purchases.VerifiedReward.VirtualCurrency>());
             Assert.That(result.MoreRewards, Is.Empty);
+        }
+
+        [Test]
+        public void RewardedAdTrackingMetadataSerializesAllFields()
+        {
+            var metadata = new RewardedAdTrackingMetadata(
+                AdTracker.MediatorName.AdMob,
+                AdTracker.Format.Rewarded,
+                "ad_unit_1",
+                "impression_1",
+                "network_1",
+                "placement_1");
+
+            var json = JSONNode.Parse(metadata.ToJsonString());
+
+            Assert.That(json["mediatorName"].Value, Is.EqualTo("AdMob"));
+            Assert.That(json["adFormat"].Value, Is.EqualTo("rewarded"));
+            Assert.That(json["adUnitId"].Value, Is.EqualTo("ad_unit_1"));
+            Assert.That(json["impressionId"].Value, Is.EqualTo("impression_1"));
+            Assert.That(json["networkName"].Value, Is.EqualTo("network_1"));
+            Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
+        }
+
+        [Test]
+        public void RewardedAdTrackingMetadataOmitsOptionalFieldsWhenNull()
+        {
+            var metadata = new RewardedAdTrackingMetadata(
+                AdTracker.MediatorName.AppLovin,
+                AdTracker.Format.Interstitial,
+                "ad_unit_1",
+                "impression_1");
+
+            var json = JSONNode.Parse(metadata.ToJsonString());
+
+            Assert.That(json.HasKey("networkName"), Is.False);
+            Assert.That(json.HasKey("placement"), Is.False);
         }
     }
 }
