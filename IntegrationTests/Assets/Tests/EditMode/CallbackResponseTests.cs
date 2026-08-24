@@ -730,8 +730,9 @@ namespace RevenueCat.Tests
 
             _purchases.PollRewardVerification("txn_abc123", (result, error) => receivedResult = result);
 
-            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.PollRewardVerification), 1);
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.PollRewardVerification), 2);
             Assert.That(invocation.Arguments[0], Is.EqualTo("txn_abc123"));
+            Assert.That(invocation.Arguments[1], Is.Null);
 
             SendNativeResponse("_pollRewardVerification",
                 "{\"failed\":false,\"reward\":{\"type\":\"virtual_currency\",\"code\":\"COIN\",\"amount\":50}," +
