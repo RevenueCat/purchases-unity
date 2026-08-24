@@ -6,7 +6,6 @@ public partial class Purchases
     /// A reward granted after a verified rewarded ad. Switch on the concrete subtype to read the
     /// fields relevant to that reward.
     /// </summary>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public abstract class VerifiedReward
     {
         private VerifiedReward() { }

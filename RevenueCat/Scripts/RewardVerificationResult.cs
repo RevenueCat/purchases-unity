@@ -7,7 +7,6 @@ public partial class Purchases
     /// <summary>
     /// Result of polling for reward verification. A single ad can grant multiple rewards.
     /// </summary>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public class RewardVerificationResult
     {
         /// <summary>

@@ -97,7 +97,6 @@ public partial class Purchases : MonoBehaviour
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public RevenueCat.AdTracker AdTracker { get; private set; }
 
     internal void SetWrapper(IPurchasesWrapper wrapper)
@@ -701,7 +700,6 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     /// <param name="token"> The generated token if the request was successful, null otherwise.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public delegate void GenerateRewardVerificationTokenFunc(RewardVerificationToken token, Error error);
 
     private GenerateRewardVerificationTokenFunc GenerateRewardVerificationTokenCallback { get; set; }
@@ -711,7 +709,6 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     /// <param name="result"> The verification result if the request was successful, null otherwise.</param>
     /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public delegate void PollRewardVerificationFunc(RewardVerificationResult result, Error error);
 
     private PollRewardVerificationFunc PollRewardVerificationCallback { get; set; }
@@ -725,7 +722,6 @@ public partial class Purchases : MonoBehaviour
     /// </summary>
     /// <param name="impressionId"> The impression identifier of the rewarded ad.</param>
     /// <param name="callback"> Called with the generated token, or an error if generation failed.</param>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public void GenerateRewardVerificationToken(string impressionId, GenerateRewardVerificationTokenFunc callback)
     {
         GenerateRewardVerificationTokenCallback = callback;
@@ -744,7 +740,6 @@ public partial class Purchases : MonoBehaviour
     /// <param name="callback"> Called with the verification result, or an error if polling failed.</param>
     /// <param name="trackingMetadata"> Pass to have the SDK automatically track reward-verification
     /// events for the ad it belongs to; omit to poll without tracking.</param>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public void PollRewardVerification(
         string clientTransactionId,
         PollRewardVerificationFunc callback,

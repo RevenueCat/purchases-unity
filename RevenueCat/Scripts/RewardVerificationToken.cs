@@ -7,7 +7,6 @@ public partial class Purchases
     /// to the ad network as server-side verification custom data, then to
     /// <see cref="Purchases.PollRewardVerification"/> to await the reward.
     /// </summary>
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public class RewardVerificationToken
     {
         /// <summary>
