@@ -1,9 +1,7 @@
 namespace RevenueCat
 {
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public class AdTracker
     {
-        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
         public class MediatorName
         {
             public string Value { get; }
@@ -22,7 +20,6 @@ namespace RevenueCat
             public static bool operator !=(MediatorName a, MediatorName b) => !Equals(a, b);
         }
 
-        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
         public class Format
         {
             public string Value { get; }
@@ -46,7 +43,6 @@ namespace RevenueCat
             public static bool operator !=(Format a, Format b) => !Equals(a, b);
         }
 
-        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
         public class Precision
         {
             public string Value { get; }

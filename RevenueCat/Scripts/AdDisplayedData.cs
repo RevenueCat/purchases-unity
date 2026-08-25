@@ -2,7 +2,6 @@ using RevenueCat.SimpleJSON;
 
 namespace RevenueCat
 {
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public class AdDisplayedData
     {
         public AdTracker.MediatorName MediatorName { get; }
