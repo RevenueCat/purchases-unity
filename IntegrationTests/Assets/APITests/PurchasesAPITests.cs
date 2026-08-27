@@ -186,6 +186,7 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.SetMparticleID("asdgas");
         purchases.SetOnesignalID("asdgas");
         purchases.SetOnesignalUserID("asdgas");
+        purchases.SetSingularDeviceID("asdgas");
         purchases.SetAirshipChannelID("asdgas");
         purchases.SetCleverTapID("asdgas");
         purchases.SetMixpanelDistinctID("asdgas");

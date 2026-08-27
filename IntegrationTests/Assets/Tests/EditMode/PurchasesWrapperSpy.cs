@@ -147,6 +147,7 @@ namespace RevenueCat.Tests
         public void SetMparticleID(string mparticleID) => Record(nameof(SetMparticleID), mparticleID);
         public void SetOnesignalID(string onesignalID) => Record(nameof(SetOnesignalID), onesignalID);
         public void SetOnesignalUserID(string onesignalUserID) => Record(nameof(SetOnesignalUserID), onesignalUserID);
+        public void SetSingularDeviceID(string singularDeviceID) => Record(nameof(SetSingularDeviceID), singularDeviceID);
         public void SetAirshipChannelID(string airshipChannelID) =>
             Record(nameof(SetAirshipChannelID), airshipChannelID);
 
