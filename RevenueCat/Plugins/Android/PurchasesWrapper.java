@@ -505,6 +505,10 @@ public class PurchasesWrapper {
         SubscriberAttributesKt.setOnesignalUserID(onesignalUserID);
     }
 
+    public static void setSingularDeviceID(String singularDeviceID) {
+        SubscriberAttributesKt.setSingularDeviceID(singularDeviceID);
+    }
+
     public static void setAirshipChannelID(String airshipChannelID) {
         SubscriberAttributesKt.setAirshipChannelID(airshipChannelID);
     }

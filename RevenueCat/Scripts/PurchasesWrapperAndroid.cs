@@ -292,6 +292,11 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
         CallPurchases("setOnesignalUserID", onesignalUserID);
     }
 
+    public void SetSingularDeviceID(string singularDeviceID)
+    {
+        CallPurchases("setSingularDeviceID", singularDeviceID);
+    }
+
     public void SetAirshipChannelID(string airshipChannelID)
     {
         CallPurchases("setAirshipChannelID", airshipChannelID);
