@@ -41,9 +41,12 @@ namespace RevenueCat.Tests
         [Test]
         public void TrackCustomPaywallImpressionWithPaywallIdOnlySetsPaywallIdOnly()
         {
-            _purchases.TrackCustomPaywallImpression(new Purchases.CustomPaywallImpressionParams("paywall_1"));
+            var suppliedParameters = new Purchases.CustomPaywallImpressionParams("paywall_1");
+
+            _purchases.TrackCustomPaywallImpression(suppliedParameters);
 
             var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.TrackCustomPaywallImpression), 1);
+            Assert.That(invocation.Arguments[0], Is.SameAs(suppliedParameters));
             var parameters = (Purchases.CustomPaywallImpressionParams)invocation.Arguments[0];
             Assert.That(parameters.PaywallId, Is.EqualTo("paywall_1"));
             Assert.That(parameters.OfferingId, Is.Null);
