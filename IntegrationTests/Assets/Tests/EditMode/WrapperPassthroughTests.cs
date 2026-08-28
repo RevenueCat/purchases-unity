@@ -95,17 +95,40 @@ namespace RevenueCat.Tests
                 ["media_source"] = null,
                 ["click_count"] = 3,
                 ["nested"] = new Dictionary<string, object> { ["key"] = "value" },
-                ["list"] = new List<object> { "a", "b" }
+                ["list"] = new List<object> { "a", "b" },
+                ["is_first_launch"] = true,
+                ["is_retargeting"] = false,
+                ["install_time_ms"] = 1717171717171L,
+                ["revenue_float"] = 9.99f,
+                ["revenue_double"] = 12.34d
             });
 
             var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SetAppsFlyerConversionData), 1);
-            var conversionData = JSONNode.Parse((string)invocation.Arguments[0]);
+            var conversionDataJson = (string)invocation.Arguments[0];
+            var conversionData = JSONNode.Parse(conversionDataJson);
             Assert.That(conversionData["af_status"].Value, Is.EqualTo("Organic"));
             Assert.That(conversionData["media_source"].IsNull, Is.True);
+            Assert.That(conversionData["click_count"].IsNumber, Is.True);
             Assert.That(conversionData["click_count"].AsInt, Is.EqualTo(3));
             Assert.That(conversionData["nested"]["key"].Value, Is.EqualTo("value"));
             Assert.That(conversionData["list"][0].Value, Is.EqualTo("a"));
             Assert.That(conversionData["list"][1].Value, Is.EqualTo("b"));
+            // The IsBoolean/IsNumber checks carry the weight here. AsBool and AsFloat fall back to
+            // parsing the node's string value, so a number or bool that regressed into being
+            // serialized as a quoted string still satisfies the value assertion on its own.
+            Assert.That(conversionData["is_first_launch"].IsBoolean, Is.True);
+            Assert.That(conversionData["is_first_launch"].AsBool, Is.True);
+            Assert.That(conversionData["is_retargeting"].IsBoolean, Is.True);
+            Assert.That(conversionData["is_retargeting"].AsBool, Is.False);
+            Assert.That(conversionData["install_time_ms"].IsNumber, Is.True);
+            Assert.That(conversionData["install_time_ms"].AsLong, Is.EqualTo(1717171717171L));
+            Assert.That(conversionData["revenue_float"].IsNumber, Is.True);
+            Assert.That(conversionData["revenue_float"].AsFloat, Is.EqualTo(9.99f).Within(0.0001f));
+            Assert.That(conversionData["revenue_double"].IsNumber, Is.True);
+            Assert.That(conversionData["revenue_double"].AsDouble, Is.EqualTo(12.34d).Within(0.0001d));
+            Assert.That(conversionDataJson, Does.Contain("\"is_first_launch\":true"));
+            Assert.That(conversionDataJson, Does.Contain("\"is_retargeting\":false"));
+            Assert.That(conversionDataJson, Does.Contain("\"install_time_ms\":1717171717171"));
         }
 
         [Test]
@@ -139,12 +162,115 @@ namespace RevenueCat.Tests
         }
 
         [Test]
-        public void SetAdjustIdForwardsValue()
+        public void SetLogLevelForwardsLevel()
         {
-            _purchases.SetAdjustID("adjust_id_1");
+            _purchases.SetLogLevel(Purchases.LogLevel.Warn);
 
-            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SetAdjustID), 1);
-            Assert.That(invocation.Arguments[0], Is.EqualTo("adjust_id_1"));
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SetLogLevel), 1);
+            Assert.That(invocation.Arguments[0], Is.EqualTo(Purchases.LogLevel.Warn));
+        }
+
+        [Test]
+        public void SetDebugLogsEnabledForwardsFlag()
+        {
+#pragma warning disable 618
+            _purchases.SetDebugLogsEnabled(true);
+#pragma warning restore 618
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SetDebugLogsEnabled), 1);
+            Assert.That(invocation.Arguments[0], Is.True);
+        }
+
+        [Test]
+        public void SetAllowSharingStoreAccountForwardsFlag()
+        {
+#pragma warning disable 618
+            _purchases.SetAllowSharingStoreAccount(true);
+#pragma warning restore 618
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SetAllowSharingStoreAccount), 1);
+            Assert.That(invocation.Arguments[0], Is.True);
+        }
+
+        [Test]
+        public void SyncPurchasesCallsWrapper()
+        {
+            _purchases.SyncPurchases();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.SyncPurchases), 0);
+        }
+
+        [Test]
+        public void SyncPurchasesWithCallbackCallsWrapper()
+        {
+            _purchases.SyncPurchases((customerInfo, error) => { });
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.SyncPurchases), 0);
+        }
+
+        [Test]
+        public void SyncAttributesAndOfferingsIfNeededCallsWrapper()
+        {
+            _purchases.SyncAttributesAndOfferingsIfNeeded((offerings, error) => { });
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.SyncAttributesAndOfferingsIfNeeded), 0);
+        }
+
+        [Test]
+        public void SetLogHandlerCallsWrapper()
+        {
+            _purchases.SetLogHandler((logLevel, message) => { });
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.SetLogHandler), 0);
+        }
+
+        [Test]
+        public void PresentCodeRedemptionSheetCallsWrapper()
+        {
+            _purchases.PresentCodeRedemptionSheet();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.PresentCodeRedemptionSheet), 0);
+        }
+
+        [Test]
+        public void EnableAdServicesAttributionTokenCollectionCallsWrapper()
+        {
+            _purchases.EnableAdServicesAttributionTokenCollection();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.EnableAdServicesAttributionTokenCollection), 0);
+        }
+
+        [Test]
+        public void GetAppUserIdCallsWrapper()
+        {
+            _purchases.GetAppUserId();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.GetAppUserId), 0);
+        }
+
+        [Test]
+        public void IsAnonymousCallsWrapper()
+        {
+            _purchases.IsAnonymous();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.IsAnonymous), 0);
+        }
+
+        [Test]
+        public void IsConfiguredCallsWrapper()
+        {
+            _purchases.IsConfigured();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.IsConfigured), 0);
+        }
+
+        [Test]
+        public void GetCachedVirtualCurrenciesReturnsNullWhenWrapperHasNothingCached()
+        {
+            var virtualCurrencies = _purchases.GetCachedVirtualCurrencies();
+
+            AssertLastInvocation(nameof(IPurchasesWrapper.GetCachedVirtualCurrencies), 0);
+            Assert.That(virtualCurrencies, Is.Null);
         }
 
         private PurchasesWrapperSpy.Invocation AssertLastInvocation(string method, int argumentCount)
