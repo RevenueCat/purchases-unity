@@ -40,6 +40,8 @@ static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = @"_getEligible
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = @"_getEligibleWinBackOffersForPackage";
 static NSString *const PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = @"_purchaseProductWithWinBackOffer";
 static NSString *const PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = @"_purchasePackageWithWinBackOffer";
+static NSString *const GENERATE_REWARD_VERIFICATION_TOKEN = @"_generateRewardVerificationToken";
+static NSString *const POLL_REWARD_VERIFICATION = @"_pollRewardVerification";
 #pragma mark Utility Methods
 
 NSString *convertCString(const char *string) {
@@ -150,10 +152,9 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary new];
             response[@"error"] = error.info;
             response[@"userCancelled"] = error.info[@"userCancelled"];
-            [self sendJSONObject:response toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:MAKE_PURCHASE];
     }];
@@ -171,7 +172,6 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response = [NSMutableDictionary new];
             response[@"error"] = error.info;
             response[@"userCancelled"] = error.info[@"userCancelled"];
-            [self sendJSONObject:response toMethod:MAKE_PURCHASE];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
             response[@"userCancelled"] = @NO;
@@ -548,7 +548,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"userCancelled"] = error.info[@"userCancelled"];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER];
     }];
@@ -583,7 +583,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
             response[@"userCancelled"] = error.info[@"userCancelled"];
         } else {
             response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary];
-            response[@"userCancelled"] = false;
+            response[@"userCancelled"] = @NO;
         }
         [self sendJSONObject:response toMethod:PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER];
     }];
@@ -683,6 +683,41 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     } else {
         NSLog(@"[Purchases] trackAdFailedToLoad: requires iOS 15.0+, skipping");
     }
+}
+
+- (void)generateRewardVerificationToken:(NSString *)impressionId {
+    NSDictionary *token = [RCCommonFunctionality generateRewardVerificationTokenWithImpressionId:impressionId];
+    [self sendJSONObject:token toMethod:GENERATE_REWARD_VERIFICATION_TOKEN];
+}
+
+- (void)pollRewardVerification:(NSString *)clientTransactionId trackingMetadataJson:(NSString *)trackingMetadataJson {
+    NSDictionary *trackingMetadata = nil;
+    if (trackingMetadataJson) {
+        NSError *error = nil;
+        trackingMetadata = [NSJSONSerialization JSONObjectWithData:[trackingMetadataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+        if (error) {
+            NSLog(@"[Purchases] pollRewardVerification: trackingMetadata JSON parse error: %@", error.localizedDescription);
+            trackingMetadata = nil;
+        }
+    }
+    [RCCommonFunctionality pollRewardVerificationWithClientTransactionId:clientTransactionId
+                                                        trackingMetadata:trackingMetadata
+                                                             completion:^(NSDictionary *_Nullable result, RCErrorContainer *_Nullable error) {
+        if (error == nil && result == nil) {
+            NSError *nsError = [[NSError alloc] initWithDomain:RCPurchasesErrorCodeDomain
+                                                          code:RCUnknownError
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Both error and response are null"}];
+            error = [[RCErrorContainer alloc] initWithError:nsError extraPayload:@{}];
+        }
+
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        if (error) {
+            response[@"error"] = error.info;
+        } else {
+            [response addEntriesFromDictionary:result];
+        }
+        [self sendJSONObject:response toMethod:POLL_REWARD_VERIFICATION];
+    }];
 }
 
 - (void)parseAsWebPurchaseRedemption:(NSString *)urlString {
@@ -810,7 +845,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"9.7.0";
+    return @"9.9.0";
 }
 
 @end
@@ -1207,6 +1242,15 @@ void _RCTrackAdLoaded(const char *dataJson) {
 
 void _RCTrackAdFailedToLoad(const char *dataJson) {
     [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
+}
+
+void _RCGenerateRewardVerificationToken(const char *impressionId) {
+    [_RCUnityHelperShared() generateRewardVerificationToken:convertCString(impressionId)];
+}
+
+void _RCPollRewardVerification(const char *clientTransactionId, const char *trackingMetadataJson) {
+    [_RCUnityHelperShared() pollRewardVerification:convertCString(clientTransactionId)
+                              trackingMetadataJson:convertCString(trackingMetadataJson)];
 }
 
 @implementation NSObject (NSNullMapping)

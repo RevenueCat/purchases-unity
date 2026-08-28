@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@4.5.1
+  revenuecat: revenuecat/sdks-common-config@4.6.1
   unity: game-ci/unity@1.7.1
   android: circleci/android@3.0.2
 
@@ -679,6 +679,9 @@ workflows:
     jobs:
       - revenuecat/danger:
           ruby_version: "3.3.0"
+          filters:
+            branches:
+              ignore: main
 
   deploy-check:
     when:

@@ -195,9 +195,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRuntimeSetup: 0
-  revenueCatAPIKeyApple: 
-  revenueCatAPIKeyGoogle: 
-  revenueCatAPIKeyAmazon: 
+  revenueCatAPIKeyApple:
+  revenueCatAPIKeyGoogle:
+  revenueCatAPIKeyAmazon:
   useAmazon: 0
   autoSyncPurchases: 1
   appUserID: 

@@ -1,0 +1,13 @@
+{
+  "id": "monthly:base",
+  "storeProductId": "monthly",
+  "productId": "monthly",
+  "tags": [],
+  "isBasePlan": true,
+  "billingPeriod": {
+    "unit": "MONTH",
+    "value": 1,
+    "iso8601": "P1M"
+  },
+  "isPrepaid": false
+}

@@ -97,7 +97,6 @@ public partial class Purchases : MonoBehaviour
     public string proxyURL;
 
     private IPurchasesWrapper _wrapper;
-    /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
     public RevenueCat.AdTracker AdTracker { get; private set; }
 
     internal void SetWrapper(IPurchasesWrapper wrapper)
@@ -694,6 +693,60 @@ public partial class Purchases : MonoBehaviour
     {
         SyncAttributesAndOfferingsIfNeededCallback = callback;
         _wrapper.SyncAttributesAndOfferingsIfNeeded();
+    }
+
+    /// <summary>
+    /// Callback for <see cref="Purchases.GenerateRewardVerificationToken"/>.
+    /// </summary>
+    /// <param name="token"> The generated token if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void GenerateRewardVerificationTokenFunc(RewardVerificationToken token, Error error);
+
+    private GenerateRewardVerificationTokenFunc GenerateRewardVerificationTokenCallback { get; set; }
+
+    /// <summary>
+    /// Callback for <see cref="Purchases.PollRewardVerification"/>.
+    /// </summary>
+    /// <param name="result"> The verification result if the request was successful, null otherwise.</param>
+    /// <param name="error"> The error if the request was unsuccessful, null otherwise.</param>
+    public delegate void PollRewardVerificationFunc(RewardVerificationResult result, Error error);
+
+    private PollRewardVerificationFunc PollRewardVerificationCallback { get; set; }
+
+    /// <summary>
+    /// Generates a reward verification token for a rewarded ad impression.
+    ///
+    /// Pass the returned <see cref="RewardVerificationToken.ClientTransactionId"/> to the ad
+    /// network as the server-side verification custom data. After the ad completes, pass the same
+    /// id to <see cref="PollRewardVerification"/> to await the reward.
+    /// </summary>
+    /// <param name="impressionId"> The impression identifier of the rewarded ad.</param>
+    /// <param name="callback"> Called with the generated token, or an error if generation failed.</param>
+    public void GenerateRewardVerificationToken(string impressionId, GenerateRewardVerificationTokenFunc callback)
+    {
+        GenerateRewardVerificationTokenCallback = callback;
+        _wrapper.GenerateRewardVerificationToken(impressionId);
+    }
+
+    /// <summary>
+    /// Polls RevenueCat for the reward verification result of a rewarded ad.
+    ///
+    /// The callback fires once the native poller completes or times out (up to ~10-30s). A
+    /// timed-out or rejected verification reports a result with <see cref="RewardVerificationResult.Failed"/>
+    /// set to true rather than an error.
+    /// </summary>
+    /// <param name="clientTransactionId"> The <see cref="RewardVerificationToken.ClientTransactionId"/>
+    /// from <see cref="GenerateRewardVerificationToken"/>.</param>
+    /// <param name="callback"> Called with the verification result, or an error if polling failed.</param>
+    /// <param name="trackingMetadata"> Pass to have the SDK automatically track reward-verification
+    /// events for the ad it belongs to; omit to poll without tracking.</param>
+    public void PollRewardVerification(
+        string clientTransactionId,
+        PollRewardVerificationFunc callback,
+        RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null)
+    {
+        PollRewardVerificationCallback = callback;
+        _wrapper.PollRewardVerification(clientTransactionId, trackingMetadata);
     }
 
     /// <summary>
@@ -1669,20 +1722,20 @@ public partial class Purchases : MonoBehaviour
         var response = JSON.Parse(offeringJson);
         var callback = GetCurrentOfferingForPlacementCallback;
         GetCurrentOfferingForPlacementCallback = null;
+        // The error check has to come first: both native wrappers send only an "error" key on
+        // failure, so testing for a missing "offering" first reports every failure as
+        // "no offering configured for this placement".
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+            return;
+        }
         if (response == null || response["offering"] == null)
         {
             callback(null, null);
             return;
         }
-        if (ResponseHasError(response))
-        {
-            callback(null, new Error(response["error"]));
-        }
-        else
-        {
-            var offeringResponse = response["offering"];
-            callback(new Offering(offeringResponse), null);
-        }
+        callback(new Offering(response["offering"]), null);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -1700,6 +1753,42 @@ public partial class Purchases : MonoBehaviour
         {
             var offeringsResponse = response["offerings"];
             callback(new Offerings(offeringsResponse), null);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _generateRewardVerificationToken(string tokenJson)
+    {
+        Debug.Log("_generateRewardVerificationToken " + tokenJson);
+        if (GenerateRewardVerificationTokenCallback == null) return;
+        var response = JSON.Parse(tokenJson);
+        var callback = GenerateRewardVerificationTokenCallback;
+        GenerateRewardVerificationTokenCallback = null;
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            callback(new RewardVerificationToken(response), null);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _pollRewardVerification(string resultJson)
+    {
+        Debug.Log("_pollRewardVerification " + resultJson);
+        if (PollRewardVerificationCallback == null) return;
+        var response = JSON.Parse(resultJson);
+        var callback = PollRewardVerificationCallback;
+        PollRewardVerificationCallback = null;
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            callback(new RewardVerificationResult(response), null);
         }
     }
 

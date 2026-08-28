@@ -22,9 +22,20 @@ The app is a UI Toolkit–driven tester built around `TesterApp.cs`. It displays
 - **Customer**: View current customer information and active subscriptions.
 - **Paywalls**: Display and test RevenueCatUI paywalls with custom variables.
 - **Attributes**: Manage subscriber attributes.
+- **Ad Rewards**: Load a rewarded ad, generate a reward verification token, show the ad, then poll for the verified reward. See `Assets/Tester/Scripts/Screens/RewardVerificationScreen.cs`.
 - **Tools**: Utility functions (reset user, refresh data, etc.).
 
 All screens log their output to an on-screen console.
+
+## Ad Rewards Setup
+
+The Ad Rewards screen uses the Google Mobile Ads Unity plugin (`com.google.ads.mobile`), pulled via the OpenUPM scoped registry configured in `Packages/manifest.json` (Google's own `unityregistry-pa.googleapis.com` registry is broken/deprecated for this package — don't switch back to it).
+
+Out of the box, the screen uses Google's test ad unit IDs and `GoogleMobileAdsSettings.asset` has Google's test App IDs, so it works with no configuration. To test a real reward grant end to end:
+
+1. Swap the `AdUnitId` constants in `RewardVerificationScreen.cs` for your own AdMob rewarded ad unit.
+2. Update `adMobAndroidAppId`/`adMobIOSAppId` in `Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset` to your own AdMob App IDs.
+3. Point that ad unit's SSV URL at RevenueCat so the reward actually gets verified.
 
 ## Running on Device
 

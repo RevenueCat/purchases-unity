@@ -1,3 +1,54 @@
+## 9.9.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(ads): ad reward tracking support (#1039) via Peter Porfy (@peterporfy)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.32.1 (#1055) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.18.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.18.1)
+  * [Android 10.18.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.18.0)
+  * [iOS 5.85.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.85.0)
+
+### 🔄 Other Changes
+* chore(ads): remove experimental remarks from ads apis (#1058) via Peter Porfy (@peterporfy)
+* Adopt shared Renovate config (#1057) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to v4.6.1 (#1056) via Antonio Pallares (@ajpallares)
+
+## 9.8.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.31.0 (#1051) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.17.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.17.0)
+  * [Android 10.16.2](https://github.com/RevenueCat/purchases-android/releases/tag/10.16.2)
+  * [iOS 5.84.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.84.0)
+  * [iOS 5.83.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.83.2)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.30.1 (#1049) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7fbbe66` to `7dd9ab9` (#1052) via dependabot[bot] (@dependabot[bot])
+* chore(ads): add tests to reward verification primitives (#1044) via Peter Porfy (@peterporfy)
+* Bump fastlane from 2.237.0 to 2.238.0 (#1050) via dependabot[bot] (@dependabot[bot])
+
+## 9.8.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(ads): expose reward verification primitives (#971) via Peter Porfy (@peterporfy)
+### 🐞 Bugfixes
+* Stop sending the purchase response twice on iOS errors (#1042) via Cesar de la Vega (@vegaro)
+* fix: surface native errors from GetCurrentOfferingForPlacement (#1019) via Cesar de la Vega (@vegaro)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.30.0 (#1046) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.16.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.16.1)
+  * [iOS 5.83.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.83.1)
+
+### 🔄 Other Changes
+* feat(ads): ad reward sample app (#1045) via Peter Porfy (@peterporfy)
+* test: cover custom paywall tracking, ad tracker, and model parsing (#1013) via Cesar de la Vega (@vegaro)
+* test: cover missing Purchases functions (#1012) via Cesar de la Vega (@vegaro)
+* Bump fastlane-plugin-revenuecat_internal from `b4e1e7f` to `7fbbe66` (#1040) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `dd577ee` to `b4e1e7f` (#1038) via dependabot[bot] (@dependabot[bot])
+* Bump fastlane-plugin-revenuecat_internal from `3421c88` to `dd577ee` (#1036) via dependabot[bot] (@dependabot[bot])
+* Bump danger from 9.6.0 to 9.6.1 (#1035) via dependabot[bot] (@dependabot[bot])
+
 ## 9.7.0
 ## RevenueCat SDK
 ### 📦 Dependency Updates

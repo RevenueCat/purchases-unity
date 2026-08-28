@@ -212,6 +212,7 @@ namespace RevenueCat.Tester
             _screens.Add(("Customer", new CustomerInfoScreen(_purchases, _logConsole)));
             _screens.Add(("Paywalls", new PaywallScreen(_purchases, _logConsole, defaultOfferingIdentifier, defaultCustomVariables)));
             _screens.Add(("Attributes", new AttributesScreen(_purchases, _logConsole)));
+            _screens.Add(("Ad Rewards", new RewardVerificationScreen(_purchases, _logConsole)));
             _screens.Add(("Tools", new ToolsScreen(_purchases, _logConsole)));
         }
 

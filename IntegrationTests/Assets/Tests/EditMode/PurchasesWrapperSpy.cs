@@ -213,5 +213,12 @@ namespace RevenueCat.Tests
         public void TrackAdRevenue(AdRevenueData data) => Record(nameof(TrackAdRevenue), data);
         public void TrackAdLoaded(AdLoadedData data) => Record(nameof(TrackAdLoaded), data);
         public void TrackAdFailedToLoad(AdFailedToLoadData data) => Record(nameof(TrackAdFailedToLoad), data);
+
+        public void GenerateRewardVerificationToken(string impressionId) =>
+            Record(nameof(GenerateRewardVerificationToken), impressionId);
+
+        public void PollRewardVerification(string clientTransactionId,
+            RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null) =>
+            Record(nameof(PollRewardVerification), clientTransactionId, trackingMetadata);
     }
 }
