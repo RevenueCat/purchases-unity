@@ -53,6 +53,8 @@ namespace RevenueCat.Tests
                 (purchases, value) => purchases.SetOnesignalID(value), "onesignal_id_1");
             yield return Setter(nameof(IPurchasesWrapper.SetOnesignalUserID),
                 (purchases, value) => purchases.SetOnesignalUserID(value), "onesignal_user_id_1");
+            yield return Setter(nameof(IPurchasesWrapper.SetSingularDeviceID),
+                (purchases, value) => purchases.SetSingularDeviceID(value), "singular_device_id_1");
             yield return Setter(nameof(IPurchasesWrapper.SetAirshipChannelID),
                 (purchases, value) => purchases.SetAirshipChannelID(value), "airship_channel_1");
             yield return Setter(nameof(IPurchasesWrapper.SetCleverTapID),
