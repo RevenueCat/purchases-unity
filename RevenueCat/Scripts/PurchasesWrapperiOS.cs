@@ -351,6 +351,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     }
 
     [DllImport("__Internal")]
+    private static extern void _RCSetSingularDeviceID(string singularDeviceID);
+    public void SetSingularDeviceID(string singularDeviceID)
+    {
+        _RCSetSingularDeviceID(singularDeviceID);
+    }
+
+    [DllImport("__Internal")]
     private static extern void _RCSetAirshipChannelID(string airshipChannelID);
     public void SetAirshipChannelID(string airshipChannelID)
     {

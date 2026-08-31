@@ -416,6 +416,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality setOnesignalUserID:onesignalUserID];
 }
 
+- (void)setSingularDeviceID:(nullable NSString *)singularDeviceID {
+    [RCCommonFunctionality setSingularDeviceID:singularDeviceID];
+}
+
 - (void)setAirshipChannelID:(nullable NSString *)airshipChannelID {
     [RCCommonFunctionality setAirshipChannelID:airshipChannelID];
 }
@@ -1075,6 +1079,10 @@ void _RCSetOnesignalID(const char *onesignalID) {
 
 void _RCSetOnesignalUserID(const char *onesignalUserID) {
     [_RCUnityHelperShared() setOnesignalUserID:convertCString(onesignalUserID)];
+}
+
+void _RCSetSingularDeviceID(const char *singularDeviceID) {
+    [_RCUnityHelperShared() setSingularDeviceID:convertCString(singularDeviceID)];
 }
 
 void _RCSetAirshipChannelID(const char *airshipChannelID) {

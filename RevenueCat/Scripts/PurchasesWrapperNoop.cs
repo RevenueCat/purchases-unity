@@ -198,6 +198,10 @@ public partial class Purchases
         {
         }
 
+        public void SetSingularDeviceID(string singularDeviceID)
+        {
+        }
+
         public void SetAirshipChannelID(string airshipChannelID)
         {
         }
