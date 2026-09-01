@@ -254,11 +254,11 @@ namespace RevenueCat.Tests
             receiver.Invoke(_purchases, new object[] { response });
         }
 
-        // The payloads below mirror what the native layers send for purchases-hybrid-common 18.29.0, the version
-        // pinned in RevenueCat/Plugins/Editor/RevenueCatDependencies.xml. customerInfo, productIdentifier and
-        // transaction come from hybrid-common itself (CommonFunctionality.swift, common.kt), while userCancelled
-        // and the error wrapper are added by PurchasesUnityHelper.m and PurchasesWrapper.java. Values follow the
-        // iOS mappers, so readableErrorCode uses the iOS spelling (Android sends the Kotlin enum name instead).
+        // The payloads below mirror what the native layers send. customerInfo, productIdentifier and
+        // transaction come from purchases-hybrid-common itself (CommonFunctionality.swift, common.kt), while
+        // userCancelled and the error wrapper are added by PurchasesUnityHelper.m and PurchasesWrapper.java.
+        // Values follow the iOS mappers, so readableErrorCode uses the iOS spelling (Android sends the Kotlin
+        // enum name instead).
         private static string SuccessfulPurchaseResponse(string productIdentifier)
         {
             return "{\"customerInfo\":" + CustomerInfoJson + "," +
