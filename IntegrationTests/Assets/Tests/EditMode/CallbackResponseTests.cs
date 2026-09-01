@@ -141,6 +141,32 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void GetProductsRoutesOverlappingResponsesByRequestId()
+        {
+            var received = new List<string>();
+
+            _purchases.GetProducts(new[] { "first" }, (products, _) =>
+                received.Add($"first:{products[0].Identifier}"));
+            var firstRequestId = _wrapper.LastInvocation.RequestId;
+
+            _purchases.GetProducts(new[] { "second" }, (products, _) =>
+                received.Add($"second:{products[0].Identifier}"));
+            var secondRequestId = _wrapper.LastInvocation.RequestId;
+
+            Assert.That(firstRequestId, Is.Not.Null.And.Not.Empty);
+            Assert.That(secondRequestId, Is.Not.Null.And.Not.Empty);
+            Assert.That(secondRequestId, Is.Not.EqualTo(firstRequestId));
+
+            const string response = "{\"products\":[" + NonSubscriptionProductJson + "]}";
+            SendNativeResponse("_receiveProducts", response, secondRequestId);
+            SendNativeResponse("_receiveProducts", response, firstRequestId);
+
+            CollectionAssert.AreEqual(
+                new[] { "second:lifetime", "first:lifetime" },
+                received);
+        }
+
+        [Test]
         public void GetProductsDeliversNativeError()
         {
             List<Purchases.StoreProduct> receivedProducts = null;
@@ -792,8 +818,16 @@ namespace RevenueCat.Tests
             return _wrapper.LastInvocation;
         }
 
-        private void SendNativeResponse(string method, string response)
+        private void SendNativeResponse(string method, string response, string requestId = null)
         {
+            requestId = requestId ?? _wrapper.LastInvocation.RequestId;
+            if (!string.IsNullOrEmpty(requestId))
+            {
+                var responseNode = JSONNode.Parse(response);
+                responseNode["requestId"] = requestId;
+                response = responseNode.ToString();
+            }
+
             var receiver = typeof(Purchases).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(receiver, Is.Not.Null, $"Native response receiver {method} does not exist");
             receiver.Invoke(_purchases, new object[] { response });
