@@ -877,7 +877,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp
     NSMutableDictionary *response = jsonObject
         ? [jsonObject mutableCopy]
         : [NSMutableDictionary new];
-    response[RCCallbackRequestIdKey] = requestId;
+    response[RCCallbackRequestIdKey] = requestId ?: @"";
     [self sendJSONObject:response toMethod:methodName];
 }
 
