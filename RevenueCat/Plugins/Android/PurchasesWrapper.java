@@ -79,13 +79,7 @@ public class PurchasesWrapper {
             CustomerInfoMapperKt.mapAsync(
                     customerInfo,
                     map -> {
-                        JSONObject response = new JSONObject();
-                        try {
-                            response.put("customerInfo", MappersHelpersKt.convertToJson(map));
-                        } catch (JSONException e) {
-                            logJSONException(e);
-                        }
-                        sendJSONObject(response, RECEIVE_CUSTOMER_INFO);
+                        sendCustomerInfo(map, RECEIVE_CUSTOMER_INFO);
                         return Unit.INSTANCE;
                     }
             );
@@ -988,16 +982,27 @@ public class PurchasesWrapper {
 
     private static void sendCustomerInfo(
             Map<String, ?> map,
+            String method
+    ) {
+        sendJSONObject(createCustomerInfoResponse(map), method);
+    }
+
+    private static void sendCustomerInfo(
+            Map<String, ?> map,
             String method,
             String requestId
     ) {
+        sendJSONObject(createCustomerInfoResponse(map), method, requestId);
+    }
+
+    private static JSONObject createCustomerInfoResponse(Map<String, ?> map) {
         JSONObject response = new JSONObject();
         try {
             response.put("customerInfo", MappersHelpersKt.convertToJson(map));
         } catch (JSONException e) {
             logJSONException(e);
         }
-        sendJSONObject(response, method, requestId);
+        return response;
     }
 
     private static void sendErrorPurchase(
