@@ -86,7 +86,7 @@ commands:
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
             mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
             # Hide API fixtures and tests until the SDK assemblies have been imported.
-            find IntegrationTests/Assets/APITests IntegrationTests/Assets/CallbackTests IntegrationTests/Assets/Tests \
+            find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
               -type f \( -name "*.cs" -o -name "*.asmdef" \) \
               -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
 
@@ -120,7 +120,7 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
-            find IntegrationTests/Assets/APITests IntegrationTests/Assets/CallbackTests IntegrationTests/Assets/Tests \
+            find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
               -type f -name "*.break" \
               -exec sh -c 'for file do mv "$file" "${file%.break}"; done' sh {} +
 
