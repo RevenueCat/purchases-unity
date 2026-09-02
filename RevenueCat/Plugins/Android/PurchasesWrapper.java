@@ -150,13 +150,6 @@ public class PurchasesWrapper {
             });
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
-            JSONObject response = new JSONObject();
-            try {
-                response.put("products", new JSONArray());
-            } catch (JSONException responseError) {
-                logJSONException(responseError);
-            }
-            sendJSONObject(response, RECEIVE_PRODUCTS, requestId);
         }
     }
 
@@ -244,7 +237,6 @@ public class PurchasesWrapper {
                     });
         } catch (JSONException e) {
             logJSONException(e);
-            sendEmptyJSONObject(MAKE_PURCHASE, requestId);
         }
 
     }
@@ -475,7 +467,6 @@ public class PurchasesWrapper {
             sendJSONObject(MappersHelpersKt.convertToJson(map), CHECK_ELIGIBILITY, requestId);
         } catch (JSONException e) {
             Log.e("Purchases", "Failure parsing product identifiers " + jsonProducts);
-            sendEmptyJSONObject(CHECK_ELIGIBILITY, requestId);
         }
     }
 
@@ -622,13 +613,6 @@ public class PurchasesWrapper {
             });
         } catch (JSONException e) {
             logJSONException(e);
-            JSONObject response = new JSONObject();
-            try {
-                response.put("canMakePayments", false);
-            } catch (JSONException responseError) {
-                logJSONException(responseError);
-            }
-            sendJSONObject(response, CAN_MAKE_PAYMENTS, requestId);
         }
     }
 
