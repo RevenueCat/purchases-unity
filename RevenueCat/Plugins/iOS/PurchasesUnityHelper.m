@@ -920,7 +920,7 @@ void _RCPurchasePackage(const char *packageIdentifier, const char *presentedOffe
 
     if (error) {
         NSLog(@"Error parsing presentedOfferingContext JSON: %s %@", presentedOfferingContextJSON, error.localizedDescription);
-        [_RCUnityHelperShared() sendJSONObject:nil toMethod:MAKE_PURCHASE];
+        [_RCUnityHelperShared() sendEmptyResponseToMethod:MAKE_PURCHASE];
         return;
     }
 
@@ -1011,7 +1011,7 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
 
     if (error) {
         NSLog(@"Error parsing productIdentifiers JSON: %s %@", productIdentifiersJSON, error.localizedDescription);
-        [_RCUnityHelperShared() sendJSONObject:nil toMethod:CHECK_ELIGIBILITY];
+        [_RCUnityHelperShared() sendEmptyResponseToMethod:CHECK_ELIGIBILITY];
         return;
     }
 
