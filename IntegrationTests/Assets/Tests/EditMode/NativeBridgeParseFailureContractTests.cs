@@ -114,7 +114,7 @@ public class NativeBridgeParseFailureContractTests
             "Error parsing presentedOfferingContext JSON",
             "MAKE_PURCHASE",
             "purchasePackage:");
-        Assert.That(branch, Does.Contain("sendJSONObject:nil"));
+        Assert.That(branch, Does.Contain("sendEmptyResponseToMethod:MAKE_PURCHASE"));
     }
 
     [Test]
@@ -129,7 +129,7 @@ public class NativeBridgeParseFailureContractTests
             "Error parsing productIdentifiers JSON",
             "CHECK_ELIGIBILITY",
             "checkTrialOrIntroductoryPriceEligibility:");
-        Assert.That(branch, Does.Contain("sendJSONObject:nil"));
+        Assert.That(branch, Does.Contain("sendEmptyResponseToMethod:CHECK_ELIGIBILITY"));
     }
 
     [Test]
@@ -207,13 +207,17 @@ public class NativeBridgeParseFailureContractTests
         Assert.That(branch, Does.Contain(logMarker));
         Assert.That(branch, Does.Contain(responseMethod));
         Assert.That(
-            CountOccurrences(branch, "sendJSONObject:"),
-            Is.EqualTo(1));
+            CountOccurrences(branch, "sendJSONObject:")
+                + CountOccurrences(branch, "sendEmptyResponseToMethod:"),
+            Is.EqualTo(1),
+            "The parse-failure branch must send exactly one response.");
+        Assert.That(branch, Does.Not.Contain("sendJSONObject:nil"),
+            "NSJSONSerialization throws on a nil top-level object; use sendEmptyResponseToMethod: instead.");
         Assert.That(branch, Does.Not.Contain(nativeOperation));
 
-        var responseIndex = branch.IndexOf(
-            "sendJSONObject:",
-            StringComparison.Ordinal);
+        var responseIndex = Math.Max(
+            branch.IndexOf("sendJSONObject:", StringComparison.Ordinal),
+            branch.IndexOf("sendEmptyResponseToMethod:", StringComparison.Ordinal));
         var returnIndex = branch.IndexOf(
             "return;",
             responseIndex,
