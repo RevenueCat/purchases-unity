@@ -901,6 +901,8 @@ void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
 
     if (error) {
         NSLog(@"Error parsing productIdentifiers JSON: %s %@", productIdentifiersJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:@{@"products": @[]}
+                                     toMethod:RECEIVE_PRODUCTS];
         return;
     }
 
@@ -918,6 +920,7 @@ void _RCPurchasePackage(const char *packageIdentifier, const char *presentedOffe
 
     if (error) {
         NSLog(@"Error parsing presentedOfferingContext JSON: %s %@", presentedOfferingContextJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:nil toMethod:MAKE_PURCHASE];
         return;
     }
 
@@ -1008,6 +1011,7 @@ void _RCCheckTrialOrIntroductoryPriceEligibility(const char *productIdentifiersJ
 
     if (error) {
         NSLog(@"Error parsing productIdentifiers JSON: %s %@", productIdentifiersJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:nil toMethod:CHECK_ELIGIBILITY];
         return;
     }
 
@@ -1154,6 +1158,8 @@ void _RCCanMakePayments(const char *featuresJSON) {
 
     if (error) {
         NSLog(@"Error parsing features JSON: %s %@", featuresJSON, error.localizedDescription);
+        [_RCUnityHelperShared() sendJSONObject:@{@"canMakePayments": @NO}
+                                     toMethod:CAN_MAKE_PAYMENTS];
         return;
     }
 
