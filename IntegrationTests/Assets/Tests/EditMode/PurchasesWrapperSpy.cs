@@ -10,11 +10,13 @@ namespace RevenueCat.Tests
         {
             internal readonly string Method;
             internal readonly object[] Arguments;
+            internal readonly string RequestId;
 
-            internal Invocation(string method, object[] arguments)
+            internal Invocation(string method, object[] arguments, string requestId = null)
             {
                 Method = method;
                 Arguments = arguments;
+                RequestId = requestId;
             }
         }
 
@@ -29,6 +31,11 @@ namespace RevenueCat.Tests
         private void Record(string method, params object[] arguments)
         {
             Invocations.Add(new Invocation(method, arguments));
+        }
+
+        private void RecordRequest(string method, string requestId, params object[] arguments)
+        {
+            Invocations.Add(new Invocation(method, arguments, requestId));
         }
 
         public void Setup(string gameObject, string apiKey, string appUserId,
@@ -57,34 +64,39 @@ namespace RevenueCat.Tests
                 automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride);
         }
 
-        public void GetStorefront() => Record(nameof(GetStorefront));
-        public void GetProducts(string[] productIdentifiers, string type = "subs") =>
-            Record(nameof(GetProducts), productIdentifiers, type);
+        public void GetStorefront(string requestId = null) =>
+            RecordRequest(nameof(GetStorefront), requestId);
+        public void GetProducts(string[] productIdentifiers, string type = "subs", string requestId = null) =>
+            RecordRequest(nameof(GetProducts), requestId, productIdentifiers, type);
 
         public void PurchaseProduct(string productIdentifier, string type = "subs", string oldSku = null,
             Purchases.ProrationMode prorationMode =
                 Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
             bool googleIsPersonalizedPrice = false, string presentedOfferingIdentifier = null,
-            Purchases.PromotionalOffer discount = null) =>
-            Record(nameof(PurchaseProduct), productIdentifier, type, oldSku, prorationMode,
+            Purchases.PromotionalOffer discount = null, string requestId = null) =>
+            RecordRequest(nameof(PurchaseProduct), requestId, productIdentifier, type, oldSku, prorationMode,
                 googleIsPersonalizedPrice, presentedOfferingIdentifier, discount);
 
         public void PurchasePackage(Purchases.Package packageToPurchase, string oldSku = null,
             Purchases.ProrationMode prorationMode =
                 Purchases.ProrationMode.UnknownSubscriptionUpgradeDowngradePolicy,
-            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null) =>
-            Record(nameof(PurchasePackage), packageToPurchase, oldSku, prorationMode,
+            bool googleIsPersonalizedPrice = false, Purchases.PromotionalOffer discount = null,
+            string requestId = null) =>
+            RecordRequest(nameof(PurchasePackage), requestId, packageToPurchase, oldSku, prorationMode,
                 googleIsPersonalizedPrice, discount);
 
         public void PurchaseSubscriptionOption(Purchases.SubscriptionOption subscriptionOption,
             Purchases.GoogleProductChangeInfo googleProductChangeInfo = null,
-            bool googleIsPersonalizedPrice = false) =>
-            Record(nameof(PurchaseSubscriptionOption), subscriptionOption, googleProductChangeInfo,
+            bool googleIsPersonalizedPrice = false, string requestId = null) =>
+            RecordRequest(nameof(PurchaseSubscriptionOption), requestId, subscriptionOption, googleProductChangeInfo,
                 googleIsPersonalizedPrice);
 
-        public void RestorePurchases() => Record(nameof(RestorePurchases));
-        public void LogIn(string appUserId) => Record(nameof(LogIn), appUserId);
-        public void LogOut() => Record(nameof(LogOut));
+        public void RestorePurchases(string requestId = null) =>
+            RecordRequest(nameof(RestorePurchases), requestId);
+        public void LogIn(string appUserId, string requestId = null) =>
+            RecordRequest(nameof(LogIn), requestId, appUserId);
+        public void LogOut(string requestId = null) =>
+            RecordRequest(nameof(LogOut), requestId);
         public void SetAllowSharingStoreAccount(bool allow) => Record(nameof(SetAllowSharingStoreAccount), allow);
         public void SetDebugLogsEnabled(bool enabled) => Record(nameof(SetDebugLogsEnabled), enabled);
         public void SetLogLevel(Purchases.LogLevel level) => Record(nameof(SetLogLevel), level);
@@ -96,19 +108,24 @@ namespace RevenueCat.Tests
             return null;
         }
 
-        public void GetCustomerInfo() => Record(nameof(GetCustomerInfo));
-        public void GetOfferings() => Record(nameof(GetOfferings));
-        public void GetCurrentOfferingForPlacement(string placementIdentifier) =>
-            Record(nameof(GetCurrentOfferingForPlacement), placementIdentifier);
+        public void GetCustomerInfo(string requestId = null) =>
+            RecordRequest(nameof(GetCustomerInfo), requestId);
+        public void GetOfferings(string requestId = null) =>
+            RecordRequest(nameof(GetOfferings), requestId);
+        public void GetCurrentOfferingForPlacement(string placementIdentifier, string requestId = null) =>
+            RecordRequest(nameof(GetCurrentOfferingForPlacement), requestId, placementIdentifier);
 
-        public void SyncAttributesAndOfferingsIfNeeded() => Record(nameof(SyncAttributesAndOfferingsIfNeeded));
-        public void SyncPurchases() => Record(nameof(SyncPurchases));
+        public void SyncAttributesAndOfferingsIfNeeded(string requestId = null) =>
+            RecordRequest(nameof(SyncAttributesAndOfferingsIfNeeded), requestId);
+        public void SyncPurchases(string requestId = null) =>
+            RecordRequest(nameof(SyncPurchases), requestId);
 
         public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
             string isoCurrencyCode, double price) =>
             Record(nameof(SyncAmazonPurchase), productID, receiptID, amazonUserID, isoCurrencyCode, price);
 
-        public void GetAmazonLWAConsentStatus() => Record(nameof(GetAmazonLWAConsentStatus));
+        public void GetAmazonLWAConsentStatus(string requestId = null) =>
+            RecordRequest(nameof(GetAmazonLWAConsentStatus), requestId);
         public void EnableAdServicesAttributionTokenCollection() =>
             Record(nameof(EnableAdServicesAttributionTokenCollection));
 
@@ -126,13 +143,14 @@ namespace RevenueCat.Tests
 
         // The cast keeps `string[]` from binding as the `params object[]` array itself (array covariance), so the
         // identifiers are recorded as one argument, like every other method here.
-        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers) =>
-            Record(nameof(CheckTrialOrIntroductoryPriceEligibility), (object)productIdentifiers);
+        public void CheckTrialOrIntroductoryPriceEligibility(string[] productIdentifiers, string requestId = null) =>
+            RecordRequest(nameof(CheckTrialOrIntroductoryPriceEligibility), requestId, (object)productIdentifiers);
 
         public void InvalidateCustomerInfoCache() => Record(nameof(InvalidateCustomerInfoCache));
         public void OverridePreferredUILocale(string locale) => Record(nameof(OverridePreferredUILocale), locale);
         public void PresentCodeRedemptionSheet() => Record(nameof(PresentCodeRedemptionSheet));
-        public void RecordPurchase(string productID) => Record(nameof(RecordPurchase), productID);
+        public void RecordPurchase(string productID, string requestId = null) =>
+            RecordRequest(nameof(RecordPurchase), requestId, productID);
         public void SetSimulatesAskToBuyInSandbox(bool enabled) =>
             Record(nameof(SetSimulatesAskToBuyInSandbox), enabled);
 
@@ -168,22 +186,24 @@ namespace RevenueCat.Tests
             Record(nameof(SetAppsFlyerConversionData), conversionDataJson);
 
         public void CollectDeviceIdentifiers() => Record(nameof(CollectDeviceIdentifiers));
-        public void CanMakePayments(Purchases.BillingFeature[] features) =>
-            Record(nameof(CanMakePayments), features);
+        public void CanMakePayments(Purchases.BillingFeature[] features, string requestId = null) =>
+            RecordRequest(nameof(CanMakePayments), requestId, features);
 
-        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier) =>
-            Record(nameof(GetPromotionalOffer), productIdentifier, discountIdentifier);
+        public void GetPromotionalOffer(string productIdentifier, string discountIdentifier, string requestId = null) =>
+            RecordRequest(nameof(GetPromotionalOffer), requestId, productIdentifier, discountIdentifier);
 
         public void ShowInAppMessages(Purchases.InAppMessageType[] messageTypes) =>
             Record(nameof(ShowInAppMessages), messageTypes);
 
-        public void ParseAsWebPurchaseRedemption(string urlString) =>
-            Record(nameof(ParseAsWebPurchaseRedemption), urlString);
+        public void ParseAsWebPurchaseRedemption(string urlString, string requestId = null) =>
+            RecordRequest(nameof(ParseAsWebPurchaseRedemption), requestId, urlString);
 
-        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption) =>
-            Record(nameof(RedeemWebPurchase), webPurchaseRedemption);
+        public void RedeemWebPurchase(Purchases.WebPurchaseRedemption webPurchaseRedemption,
+            string requestId = null) =>
+            RecordRequest(nameof(RedeemWebPurchase), requestId, webPurchaseRedemption);
 
-        public void GetVirtualCurrencies() => Record(nameof(GetVirtualCurrencies));
+        public void GetVirtualCurrencies(string requestId = null) =>
+            RecordRequest(nameof(GetVirtualCurrencies), requestId);
 
         public string GetCachedVirtualCurrencies()
         {
@@ -192,19 +212,19 @@ namespace RevenueCat.Tests
         }
 
         public void InvalidateVirtualCurrenciesCache() => Record(nameof(InvalidateVirtualCurrenciesCache));
-        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct) =>
-            Record(nameof(GetEligibleWinBackOffersForProduct), storeProduct);
+        public void GetEligibleWinBackOffersForProduct(Purchases.StoreProduct storeProduct, string requestId = null) =>
+            RecordRequest(nameof(GetEligibleWinBackOffersForProduct), requestId, storeProduct);
 
-        public void GetEligibleWinBackOffersForPackage(Purchases.Package package) =>
-            Record(nameof(GetEligibleWinBackOffersForPackage), package);
+        public void GetEligibleWinBackOffersForPackage(Purchases.Package package, string requestId = null) =>
+            RecordRequest(nameof(GetEligibleWinBackOffersForPackage), requestId, package);
 
         public void PurchaseProductWithWinBackOffer(Purchases.StoreProduct storeProduct,
-            Purchases.WinBackOffer winBackOffer) =>
-            Record(nameof(PurchaseProductWithWinBackOffer), storeProduct, winBackOffer);
+            Purchases.WinBackOffer winBackOffer, string requestId = null) =>
+            RecordRequest(nameof(PurchaseProductWithWinBackOffer), requestId, storeProduct, winBackOffer);
 
         public void PurchasePackageWithWinBackOffer(Purchases.Package package,
-            Purchases.WinBackOffer winBackOffer) =>
-            Record(nameof(PurchasePackageWithWinBackOffer), package, winBackOffer);
+            Purchases.WinBackOffer winBackOffer, string requestId = null) =>
+            RecordRequest(nameof(PurchasePackageWithWinBackOffer), requestId, package, winBackOffer);
 
         public void TrackCustomPaywallImpression(Purchases.CustomPaywallImpressionParams parameters) =>
             Record(nameof(TrackCustomPaywallImpression), parameters);
