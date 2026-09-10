@@ -1,8 +1,12 @@
 ## RevenueCat SDK
-### ✨ New Features
-* feat(singular): add setSingularDeviceID (#1062) via Guillem Corominas (@guillemcorominas)
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.36.1 (#1077) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.20.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.20.0)
+  * [iOS 5.88.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.88.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.36.0 (#1076) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.35.0 (#1073) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 18.34.0 (#1072) via RevenueCat Git Bot (@RCGitBot)
 
 ### 🔄 Other Changes
-* Test purchase forwarding and result parsing (#1011) via Cesar de la Vega (@vegaro)
-* chore(deps): bump fastlane-plugin-revenuecat_internal from `7dd9ab9` to `6db1da0` (#1065) via dependabot[bot] (@dependabot[bot])
-* test: cover attribution, logging, and ad-tracking pass-through calls (#1022) via Cesar de la Vega (@vegaro)
+* ci: bump external PR notifications workflow to v8 (#1075) via Álvaro Brey (@AlvaroBrey)
+* ci: notify external PRs feed on PRs from outside the org (#1074) via Álvaro Brey (@AlvaroBrey)
