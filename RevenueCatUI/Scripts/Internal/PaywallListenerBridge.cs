@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using RevenueCat.SimpleJSON;
@@ -25,6 +26,7 @@ namespace RevenueCatUI.Internal
         private const string EventRestoreError = "onRestoreError";
         private const string EventWebCheckoutOpened = "onWebCheckoutOpened";
         private const string EventUrlOpened = "onUrlOpened";
+        private const string EventInteraction = "onInteraction";
 
         private static PaywallListener s_currentListener;
         private static SynchronizationContext s_mainThreadContext;
@@ -144,6 +146,9 @@ namespace RevenueCatUI.Internal
                     case EventUrlOpened:
                         listener.OnUrlOpened?.Invoke(payload["url"].Value);
                         break;
+                    case EventInteraction:
+                        listener.OnInteraction?.Invoke(ToDictionary(payload));
+                        break;
                     default:
                         Debug.LogWarning($"[RevenueCatUI] Unknown paywall event '{eventName}'; ignoring.");
                         break;
@@ -153,6 +158,22 @@ namespace RevenueCatUI.Internal
             {
                 Debug.LogError($"[RevenueCatUI] Error handling paywall event '{eventName}': {e.Message}");
             }
+        }
+
+        // The paywall_component_interacted contract is flat: string, boolean and integer values only.
+        private static Dictionary<string, object> ToDictionary(JSONNode payload)
+        {
+            var dictionary = new Dictionary<string, object>();
+            foreach (var entry in payload.AsObject) dictionary[entry.Key] = ToScalar(entry.Value);
+            return dictionary;
+        }
+
+        private static object ToScalar(JSONNode node)
+        {
+            if (node.IsNull) return null;
+            if (node.IsBoolean) return node.AsBool;
+            if (node.IsNumber) return node.AsDouble % 1 == 0 ? (object)node.AsLong : node.AsDouble;
+            return node.Value;
         }
 
         private static bool IsTerminalEvent(string eventName)
