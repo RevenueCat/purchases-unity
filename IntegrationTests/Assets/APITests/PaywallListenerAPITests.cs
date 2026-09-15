@@ -25,7 +25,8 @@ namespace DefaultNamespace
                 OnRestoreCompleted = customerInfo => { Purchases.CustomerInfo info = customerInfo; },
                 OnRestoreError = error => { Purchases.Error e = error; },
                 OnWebCheckoutOpened = () => { },
-                OnUrlOpened = url => { string u = url; }
+                OnUrlOpened = url => { string u = url; },
+                OnInteraction = interaction => { System.Collections.Generic.Dictionary<string, object> i = interaction; }
             };
 
             // Test property setters and getters
@@ -39,6 +40,7 @@ namespace DefaultNamespace
             System.Action<Purchases.Error> onRestoreError = listener.OnRestoreError;
             System.Action onWebCheckoutOpened = listener.OnWebCheckoutOpened;
             System.Action<string> onUrlOpened = listener.OnUrlOpened;
+            System.Action<System.Collections.Generic.Dictionary<string, object>> onInteraction = listener.OnInteraction;
 
             // Test PaywallOptions with listener
             PaywallOptions options1 = new PaywallOptions(listener: listener);
