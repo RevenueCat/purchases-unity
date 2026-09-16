@@ -222,6 +222,11 @@ didFailPurchasingWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDictio
 }
 
 - (void)paywallViewController:(RCPaywallViewController *)controller
+          didTrackInteraction:(NSDictionary<NSString *, id> *)eventDictionary API_AVAILABLE(ios(15.0)) {
+    RCUIEmitPaywallEvent(self.eventCallback, "onInteraction", eventDictionary ?: @{});
+}
+
+- (void)paywallViewController:(RCPaywallViewController *)controller
 didFinishRestoringWithCustomerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary API_AVAILABLE(ios(15.0)) {
     RCUIEmitPaywallEvent(self.eventCallback, "onRestoreCompleted", @{@"customerInfo": customerInfoDictionary ?: @{}});
 }

@@ -69,7 +69,9 @@ namespace RevenueCat.Tester.Screens
                 OnWebCheckoutOpened = () =>
                     Log("Listener: web checkout opened"),
                 OnUrlOpened = url =>
-                    Log($"Listener: url opened: {url}")
+                    Log($"Listener: url opened: {url}"),
+                OnInteraction = interaction =>
+                    Log($"Listener: interaction: {string.Join(", ", interaction.Select(entry => $"{entry.Key}={entry.Value}"))}")
             };
         }
 

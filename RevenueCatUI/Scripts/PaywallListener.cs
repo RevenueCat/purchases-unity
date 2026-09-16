@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace RevenueCatUI
 {
@@ -64,5 +65,14 @@ namespace RevenueCatUI
         /// destination or from a link inside a text component. Not called for web checkout URLs.
         /// </summary>
         public Action<string> OnUrlOpened { get; set; }
+
+        /// <summary>
+        /// Invoked when the user interacts with a paywall control, such as a tab, a package or
+        /// the purchase button. The dictionary uses the snake_case keys documented for the
+        /// paywall_component_interacted event (component_type, component_value, offering_id, ...);
+        /// keys that do not apply are absent. Integers arrive as long, booleans as bool.
+        /// See https://rev.cat/paywall-interaction-events for the keys each component type sends.
+        /// </summary>
+        public Action<Dictionary<string, object>> OnInteraction { get; set; }
     }
 }

@@ -43,6 +43,7 @@ import com.revenuecat.purchases.hybridcommon.mappers.StoreTransactionMapperKt;
 import com.revenuecat.purchases.hybridcommon.ui.HybridPurchaseLogicBridge;
 import com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback;
 import com.revenuecat.purchases.models.StoreTransaction;
+import com.revenuecat.purchases.ui.revenuecatui.PaywallInteractionEvent;
 import com.revenuecat.purchases.ui.revenuecatui.PaywallListener;
 import com.revenuecat.purchases.ui.revenuecatui.utils.Resumable;
 import com.revenuecat.purchases.ui.revenuecatui.views.PaywallView;
@@ -471,6 +472,18 @@ public class PaywallViewPresenter {
                         RevenueCatUI.sendPaywallEvent("onUrlOpened", payload.toString());
                     } catch (Throwable e) {
                         Log.w(TAG, "Failed to send onUrlOpened event: " + e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onInteraction(@NonNull PaywallInteractionEvent event) {
+                if (forwardEvents) {
+                    try {
+                        JSONObject payload = MappersHelpersKt.convertToJson(event.getRawProperties());
+                        RevenueCatUI.sendPaywallEvent("onInteraction", payload.toString());
+                    } catch (Throwable e) {
+                        Log.w(TAG, "Failed to send onInteraction event: " + e.getMessage());
                     }
                 }
             }
