@@ -744,9 +744,13 @@ workflows:
             - e2e-tests
           requires:
             - build-maestro-test-app-android
-      - hold:
+      - wait-for-pr-approval:
           type: approval
+          <<: *release-branches
+      - revenuecat/tag-current-branch:
+          ruby_version: "3.3.0"
           requires:
+            - wait-for-pr-approval
             - check-android-keep-annotations
             - build-integration-tests-android
             - test-edit-mode
@@ -756,11 +760,6 @@ workflows:
             - archive-ios-cocoapods
             - run-maestro-e2e-tests-ios
             - run-maestro-e2e-tests-android
-          <<: *release-branches
-      - revenuecat/tag-current-branch:
-          ruby_version: "3.3.0"
-          requires:
-            - hold
           <<: *release-branches
 
   deploy:
