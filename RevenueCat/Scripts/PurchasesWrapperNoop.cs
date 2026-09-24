@@ -8,7 +8,8 @@ public partial class Purchases
         public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
             Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
             bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
-            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
+            bool useExternalPurchaseCustomLinks)
         {
         }
 
@@ -16,7 +17,7 @@ public partial class Purchases
             Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
             bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
             bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
-            string preferredUILocaleOverride)
+            string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks)
         {
         }
 

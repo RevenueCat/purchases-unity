@@ -199,7 +199,7 @@ public partial class Purchases : MonoBehaviour
             purchasesConfiguration.UseAmazon, dangerousSettings, purchasesConfiguration.ShouldShowInAppMessagesAutomatically,
             purchasesConfiguration.EntitlementVerificationMode, purchasesConfiguration.PendingTransactionsForPrepaidPlansEnabled,
             purchasesConfiguration.DiagnosticsEnabled, purchasesConfiguration.AutomaticDeviceIdentifierCollectionEnabled,
-            purchasesConfiguration.PreferredUILocaleOverride);
+            purchasesConfiguration.PreferredUILocaleOverride, purchasesConfiguration.UseExternalPurchaseCustomLinks);
     }
 
     private bool IsAndroidEmulator()

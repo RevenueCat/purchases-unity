@@ -86,7 +86,8 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
  entitlementVerificationMode:(nullable NSString *)entitlementVerificationMode
  diagnosticsEnabled:(BOOL)diagnosticsEnabled
  automaticDeviceIdentifierCollectionEnabled:(BOOL)automaticDeviceIdentifierCollectionEnabled
- preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride {
+ preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride
+useExternalPurchaseCustomLinks:(BOOL)useExternalPurchaseCustomLinks {
     self.products = nil;
     self.gameObject = nil;
 
@@ -116,7 +117,8 @@ shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                     verificationMode:entitlementVerificationMode
                   diagnosticsEnabled:diagnosticsEnabled
 automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
-                     preferredLocale:preferredUILocaleOverride];
+                     preferredLocale:preferredUILocaleOverride
+      useExternalPurchaseCustomLinks:useExternalPurchaseCustomLinks];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -876,7 +878,8 @@ void _RCSetupPurchases(const char *gameObject,
                        const char *entitlementVerificationMode,
                        const BOOL diagnosticsEnabled,
                        const BOOL automaticDeviceIdentifierCollectionEnabled,
-                       const char *preferredUILocaleOverride) {
+                       const char *preferredUILocaleOverride,
+                       const BOOL useExternalPurchaseCustomLinks) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
@@ -888,7 +891,8 @@ void _RCSetupPurchases(const char *gameObject,
                entitlementVerificationMode:convertCString(entitlementVerificationMode)
                         diagnosticsEnabled:diagnosticsEnabled
 automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
-                 preferredUILocaleOverride:convertCString(preferredUILocaleOverride)];
+                 preferredUILocaleOverride:convertCString(preferredUILocaleOverride)
+            useExternalPurchaseCustomLinks:useExternalPurchaseCustomLinks];
 }
 
 void _RCGetStorefront() {
