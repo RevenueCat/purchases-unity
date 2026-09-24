@@ -36,11 +36,13 @@ public partial class Purchases
         public readonly bool DiagnosticsEnabled;
         public readonly bool AutomaticDeviceIdentifierCollectionEnabled;
         public readonly string PreferredUILocaleOverride;
+        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+        public readonly bool UseExternalPurchaseCustomLinks;
 
         private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
             bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically,
             EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
-            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -55,6 +57,7 @@ public partial class Purchases
             DiagnosticsEnabled = diagnosticsEnabled;
             AutomaticDeviceIdentifierCollectionEnabled = automaticDeviceIdentifierCollectionEnabled;
             PreferredUILocaleOverride = preferredUILocaleOverride;
+            UseExternalPurchaseCustomLinks = useExternalPurchaseCustomLinks;
         }
 
         /// <summary>
@@ -91,6 +94,7 @@ public partial class Purchases
             private bool _diagnosticsEnabled;
             private bool _automaticDeviceIdentifierCollectionEnabled = true;
             private string _preferredUILocaleOverride;
+            private bool _useExternalPurchaseCustomLinks;
 
             private Builder(string apiKey)
             {
@@ -108,7 +112,7 @@ public partial class Purchases
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically,
                     _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _diagnosticsEnabled,
-                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride);
+                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride, _useExternalPurchaseCustomLinks);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -197,6 +201,21 @@ public partial class Purchases
                 return this;
             }
 
+            /// <summary>
+            /// iOS-only, will be ignored for Android.
+            /// Whether a web purchase button that opens its link in the external browser takes part in Apple's
+            /// external purchase custom link programme: the customer is shown Apple's disclosure notice, and the
+            /// purchase is reported to Apple.
+            /// Disabled by default. Enabling it requires the app to be enrolled in the programme and to carry
+            /// Apple's external purchase link entitlement, otherwise no purchase can be made outside the App Store.
+            /// </summary>
+            /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+            public Builder SetUseExternalPurchaseCustomLinks(bool useExternalPurchaseCustomLinks)
+            {
+                _useExternalPurchaseCustomLinks = useExternalPurchaseCustomLinks;
+                return this;
+            }
+
         }
 
         public override string ToString()
@@ -214,7 +233,8 @@ public partial class Purchases
                 $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n" +
                 $"{nameof(DiagnosticsEnabled)}: {DiagnosticsEnabled}\n" +
                 $"{nameof(AutomaticDeviceIdentifierCollectionEnabled)}: {AutomaticDeviceIdentifierCollectionEnabled}\n" +
-                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n";
+                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n" +
+                $"{nameof(UseExternalPurchaseCustomLinks)}: {UseExternalPurchaseCustomLinks}\n";
         }
     }
 }
