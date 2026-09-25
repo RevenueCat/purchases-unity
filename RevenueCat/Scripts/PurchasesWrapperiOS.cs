@@ -116,6 +116,12 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         // No-Op
     }
 
+    public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
+        string isoCurrencyCode, double price, long purchaseTime)
+    {
+        // No-Op
+    }
+
     public void GetAmazonLWAConsentStatus()
     {
         // No-Op
