@@ -43,7 +43,8 @@ public void OnInitialized(IStoreController controller, IExtensionProvider extens
                 product.transactionID,
                 userId,
                 product.metadata.isoCurrencyCode,
-                Decimal.ToDouble(product.metadata.localizedPrice)
+                Decimal.ToDouble(product.metadata.localizedPrice),
+                purchaseTimeMillis // From Amazon's PurchaseResponse > Receipt > purchaseTime
             );
         }
     }
@@ -60,7 +61,8 @@ public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs e)
         e.purchasedProduct.transactionID,
         userId,
         e.purchasedProduct.metadata.isoCurrencyCode,
-        Decimal.ToDouble(e.purchasedProduct.metadata.localizedPrice)
+        Decimal.ToDouble(e.purchasedProduct.metadata.localizedPrice),
+        purchaseTimeMillis // From Amazon's PurchaseResponse > Receipt > purchaseTime
     );
     return PurchaseProcessingResult.Complete;
 }

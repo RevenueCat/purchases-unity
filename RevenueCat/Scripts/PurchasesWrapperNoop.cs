@@ -111,6 +111,11 @@ public partial class Purchases
             string isoCurrencyCode, double price)
         {
         }
+
+        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
+            string isoCurrencyCode, double price, long purchaseTime)
+        {
+        }
         
         public void GetAmazonLWAConsentStatus()
         {
