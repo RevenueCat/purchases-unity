@@ -48,6 +48,9 @@ public interface IPurchasesWrapper
     void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,
         double price);
 
+    void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID, string isoCurrencyCode,
+        double price, long purchaseTime);
+
     void GetAmazonLWAConsentStatus();
     void EnableAdServicesAttributionTokenCollection();
     bool IsAnonymous();
