@@ -108,6 +108,11 @@ namespace RevenueCat.Tests
             string isoCurrencyCode, double price) =>
             Record(nameof(SyncAmazonPurchase), productID, receiptID, amazonUserID, isoCurrencyCode, price);
 
+        public void SyncAmazonPurchase(string productID, string receiptID, string amazonUserID,
+            string isoCurrencyCode, double price, long purchaseTime) =>
+            Record(nameof(SyncAmazonPurchase), productID, receiptID, amazonUserID, isoCurrencyCode, price,
+                purchaseTime);
+
         public void GetAmazonLWAConsentStatus() => Record(nameof(GetAmazonLWAConsentStatus));
         public void EnableAdServicesAttributionTokenCollection() =>
             Record(nameof(EnableAdServicesAttributionTokenCollection));
