@@ -36,12 +36,13 @@ namespace RevenueCat.Tests
             string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
             bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled,
             bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
-            bool useExternalPurchaseCustomLinks)
+            bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
         {
             Record(nameof(Setup), gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion,
                 userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically,
                 pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
-                automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride, useExternalPurchaseCustomLinks);
+                automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride, useExternalPurchaseCustomLinks,
+                enableExternalPurchasesInSimulator);
         }
 
         public void Setup(string gameObject, string apiKey, string appUserId,
@@ -51,12 +52,13 @@ namespace RevenueCat.Tests
             Purchases.EntitlementVerificationMode entitlementVerificationMode,
             bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
             bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
-            bool useExternalPurchaseCustomLinks)
+            bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
         {
             Record(nameof(Setup), gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion,
                 userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically,
                 entitlementVerificationMode, pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
-                automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride, useExternalPurchaseCustomLinks);
+                automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride, useExternalPurchaseCustomLinks,
+                enableExternalPurchasesInSimulator);
         }
 
         public void GetStorefront() => Record(nameof(GetStorefront));

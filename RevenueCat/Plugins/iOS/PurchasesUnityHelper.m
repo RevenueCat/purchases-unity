@@ -87,7 +87,8 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
  diagnosticsEnabled:(BOOL)diagnosticsEnabled
  automaticDeviceIdentifierCollectionEnabled:(BOOL)automaticDeviceIdentifierCollectionEnabled
  preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride
-useExternalPurchaseCustomLinks:(BOOL)useExternalPurchaseCustomLinks {
+useExternalPurchaseCustomLinks:(BOOL)useExternalPurchaseCustomLinks
+enableExternalPurchasesInSimulator:(BOOL)enableExternalPurchasesInSimulator {
     self.products = nil;
     self.gameObject = nil;
 
@@ -118,7 +119,8 @@ shouldShowInAppMessagesAutomatically:shouldShowInAppMessagesAutomatically
                   diagnosticsEnabled:diagnosticsEnabled
 automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
                      preferredLocale:preferredUILocaleOverride
-      useExternalPurchaseCustomLinks:useExternalPurchaseCustomLinks];
+      useExternalPurchaseCustomLinks:useExternalPurchaseCustomLinks
+  enableExternalPurchasesInSimulator:enableExternalPurchasesInSimulator];
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
@@ -879,7 +881,8 @@ void _RCSetupPurchases(const char *gameObject,
                        const BOOL diagnosticsEnabled,
                        const BOOL automaticDeviceIdentifierCollectionEnabled,
                        const char *preferredUILocaleOverride,
-                       const BOOL useExternalPurchaseCustomLinks) {
+                       const BOOL useExternalPurchaseCustomLinks,
+                       const BOOL enableExternalPurchasesInSimulator) {
     [_RCUnityHelperShared() setupPurchases:convertCString(apiKey)
                                  appUserID:convertCString(appUserID)
                                 gameObject:convertCString(gameObject)
@@ -892,7 +895,8 @@ void _RCSetupPurchases(const char *gameObject,
                         diagnosticsEnabled:diagnosticsEnabled
 automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEnabled
                  preferredUILocaleOverride:convertCString(preferredUILocaleOverride)
-            useExternalPurchaseCustomLinks:useExternalPurchaseCustomLinks];
+            useExternalPurchaseCustomLinks:useExternalPurchaseCustomLinks
+        enableExternalPurchasesInSimulator:enableExternalPurchasesInSimulator];
 }
 
 void _RCGetStorefront() {

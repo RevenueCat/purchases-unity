@@ -13,29 +13,30 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
                                                  string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
                                                  string entitlementVerificationMode, bool diagnosticsEnabled,
                                                  bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
-                                                 bool useExternalPurchaseCustomLinks);
+                                                 bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator);
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
         Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
         bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
         bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
-        bool useExternalPurchaseCustomLinks)
+        bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
     {
         Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion,
             userDefaultsSuiteName, useAmazon, dangerousSettingsJson, shouldShowInAppMessagesAutomatically,
             Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
-            automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride, useExternalPurchaseCustomLinks);
+            automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride, useExternalPurchaseCustomLinks,
+            enableExternalPurchasesInSimulator);
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,
         Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
         bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
         bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
-        string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks)
+        string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
     {
         _RCSetupPurchases(gameObject, apiKey, appUserId, purchasesAreCompletedBy.Name(), storeKitVersion.Name(),
             userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name(),
             diagnosticsEnabled, automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride,
-            useExternalPurchaseCustomLinks);
+            useExternalPurchaseCustomLinks, enableExternalPurchasesInSimulator);
     }
 
     [DllImport("__Internal")]

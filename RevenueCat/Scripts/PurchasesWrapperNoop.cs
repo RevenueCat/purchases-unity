@@ -9,7 +9,7 @@ public partial class Purchases
             Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
             bool shouldShowInAppMessagesAutomatically, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
             bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
-            bool useExternalPurchaseCustomLinks)
+            bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
         {
         }
 
@@ -17,7 +17,7 @@ public partial class Purchases
             Purchases.StoreKitVersion storeKitVersion, string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson,
             bool shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode entitlementVerificationMode,
             bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
-            string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks)
+            string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
         {
         }
 

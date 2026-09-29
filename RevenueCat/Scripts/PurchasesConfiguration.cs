@@ -38,11 +38,14 @@ public partial class Purchases
         public readonly string PreferredUILocaleOverride;
         /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
         public readonly bool UseExternalPurchaseCustomLinks;
+        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+        public readonly bool EnableExternalPurchasesInSimulator;
 
         private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
             bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically,
             EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
-            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks)
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks,
+            bool enableExternalPurchasesInSimulator)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -58,6 +61,7 @@ public partial class Purchases
             AutomaticDeviceIdentifierCollectionEnabled = automaticDeviceIdentifierCollectionEnabled;
             PreferredUILocaleOverride = preferredUILocaleOverride;
             UseExternalPurchaseCustomLinks = useExternalPurchaseCustomLinks;
+            EnableExternalPurchasesInSimulator = enableExternalPurchasesInSimulator;
         }
 
         /// <summary>
@@ -95,6 +99,7 @@ public partial class Purchases
             private bool _automaticDeviceIdentifierCollectionEnabled = true;
             private string _preferredUILocaleOverride;
             private bool _useExternalPurchaseCustomLinks;
+            private bool _enableExternalPurchasesInSimulator = true;
 
             private Builder(string apiKey)
             {
@@ -112,7 +117,8 @@ public partial class Purchases
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically,
                     _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _diagnosticsEnabled,
-                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride, _useExternalPurchaseCustomLinks);
+                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride, _useExternalPurchaseCustomLinks,
+                    _enableExternalPurchasesInSimulator);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -216,6 +222,20 @@ public partial class Purchases
                 return this;
             }
 
+            /// <summary>
+            /// iOS-only, will be ignored for Android.
+            /// Whether the simulator offers external purchases in any storefront. When disabled, the simulator
+            /// behaves as a device does for a customer who is not eligible.
+            /// Enabled by default. Has no effect on a physical device, nor while
+            /// <see cref="SetUseExternalPurchaseCustomLinks"/> is disabled.
+            /// </summary>
+            /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+            public Builder SetEnableExternalPurchasesInSimulator(bool enableExternalPurchasesInSimulator)
+            {
+                _enableExternalPurchasesInSimulator = enableExternalPurchasesInSimulator;
+                return this;
+            }
+
         }
 
         public override string ToString()
@@ -234,7 +254,8 @@ public partial class Purchases
                 $"{nameof(DiagnosticsEnabled)}: {DiagnosticsEnabled}\n" +
                 $"{nameof(AutomaticDeviceIdentifierCollectionEnabled)}: {AutomaticDeviceIdentifierCollectionEnabled}\n" +
                 $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n" +
-                $"{nameof(UseExternalPurchaseCustomLinks)}: {UseExternalPurchaseCustomLinks}\n";
+                $"{nameof(UseExternalPurchaseCustomLinks)}: {UseExternalPurchaseCustomLinks}\n" +
+                $"{nameof(EnableExternalPurchasesInSimulator)}: {EnableExternalPurchasesInSimulator}\n";
         }
     }
 }

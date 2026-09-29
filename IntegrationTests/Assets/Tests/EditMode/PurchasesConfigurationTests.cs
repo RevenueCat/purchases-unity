@@ -37,6 +37,7 @@ namespace RevenueCat.Tests
             Assert.That(configuration.AutomaticDeviceIdentifierCollectionEnabled, Is.True);
             Assert.That(configuration.PreferredUILocaleOverride, Is.Null);
             Assert.That(configuration.UseExternalPurchaseCustomLinks, Is.False);
+            Assert.That(configuration.EnableExternalPurchasesInSimulator, Is.True);
         }
 
         [Test]
@@ -58,6 +59,7 @@ namespace RevenueCat.Tests
                 .SetAutomaticDeviceIdentifierCollectionEnabled(false)
                 .SetPreferredUILocaleOverride("de_DE")
                 .SetUseExternalPurchaseCustomLinks(true)
+                .SetEnableExternalPurchasesInSimulator(false)
                 .Build();
 
             Assert.That(configuration.AppUserId, Is.EqualTo("app_user_id"));
@@ -73,6 +75,7 @@ namespace RevenueCat.Tests
             Assert.That(configuration.AutomaticDeviceIdentifierCollectionEnabled, Is.False);
             Assert.That(configuration.PreferredUILocaleOverride, Is.EqualTo("de_DE"));
             Assert.That(configuration.UseExternalPurchaseCustomLinks, Is.True);
+            Assert.That(configuration.EnableExternalPurchasesInSimulator, Is.False);
         }
 
         [Test]

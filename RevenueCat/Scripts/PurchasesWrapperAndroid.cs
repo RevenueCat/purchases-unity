@@ -90,19 +90,19 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy, Purchases.StoreKitVersion storeKitVersion,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
         bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled,
-        string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks)
+        string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
     {
         Setup(gameObject, apiKey, appUserId, purchasesAreCompletedBy, storeKitVersion, userDefaultsSuiteName, useAmazon,
             dangerousSettingsJson, shouldShowInAppMessagesAutomatically, Purchases.EntitlementVerificationMode.Disabled, pendingTransactionsForPrepaidPlansEnabled,
             diagnosticsEnabled, automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride,
-            useExternalPurchaseCustomLinks);
+            useExternalPurchaseCustomLinks, enableExternalPurchasesInSimulator);
     }
 
     public void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy, Purchases.StoreKitVersion storeKitVersion,
         string userDefaultsSuiteName, bool useAmazon, string dangerousSettingsJson, bool shouldShowInAppMessagesAutomatically,
         Purchases.EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled,
         bool diagnosticsEnabled, bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride,
-        bool useExternalPurchaseCustomLinks)
+        bool useExternalPurchaseCustomLinks, bool enableExternalPurchasesInSimulator)
     {
         CallPurchases("setup", apiKey, appUserId, gameObject, purchasesAreCompletedBy.Name(), userDefaultsSuiteName, useAmazon, shouldShowInAppMessagesAutomatically,
             dangerousSettingsJson, entitlementVerificationMode.Name(), pendingTransactionsForPrepaidPlansEnabled, diagnosticsEnabled,
