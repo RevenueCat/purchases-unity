@@ -87,8 +87,8 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
  diagnosticsEnabled:(BOOL)diagnosticsEnabled
  automaticDeviceIdentifierCollectionEnabled:(BOOL)automaticDeviceIdentifierCollectionEnabled
  preferredUILocaleOverride:(nullable NSString *)preferredUILocaleOverride
-useExternalPurchaseCustomLinks:(BOOL)useExternalPurchaseCustomLinks
-enableExternalPurchasesInSimulator:(BOOL)enableExternalPurchasesInSimulator {
+ useExternalPurchaseCustomLinks:(BOOL)useExternalPurchaseCustomLinks
+ enableExternalPurchasesInSimulator:(BOOL)enableExternalPurchasesInSimulator {
     self.products = nil;
     self.gameObject = nil;
 
