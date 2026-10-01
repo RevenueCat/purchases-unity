@@ -260,6 +260,28 @@ void rcui_setPaywallOrientation(const char *orientation) {
     }
 }
 
+// Unity applies Screen.orientation / autorotate changes on its next display-link tick, in
+// -[UnityAppController checkOrientationRequest], and that method *defers* the change while a view
+// controller is presented. A game that sets Screen.orientation and presents a paywall in the same
+// frame therefore presents it into a window whose mask still reflects the previous orientation, and
+// the game only rotates after the paywall is dismissed. When an orientation was requested for the
+// paywall, ask Unity to commit the pending change first so the pinned orientation can be honored.
+// Looked up dynamically so there is no dependency on Unity's trampoline headers; no-op if absent or
+// if nothing is pending. Not done for the default styles, to keep their behavior unchanged.
+static void RCUICommitPendingUnityOrientationIfNeeded(void) {
+    if (_rcuiRequestedPaywallOrientationMask == 0) {
+        return;
+    }
+    id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    SEL selector = NSSelectorFromString(@"checkOrientationRequest");
+    if ([delegate respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [(NSObject *)delegate performSelector:selector];
+#pragma clang diagnostic pop
+    }
+}
+
 // The app's foreground window scene (the one the paywall is presented into).
 static UIWindowScene *RCUIForegroundWindowScene(void) {
     for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
@@ -375,6 +397,7 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:nil
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -413,6 +436,7 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallIfNeededWithOptions:options
                                 purchaseLogicBridge:nil
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -536,6 +560,7 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:bridge
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -594,6 +619,7 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = entitlement;
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallIfNeededWithOptions:options
                                 purchaseLogicBridge:bridge
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {

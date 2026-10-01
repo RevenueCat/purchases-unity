@@ -10,10 +10,11 @@ namespace RevenueCatUI
         /// <para>
         /// Unlike sheets, a full-screen paywall decides its own orientation: it can rotate to any orientation the app
         /// allows for its window. Unity normally limits that to the game's <c>Screen.orientation</c> / autorotation
-        /// settings, so the paywall follows the game. If the app allows more orientations than the game is using
-        /// (for example native code widening the window's orientations while Info.plist lists portrait and landscape),
-        /// the paywall may rotate independently of the game; use <see cref="FullScreenLandscape"/> or
-        /// <see cref="FullScreenPortrait"/> to pin it.
+        /// settings, so the paywall follows the game. The exception is a game that changes <c>Screen.orientation</c>
+        /// and presents the paywall before Unity applies the change (same frame): Unity defers the change while a
+        /// view controller is presented, so the paywall comes up in the previous orientation and the game only rotates
+        /// after it is dismissed (requires Info.plist to list both orientations). Use <see cref="FullScreenLandscape"/>
+        /// or <see cref="FullScreenPortrait"/> to pin the paywall in that case.
         /// </para>
         /// </summary>
         public static readonly IOSPaywallPresentationStyle FullScreen = new IOSPaywallPresentationStyle("fullScreen");
@@ -26,8 +27,9 @@ namespace RevenueCatUI
         /// by Info.plist and by the game's current <c>Screen.orientation</c> / autorotation settings (Unity limits the app
         /// window to those). If it isn't, a warning is logged and the paywall behaves like <see cref="FullScreen"/>.
         /// To present in an orientation the game is currently locked out of, change the game's orientation first (e.g.
-        /// <c>Screen.autorotateToLandscapeLeft = true; Screen.orientation = ScreenOrientation.LandscapeLeft;</c>),
-        /// present on a later frame, and restore it after the paywall is dismissed.
+        /// <c>Screen.autorotateToLandscapeLeft = true; Screen.orientation = ScreenOrientation.LandscapeLeft;</c>) and
+        /// restore it after the paywall is dismissed. A pending <c>Screen.orientation</c> change made in the same frame
+        /// is applied before the paywall is presented, so the game rotates together with the paywall.
         /// </para>
         /// </summary>
         public static readonly IOSPaywallPresentationStyle FullScreenLandscape = new IOSPaywallPresentationStyle("fullScreen", "landscape");

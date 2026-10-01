@@ -58,6 +58,16 @@ namespace RevenueCat.Tester.Screens
             Log($"Game orientation: {orientation} (autorotate landscape={landscape}, portrait={portrait})");
         }
 
+        private async void PresentLandscapeSameFrame(bool pinLandscape)
+        {
+            SetGameOrientation(ScreenOrientation.LandscapeLeft, landscape: true, portrait: false);
+            var style = pinLandscape ? IOSPaywallPresentationStyle.FullScreenLandscape : IOSPaywallPresentationStyle.FullScreen;
+            Log($"Presenting paywall in the same frame ({(pinLandscape ? "FullScreenLandscape" : "FullScreen")})...");
+            var result = await PaywallsPresenter.Present(BuildOptions(
+                presentationConfiguration: new PaywallPresentationConfiguration(ios: style, android: AndroidPaywallPresentationStyle.FullScreen)));
+            LogPaywallResult("Paywall (landscape, same frame)", result);
+        }
+
         private PaywallListener BuildLoggingListener()
         {
             return new PaywallListener
@@ -190,6 +200,14 @@ namespace RevenueCat.Tester.Screens
                             android: AndroidPaywallPresentationStyle.FullScreen)));
                     LogPaywallResult("Paywall (full screen, portrait)", result);
                 })
+            );
+
+            // Switches the game to landscape and presents in the same frame. With the game in portrait
+            // beforehand (phone upright), the plain full-screen paywall comes up portrait on iOS and the
+            // game only rotates once it is dismissed; the landscape style should rotate both together.
+            AddButtonRow(
+                ("Landscape + Full Screen", () => PresentLandscapeSameFrame(pinLandscape: false)),
+                ("Landscape + FS (Landscape)", () => PresentLandscapeSameFrame(pinLandscape: true))
             );
 
             AddButton("Present Paywall Form Sheet", async () =>
