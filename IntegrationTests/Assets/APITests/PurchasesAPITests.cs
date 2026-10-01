@@ -229,7 +229,9 @@ public class PurchasesAPITests : MonoBehaviour
             .SetDiagnosticsEnabled(true)
             .SetAutomaticDeviceIdentifierCollectionEnabled(false)
             .SetPreferredUILocaleOverride("de_DE")
+            .SetProxyURL("https://proxy.revenuecat.com")
             .Build();
+        string proxyURL = purchasesConfiguration.ProxyURL;
         purchases.Configure(purchasesConfiguration);
         purchases.RecordPurchase("product_id", (transaction, error) => 
         {

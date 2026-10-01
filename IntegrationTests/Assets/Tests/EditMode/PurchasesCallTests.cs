@@ -65,6 +65,42 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[13], Is.EqualTo("de_DE"));
         }
 
+        /// <remarks>
+        /// The proxy URL has to reach the native SDK before it is configured, so this pins the order
+        /// rather than just the fact that both calls happen.
+        /// </remarks>
+        [Test]
+        public void ConfigureSetsProxyUrlBeforeSettingUp()
+        {
+            var configuration = Purchases.PurchasesConfiguration.Builder
+                .Init("test_api_key")
+                .SetProxyURL("https://proxy.revenuecat.com")
+                .Build();
+
+            _purchases.Configure(configuration);
+
+            Assert.That(_wrapper.Invocations, Has.Count.EqualTo(2));
+            Assert.That(_wrapper.Invocations[0].Method, Is.EqualTo(nameof(IPurchasesWrapper.SetProxyURL)));
+            Assert.That(_wrapper.Invocations[0].Arguments[0], Is.EqualTo("https://proxy.revenuecat.com"));
+            Assert.That(_wrapper.Invocations[1].Method, Is.EqualTo(nameof(IPurchasesWrapper.Setup)));
+        }
+
+        /// <remarks>
+        /// A configuration that carries no proxy URL must not call the wrapper at all, otherwise it would
+        /// clear a proxy URL already set through the inspector field on Purchases.
+        /// </remarks>
+        [Test]
+        public void ConfigureWithoutProxyUrlDoesNotCallSetProxyUrl()
+        {
+            var configuration = Purchases.PurchasesConfiguration.Builder
+                .Init("test_api_key")
+                .Build();
+
+            _purchases.Configure(configuration);
+
+            AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 14);
+        }
+
         private PurchasesWrapperSpy.Invocation AssertOnlyInvocation(string method, int argumentCount)
         {
             Assert.That(_wrapper.Invocations, Has.Count.EqualTo(1));

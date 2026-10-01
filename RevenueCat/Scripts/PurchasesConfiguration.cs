@@ -36,11 +36,12 @@ public partial class Purchases
         public readonly bool DiagnosticsEnabled;
         public readonly bool AutomaticDeviceIdentifierCollectionEnabled;
         public readonly string PreferredUILocaleOverride;
+        public readonly string ProxyURL;
 
         private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
             bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically,
             EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
-            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride, string proxyURL)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -55,6 +56,7 @@ public partial class Purchases
             DiagnosticsEnabled = diagnosticsEnabled;
             AutomaticDeviceIdentifierCollectionEnabled = automaticDeviceIdentifierCollectionEnabled;
             PreferredUILocaleOverride = preferredUILocaleOverride;
+            ProxyURL = proxyURL;
         }
 
         /// <summary>
@@ -91,6 +93,7 @@ public partial class Purchases
             private bool _diagnosticsEnabled;
             private bool _automaticDeviceIdentifierCollectionEnabled = true;
             private string _preferredUILocaleOverride;
+            private string _proxyURL;
 
             private Builder(string apiKey)
             {
@@ -108,7 +111,7 @@ public partial class Purchases
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically,
                     _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _diagnosticsEnabled,
-                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride);
+                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride, _proxyURL);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -197,6 +200,17 @@ public partial class Purchases
                 return this;
             }
 
+            /// <summary>
+            /// Sets the proxy URL used for all RevenueCat network requests. Only set this if you have
+            /// received a proxy key value from your RevenueCat contact.
+            /// The proxy URL is applied before the SDK is configured.
+            /// </summary>
+            public Builder SetProxyURL(string proxyURL)
+            {
+                _proxyURL = proxyURL;
+                return this;
+            }
+
         }
 
         public override string ToString()
@@ -214,7 +228,8 @@ public partial class Purchases
                 $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n" +
                 $"{nameof(DiagnosticsEnabled)}: {DiagnosticsEnabled}\n" +
                 $"{nameof(AutomaticDeviceIdentifierCollectionEnabled)}: {AutomaticDeviceIdentifierCollectionEnabled}\n" +
-                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n";
+                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n" +
+                $"{nameof(ProxyURL)}: {ProxyURL}\n";
         }
     }
 }
