@@ -48,6 +48,16 @@ namespace RevenueCat.Tester.Screens
             return new PaywallOptions(displayCloseButton: displayCloseButton, customVariables: customVars, presentationConfiguration: presentationConfiguration, purchaseLogic: purchaseLogic, listener: listener);
         }
 
+        private void SetGameOrientation(ScreenOrientation orientation, bool landscape, bool portrait)
+        {
+            Screen.autorotateToLandscapeLeft = landscape;
+            Screen.autorotateToLandscapeRight = landscape;
+            Screen.autorotateToPortrait = portrait;
+            Screen.autorotateToPortraitUpsideDown = portrait;
+            Screen.orientation = orientation;
+            Log($"Game orientation: {orientation} (autorotate landscape={landscape}, portrait={portrait})");
+        }
+
         private PaywallListener BuildLoggingListener()
         {
             return new PaywallListener
@@ -122,6 +132,15 @@ namespace RevenueCat.Tester.Screens
                 _customVarFields.Add((keyField, valueField));
             }
 
+            // Lets you lock the game's orientation to check how paywalls behave relative to it
+            // (e.g. FullScreenLandscape on a game locked to landscape while Info.plist also allows portrait).
+            AddSectionHeader("Game Orientation");
+            AddButtonRow(
+                ("Landscape", () => SetGameOrientation(ScreenOrientation.LandscapeLeft, landscape: true, portrait: false)),
+                ("Portrait", () => SetGameOrientation(ScreenOrientation.Portrait, landscape: false, portrait: true)),
+                ("Auto", () => SetGameOrientation(ScreenOrientation.AutoRotation, landscape: true, portrait: true))
+            );
+
             AddSectionHeader("Paywall");
 
             _offeringIdField = AddTextField("Offering ID", "Leave empty for current offering");
@@ -149,6 +168,29 @@ namespace RevenueCat.Tester.Screens
                 var result = await PaywallsPresenter.Present(BuildOptions(offering: offering, presentationConfiguration: PaywallPresentationConfiguration.FullScreen));
                 LogPaywallResult("Paywall (full screen)", result);
             });
+
+            AddButtonRow(
+                ("Full Screen (Landscape)", async () =>
+                {
+                    var offering = await GetOfferingByIdAsync(_offeringIdField.value);
+                    Log("Presenting paywall full screen, forced landscape on iOS...");
+                    var result = await PaywallsPresenter.Present(BuildOptions(offering: offering,
+                        presentationConfiguration: new PaywallPresentationConfiguration(
+                            ios: IOSPaywallPresentationStyle.FullScreenLandscape,
+                            android: AndroidPaywallPresentationStyle.FullScreen)));
+                    LogPaywallResult("Paywall (full screen, landscape)", result);
+                }),
+                ("Full Screen (Portrait)", async () =>
+                {
+                    var offering = await GetOfferingByIdAsync(_offeringIdField.value);
+                    Log("Presenting paywall full screen, forced portrait on iOS...");
+                    var result = await PaywallsPresenter.Present(BuildOptions(offering: offering,
+                        presentationConfiguration: new PaywallPresentationConfiguration(
+                            ios: IOSPaywallPresentationStyle.FullScreenPortrait,
+                            android: AndroidPaywallPresentationStyle.FullScreen)));
+                    LogPaywallResult("Paywall (full screen, portrait)", result);
+                })
+            );
 
             AddButton("Present Paywall Form Sheet", async () =>
             {
