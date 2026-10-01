@@ -229,6 +229,8 @@ public class PurchasesAPITests : MonoBehaviour
             .SetDiagnosticsEnabled(true)
             .SetAutomaticDeviceIdentifierCollectionEnabled(false)
             .SetPreferredUILocaleOverride("de_DE")
+            .SetUseExternalPurchaseCustomLinks(true)
+            .SetEnableExternalPurchasesInSimulator(false)
             .Build();
         purchases.Configure(purchasesConfiguration);
         purchases.RecordPurchase("product_id", (transaction, error) => 

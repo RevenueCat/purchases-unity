@@ -36,11 +36,16 @@ public partial class Purchases
         public readonly bool DiagnosticsEnabled;
         public readonly bool AutomaticDeviceIdentifierCollectionEnabled;
         public readonly string PreferredUILocaleOverride;
+        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+        public readonly bool UseExternalPurchaseCustomLinks;
+        /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+        public readonly bool EnableExternalPurchasesInSimulator;
 
         private PurchasesConfiguration(string apiKey, string appUserId, PurchasesAreCompletedBy purchasesAreCompletedBy, string userDefaultsSuiteName,
             bool useAmazon, DangerousSettings dangerousSettings, StoreKitVersion storeKitVersion, bool shouldShowInAppMessagesAutomatically,
             EntitlementVerificationMode entitlementVerificationMode, bool pendingTransactionsForPrepaidPlansEnabled, bool diagnosticsEnabled,
-            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride)
+            bool automaticDeviceIdentifierCollectionEnabled, string preferredUILocaleOverride, bool useExternalPurchaseCustomLinks,
+            bool enableExternalPurchasesInSimulator)
         {
             ApiKey = apiKey;
             AppUserId = appUserId;
@@ -55,6 +60,8 @@ public partial class Purchases
             DiagnosticsEnabled = diagnosticsEnabled;
             AutomaticDeviceIdentifierCollectionEnabled = automaticDeviceIdentifierCollectionEnabled;
             PreferredUILocaleOverride = preferredUILocaleOverride;
+            UseExternalPurchaseCustomLinks = useExternalPurchaseCustomLinks;
+            EnableExternalPurchasesInSimulator = enableExternalPurchasesInSimulator;
         }
 
         /// <summary>
@@ -91,6 +98,8 @@ public partial class Purchases
             private bool _diagnosticsEnabled;
             private bool _automaticDeviceIdentifierCollectionEnabled = true;
             private string _preferredUILocaleOverride;
+            private bool _useExternalPurchaseCustomLinks;
+            private bool _enableExternalPurchasesInSimulator = true;
 
             private Builder(string apiKey)
             {
@@ -108,7 +117,8 @@ public partial class Purchases
                 return new PurchasesConfiguration(_apiKey, _appUserId, _purchasesAreCompletedBy, _userDefaultsSuiteName,
                     _useAmazon, _dangerousSettings, _storeKitVersion, _shouldShowInAppMessagesAutomatically,
                     _entitlementVerificationMode, _pendingTransactionsForPrepaidPlansEnabled, _diagnosticsEnabled,
-                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride);
+                    _automaticDeviceIdentifierCollectionEnabled, _preferredUILocaleOverride, _useExternalPurchaseCustomLinks,
+                    _enableExternalPurchasesInSimulator);
             }
 
             public Builder SetAppUserId(string appUserId)
@@ -197,6 +207,35 @@ public partial class Purchases
                 return this;
             }
 
+            /// <summary>
+            /// iOS-only, will be ignored for Android.
+            /// Whether a web purchase button that opens its link in the external browser goes through Apple's
+            /// external purchase custom link flow: the customer is shown Apple's disclosure notice, and the
+            /// purchase is reported to Apple.
+            /// Disabled by default. Enabling it requires the app to carry Apple's external purchase link
+            /// entitlement, otherwise no purchase can be made outside the App Store.
+            /// </summary>
+            /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+            public Builder SetUseExternalPurchaseCustomLinks(bool useExternalPurchaseCustomLinks)
+            {
+                _useExternalPurchaseCustomLinks = useExternalPurchaseCustomLinks;
+                return this;
+            }
+
+            /// <summary>
+            /// iOS-only, will be ignored for Android.
+            /// Whether the simulator offers external purchases in any storefront. When disabled, the simulator
+            /// behaves as a device does for a customer who is not eligible.
+            /// Enabled by default. Has no effect on a physical device, nor while
+            /// <see cref="SetUseExternalPurchaseCustomLinks"/> is disabled.
+            /// </summary>
+            /// <remarks>Experimental: this API is unstable and may change in a future release.</remarks>
+            public Builder SetEnableExternalPurchasesInSimulator(bool enableExternalPurchasesInSimulator)
+            {
+                _enableExternalPurchasesInSimulator = enableExternalPurchasesInSimulator;
+                return this;
+            }
+
         }
 
         public override string ToString()
@@ -214,7 +253,9 @@ public partial class Purchases
                 $"{nameof(PendingTransactionsForPrepaidPlansEnabled)}: {PendingTransactionsForPrepaidPlansEnabled}\n" +
                 $"{nameof(DiagnosticsEnabled)}: {DiagnosticsEnabled}\n" +
                 $"{nameof(AutomaticDeviceIdentifierCollectionEnabled)}: {AutomaticDeviceIdentifierCollectionEnabled}\n" +
-                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n";
+                $"{nameof(PreferredUILocaleOverride)}: {PreferredUILocaleOverride}\n" +
+                $"{nameof(UseExternalPurchaseCustomLinks)}: {UseExternalPurchaseCustomLinks}\n" +
+                $"{nameof(EnableExternalPurchasesInSimulator)}: {EnableExternalPurchasesInSimulator}\n";
         }
     }
 }

@@ -42,11 +42,13 @@ namespace RevenueCat.Tests
                 .SetDiagnosticsEnabled(true)
                 .SetAutomaticDeviceIdentifierCollectionEnabled(false)
                 .SetPreferredUILocaleOverride("de_DE")
+                .SetUseExternalPurchaseCustomLinks(true)
+                .SetEnableExternalPurchasesInSimulator(false)
                 .Build();
 
             _purchases.Configure(configuration);
 
-            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 14);
+            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 16);
             Assert.That(invocation.Arguments[0], Is.EqualTo(_gameObject.name));
             Assert.That(invocation.Arguments[1], Is.EqualTo("test_api_key"));
             Assert.That(invocation.Arguments[2], Is.EqualTo("app_user_id"));
@@ -63,6 +65,8 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[11], Is.True);
             Assert.That(invocation.Arguments[12], Is.False);
             Assert.That(invocation.Arguments[13], Is.EqualTo("de_DE"));
+            Assert.That(invocation.Arguments[14], Is.True);
+            Assert.That(invocation.Arguments[15], Is.False);
         }
 
         private PurchasesWrapperSpy.Invocation AssertOnlyInvocation(string method, int argumentCount)
