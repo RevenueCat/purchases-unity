@@ -1,18 +1,18 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Allow opting in to external purchase custom links on iOS (experimental) (#1100) via Antonio Pallares (@ajpallares)
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.3.1 (#1098) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 10.22.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.22.1)
-  * [Android 10.22.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.22.0)
-  * [iOS 5.90.2](https://github.com/RevenueCat/purchases-ios/releases/tag/5.90.2)
-  * [iOS 5.90.1](https://github.com/RevenueCat/purchases-ios/releases/tag/5.90.1)
-  * [iOS 5.90.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.90.0)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.3.0 (#1091) via RevenueCat Git Bot (@RCGitBot)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.2.0 (#1089) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.5.0 (#1107) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.24.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.24.0)
+  * [Android 10.23.4](https://github.com/RevenueCat/purchases-android/releases/tag/10.23.4)
+  * [Android 10.23.3](https://github.com/RevenueCat/purchases-android/releases/tag/10.23.3)
+  * [Android 10.23.2](https://github.com/RevenueCat/purchases-android/releases/tag/10.23.2)
+  * [Android 10.23.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.23.1)
+  * [Android 10.23.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.23.0)
+  * [iOS 5.92.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.92.0)
+  * [iOS 5.91.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.91.0)
+* [RENOVATE] Update dependency revenuecat to v4.6.2 (#1105) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.4.1 (#1102) via RevenueCat Git Bot (@RCGitBot)
 
 ### 🔄 Other Changes
-* chore(deps): bump fastlane-plugin-revenuecat_internal from `fc64a1a` to `9f7a03e` (#1097) via dependabot[bot] (@dependabot[bot])
-* Auto-merge PHC bump PRs (#1096) via Álvaro Brey (@AlvaroBrey)
-* chore(deps): bump fastlane-plugin-revenuecat_internal from `6db1da0` to `fc64a1a` (#1094) via dependabot[bot] (@dependabot[bot])
-* chore(deps): bump fastlane from 2.240.0 to 2.240.1 (#1095) via dependabot[bot] (@dependabot[bot])
-* chore(deps): bump fastlane from 2.238.0 to 2.240.0 (#1090) via dependabot[bot] (@dependabot[bot])
-* ci: approve the release hold automatically when the release PR is approved (#1087) via Álvaro Brey (@AlvaroBrey)
+* chore(deps): bump rubyzip from 2.4.1 to 3.4.0 in /IntegrationTests (#1104) via dependabot[bot] (@dependabot[bot])
