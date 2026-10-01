@@ -65,6 +65,35 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[13], Is.EqualTo("de_DE"));
         }
 
+        [Test]
+        public void ConfigureForwardsRuntimeSetupDefaults()
+        {
+            var configuration = Purchases.PurchasesConfiguration.Builder
+                .Init("test_api_key")
+                .Build();
+
+            _purchases.Configure(configuration);
+
+            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 14);
+            Assert.That(invocation.Arguments[0], Is.EqualTo(_gameObject.name));
+            Assert.That(invocation.Arguments[1], Is.EqualTo("test_api_key"));
+            Assert.That(invocation.Arguments[2], Is.Null);
+            Assert.That(invocation.Arguments[3], Is.EqualTo(Purchases.PurchasesAreCompletedBy.RevenueCat));
+            Assert.That(invocation.Arguments[4], Is.EqualTo(Purchases.StoreKitVersion.Default));
+            Assert.That(invocation.Arguments[5], Is.Null);
+            Assert.That(invocation.Arguments[6], Is.False);
+            var dangerousSettings = JSONNode.Parse((string)invocation.Arguments[7]);
+            Assert.That(dangerousSettings["AutoSyncPurchases"].AsBool, Is.True);
+            Assert.That(dangerousSettings.HasKey("UseWorkflows"), Is.False);
+            Assert.That(invocation.Arguments[8], Is.True);
+            Assert.That(invocation.Arguments[9],
+                Is.EqualTo(Purchases.EntitlementVerificationMode.Informational));
+            Assert.That(invocation.Arguments[10], Is.False);
+            Assert.That(invocation.Arguments[11], Is.False);
+            Assert.That(invocation.Arguments[12], Is.True);
+            Assert.That(invocation.Arguments[13], Is.Null);
+        }
+
         private PurchasesWrapperSpy.Invocation AssertOnlyInvocation(string method, int argumentCount)
         {
             Assert.That(_wrapper.Invocations, Has.Count.EqualTo(1));
