@@ -261,8 +261,8 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
     BOOL isReady = RCUIMaskContainsOrientation(targetMask, currentOrientation) &&
         rootController.transitionCoordinator == nil;
 
-    // A ready sample can race with Unity clearing its transient app-level force mask. Require a
-    // second consecutive sample after one polling interval before presenting.
+    // UIKit may report the new scene orientation before Unity finishes updating its own orientation
+    // state. Seeing the expected orientation twice, 1/60 second apart, avoids presenting in that gap.
     NSUInteger nextReadyChecks = isReady ? consecutiveReadyChecks + 1 : 0;
     if (nextReadyChecks >= 2) {
         presentation();
@@ -286,8 +286,7 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
 static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPresentation,
                                                              NSString *presentationMode,
                                                              dispatch_block_t presentation) API_AVAILABLE(ios(15.0)) {
-    // Match PurchasesHybridCommon's configured presentation style. This synchronization is only
-    // needed for explicit full-screen presentations.
+    // Orientation synchronization is only needed for explicit full-screen presentations.
     if (!RCUIIsFullScreenPresentation(useFullScreenPresentation, presentationMode) ||
         !RCUICommitPendingUnityOrientation()) {
         presentation();
@@ -307,11 +306,12 @@ static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPr
         return;
     }
 
-    // Snapshot Unity's root mask after flushing any pending request. Older Unity app delegates may
-    // temporarily OR the previous orientation into their app-level mask, so that mask is not the
-    // target.
+    // checkOrientationRequest updates this mask to match the pending Screen.orientation value.
+    // Use it as the target for UIKit's rotation.
     UIInterfaceOrientationMask targetMask =
         rootController.supportedInterfaceOrientations & UIInterfaceOrientationMaskAll;
+
+    // A zero mask is invalid and gives us no orientation to wait for, so fail open.
     if (targetMask == 0) {
         presentation();
         return;
