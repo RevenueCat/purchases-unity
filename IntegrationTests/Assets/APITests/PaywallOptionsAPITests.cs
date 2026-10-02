@@ -131,6 +131,23 @@ namespace DefaultNamespace
                 )
             );
 
+            // Test iOS full-screen styles with a forced orientation (Android stays default)
+            IOSPaywallPresentationStyle iosFullScreenLandscape = IOSPaywallPresentationStyle.FullScreenLandscape;
+            IOSPaywallPresentationStyle iosFullScreenPortrait = IOSPaywallPresentationStyle.FullScreenPortrait;
+            PaywallOptions options15 = new PaywallOptions(
+                offering: offering,
+                displayCloseButton: true,
+                presentationConfiguration: new PaywallPresentationConfiguration(
+                    ios: IOSPaywallPresentationStyle.FullScreenLandscape
+                )
+            );
+            PaywallOptions options16 = new PaywallOptions(
+                presentationConfiguration: new PaywallPresentationConfiguration(
+                    ios: IOSPaywallPresentationStyle.FullScreenPortrait,
+                    android: AndroidPaywallPresentationStyle.FullScreen
+                )
+            );
+
             // Test CustomVariableValue factory methods
             CustomVariableValue stringValue = CustomVariableValue.String("test");
             CustomVariableValue numberValue = CustomVariableValue.Number(42);

@@ -17,6 +17,7 @@ namespace RevenueCatUI.Platforms
         [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeeded(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback cb);
         [DllImport("__Internal")] private static extern void rcui_presentPaywallWithPurchaseLogic(string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
         [DllImport("__Internal")] private static extern void rcui_presentPaywallIfNeededWithPurchaseLogic(string requiredEntitlementIdentifier, string offeringIdentifier, string presentedOfferingContextJson, bool displayCloseButton, bool useFullScreenPresentation, string presentationMode, string customVariablesJson, PurchaseLogicPurchaseCallback purchaseCallback, PurchaseLogicRestoreCallback restoreCallback, bool hasPaywallListener, PaywallEventCallback eventCallback, PaywallResultCallback resultCallback);
+        [DllImport("__Internal")] private static extern void rcui_setPaywallOrientation(string orientation);
 
         private static TaskCompletionSource<PaywallResult> s_current;
 
@@ -33,10 +34,12 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
-                var presentationMode = options?.PresentationConfiguration?.IOS?.Value;
+                var iosStyle = options?.PresentationConfiguration?.IOS;
+                var useFullScreen = iosStyle?.IsFullScreen ?? false;
+                var presentationMode = iosStyle?.Value;
                 var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPaywallListener = options?.Listener != null;
+                rcui_setPaywallOrientation(iosStyle?.Orientation);
                 if (hasPaywallListener)
                 {
                     PaywallListenerBridge.SetCurrentListener(options.Listener);
@@ -86,10 +89,12 @@ namespace RevenueCatUI.Platforms
             try
             {
                 var presentedOfferingContextJson = options?.PresentedOfferingContext?.ToJsonString();
-                var useFullScreen = options?.PresentationConfiguration?.IOS == IOSPaywallPresentationStyle.FullScreen;
-                var presentationMode = options?.PresentationConfiguration?.IOS?.Value;
+                var iosStyle = options?.PresentationConfiguration?.IOS;
+                var useFullScreen = iosStyle?.IsFullScreen ?? false;
+                var presentationMode = iosStyle?.Value;
                 var customVariablesJson = options?.CustomVariablesToJsonString();
                 var hasPaywallListener = options?.Listener != null;
+                rcui_setPaywallOrientation(iosStyle?.Orientation);
                 if (hasPaywallListener)
                 {
                     PaywallListenerBridge.SetCurrentListener(options.Listener);

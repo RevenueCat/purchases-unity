@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 @import RevenueCat;
+@import RevenueCatUI;
 @import PurchasesHybridCommonUI;
 
 typedef void (*RCUIPaywallResultCallback)(const char *result);
@@ -238,6 +239,142 @@ didFailRestoringWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDiction
 
 @end
 
+// Orientation requested from C# (IOSPaywallPresentationStyle.FullScreenLandscape / FullScreenPortrait) for the
+// paywall being presented. 0 means "not set": keep UIKit's default, which follows Info.plist. Presentations are
+// serialized on the C# side, so a single pending value is enough; it is set right before every present.
+static UIInterfaceOrientationMask _rcuiRequestedPaywallOrientationMask = 0;
+static BOOL _rcuiWarnedUnsupportedPaywallOrientation = NO;
+
+void rcui_setPaywallOrientation(const char *orientation) {
+    _rcuiWarnedUnsupportedPaywallOrientation = NO;
+    NSString *value = RCUIStringFromCString(orientation);
+    if ([value isEqualToString:@"portrait"]) {
+        _rcuiRequestedPaywallOrientationMask = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+    } else if ([value isEqualToString:@"landscape"]) {
+        _rcuiRequestedPaywallOrientationMask = UIInterfaceOrientationMaskLandscape;
+    } else {
+        if (value.length > 0) {
+            NSLog(@"[RevenueCatUI] Unknown paywall orientation '%@'; using default.", value);
+        }
+        _rcuiRequestedPaywallOrientationMask = 0;
+    }
+}
+
+// Unity applies Screen.orientation / autorotate changes on its next display-link tick, in
+// -[UnityAppController checkOrientationRequest], and that method *defers* the change while a view
+// controller is presented. A game that sets Screen.orientation and presents a paywall in the same
+// frame therefore presents it into a window whose mask still reflects the previous orientation, and
+// the game only rotates after the paywall is dismissed. When an orientation was requested for the
+// paywall, ask Unity to commit the pending change first so the pinned orientation can be honored.
+// Looked up dynamically so there is no dependency on Unity's trampoline headers; no-op if absent or
+// if nothing is pending. Not done for the default styles, to keep their behavior unchanged.
+static void RCUICommitPendingUnityOrientationIfNeeded(void) {
+    if (_rcuiRequestedPaywallOrientationMask == 0) {
+        return;
+    }
+    id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    SEL selector = NSSelectorFromString(@"checkOrientationRequest");
+    if ([delegate respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [(NSObject *)delegate performSelector:selector];
+#pragma clang diagnostic pop
+    }
+}
+
+// The app's foreground window scene (the one the paywall is presented into).
+static UIWindowScene *RCUIForegroundWindowScene(void) {
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if (scene.activationState == UISceneActivationStateForegroundActive && [scene isKindOfClass:[UIWindowScene class]]) {
+            return (UIWindowScene *)scene;
+        }
+    }
+    return nil;
+}
+
+static UIInterfaceOrientation RCUICurrentInterfaceOrientation(void) {
+    UIWindowScene *scene = RCUIForegroundWindowScene();
+    return scene != nil ? scene.interfaceOrientation : UIInterfaceOrientationUnknown;
+}
+
+// Orientations the application allows for the window hosting `controller`, as UIKit computes them:
+// the app delegate's `application:supportedInterfaceOrientationsForWindow:` when implemented
+// (Unity's restricts it to the game's Screen.orientation / autorotate flags), otherwise Info.plist.
+// UIKit throws if a presented controller supports no orientation in common with this mask.
+static UIInterfaceOrientationMask RCUIApplicationOrientationMask(UIViewController *controller) {
+    UIApplication *application = UIApplication.sharedApplication;
+    id<UIApplicationDelegate> delegate = application.delegate;
+    if (![delegate respondsToSelector:@selector(application:supportedInterfaceOrientationsForWindow:)]) {
+        return UIInterfaceOrientationMaskAll; // Info.plist applies through [super supportedInterfaceOrientations].
+    }
+    UIWindow *window = controller.viewIfLoaded.window ?: controller.presentingViewController.viewIfLoaded.window;
+    if (window == nil) {
+        UIWindowScene *scene = RCUIForegroundWindowScene();
+        window = scene.keyWindow ?: scene.windows.firstObject;
+    }
+    if (window == nil) {
+        return UIInterfaceOrientationMaskAll;
+    }
+    return [delegate application:application supportedInterfaceOrientationsForWindow:window];
+}
+
+// A full-screen paywall is asked for its own supported orientations, and UIViewController's default
+// follows Info.plist, regardless of what the game set through Screen.orientation. When C# requests an
+// orientation, restrict the paywall to it. Sheets are unaffected: UIKit only consults the presented
+// controller for full-screen presentations.
+API_AVAILABLE(ios(15.0))
+@interface RCPaywallViewController (RCUIOrientation)
+@end
+
+@implementation RCPaywallViewController (RCUIOrientation)
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    UIInterfaceOrientationMask defaultMask = [super supportedInterfaceOrientations];
+    if (_rcuiRequestedPaywallOrientationMask == 0) {
+        return defaultMask;
+    }
+    // A presented controller can only narrow what the application allows (Info.plist and the app
+    // delegate's window mask), never widen it: UIKit throws if there is no orientation in common.
+    // Fall back to the default behavior when the request cannot be honored.
+    UIInterfaceOrientationMask allowedMask = defaultMask & RCUIApplicationOrientationMask(self);
+    UIInterfaceOrientationMask requestedMask = _rcuiRequestedPaywallOrientationMask & allowedMask;
+    if (requestedMask == 0) {
+        if (!_rcuiWarnedUnsupportedPaywallOrientation) {
+            _rcuiWarnedUnsupportedPaywallOrientation = YES;
+            NSLog(@"[RevenueCatUI] Requested paywall orientation (mask %lu) is not allowed by the app (mask %lu); "
+                  @"check Info.plist and the game's Screen.orientation / autorotate settings. Using default.",
+                  (unsigned long)_rcuiRequestedPaywallOrientationMask, (unsigned long)allowedMask);
+        }
+        return defaultMask;
+    }
+    return requestedMask;
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    if (_rcuiRequestedPaywallOrientationMask == 0) {
+        return [super preferredInterfaceOrientationForPresentation];
+    }
+    // UIKit requires the preferred orientation to be in supportedInterfaceOrientations. Keep the
+    // interface's current orientation when allowed (so presenting does not rotate), otherwise pick
+    // the first allowed one.
+    UIInterfaceOrientationMask supported = [self supportedInterfaceOrientations];
+    UIInterfaceOrientation current = RCUICurrentInterfaceOrientation();
+    if (current == UIInterfaceOrientationUnknown) {
+        current = [super preferredInterfaceOrientationForPresentation];
+    }
+    if (current != UIInterfaceOrientationUnknown && (supported & (1 << current)) != 0) {
+        return current;
+    }
+    for (UIInterfaceOrientation candidate = UIInterfaceOrientationPortrait; candidate <= UIInterfaceOrientationLandscapeLeft; candidate++) {
+        if ((supported & (1 << candidate)) != 0) {
+            return candidate;
+        }
+    }
+    return current;
+}
+
+@end
+
 static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
                                        NSString *presentedOfferingContextJson,
                                        BOOL displayCloseButton,
@@ -260,6 +397,7 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:nil
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -298,6 +436,7 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallIfNeededWithOptions:options
                                 purchaseLogicBridge:nil
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -421,6 +560,7 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:bridge
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -479,6 +619,7 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = entitlement;
 
+            RCUICommitPendingUnityOrientationIfNeeded();
             [proxy presentPaywallIfNeededWithOptions:options
                                 purchaseLogicBridge:bridge
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
