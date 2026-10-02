@@ -234,21 +234,26 @@ static UIInterfaceOrientation RCUISceneInterfaceOrientation(UIWindowScene *windo
 
 static BOOL RCUIMaskContainsOrientation(UIInterfaceOrientationMask mask,
                                         UIInterfaceOrientation orientation) {
-    // UIInterfaceOrientation raw values are the bit positions used by UIInterfaceOrientationMask.
-    return orientation >= UIInterfaceOrientationPortrait &&
-        orientation <= UIInterfaceOrientationLandscapeRight &&
-        (mask & (1UL << orientation)) != 0;
+    switch (orientation) {
+        // UIInterfaceOrientation raw values are the bit positions used by UIInterfaceOrientationMask.
+        case UIInterfaceOrientationPortrait:
+        case UIInterfaceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
+            return (mask & (1UL << orientation)) != 0;
+        default:
+            return NO;
+    }
 }
 
 // Updating Unity's root mask starts an asynchronous UIKit rotation. Older Unity versions also keep
 // the previous orientation in an app-level mask until that rotation advances. Presenting while the
 // scene is still in the old orientation can therefore make it valid for the new view controller.
-// Require one additional ready sample after the transition finishes, but fail open so presentation
-// cannot hang.
+// Wait for the scene to reach the target orientation and finish its active transition, but fail open
+// so presentation cannot hang.
 static void RCUIWaitForUnityOrientation(UIWindow *window,
                                         UIInterfaceOrientationMask targetMask,
                                         CFAbsoluteTime deadline,
-                                        NSUInteger consecutiveReadyChecks,
                                         dispatch_block_t presentation) API_AVAILABLE(ios(15.0)) {
     UIWindowScene *windowScene = window.windowScene;
     UIViewController *rootController = window.rootViewController;
@@ -261,10 +266,7 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
     BOOL isReady = RCUIMaskContainsOrientation(targetMask, currentOrientation) &&
         rootController.transitionCoordinator == nil;
 
-    // UIKit may report the new scene orientation before Unity finishes updating its own orientation
-    // state. Seeing the expected orientation twice, 1/60 second apart, avoids presenting in that gap.
-    NSUInteger nextReadyChecks = isReady ? consecutiveReadyChecks + 1 : 0;
-    if (nextReadyChecks >= 2) {
+    if (isReady) {
         presentation();
         return;
     }
@@ -279,7 +281,7 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC / 60)),
                    dispatch_get_main_queue(), ^{
-        RCUIWaitForUnityOrientation(window, targetMask, deadline, nextReadyChecks, presentation);
+        RCUIWaitForUnityOrientation(window, targetMask, deadline, presentation);
     });
 }
 
@@ -342,7 +344,6 @@ static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPr
     RCUIWaitForUnityOrientation(window,
                                 targetMask,
                                 CFAbsoluteTimeGetCurrent() + 1.0,
-                                0,
                                 presentation);
 }
 
