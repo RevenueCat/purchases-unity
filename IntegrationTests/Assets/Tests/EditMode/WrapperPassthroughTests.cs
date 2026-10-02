@@ -134,14 +134,15 @@ namespace RevenueCat.Tests
         [Test]
         public void SyncAmazonPurchaseForwardsArgumentsInOrder()
         {
-            _purchases.SyncAmazonPurchase("product_1", "receipt_1", "amazon_user_1", "USD", 9.99);
+            _purchases.SyncAmazonPurchase("product_1", "receipt_1", "amazon_user_1", "USD", 9.99, 1700000000000L);
 
-            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SyncAmazonPurchase), 5);
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.SyncAmazonPurchase), 6);
             Assert.That(invocation.Arguments[0], Is.EqualTo("product_1"));
             Assert.That(invocation.Arguments[1], Is.EqualTo("receipt_1"));
             Assert.That(invocation.Arguments[2], Is.EqualTo("amazon_user_1"));
             Assert.That(invocation.Arguments[3], Is.EqualTo("USD"));
             Assert.That(invocation.Arguments[4], Is.EqualTo(9.99));
+            Assert.That(invocation.Arguments[5], Is.EqualTo(1700000000000L));
         }
 
         [Test]
