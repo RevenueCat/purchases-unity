@@ -164,6 +164,28 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
     return options;
 }
 
+// Unity applies Screen.orientation changes on its next display-link tick. Once a view controller is
+// presented, Unity defers that work until dismissal. Commit pending changes before a full-screen
+// paywall is presented so UIKit sees the game's latest orientation mask.
+static void RCUICommitPendingUnityOrientationIfNeeded(BOOL useFullScreenPresentation,
+                                                       NSString *presentationMode) {
+    BOOL isFullScreenPresentation = presentationMode.length > 0
+        ? [presentationMode isEqualToString:@"fullScreen"]
+        : useFullScreenPresentation;
+    if (!isFullScreenPresentation) {
+        return;
+    }
+
+    id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    SEL selector = NSSelectorFromString(@"checkOrientationRequest");
+    if ([delegate respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [(NSObject *)delegate performSelector:selector];
+#pragma clang diagnostic pop
+    }
+}
+
 static BOOL RCUICustomerCenterEnsureReady(RCUICustomerCenterErrorCallback errorCallback) {
     if (!RCPurchases.isConfigured) {
         RCUICustomerCenterInvokeErrorCallback(errorCallback);
@@ -260,6 +282,7 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
 
+            RCUICommitPendingUnityOrientationIfNeeded(useFullScreenPresentation, presentationMode);
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:nil
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -298,6 +321,7 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
+            RCUICommitPendingUnityOrientationIfNeeded(useFullScreenPresentation, presentationMode);
             [proxy presentPaywallIfNeededWithOptions:options
                                 purchaseLogicBridge:nil
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -421,6 +445,8 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
 
+            RCUICommitPendingUnityOrientationIfNeeded(useFullScreenPresentation ? YES : NO,
+                                                       presentationModeString);
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:bridge
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
@@ -479,6 +505,8 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = entitlement;
 
+            RCUICommitPendingUnityOrientationIfNeeded(useFullScreenPresentation ? YES : NO,
+                                                       presentationModeString);
             [proxy presentPaywallIfNeededWithOptions:options
                                 purchaseLogicBridge:bridge
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
