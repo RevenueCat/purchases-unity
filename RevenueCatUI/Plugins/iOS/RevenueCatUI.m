@@ -263,6 +263,8 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
     }
 
     UIInterfaceOrientation currentOrientation = RCUISceneInterfaceOrientation(windowScene);
+    // UIKit may report the target scene orientation before the rotation transition finishes. Wait
+    // until the root controller no longer has a transition coordinator before presenting.
     BOOL isReady = RCUIMaskContainsOrientation(targetMask, currentOrientation) &&
         rootController.transitionCoordinator == nil;
 
@@ -279,6 +281,8 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
         return;
     }
 
+    // The geometry request has no success callback, so poll until the transition finishes or the
+    // deadline expires.
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC / 60)),
                    dispatch_get_main_queue(), ^{
         RCUIWaitForUnityOrientation(window, targetMask, deadline, presentation);
