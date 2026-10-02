@@ -164,6 +164,193 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
     return options;
 }
 
+static BOOL RCUIIsFullScreenPresentation(BOOL useFullScreenPresentation,
+                                         NSString *presentationMode) {
+    // Recognized presentationMode values override the legacy boolean. Missing or unrecognized
+    // values fall back to it, matching PurchasesHybridCommon.
+    if (presentationMode.length > 0) {
+        NSString *normalizedMode = presentationMode.lowercaseString;
+        if ([normalizedMode isEqualToString:@"fullscreen"]) {
+            return YES;
+        }
+        if ([normalizedMode isEqualToString:@"formsheet"] ||
+            [normalizedMode isEqualToString:@"pagesheet"] ||
+            [normalizedMode isEqualToString:@"sheet"] ||
+            [normalizedMode isEqualToString:@"automatic"]) {
+            return NO;
+        }
+    }
+
+    return useFullScreenPresentation;
+}
+
+// Unity normally applies Screen.orientation changes on its next display-link tick. Once a view
+// controller is presented, Unity defers that work until dismissal. Commit pending changes before a
+// full-screen paywall is presented so UIKit sees the game's latest orientation mask.
+static BOOL RCUICommitPendingUnityOrientation(void) {
+    id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    // This UnityAppController method is not part of an iOS protocol, so resolve it dynamically to
+    // keep the plugin compatible with Unity versions that do not expose it.
+    SEL selector = NSSelectorFromString(@"checkOrientationRequest");
+    if (![delegate respondsToSelector:selector]) {
+        return NO;
+    }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    [(NSObject *)delegate performSelector:selector];
+#pragma clang diagnostic pop
+    return YES;
+}
+
+static UIWindow *RCUIForegroundKeyWindow(void) API_AVAILABLE(ios(15.0)) {
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if (scene.activationState != UISceneActivationStateForegroundActive ||
+            ![scene isKindOfClass:[UIWindowScene class]]) {
+            continue;
+        }
+
+        UIWindowScene *windowScene = (UIWindowScene *)scene;
+        if (windowScene.keyWindow != nil) {
+            return windowScene.keyWindow;
+        }
+    }
+
+    return nil;
+}
+
+static UIInterfaceOrientation RCUISceneInterfaceOrientation(UIWindowScene *windowScene) API_AVAILABLE(ios(15.0)) {
+    // effectiveGeometry is the scene's source of truth on iOS 16+. iOS 15 only has the deprecated
+    // interfaceOrientation property.
+    if (@available(iOS 16.0, *)) {
+        return windowScene.effectiveGeometry.interfaceOrientation;
+    }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    return windowScene.interfaceOrientation;
+#pragma clang diagnostic pop
+}
+
+static BOOL RCUIMaskContainsOrientation(UIInterfaceOrientationMask mask,
+                                        UIInterfaceOrientation orientation) {
+    switch (orientation) {
+        // UIInterfaceOrientation raw values are the bit positions used by UIInterfaceOrientationMask.
+        case UIInterfaceOrientationPortrait:
+        case UIInterfaceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
+            return (mask & (1UL << orientation)) != 0;
+        default:
+            return NO;
+    }
+}
+
+// Updating Unity's root mask starts an asynchronous UIKit rotation. Older Unity versions also keep
+// the previous orientation in an app-level mask until that rotation advances. Presenting while the
+// scene is still in the old orientation can therefore make it valid for the new view controller.
+// Wait for the scene to reach the target orientation and finish its active transition, but fail open
+// so presentation cannot hang.
+static void RCUIWaitForUnityOrientation(UIWindow *window,
+                                        UIInterfaceOrientationMask targetMask,
+                                        CFAbsoluteTime deadline,
+                                        dispatch_block_t presentation) API_AVAILABLE(ios(15.0)) {
+    UIWindowScene *windowScene = window.windowScene;
+    UIViewController *rootController = window.rootViewController;
+    if (windowScene == nil || rootController == nil) {
+        presentation();
+        return;
+    }
+
+    UIInterfaceOrientation currentOrientation = RCUISceneInterfaceOrientation(windowScene);
+    // UIKit may report the target scene orientation before the rotation transition finishes. Wait
+    // until the root controller no longer has a transition coordinator before presenting.
+    BOOL isReady = RCUIMaskContainsOrientation(targetMask, currentOrientation) &&
+        rootController.transitionCoordinator == nil;
+
+    if (isReady) {
+        presentation();
+        return;
+    }
+
+    if (CFAbsoluteTimeGetCurrent() >= deadline) {
+        // Orientation should not be allowed to block paywall presentation indefinitely.
+        NSLog(@"[RevenueCatUI] Timed out waiting for Unity's orientation transition before "
+              @"presenting a full-screen paywall.");
+        presentation();
+        return;
+    }
+
+    // The geometry request has no success callback, so poll until the transition finishes or the
+    // deadline expires.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC / 60)),
+                   dispatch_get_main_queue(), ^{
+        RCUIWaitForUnityOrientation(window, targetMask, deadline, presentation);
+    });
+}
+
+static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPresentation,
+                                                             NSString *presentationMode,
+                                                             dispatch_block_t presentation) API_AVAILABLE(ios(15.0)) {
+    // Orientation synchronization is only needed for explicit full-screen presentations.
+    if (!RCUIIsFullScreenPresentation(useFullScreenPresentation, presentationMode) ||
+        !RCUICommitPendingUnityOrientation()) {
+        presentation();
+        return;
+    }
+
+    UIWindow *window = RCUIForegroundKeyWindow();
+    if (window == nil) {
+        presentation();
+        return;
+    }
+
+    UIWindowScene *windowScene = window.windowScene;
+    UIViewController *rootController = window.rootViewController;
+    if (windowScene == nil || rootController == nil) {
+        presentation();
+        return;
+    }
+
+    // checkOrientationRequest updates this mask to match the pending Screen.orientation value.
+    // Use it as the target for UIKit's rotation.
+    UIInterfaceOrientationMask targetMask =
+        rootController.supportedInterfaceOrientations & UIInterfaceOrientationMaskAll;
+
+    // A zero mask is invalid and gives us no orientation to wait for, so fail open.
+    if (targetMask == 0) {
+        presentation();
+        return;
+    }
+
+    UIInterfaceOrientation currentOrientation = RCUISceneInterfaceOrientation(windowScene);
+    if (RCUIMaskContainsOrientation(targetMask, currentOrientation) &&
+        rootController.transitionCoordinator == nil) {
+        presentation();
+        return;
+    }
+
+    if (@available(iOS 16.0, *)) {
+        // iOS 16+ rotates through scene geometry. Invalidate UIKit's cached controller mask, then
+        // request the snapshotted mask. The API reports only errors, so the poll observes success.
+        [rootController setNeedsUpdateOfSupportedInterfaceOrientations];
+        UIWindowSceneGeometryPreferencesIOS *preferences =
+            [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:targetMask];
+        [windowScene requestGeometryUpdateWithPreferences:preferences
+                                             errorHandler:^(NSError *error) {
+            NSLog(@"[RevenueCatUI] Unable to request Unity's pending orientation before "
+                  @"presenting a full-screen paywall: %@", error.localizedDescription);
+        }];
+    }
+
+    // iOS 15 has no scene geometry request API, so rely on Unity to initiate the rotation. The
+    // bounded wait proceeds with presentation if UIKit never reaches the target.
+    RCUIWaitForUnityOrientation(window,
+                                targetMask,
+                                CFAbsoluteTimeGetCurrent() + 1.0,
+                                presentation);
+}
+
 static BOOL RCUICustomerCenterEnsureReady(RCUICustomerCenterErrorCallback errorCallback) {
     if (!RCPurchases.isConfigured) {
         RCUICustomerCenterInvokeErrorCallback(errorCallback);
@@ -260,15 +447,17 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
 
-            [proxy presentPaywallWithOptions:options
-                        purchaseLogicBridge:nil
-                        paywallResultHandler:^(NSString * _Nonnull resultName) {
-                NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(callback, token, nil);
-                proxy.delegate = nil;
-                paywallDelegate = nil;
-                proxy = nil;
-            }];
+            RCUIPresentAfterUnityOrientationSettlesIfNeeded(useFullScreenPresentation, presentationMode, ^{
+                [proxy presentPaywallWithOptions:options
+                            purchaseLogicBridge:nil
+                            paywallResultHandler:^(NSString * _Nonnull resultName) {
+                    NSString *token = RCUINormalizedResultToken(resultName);
+                    RCUIInvokeCallback(callback, token, nil);
+                    proxy.delegate = nil;
+                    paywallDelegate = nil;
+                    proxy = nil;
+                }];
+            });
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -298,15 +487,17 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offeringIdentifier, presentedOfferingContextJson, displayCloseButton, useFullScreenPresentation, presentationMode, customVariablesJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = requiredEntitlementIdentifier;
 
-            [proxy presentPaywallIfNeededWithOptions:options
-                                purchaseLogicBridge:nil
-                                paywallResultHandler:^(NSString * _Nonnull resultName) {
-                NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(callback, token, nil);
-                proxy.delegate = nil;
-                paywallDelegate = nil;
-                proxy = nil;
-            }];
+            RCUIPresentAfterUnityOrientationSettlesIfNeeded(useFullScreenPresentation, presentationMode, ^{
+                [proxy presentPaywallIfNeededWithOptions:options
+                                    purchaseLogicBridge:nil
+                                    paywallResultHandler:^(NSString * _Nonnull resultName) {
+                    NSString *token = RCUINormalizedResultToken(resultName);
+                    RCUIInvokeCallback(callback, token, nil);
+                    proxy.delegate = nil;
+                    paywallDelegate = nil;
+                    proxy = nil;
+                }];
+            });
         } else {
             RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -421,16 +612,19 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
 
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
 
-            [proxy presentPaywallWithOptions:options
-                        purchaseLogicBridge:bridge
-                        paywallResultHandler:^(NSString * _Nonnull resultName) {
-                NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(resultCallback, token, nil);
-                proxy.delegate = nil;
-                paywallDelegate = nil;
-                proxy = nil;
-                bridge = nil;
-            }];
+            RCUIPresentAfterUnityOrientationSettlesIfNeeded(useFullScreenPresentation ? YES : NO,
+                                                             presentationModeString, ^{
+                [proxy presentPaywallWithOptions:options
+                            purchaseLogicBridge:bridge
+                            paywallResultHandler:^(NSString * _Nonnull resultName) {
+                    NSString *token = RCUINormalizedResultToken(resultName);
+                    RCUIInvokeCallback(resultCallback, token, nil);
+                    proxy.delegate = nil;
+                    paywallDelegate = nil;
+                    proxy = nil;
+                    bridge = nil;
+                }];
+            });
         } else {
             RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
@@ -479,16 +673,19 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
             options[kRCUIOptionRequiredEntitlementIdentifier] = entitlement;
 
-            [proxy presentPaywallIfNeededWithOptions:options
-                                purchaseLogicBridge:bridge
-                                paywallResultHandler:^(NSString * _Nonnull resultName) {
-                NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(resultCallback, token, nil);
-                proxy.delegate = nil;
-                paywallDelegate = nil;
-                proxy = nil;
-                bridge = nil;
-            }];
+            RCUIPresentAfterUnityOrientationSettlesIfNeeded(useFullScreenPresentation ? YES : NO,
+                                                             presentationModeString, ^{
+                [proxy presentPaywallIfNeededWithOptions:options
+                                    purchaseLogicBridge:bridge
+                                    paywallResultHandler:^(NSString * _Nonnull resultName) {
+                    NSString *token = RCUINormalizedResultToken(resultName);
+                    RCUIInvokeCallback(resultCallback, token, nil);
+                    proxy.delegate = nil;
+                    paywallDelegate = nil;
+                    proxy = nil;
+                    bridge = nil;
+                }];
+            });
         } else {
             RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
         }
