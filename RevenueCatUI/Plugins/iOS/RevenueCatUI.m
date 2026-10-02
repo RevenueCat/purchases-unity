@@ -168,7 +168,7 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
 // presented, Unity defers that work until dismissal. Commit pending changes before a full-screen
 // paywall is presented so UIKit sees the game's latest orientation mask.
 static void RCUICommitPendingUnityOrientationIfNeeded(BOOL useFullScreenPresentation,
-                                                       NSString *presentationMode) {
+                                                      NSString *presentationMode) {
     BOOL isFullScreenPresentation = presentationMode.length > 0
         ? [presentationMode isEqualToString:@"fullScreen"]
         : useFullScreenPresentation;
@@ -446,7 +446,7 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
             NSMutableDictionary *options = RCUICreateOptionsDictionary(offering, contextJson, displayCloseButton ? YES : NO, useFullScreenPresentation ? YES : NO, presentationModeString, customVarsJson);
 
             RCUICommitPendingUnityOrientationIfNeeded(useFullScreenPresentation ? YES : NO,
-                                                       presentationModeString);
+                                                      presentationModeString);
             [proxy presentPaywallWithOptions:options
                         purchaseLogicBridge:bridge
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
