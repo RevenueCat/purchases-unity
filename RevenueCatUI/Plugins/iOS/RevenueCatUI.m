@@ -166,6 +166,8 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
 
 static BOOL RCUIIsFullScreenPresentation(BOOL useFullScreenPresentation,
                                          NSString *presentationMode) {
+    // Recognized presentationMode values override the legacy boolean. Missing or unrecognized
+    // values fall back to it, matching PurchasesHybridCommon.
     if (presentationMode.length > 0) {
         NSString *normalizedMode = presentationMode.lowercaseString;
         if ([normalizedMode isEqualToString:@"fullscreen"]) {
@@ -187,6 +189,8 @@ static BOOL RCUIIsFullScreenPresentation(BOOL useFullScreenPresentation,
 // full-screen paywall is presented so UIKit sees the game's latest orientation mask.
 static BOOL RCUICommitPendingUnityOrientation(void) {
     id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    // This UnityAppController method is not part of an iOS protocol, so resolve it dynamically to
+    // keep the plugin compatible with Unity versions that do not expose it.
     SEL selector = NSSelectorFromString(@"checkOrientationRequest");
     if (![delegate respondsToSelector:selector]) {
         return NO;
@@ -216,6 +220,8 @@ static UIWindow *RCUIForegroundKeyWindow(void) API_AVAILABLE(ios(15.0)) {
 }
 
 static UIInterfaceOrientation RCUISceneInterfaceOrientation(UIWindowScene *windowScene) API_AVAILABLE(ios(15.0)) {
+    // effectiveGeometry is the scene's source of truth on iOS 16+. iOS 15 only has the deprecated
+    // interfaceOrientation property.
     if (@available(iOS 16.0, *)) {
         return windowScene.effectiveGeometry.interfaceOrientation;
     }
@@ -228,6 +234,7 @@ static UIInterfaceOrientation RCUISceneInterfaceOrientation(UIWindowScene *windo
 
 static BOOL RCUIMaskContainsOrientation(UIInterfaceOrientationMask mask,
                                         UIInterfaceOrientation orientation) {
+    // UIInterfaceOrientation raw values are the bit positions used by UIInterfaceOrientationMask.
     return orientation >= UIInterfaceOrientationPortrait &&
         orientation <= UIInterfaceOrientationLandscapeRight &&
         (mask & (1UL << orientation)) != 0;
@@ -236,7 +243,8 @@ static BOOL RCUIMaskContainsOrientation(UIInterfaceOrientationMask mask,
 // Updating Unity's root mask starts an asynchronous UIKit rotation. Older Unity versions also keep
 // the previous orientation in an app-level mask until that rotation advances. Presenting while the
 // scene is still in the old orientation can therefore make it valid for the new view controller.
-// Require one stable tick after the transition finishes, but fail open so presentation cannot hang.
+// Require one additional ready sample after the transition finishes, but fail open so presentation
+// cannot hang.
 static void RCUIWaitForUnityOrientation(UIWindow *window,
                                         UIInterfaceOrientationMask targetMask,
                                         CFAbsoluteTime deadline,
@@ -252,6 +260,9 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
     UIInterfaceOrientation currentOrientation = RCUISceneInterfaceOrientation(windowScene);
     BOOL isReady = RCUIMaskContainsOrientation(targetMask, currentOrientation) &&
         rootController.transitionCoordinator == nil;
+
+    // A ready sample can race with Unity clearing its transient app-level force mask. Require a
+    // second consecutive sample after one polling interval before presenting.
     NSUInteger nextReadyChecks = isReady ? consecutiveReadyChecks + 1 : 0;
     if (nextReadyChecks >= 2) {
         presentation();
@@ -259,6 +270,7 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
     }
 
     if (CFAbsoluteTimeGetCurrent() >= deadline) {
+        // Orientation should not be allowed to block paywall presentation indefinitely.
         NSLog(@"[RevenueCatUI] Timed out waiting for Unity's orientation transition before "
               @"presenting a full-screen paywall.");
         presentation();
@@ -274,6 +286,8 @@ static void RCUIWaitForUnityOrientation(UIWindow *window,
 static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPresentation,
                                                              NSString *presentationMode,
                                                              dispatch_block_t presentation) API_AVAILABLE(ios(15.0)) {
+    // Match PurchasesHybridCommon's configured presentation style. This synchronization is only
+    // needed for explicit full-screen presentations.
     if (!RCUIIsFullScreenPresentation(useFullScreenPresentation, presentationMode) ||
         !RCUICommitPendingUnityOrientation()) {
         presentation();
@@ -293,6 +307,9 @@ static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPr
         return;
     }
 
+    // Snapshot Unity's root mask after flushing any pending request. Older Unity app delegates may
+    // temporarily OR the previous orientation into their app-level mask, so that mask is not the
+    // target.
     UIInterfaceOrientationMask targetMask =
         rootController.supportedInterfaceOrientations & UIInterfaceOrientationMaskAll;
     if (targetMask == 0) {
@@ -308,6 +325,8 @@ static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPr
     }
 
     if (@available(iOS 16.0, *)) {
+        // iOS 16+ rotates through scene geometry. Invalidate UIKit's cached controller mask, then
+        // request the snapshotted mask. The API reports only errors, so the poll observes success.
         [rootController setNeedsUpdateOfSupportedInterfaceOrientations];
         UIWindowSceneGeometryPreferencesIOS *preferences =
             [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:targetMask];
@@ -318,6 +337,8 @@ static void RCUIPresentAfterUnityOrientationSettlesIfNeeded(BOOL useFullScreenPr
         }];
     }
 
+    // iOS 15 has no scene geometry request API, so rely on Unity to initiate the rotation. The
+    // bounded wait proceeds with presentation if UIKit never reaches the target.
     RCUIWaitForUnityOrientation(window,
                                 targetMask,
                                 CFAbsoluteTimeGetCurrent() + 1.0,
