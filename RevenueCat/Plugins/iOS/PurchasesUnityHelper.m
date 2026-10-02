@@ -693,6 +693,34 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
+- (void)trackRewardedAdPromptShown:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackRewardedAdPromptShown: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackRewardedAdPromptShown:data];
+    } else {
+        NSLog(@"[Purchases] trackRewardedAdPromptShown: requires iOS 15.0+, skipping");
+    }
+}
+
+- (void)trackRewardedAdPromptAccepted:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackRewardedAdPromptAccepted: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackRewardedAdPromptAccepted:data];
+    } else {
+        NSLog(@"[Purchases] trackRewardedAdPromptAccepted: requires iOS 15.0+, skipping");
+    }
+}
+
 - (void)generateRewardVerificationToken:(NSString *)impressionId {
     NSDictionary *token = [RCCommonFunctionality generateRewardVerificationTokenWithImpressionId:impressionId];
     [self sendJSONObject:token toMethod:GENERATE_REWARD_VERIFICATION_TOKEN];
@@ -1258,6 +1286,14 @@ void _RCTrackAdLoaded(const char *dataJson) {
 
 void _RCTrackAdFailedToLoad(const char *dataJson) {
     [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
+}
+
+void _RCTrackRewardedAdPromptShown(const char *dataJson) {
+    [_RCUnityHelperShared() trackRewardedAdPromptShown:convertCString(dataJson)];
+}
+
+void _RCTrackRewardedAdPromptAccepted(const char *dataJson) {
+    [_RCUnityHelperShared() trackRewardedAdPromptAccepted:convertCString(dataJson)];
 }
 
 void _RCGenerateRewardVerificationToken(const char *impressionId) {

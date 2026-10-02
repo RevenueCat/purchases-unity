@@ -474,6 +474,12 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void TrackAdFailedToLoad(AdFailedToLoadData data) =>
         CallPurchases("trackAdFailedToLoad", data.ToJsonString());
 
+    public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) =>
+        CallPurchases("trackRewardedAdPromptShown", data.ToJsonString());
+
+    public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) =>
+        CallPurchases("trackRewardedAdPromptAccepted", data.ToJsonString());
+
     public void GenerateRewardVerificationToken(string impressionId) =>
         CallPurchases("generateRewardVerificationToken", impressionId);
 
