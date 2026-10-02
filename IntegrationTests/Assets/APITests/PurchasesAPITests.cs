@@ -270,6 +270,10 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.AdTracker.TrackAdRevenue(new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "ad_unit", "imp_006", 500000L, "EUR", AdTracker.Precision.PublisherDefined, networkName: "network", placement: "end_level"));
         purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit"));
         purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", placement: "home", mediatorErrorCode: 2));
+        purchases.AdTracker.TrackRewardedAdPromptShown(new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "ad_unit"));
+        purchases.AdTracker.TrackRewardedAdPromptShown(new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "ad_unit", placement: "home"));
+        purchases.AdTracker.TrackRewardedAdPromptAccepted(new AdRewardPromptAcceptedData(AdTracker.MediatorName.AdMob, "ad_unit"));
+        purchases.AdTracker.TrackRewardedAdPromptAccepted(new AdRewardPromptAcceptedData(AdTracker.MediatorName.AdMob, "ad_unit", placement: "home"));
 
         // Reward verification API tests
         purchases.GenerateRewardVerificationToken("imp_001", (token, error) =>

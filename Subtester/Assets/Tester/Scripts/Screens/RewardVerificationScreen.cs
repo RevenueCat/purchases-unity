@@ -22,6 +22,8 @@ namespace RevenueCat.Tester.Screens
         private const string AdUnitId = "unused";
 #endif
 
+        private const string Placement = "reward_verification";
+
         private RewardedInterstitialAd _rewardedAd;
         private Purchases.RewardVerificationToken _token;
 
@@ -93,6 +95,8 @@ namespace RevenueCat.Tester.Screens
 
                     _showButton.SetEnabled(true);
                     SetStatus("Ad ready.");
+                    Purchases.AdTracker.TrackRewardedAdPromptShown(
+                        new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, AdUnitId, Placement));
                 });
             });
         }
@@ -105,6 +109,8 @@ namespace RevenueCat.Tester.Screens
 
             _rewardedAd = null;
             _showButton.SetEnabled(false);
+            Purchases.AdTracker.TrackRewardedAdPromptAccepted(
+                new AdRewardPromptAcceptedData(AdTracker.MediatorName.AdMob, AdUnitId, Placement));
 
             ad.Show(_ =>
             {

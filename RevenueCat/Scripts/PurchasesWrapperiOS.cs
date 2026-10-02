@@ -597,6 +597,16 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         _RCTrackAdFailedToLoad(data.ToJsonString());
 
     [DllImport("__Internal")]
+    private static extern void _RCTrackRewardedAdPromptShown(string dataJson);
+    public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) =>
+        _RCTrackRewardedAdPromptShown(data.ToJsonString());
+
+    [DllImport("__Internal")]
+    private static extern void _RCTrackRewardedAdPromptAccepted(string dataJson);
+    public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) =>
+        _RCTrackRewardedAdPromptAccepted(data.ToJsonString());
+
+    [DllImport("__Internal")]
     private static extern void _RCGenerateRewardVerificationToken(string impressionId);
     public void GenerateRewardVerificationToken(string impressionId) =>
         _RCGenerateRewardVerificationToken(impressionId);
