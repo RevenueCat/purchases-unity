@@ -7,7 +7,9 @@ the `no_paywall` offering's monthly package. Both builds use `com.revenuecat.SDK
 The release build resolves the published package from OpenUPM; the local build resolves `RevenueCat`
 in this checkout. Build checks verify the package source, version, C# assembly path, native wrapper
 versions, and the package's own hybrid-common dependency. The on-screen version comes from the
-verified package metadata because Unity's SDK has no public version getter. Each variant retains
+verified package metadata because Unity's SDK has no public version getter. It also displays the
+resolved package source (`Registry` or `Local`) so the assertions distinguish builds even when their
+SDK versions are equal. Each variant retains
 its declared native dependencies.
 
 The seven YAML files in `../maestro/sdk_update_tests` are unchanged copies from

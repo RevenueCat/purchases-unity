@@ -55,8 +55,9 @@ static class SDKUpdateBuild
         Directory.CreateDirectory(Output);
         Directory.CreateDirectory("Assets/Resources");
         File.WriteAllText("Assets/Resources/SDKUpdateBuildInfo.json", JsonUtility.ToJson(
-            new SDKUpdateTestApp.BuildInfo { apiKey = apiKey, sdkVersion = package.version }));
+            new SDKUpdateTestApp.BuildInfo { apiKey = apiKey, sdkVersion = package.version, sdkSource = package.source.ToString() }));
         File.WriteAllText(Path.Combine(Output, "version.txt"), package.version + "\n");
+        File.WriteAllText(Path.Combine(Output, "source.txt"), package.source + "\n");
         File.WriteAllText(Path.Combine(Output, "resolved-sdk.txt"),
             $"{PackageName}@{package.version}\nsource: {package.source}\npath: {package.resolvedPath}\n" +
             $"Purchases.cs SHA256: {Hash(File.ReadAllBytes(Path.Combine(package.resolvedPath, "Scripts/Purchases.cs")))}\n" +
@@ -74,6 +75,7 @@ static class SDKUpdateBuild
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
         PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel35;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
         PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
         PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
         PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;

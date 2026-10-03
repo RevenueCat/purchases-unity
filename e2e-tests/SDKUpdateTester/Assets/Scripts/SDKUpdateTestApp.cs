@@ -14,6 +14,7 @@ public class SDKUpdateTestApp : MonoBehaviour
     {
         public string apiKey;
         public string sdkVersion;
+        public string sdkSource;
     }
 
     public GameObject homeScreen;
@@ -51,7 +52,7 @@ public class SDKUpdateTestApp : MonoBehaviour
         purchases = GetComponent<Purchases>();
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.Configure(Purchases.PurchasesConfiguration.Builder.Init(build.apiKey).Build());
-        sdkVersion.text = "RevenueCat SDK " + build.sdkVersion;
+        sdkVersion.text = "RevenueCat SDK " + build.sdkVersion + " " + build.sdkSource;
         appUserId.text = purchases.GetAppUserId();
         userIdToLogIn = GetLoginUserId();
         logInButton.gameObject.SetActive(!string.IsNullOrEmpty(userIdToLogIn));

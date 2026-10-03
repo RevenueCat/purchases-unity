@@ -292,7 +292,7 @@ lane :run_sdk_update_test do |options|
     UI.user_error!("#{version} not found. Build both apps first.") unless File.exist?(version)
     {
       app_path: "#{apps}/#{variant}/SDKUpdateTester.#{platform == 'ios' ? 'app' : 'apk'}",
-      sdk_version: File.read(version).strip,
+      sdk_version: "#{File.read(version).strip} #{File.read("#{apps}/#{variant}/source.txt").strip}",
       flow: "#{flows}/#{index.zero? ? 'before' : 'after'}_update.yaml"
     }
   end

@@ -245,7 +245,7 @@ commands:
             mkdir -p fastlane/test_output/sdk_update_tests/<< parameters.platform >>/builds
             for variant in release local; do
               mkdir -p fastlane/test_output/sdk_update_tests/<< parameters.platform >>/builds/$variant
-              for report in version.txt resolved-sdk.txt packages-lock.json resolved-native-dependencies.txt; do
+              for report in version.txt source.txt resolved-sdk.txt packages-lock.json resolved-native-dependencies.txt; do
                 cp build/sdk_update_tests/<< parameters.platform >>/$variant/$report \
                   fastlane/test_output/sdk_update_tests/<< parameters.platform >>/builds/$variant/ 2>/dev/null || true
               done
@@ -687,6 +687,9 @@ jobs:
       - checkout
       - unity/prepare-env:
           project-path: e2e-tests/SDKUpdateTester
+      - run:
+          name: Install native gem build tools
+          command: apt-get update && apt-get install -y --no-install-recommends build-essential libyaml-dev
       - install-bundle-dependencies
       - run:
           name: Build released and local Unity SDK update apps
@@ -699,10 +702,12 @@ jobs:
           paths:
             - build/sdk_update_tests/ios/release/xcode
             - build/sdk_update_tests/ios/release/version.txt
+            - build/sdk_update_tests/ios/release/source.txt
             - build/sdk_update_tests/ios/release/resolved-sdk.txt
             - build/sdk_update_tests/ios/release/packages-lock.json
             - build/sdk_update_tests/ios/local/xcode
             - build/sdk_update_tests/ios/local/version.txt
+            - build/sdk_update_tests/ios/local/source.txt
             - build/sdk_update_tests/ios/local/resolved-sdk.txt
             - build/sdk_update_tests/ios/local/packages-lock.json
 
@@ -746,6 +751,9 @@ jobs:
       - checkout
       - unity/prepare-env:
           project-path: e2e-tests/SDKUpdateTester
+      - run:
+          name: Install native gem build tools
+          command: apt-get update && apt-get install -y --no-install-recommends build-essential libyaml-dev
       - install-bundle-dependencies
       - run:
           name: Build released and local Unity SDK update apps
@@ -758,10 +766,12 @@ jobs:
           paths:
             - build/sdk_update_tests/android/release/SDKUpdateTester.apk
             - build/sdk_update_tests/android/release/version.txt
+            - build/sdk_update_tests/android/release/source.txt
             - build/sdk_update_tests/android/release/resolved-sdk.txt
             - build/sdk_update_tests/android/release/packages-lock.json
             - build/sdk_update_tests/android/local/SDKUpdateTester.apk
             - build/sdk_update_tests/android/local/version.txt
+            - build/sdk_update_tests/android/local/source.txt
             - build/sdk_update_tests/android/local/resolved-sdk.txt
             - build/sdk_update_tests/android/local/packages-lock.json
             - build/sdk_update_tests/android/release/resolved-native-dependencies.txt
