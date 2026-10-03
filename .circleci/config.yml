@@ -64,7 +64,7 @@ parameters:
    action:
      type: enum
      enum: [build, upgrade-hybrid-common, bump, sdk-update-tests]
-     default: sdk-update-tests
+     default: build
    version:
      type: string
      default: ''
@@ -710,7 +710,6 @@ jobs:
             - build/sdk_update_tests/ios/local/source.txt
             - build/sdk_update_tests/ios/local/resolved-sdk.txt
             - build/sdk_update_tests/ios/local/packages-lock.json
-
 
   run-sdk-update-tests-ios:
     macos:
