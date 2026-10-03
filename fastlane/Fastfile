@@ -208,8 +208,9 @@ lane :build_sdk_update_test_apps do |options|
   platform = sdk_update_test_platform(options)
   root = get_root_folder
   output = sdk_update_test_apps_dir(platform, options)
-  editor = options[:unity_path] || ENV["UNITY_PATH"] || "/opt/unity/Editor/Unity"
-  UI.user_error!("Unity Editor not found: #{editor}") unless File.executable?(editor)
+  editor = options[:unity_path] || ENV["UNITY_EDITOR_PATH"] || ENV["UNITY_PATH"] || "/opt/unity/Editor/Unity"
+  editor = File.join(editor, "Editor/Unity") if File.directory?(editor)
+  UI.user_error!("Unity Editor not found: #{editor}") unless File.file?(editor) && File.executable?(editor)
   key = ENV["MAESTRO_TEST_STORE_API_KEY"]
   UI.user_error!("MAESTRO_TEST_STORE_API_KEY must contain a Test Store key") unless key&.start_with?("test_")
   local_version = current_version_number.strip

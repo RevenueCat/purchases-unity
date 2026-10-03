@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
+[DefaultExecutionOrder(100)]
 public class SDKUpdateTestApp : MonoBehaviour
 {
     [Serializable]
@@ -50,8 +51,8 @@ public class SDKUpdateTestApp : MonoBehaviour
     {
         var build = JsonUtility.FromJson<BuildInfo>(Resources.Load<TextAsset>("SDKUpdateBuildInfo").text);
         purchases = GetComponent<Purchases>();
-        purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.Configure(Purchases.PurchasesConfiguration.Builder.Init(build.apiKey).Build());
+        purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         sdkVersion.text = "RevenueCat SDK " + build.sdkVersion + " " + build.sdkSource;
         appUserId.text = purchases.GetAppUserId();
         userIdToLogIn = GetLoginUserId();
