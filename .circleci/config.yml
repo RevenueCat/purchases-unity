@@ -687,8 +687,7 @@ jobs:
       - checkout
       - unity/prepare-env:
           project-path: e2e-tests/SDKUpdateTester
-      - revenuecat/install-gem-unix-dependencies:
-          cache-version: v1
+      - install-bundle-dependencies
       - run:
           name: Build released and local Unity SDK update apps
           command: |
@@ -747,8 +746,7 @@ jobs:
       - checkout
       - unity/prepare-env:
           project-path: e2e-tests/SDKUpdateTester
-      - revenuecat/install-gem-unix-dependencies:
-          cache-version: v1
+      - install-bundle-dependencies
       - run:
           name: Build released and local Unity SDK update apps
           command: |
@@ -778,8 +776,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - revenuecat/install-gem-unix-dependencies:
-          cache-version: v1
+      - install-bundle-dependencies
       - revenuecat/install-maestro
       - android/create_avd:
           avd_name: sdk-update-tests
