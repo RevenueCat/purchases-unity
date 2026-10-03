@@ -81,20 +81,6 @@ public class NativeAccessibilityOverlay {
         });
     }
 
-    public static void removeElement(final String id) {
-        final Activity activity = UnityPlayer.currentActivity;
-        if (activity == null) return;
-
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (container == null) return;
-                TextView tv = elements.remove(id);
-                if (tv != null) container.removeView(tv);
-            }
-        });
-    }
-
     public static void clear() {
         final Activity activity = UnityPlayer.currentActivity;
         if (activity == null) return;

@@ -113,11 +113,6 @@ public class SDKUpdateTestApp : MonoBehaviour
         monthlyPackage = null;
         purchaseButton.interactable = false;
         StartCoroutine(UpdateAccessibility());
-        purchases.GetCustomerInfo((info, error) =>
-        {
-            if (error != null) { ShowError(error.Message); return; }
-            SetCustomerInfo(info);
-        });
         purchases.GetOfferings((offerings, error) =>
         {
             if (error != null) { ShowError(error.Message); return; }
@@ -128,6 +123,11 @@ public class SDKUpdateTestApp : MonoBehaviour
             }
             monthlyPackage = offering.Monthly;
             purchaseButton.interactable = true;
+            purchases.GetCustomerInfo((info, customerInfoError) =>
+            {
+                if (customerInfoError != null) { ShowError(customerInfoError.Message); return; }
+                SetCustomerInfo(info);
+            });
         });
     }
 

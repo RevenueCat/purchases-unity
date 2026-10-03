@@ -2,7 +2,6 @@
 
 #import <UIKit/UIKit.h>
 
-
 static UIView *overlayContainer = nil;
 static NSMutableDictionary<NSString *, UILabel *> *overlayElements = nil;
 
