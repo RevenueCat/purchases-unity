@@ -242,7 +242,7 @@ lane :build_sdk_update_test_apps do |options|
       "-logFile", log)
     _, status = Process.wait2(pid)
     unless status.success?
-      UI.error(File.readlines(log).last(60).join.gsub(key, "[redacted]")) if File.exist?(log)
+      UI.error(File.readlines(log).last(250).join.gsub(key, "[redacted]")) if File.exist?(log)
       UI.user_error!("#{variant} Unity build failed. See #{log}")
     end
     UI.success("Built #{variant} Unity SDK #{version}: #{variant_dir}")
