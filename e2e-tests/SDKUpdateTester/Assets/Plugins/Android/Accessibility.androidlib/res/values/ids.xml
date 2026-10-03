@@ -1,0 +1,10 @@
+<resources>
+    <item type="id" name="sdk_version" />
+    <item type="id" name="app_user_id" />
+    <item type="id" name="log_in_button" />
+    <item type="id" name="purchase_screen_button" />
+    <item type="id" name="active_entitlements" />
+    <item type="id" name="purchase_button" />
+    <item type="id" name="back_button" />
+    <item type="id" name="error" />
+</resources>
