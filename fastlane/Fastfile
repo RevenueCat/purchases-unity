@@ -266,14 +266,14 @@ lane :compile_sdk_update_test_apps_ios do |options|
       UI.error(File.readlines(log).last(40).join)
       UI.user_error!("#{variant} iOS build failed. See #{log}")
     end
-    resolved = Dir.glob("#{dir}/**/Package.resolved").find { |path| path.include?("xcshareddata/swiftpm") }
-    UI.user_error!("No resolved Swift packages found for #{variant}") unless resolved
+    resolved = "#{dir}/xcode/Unity-iPhone.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+    UI.user_error!("No resolved Swift packages found for #{variant}") unless File.file?(resolved)
     pins = JSON.parse(File.read(resolved))["pins"]
+    File.write("#{dir}/resolved-native-dependencies.txt", JSON.pretty_generate(pins))
     xml = File.read("#{dir}/resolved-sdk.txt")
     expected = xml.match(/remoteSwiftPackage[^>]+version="([^"]+)"/)[1]
     phc = pins.find { |pin| pin["identity"] == "purchases-hybrid-common" }
-    UI.user_error!("#{variant} must resolve its Unity SDK's hybrid-common #{expected}") unless phc&.dig("state", "version") == expected
-    File.write("#{dir}/resolved-native-dependencies.txt", JSON.pretty_generate(pins))
+    UI.user_error!("#{variant} must resolve its Unity SDK's hybrid-common #{expected}; resolved #{phc&.dig('state', 'version') || 'none'}") unless phc&.dig("state", "version") == expected
     products = "#{dir}/derived_data/Build/Products/Debug-iphonesimulator"
     app = "#{products}/SDKUpdateTester.app"
     Dir.glob("#{products}/*.bundle").each { |bundle| FileUtils.cp_r(bundle, app, remove_destination: true) }

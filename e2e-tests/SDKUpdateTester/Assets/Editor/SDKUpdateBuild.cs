@@ -147,13 +147,13 @@ class SDKUpdateGradleDependencies : IPostGenerateGradleAndroidProject
         File.AppendAllText(Path.Combine(path, "build.gradle"), @"
 tasks.register('verifySdkUpdateDependencies') {
     doLast {
-        def artifacts = configurations.debugRuntimeClasspath.resolvedConfiguration.resolvedArtifacts
-        def revenueCat = artifacts.findAll { it.moduleVersion.id.group == 'com.revenuecat.purchases' }
-        if (!revenueCat.any { it.name == 'purchases-hybrid-common' && it.moduleVersion.id.version == '" + expected + @"' }) {
+        def components = configurations.debugRuntimeClasspath.incoming.resolutionResult.allComponents
+        def revenueCat = components.collect { it.moduleVersion }.findAll { it?.group == 'com.revenuecat.purchases' }
+        if (!revenueCat.any { it.name == 'purchases-hybrid-common' && it.version == '" + expected + @"' }) {
             throw new GradleException('The app must use the native dependency declared by its Unity SDK package')
         }
         new File('" + reportPath.Replace("\\", "\\\\").Replace("'", "\\'") + @"').text =
-            revenueCat.collect { it.moduleVersion.id.toString() }.sort().join('\n') + '\n'
+            revenueCat.collect { it.toString() }.sort().join('\n') + '\n'
     }
 }
 preBuild.dependsOn verifySdkUpdateDependencies
