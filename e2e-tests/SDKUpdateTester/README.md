@@ -22,7 +22,8 @@ Remove the temporary plugin pin when that PR merges.
 
 ## Run locally
 
-Use Unity 6000.2 with iOS and Android Build Support. Set `UNITY_PATH` to its editor executable and
+Use Unity 6000.3.8f1 with iOS and Android Build Support, and Xcode 27.0 for iOS.
+This editor supplies the scene lifecycle required by iOS 27. Set `UNITY_PATH` to its editor executable and
 `MAESTRO_TEST_STORE_API_KEY` to the Workflows Test Store key. CI provides `WORKFLOWS_TEST_STORE_API_KEY`
 through the `maestro` context. Its `no_paywall` offering contains `$rc_monthly`, with product
 `pro_monthly_subscription` granting `pro`. Keys are written into generated resources inside the

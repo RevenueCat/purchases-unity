@@ -60,11 +60,25 @@ executors:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
 
+  unity-sdk-update-ios:
+    docker:
+      - image: unityci/editor:ubuntu-6000.3.8f1-ios-3
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
+
+  unity-sdk-update-android:
+    docker:
+      - image: unityci/editor:ubuntu-6000.3.8f1-android-3
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
+
 parameters:
    action:
      type: enum
      enum: [build, upgrade-hybrid-common, bump, sdk-update-tests]
-     default: build
+     default: sdk-update-tests
    version:
      type: string
      default: ''
@@ -682,7 +696,7 @@ jobs:
           path: fastlane/test_output
 
   build-sdk-update-test-apps-ios:
-    executor: unity-ios
+    executor: unity-sdk-update-ios
     steps:
       - checkout
       - unity/prepare-env:
@@ -713,7 +727,7 @@ jobs:
 
   run-sdk-update-tests-ios:
     macos:
-      xcode: 26.3.0
+      xcode: "27.0"
     resource_class: m4pro.medium
     steps:
       - checkout
@@ -730,8 +744,9 @@ jobs:
       - run:
           name: Boot iOS Simulator
           command: |
-            xcrun simctl boot "iPhone 17"
-            xcrun simctl bootstatus "iPhone 17" -b
+            simulator=$(xcrun simctl create SDKUpdateTester com.apple.CoreSimulator.SimDeviceType.iPhone-17 com.apple.CoreSimulator.SimRuntime.iOS-27-0)
+            xcrun simctl boot "$simulator"
+            xcrun simctl bootstatus "$simulator" -b
       - run:
           name: SDK update — anonymous_user
           command: bundle exec fastlane run_sdk_update_test platform:ios test_case:anonymous_user
@@ -745,7 +760,7 @@ jobs:
           platform: ios
 
   build-sdk-update-test-apps-android:
-    executor: unity-android
+    executor: unity-sdk-update-android
     steps:
       - checkout
       - unity/prepare-env:
