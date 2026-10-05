@@ -75,5 +75,7 @@ namespace RevenueCat
         public void TrackAdRevenue(AdRevenueData data) => _wrapper.TrackAdRevenue(data);
         public void TrackAdLoaded(AdLoadedData data) => _wrapper.TrackAdLoaded(data);
         public void TrackAdFailedToLoad(AdFailedToLoadData data) => _wrapper.TrackAdFailedToLoad(data);
+        public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) => _wrapper.TrackRewardedAdPromptShown(data);
+        public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) => _wrapper.TrackRewardedAdPromptAccepted(data);
     }
 }

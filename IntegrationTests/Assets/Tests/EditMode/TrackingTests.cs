@@ -173,6 +173,28 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void TrackRewardedAdPromptShownForwardsDataToWrapper()
+        {
+            var data = new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "unit_1");
+
+            _purchases.AdTracker.TrackRewardedAdPromptShown(data);
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.TrackRewardedAdPromptShown), 1);
+            Assert.That(invocation.Arguments[0], Is.SameAs(data));
+        }
+
+        [Test]
+        public void TrackRewardedAdPromptAcceptedForwardsDataToWrapper()
+        {
+            var data = new AdRewardPromptAcceptedData(AdTracker.MediatorName.AdMob, "unit_1");
+
+            _purchases.AdTracker.TrackRewardedAdPromptAccepted(data);
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.TrackRewardedAdPromptAccepted), 1);
+            Assert.That(invocation.Arguments[0], Is.SameAs(data));
+        }
+
+        [Test]
         public void AdDisplayedDataToJsonStringOmitsOptionalFieldsWhenNull()
         {
             var data = new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "unit_1", "impression_1");
@@ -238,6 +260,52 @@ namespace RevenueCat.Tests
 
             Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
             Assert.That(json["mediatorErrorCode"].AsInt, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void AdRewardPromptShownDataToJsonStringOmitsPlacementWhenAbsent()
+        {
+            var data = new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "unit_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["mediatorName"].Value, Is.EqualTo("AdMob"));
+            Assert.That(json["adUnitId"].Value, Is.EqualTo("unit_1"));
+            Assert.That(json.HasKey("placement"), Is.False);
+        }
+
+        [Test]
+        public void AdRewardPromptShownDataToJsonStringIncludesPlacementWhenPresent()
+        {
+            var data = new AdRewardPromptShownData(AdTracker.MediatorName.AppLovin, "unit_1", "placement_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["mediatorName"].Value, Is.EqualTo("AppLovin"));
+            Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
+        }
+
+        [Test]
+        public void AdRewardPromptAcceptedDataToJsonStringOmitsPlacementWhenAbsent()
+        {
+            var data = new AdRewardPromptAcceptedData(AdTracker.MediatorName.AdMob, "unit_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["mediatorName"].Value, Is.EqualTo("AdMob"));
+            Assert.That(json["adUnitId"].Value, Is.EqualTo("unit_1"));
+            Assert.That(json.HasKey("placement"), Is.False);
+        }
+
+        [Test]
+        public void AdRewardPromptAcceptedDataToJsonStringIncludesPlacementWhenPresent()
+        {
+            var data = new AdRewardPromptAcceptedData(AdTracker.MediatorName.AppLovin, "unit_1", "placement_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["mediatorName"].Value, Is.EqualTo("AppLovin"));
+            Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
         }
 
         private PurchasesWrapperSpy.Invocation AssertLastInvocation(string method, int argumentCount)

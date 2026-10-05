@@ -851,6 +851,26 @@ public class PurchasesWrapper {
         }
     }
 
+    public static void trackRewardedAdPromptShown(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackRewardedAdPromptShown(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void trackRewardedAdPromptAccepted(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackRewardedAdPromptAccepted(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
     public static void generateRewardVerificationToken(String impressionId) {
         Map<String, ?> token = CommonKt.generateRewardVerificationToken(impressionId);
         sendJSONObject(MappersHelpersKt.convertToJson(token), GENERATE_REWARD_VERIFICATION_TOKEN);
