@@ -12,14 +12,6 @@ resolved package source (`Registry` or `Local`) so the assertions distinguish bu
 SDK versions are equal. Each variant retains
 its declared native dependencies.
 
-The seven YAML files in `../maestro/sdk_update_tests` are unchanged copies from
-[purchases-ios#7900](https://github.com/RevenueCat/purchases-ios/pull/7900),
-[purchases-android#4381](https://github.com/RevenueCat/purchases-android/pull/4381), and
-[purchases-kmp#1063](https://github.com/RevenueCat/purchases-kmp/pull/1063).
-Release discovery and the install/run sequence use
-[shared actions#161](https://github.com/RevenueCat/fastlane-plugin-revenuecat_internal/pull/161).
-Remove the temporary plugin pin when that PR merges.
-
 ## Run locally
 
 Use Unity 6000.3.8f1 with iOS and Android Build Support, and Xcode 27.0 for iOS.
