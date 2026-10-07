@@ -34,10 +34,6 @@ files_to_update_phc_version = {
         ANDROID_PHC_DEPENDENCY_PATTERN,
         ANDROID_PHC_UI_DEPENDENCY_PATTERN
     ],
-    'e2e-tests/MaestroTestApp/Assets/Plugins/Android/mainTemplate.gradle' => [
-        ANDROID_PHC_DEPENDENCY_PATTERN,
-        ANDROID_PHC_UI_DEPENDENCY_PATTERN
-    ],
     'RevenueCatUI/Plugins/Editor/RevenueCatUIDependencies.xml' => [
         ANDROID_PHC_UI_DEPENDENCY_PATTERN,
         SPM_PHC_DEPENDENCY_PATTERN,
@@ -144,7 +140,7 @@ lane :xcode_build_maestro_test_app do
   derived_data_path = "#{project_path}/build/xcode"
 
   # PurchasesHybridCommon is injected as a Swift Package during the Unity build
-  # (see BuildScript.AddPurchasesHybridCommonSwiftPackage), so we build the
+  # by the External Dependency Manager's iOS resolver, so we build the
   # Unity-generated Xcode project directly and let xcodebuild resolve packages.
   sh(
     "xcodebuild", "build",

@@ -523,6 +523,16 @@ jobs:
           project-path: e2e-tests/MaestroTestApp
       - replace-maestro-api-key
       - run:
+          name: Resolve Android dependencies
+          command: |
+            /opt/unity/Editor/Unity \
+              -projectPath e2e-tests/MaestroTestApp \
+              -batchmode \
+              -buildTarget Android \
+              -executeMethod BuildScript.Resolve \
+              -nographics \
+              -logFile /dev/stdout
+      - run:
           name: Build Maestro test app (Unity Android)
           command: |
             /opt/unity/Editor/Unity \
