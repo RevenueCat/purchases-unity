@@ -94,13 +94,13 @@ Refer to `fastlane/README.md` for fastlane actions
 
 ### Dependencies
 - `purchases-hybrid-common` — Native iOS/Android bridge
-- External Dependency Manager (EDM4U) — Manages native dependencies
+- External Dependency Manager — Unity's `com.unity.external-dependency-manager` (declared as a UPM dependency) resolves the native dependencies declared in `*Dependencies.xml`; Google's EDM4U is still supported for projects that already use it
 
 ## Constraints / Support Policy
 
 | Platform | Minimum Version |
 |----------|-----------------|
-| Unity | 2021.3+ |
+| Unity | 2022.3+ (2021.3 only via `.unitypackage` with EDM4U) |
 | iOS | 13.0+ |
 | Android | API 21+ |
 | Play Billing Library | 8.0.0+ |
