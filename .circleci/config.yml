@@ -916,12 +916,16 @@ workflows:
           requires:
             - build-maestro-test-app-android
       - build-sdk-update-test-apps-ios:
+          <<: *release-branches
           context: [unity, maestro]
       - build-sdk-update-test-apps-android:
+          <<: *release-branches
           context: [unity, maestro]
       - run-sdk-update-tests-ios:
+          <<: *release-branches
           requires: [build-sdk-update-test-apps-ios]
       - run-sdk-update-tests-android:
+          <<: *release-branches
           requires: [build-sdk-update-test-apps-android]
       - wait-for-pr-approval:
           type: approval
@@ -1017,9 +1021,7 @@ workflows:
 
   sdk-update-tests:
     when:
-      or:
-        - equal: [sdk-update-tests, << pipeline.parameters.action >>]
-        - equal: [maestro_e2e_tests, << pipeline.schedule.name >>]
+      equal: [sdk-update-tests, << pipeline.parameters.action >>]
     jobs:
       - build-sdk-update-test-apps-ios:
           context: [unity, maestro]
