@@ -43,7 +43,7 @@ purchases-unity/
 │   │   ├── iOS/                   # Native iOS integration (Objective-C)
 │   │   ├── Android/               # Native Android integration (Java)
 │   │   └── Editor/                # Dependency configuration
-│   └── Editor/                    # Editor tools & post-install
+│   └── Editor/                    # Editor tools, iOS post-install, EDM installer
 ├── RevenueCatUI/                  # UI SDK package (UPM)
 │   ├── Scripts/                   # Paywall/Customer center UI
 │   └── Plugins/Android/           # Android UI library
@@ -63,6 +63,8 @@ purchases-unity/
 # Create .unitypackage files
 ./scripts/create-unity-package.sh -u <unity_path> [-v]
 ```
+
+The exported `.unitypackage` no longer bundles a dependency manager. `RevenueCat/Editor/RevenueCatDependencyManagerInstaller.cs` installs Unity's External Dependency Manager on first import when the project has none.
 
 ### Fastlane Commands
 
@@ -100,7 +102,7 @@ Refer to `fastlane/README.md` for fastlane actions
 
 | Platform | Minimum Version |
 |----------|-----------------|
-| Unity | 2022.3+ (2021.3 only via `.unitypackage` with EDM4U) |
+| Unity | 2022.3.33+ (2021.3 only via `.unitypackage` with EDM4U) |
 | iOS | 13.0+ |
 | Android | API 21+ |
 | Play Billing Library | 8.0.0+ |
