@@ -30,3 +30,12 @@ fastlane/.env
 vendor/
 .bundle/
 RevenueCatUI/Plugins/Android/RevenueCatUI.androidlib/build
+
+# SDK update test builds contain injected credentials
+/build/sdk_update_tests/
+/fastlane/test_output/
+/e2e-tests/SDKUpdateTester/Library/
+/e2e-tests/SDKUpdateTester/Temp/
+/e2e-tests/SDKUpdateTester/Logs/
+/e2e-tests/SDKUpdateTester/Assets/Scenes/
+/e2e-tests/SDKUpdateTester/Assets/Resources/

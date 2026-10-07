@@ -60,10 +60,24 @@ executors:
           UPM_CACHE_ROOT: /tmp/upm-cache
     resource_class: large
 
+  unity-sdk-update-ios:
+    docker:
+      - image: unityci/editor:ubuntu-6000.3.8f1-ios-3
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
+
+  unity-sdk-update-android:
+    docker:
+      - image: unityci/editor:ubuntu-6000.3.8f1-android-3
+        environment:
+          UPM_CACHE_ROOT: /tmp/upm-cache
+    resource_class: large
+
 parameters:
    action:
      type: enum
-     enum: [build, upgrade-hybrid-common, bump]
+     enum: [build, upgrade-hybrid-common, bump, sdk-update-tests]
      default: build
    version:
      type: string
@@ -233,6 +247,37 @@ commands:
               exit 1
             fi
             echo "API key placeholder replaced"
+  collect-sdk-update-diagnostics:
+    parameters:
+      platform:
+        type: string
+    steps:
+      - run:
+          name: Collect SDK update diagnostics
+          when: always
+          command: |
+            mkdir -p fastlane/test_output/sdk_update_tests/<< parameters.platform >>/builds
+            for variant in release local; do
+              mkdir -p fastlane/test_output/sdk_update_tests/<< parameters.platform >>/builds/$variant
+              for report in version.txt source.txt resolved-sdk.txt packages-lock.json resolved-native-dependencies.txt; do
+                cp build/sdk_update_tests/<< parameters.platform >>/$variant/$report \
+                  fastlane/test_output/sdk_update_tests/<< parameters.platform >>/builds/$variant/ 2>/dev/null || true
+              done
+            done
+            if [ "<< parameters.platform >>" = ios ]; then
+              xcrun simctl spawn booted log show --last 20m --style compact \
+                --predicate 'process == "SDKUpdateTester"' \
+                > fastlane/test_output/sdk_update_tests/ios/app.log 2>&1 || true
+            else
+              adb logcat -d > fastlane/test_output/sdk_update_tests/android/logcat.txt 2>&1 || true
+            fi
+      - store_test_results:
+          path: fastlane/test_output/sdk_update_tests/<< parameters.platform >>/anonymous_user/junit
+      - store_test_results:
+          path: fastlane/test_output/sdk_update_tests/<< parameters.platform >>/logged_in_user/junit
+      - store_artifacts:
+          path: fastlane/test_output/sdk_update_tests/<< parameters.platform >>
+
 jobs:
   check-meta-files:
     docker:
@@ -650,6 +695,132 @@ jobs:
       - store_artifacts:
           path: fastlane/test_output
 
+  build-sdk-update-test-apps-ios:
+    executor: unity-sdk-update-ios
+    steps:
+      - checkout
+      - unity/prepare-env:
+          project-path: e2e-tests/SDKUpdateTester
+      - run:
+          name: Install native gem build tools
+          command: apt-get update && apt-get install -y --no-install-recommends build-essential libyaml-dev
+      - install-bundle-dependencies
+      - run:
+          name: Build released and local Unity SDK update apps
+          command: |
+            export MAESTRO_TEST_STORE_API_KEY="$WORKFLOWS_TEST_STORE_API_KEY"
+            bundle exec fastlane build_sdk_update_test_apps platform:ios compile_ios:false
+          no_output_timeout: 30m
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/sdk_update_tests/ios/release/xcode
+            - build/sdk_update_tests/ios/release/version.txt
+            - build/sdk_update_tests/ios/release/source.txt
+            - build/sdk_update_tests/ios/release/resolved-sdk.txt
+            - build/sdk_update_tests/ios/release/packages-lock.json
+            - build/sdk_update_tests/ios/local/xcode
+            - build/sdk_update_tests/ios/local/version.txt
+            - build/sdk_update_tests/ios/local/source.txt
+            - build/sdk_update_tests/ios/local/resolved-sdk.txt
+            - build/sdk_update_tests/ios/local/packages-lock.json
+
+  run-sdk-update-tests-ios:
+    macos:
+      xcode: "27.0"
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install-bundle-dependencies
+      - revenuecat/install-mise-tools:
+          tools: java
+      - revenuecat/install-maestro
+      - run:
+          name: Compile released and local iOS apps
+          command: bundle exec fastlane compile_sdk_update_test_apps_ios
+          no_output_timeout: 30m
+      - run:
+          name: Boot iOS Simulator
+          command: |
+            simulator=$(xcrun simctl create SDKUpdateTester com.apple.CoreSimulator.SimDeviceType.iPhone-17 com.apple.CoreSimulator.SimRuntime.iOS-27-0)
+            xcrun simctl boot "$simulator"
+            xcrun simctl bootstatus "$simulator" -b
+      - run:
+          name: SDK update — anonymous_user
+          command: bundle exec fastlane run_sdk_update_test platform:ios test_case:anonymous_user
+          no_output_timeout: 15m
+      - run:
+          name: SDK update — logged_in_user
+          command: bundle exec fastlane run_sdk_update_test platform:ios test_case:logged_in_user
+          no_output_timeout: 15m
+          when: always
+      - collect-sdk-update-diagnostics:
+          platform: ios
+
+  build-sdk-update-test-apps-android:
+    executor: unity-sdk-update-android
+    steps:
+      - checkout
+      - unity/prepare-env:
+          project-path: e2e-tests/SDKUpdateTester
+      - run:
+          name: Install native gem build tools
+          command: apt-get update && apt-get install -y --no-install-recommends build-essential libyaml-dev
+      - install-bundle-dependencies
+      - run:
+          name: Build released and local Unity SDK update apps
+          command: |
+            export MAESTRO_TEST_STORE_API_KEY="$WORKFLOWS_TEST_STORE_API_KEY"
+            bundle exec fastlane build_sdk_update_test_apps platform:android compile_ios:false
+          no_output_timeout: 30m
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/sdk_update_tests/android/release/SDKUpdateTester.apk
+            - build/sdk_update_tests/android/release/version.txt
+            - build/sdk_update_tests/android/release/source.txt
+            - build/sdk_update_tests/android/release/resolved-sdk.txt
+            - build/sdk_update_tests/android/release/packages-lock.json
+            - build/sdk_update_tests/android/local/SDKUpdateTester.apk
+            - build/sdk_update_tests/android/local/version.txt
+            - build/sdk_update_tests/android/local/source.txt
+            - build/sdk_update_tests/android/local/resolved-sdk.txt
+            - build/sdk_update_tests/android/local/packages-lock.json
+            - build/sdk_update_tests/android/release/resolved-native-dependencies.txt
+            - build/sdk_update_tests/android/local/resolved-native-dependencies.txt
+
+  run-sdk-update-tests-android:
+    machine:
+      image: android:2026.05.1
+    resource_class: xlarge
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install-bundle-dependencies
+      - revenuecat/install-maestro
+      - android/create_avd:
+          avd_name: sdk-update-tests
+          system_image: system-images;android-32;google_apis;x86_64
+          install: true
+      - android/start_emulator:
+          avd_name: sdk-update-tests
+          post_emulator_launch_assemble_command: ""
+      - run:
+          name: SDK update — anonymous_user
+          command: bundle exec fastlane run_sdk_update_test platform:android test_case:anonymous_user
+          no_output_timeout: 15m
+      - run:
+          name: SDK update — logged_in_user
+          command: bundle exec fastlane run_sdk_update_test platform:android test_case:logged_in_user
+          no_output_timeout: 15m
+          when: always
+      - collect-sdk-update-diagnostics:
+          platform: android
+
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
@@ -744,6 +915,18 @@ workflows:
             - e2e-tests
           requires:
             - build-maestro-test-app-android
+      - build-sdk-update-test-apps-ios:
+          <<: *release-branches
+          context: [unity, maestro]
+      - build-sdk-update-test-apps-android:
+          <<: *release-branches
+          context: [unity, maestro]
+      - run-sdk-update-tests-ios:
+          <<: *release-branches
+          requires: [build-sdk-update-test-apps-ios]
+      - run-sdk-update-tests-android:
+          <<: *release-branches
+          requires: [build-sdk-update-test-apps-android]
       - wait-for-pr-approval:
           type: approval
           <<: *release-branches
@@ -760,6 +943,8 @@ workflows:
             - archive-ios-cocoapods
             - run-maestro-e2e-tests-ios
             - run-maestro-e2e-tests-android
+            - run-sdk-update-tests-ios
+            - run-sdk-update-tests-android
           <<: *release-branches
 
   deploy:
@@ -833,3 +1018,16 @@ workflows:
       equal: [ upgrade-hybrid-common, << pipeline.parameters.action >> ]
     jobs:
       - update-hybrid-common-versions
+
+  sdk-update-tests:
+    when:
+      equal: [sdk-update-tests, << pipeline.parameters.action >>]
+    jobs:
+      - build-sdk-update-test-apps-ios:
+          context: [unity, maestro]
+      - build-sdk-update-test-apps-android:
+          context: [unity, maestro]
+      - run-sdk-update-tests-ios:
+          requires: [build-sdk-update-test-apps-ios]
+      - run-sdk-update-tests-android:
+          requires: [build-sdk-update-test-apps-android]

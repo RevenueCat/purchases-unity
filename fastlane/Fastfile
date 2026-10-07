@@ -202,6 +202,121 @@ lane :run_maestro_e2e_tests_android do
   run_maestro_e2e_tests(flow_dir: "../e2e-tests/maestro/", output_dir: "test_output")
 end
 
+desc "Build released and local Unity SDK update test apps"
+lane :build_sdk_update_test_apps do |options|
+  require "json"
+  platform = sdk_update_test_platform(options)
+  root = get_root_folder
+  output = sdk_update_test_apps_dir(platform, options)
+  editor = options[:unity_path] || ENV["UNITY_EDITOR_PATH"] || ENV["UNITY_PATH"] || "/opt/unity/Editor/Unity"
+  editor = File.join(editor, "Editor/Unity") if File.directory?(editor)
+  UI.user_error!("Unity Editor not found: #{editor}") unless File.file?(editor) && File.executable?(editor)
+  key = ENV["MAESTRO_TEST_STORE_API_KEY"]
+  UI.user_error!("MAESTRO_TEST_STORE_API_KEY must contain a Test Store key") unless key&.start_with?("test_")
+  local_version = current_version_number.strip
+  release_version = options[:release_version] || get_latest_release_before_version(
+    repo_name: "purchases-unity", version: Gem::Version.new(local_version.split("-").first).bump.to_s
+  )
+  { "release" => release_version, "local" => local_version }.each do |variant, version|
+    variant_dir = "#{output}/#{variant}"
+    FileUtils.rm_rf(variant_dir)
+    project = "#{variant_dir}/project"
+    FileUtils.mkdir_p(project)
+    %w[Assets Packages ProjectSettings].each do |folder|
+      FileUtils.cp_r("#{root}/e2e-tests/SDKUpdateTester/#{folder}", project)
+    end
+    manifest_path = "#{project}/Packages/manifest.json"
+    manifest = JSON.parse(File.read(manifest_path))
+    manifest["dependencies"]["com.revenuecat.purchases-unity"] = variant == "release" ? version : "file:#{root}/RevenueCat"
+    if variant == "release"
+      manifest["scopedRegistries"] = [{ "name" => "OpenUPM", "url" => "https://package.openupm.com", "scopes" => ["com.revenuecat.purchases-unity"] }]
+    end
+    File.write(manifest_path, JSON.pretty_generate(manifest))
+    log = "#{variant_dir}/unity.log"
+    environment = {
+      "SDK_UPDATE_VARIANT" => variant, "SDK_UPDATE_VERSION" => version,
+      "SDK_UPDATE_OUTPUT" => variant_dir, "SDK_UPDATE_LOCAL_PACKAGE" => "#{root}/RevenueCat"
+    }
+    pid = Process.spawn(environment, editor, "-projectPath", project, "-quit", "-batchmode", "-nographics",
+      "-buildTarget", platform == "ios" ? "iOS" : "Android", "-executeMethod", "SDKUpdateBuild.Build",
+      "-logFile", log)
+    _, status = Process.wait2(pid)
+    unless status.success?
+      UI.error(File.readlines(log).last(250).join.gsub(key, "[redacted]")) if File.exist?(log)
+      UI.user_error!("#{variant} Unity build failed. See #{log}")
+    end
+    UI.success("Built #{variant} Unity SDK #{version}: #{variant_dir}")
+  end
+  compile_sdk_update_test_apps_ios(options) if platform == "ios" && options.fetch(:compile_ios, true) && RUBY_PLATFORM.include?("darwin")
+end
+
+desc "Compile both Unity SDK update apps for iOS Simulator"
+lane :compile_sdk_update_test_apps_ios do |options|
+  require "json"
+  output = sdk_update_test_apps_dir("ios", options)
+  %w[release local].each do |variant|
+    dir = "#{output}/#{variant}"
+    log = "#{dir}/xcodebuild.log"
+    pid = Process.spawn("xcodebuild", "build", "-project", "#{dir}/xcode/Unity-iPhone.xcodeproj",
+      "-scheme", "Unity-iPhone", "-configuration", "Debug", "-sdk", "iphonesimulator", "-arch", "arm64",
+      "-derivedDataPath", "#{dir}/derived_data", "-scmProvider", "system", "SUPPORTED_PLATFORMS=iphonesimulator",
+      "CODE_SIGN_IDENTITY=-", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGNING_ALLOWED=NO", out: log, err: [:child, :out])
+    _, status = Process.wait2(pid)
+    unless status.success?
+      UI.error(File.readlines(log).last(40).join)
+      UI.user_error!("#{variant} iOS build failed. See #{log}")
+    end
+    resolved = "#{dir}/xcode/Unity-iPhone.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+    UI.user_error!("No resolved Swift packages found for #{variant}") unless File.file?(resolved)
+    pins = JSON.parse(File.read(resolved))["pins"]
+    File.write("#{dir}/resolved-native-dependencies.txt", JSON.pretty_generate(pins))
+    xml = File.read("#{dir}/resolved-sdk.txt")
+    expected = xml.match(/remoteSwiftPackage[^>]+version="([^"]+)"/)[1]
+    phc = pins.find { |pin| pin["identity"] == "purchases-hybrid-common" }
+    UI.user_error!("#{variant} must resolve its Unity SDK's hybrid-common #{expected}; resolved #{phc&.dig('state', 'version') || 'none'}") unless phc&.dig("state", "version") == expected
+    products = "#{dir}/derived_data/Build/Products/Debug-iphonesimulator"
+    app = "#{products}/SDKUpdateTester.app"
+    Dir.glob("#{products}/*.bundle").each { |bundle| FileUtils.cp_r(bundle, app, remove_destination: true) }
+    FileUtils.cp_r(app, dir, remove_destination: true)
+  end
+end
+
+desc "Run a Unity SDK update Maestro test case"
+lane :run_sdk_update_test do |options|
+  platform = sdk_update_test_platform(options)
+  test_case = options[:test_case]
+  UI.user_error!("test_case must be anonymous_user or logged_in_user") unless %w[anonymous_user logged_in_user].include?(test_case)
+  apps = sdk_update_test_apps_dir(platform, options)
+  flows = "#{get_root_folder}/e2e-tests/maestro/sdk_update_tests/#{test_case}"
+  steps = %w[release local].each_with_index.map do |variant, index|
+    version = "#{apps}/#{variant}/version.txt"
+    UI.user_error!("#{version} not found. Build both apps first.") unless File.exist?(version)
+    {
+      app_path: "#{apps}/#{variant}/SDKUpdateTester.#{platform == 'ios' ? 'app' : 'apk'}",
+      sdk_version: "#{File.read(version).strip} #{File.read("#{apps}/#{variant}/source.txt").strip}",
+      flow: "#{flows}/#{index.zero? ? 'before' : 'after'}_update.yaml"
+    }
+  end
+  run_sdk_update_maestro_test(
+    platform: platform, app_id: "com.revenuecat.SDKUpdateTester", steps: steps,
+    output_dir: "#{get_root_folder}/fastlane/test_output/sdk_update_tests/#{platform}/#{test_case}",
+    max_attempts: Integer(options.fetch(:max_attempts, 3))
+  )
+end
+
+def sdk_update_test_platform(options)
+  platform = options[:platform]
+  UI.user_error!("platform must be ios or android") unless %w[ios android].include?(platform)
+  platform
+end
+
+def sdk_update_test_apps_dir(platform, options)
+  base = "#{get_root_folder}/build/sdk_update_tests"
+  output = File.expand_path(options[:apps_dir] || options[:output_dir] || platform, base)
+  UI.user_error!("SDK update app outputs must be inside #{base}") unless output.start_with?("#{base}/")
+  output
+end
+
 desc "Tag current branch with current version number"
 lane :tag_current_branch do |options|
   version_number = current_version_number
