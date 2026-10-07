@@ -68,7 +68,7 @@ public class PurchasesWrapper {
     private static final String POLL_REWARD_VERIFICATION = "_pollRewardVerification";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "9.12.0";
+    private static final String PLUGIN_VERSION = "9.13.0";
 
     private static String gameObject;
 
