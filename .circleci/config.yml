@@ -75,6 +75,11 @@ parameters:
 commands:
   import-package:
     description: "Import Purchases.unitypackage"
+    parameters:
+      dependency_manager:
+        type: enum
+        enum: [unity-edm, edm4u]
+        default: unity-edm
     steps:
       # When importing the unity package in the following step, Unity tries to compile the project.
       # The project is referencing Purchases, but the Purchases plugin hasn't been imported yet, so the
@@ -90,6 +95,25 @@ commands:
               -type f \( -name "*.cs" -o -name "*.asmdef" \) \
               -exec sh -c 'for file do mv "$file" "$file.break"; done' sh {} +
 
+      - when:
+          condition:
+            equal: [edm4u, << parameters.dependency_manager >>]
+          steps:
+            - run:
+                name: Replace Unity's EDM with Google's EDM4U
+                command: |
+                  sed -i '/com.unity.external-dependency-manager/d' IntegrationTests/Packages/manifest.json
+                  rm -f IntegrationTests/Packages/packages-lock.json
+                  curl -fsSL -o /tmp/edm4u.unitypackage \
+                    https://raw.githubusercontent.com/googlesamples/unity-jar-resolver/v1.2.190/external-dependency-manager-1.2.190.unitypackage
+                  /opt/unity/Editor/Unity \
+                    -projectPath IntegrationTests \
+                    -quit \
+                    -batchmode \
+                    -nographics \
+                    -logFile /dev/stdout \
+                    -disable-assembly-updater \
+                    -importPackage /tmp/edm4u.unitypackage
 
       - run:
           name: Import Purchases package
@@ -342,6 +366,11 @@ jobs:
   build-integration-tests-android:
     resource_class: large
     executor: unity-android
+    parameters:
+      dependency_manager:
+        type: enum
+        enum: [unity-edm, edm4u]
+        default: unity-edm
     steps:
       - checkout
       - attach_workspace:
@@ -350,7 +379,8 @@ jobs:
       - unity/prepare-env:
           project-path: IntegrationTests
 
-      - import-package
+      - import-package:
+          dependency_manager: << parameters.dependency_manager >>
 
       - resolve-dependencies:
           project: IntegrationTests
@@ -401,6 +431,10 @@ jobs:
         type: enum
         enum: [spm, cocoapods]
         default: spm
+      dependency_manager:
+        type: enum
+        enum: [unity-edm, edm4u]
+        default: unity-edm
     steps:
       - checkout
       - attach_workspace:
@@ -409,7 +443,8 @@ jobs:
       - unity/prepare-env:
           project-path: IntegrationTests
 
-      - import-package
+      - import-package:
+          dependency_manager: << parameters.dependency_manager >>
 
       - when:
           condition:
@@ -435,12 +470,12 @@ jobs:
 
       - run:
           name: Move build to variant-specific dir
-          command: mv IntegrationTests/buildiOS IntegrationTests/buildiOS-<< parameters.variant >>
+          command: mv IntegrationTests/buildiOS IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
 
       - persist_to_workspace:
           root: .
           paths:
-            - IntegrationTests/buildiOS-<< parameters.variant >>
+            - IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
 
   archive-ios:
     description: "Run iOS integration tests for Unity"
@@ -449,6 +484,10 @@ jobs:
         type: enum
         enum: [spm, cocoapods]
         default: spm
+      dependency_manager:
+        type: enum
+        enum: [unity-edm, edm4u]
+        default: unity-edm
     macos:
       xcode: 16.4.0
     steps:
@@ -468,17 +507,17 @@ jobs:
 
             - run:
                 name: Install Pods
-                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
                 command: bundle exec pod install --repo-update --verbose
 
             - save_cache:
                 key: 1-pods-<< parameters.variant >>-{{ checksum "RevenueCat/Plugins/Editor/RevenueCatDependencies.xml" }}
                 paths:
-                  - IntegrationTests/buildiOS-<< parameters.variant >>/Pods
+                  - IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>/Pods
 
       - run:
           name: Setup fastlane
-          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
+          working_directory: IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
           command: ln -s ../fastlane .
 
       - when:
@@ -487,8 +526,8 @@ jobs:
           steps:
             - run:
                 name: Archive
-                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-                command: bundle exec fastlane archive workspace:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcworkspace"
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
+                command: bundle exec fastlane archive workspace:"buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>/Unity-iPhone.xcworkspace"
 
       - when:
           condition:
@@ -496,8 +535,8 @@ jobs:
           steps:
             - run:
                 name: Archive
-                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>
-                command: bundle exec fastlane archive project:"buildiOS-<< parameters.variant >>/Unity-iPhone.xcodeproj"
+                working_directory: IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
+                command: bundle exec fastlane archive project:"buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>/Unity-iPhone.xcodeproj"
 
   github-release:
     description: "Creates a github release"
@@ -736,6 +775,25 @@ workflows:
           variant: cocoapods
           requires:
             - build-integration-tests-ios-cocoapods
+      - build-integration-tests-android:
+          name: build-integration-tests-android-edm4u
+          dependency_manager: edm4u
+          context: unity
+          requires:
+            - export-package
+      - build-integration-tests-ios:
+          name: build-integration-tests-ios-edm4u
+          variant: spm
+          dependency_manager: edm4u
+          context: unity
+          requires:
+            - export-package
+      - archive-ios:
+          name: archive-ios-edm4u
+          variant: spm
+          dependency_manager: edm4u
+          requires:
+            - build-integration-tests-ios-edm4u
       - build-maestro-test-app-android:
           context:
             - e2e-tests
@@ -768,6 +826,8 @@ workflows:
             - build-subtester-ios
             - archive-ios
             - archive-ios-cocoapods
+            - build-integration-tests-android-edm4u
+            - archive-ios-edm4u
             - run-maestro-e2e-tests-ios
             - run-maestro-e2e-tests-android
           <<: *release-branches
