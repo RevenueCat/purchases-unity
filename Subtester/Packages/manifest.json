@@ -9,6 +9,7 @@
     "com.unity.ai.navigation": "2.0.9",
     "com.unity.analytics": "3.8.1",
     "com.unity.collab-proxy": "2.9.3",
+    "com.unity.external-dependency-manager": "2.1.1",
     "com.unity.ext.nunit": "2.0.5",
     "com.unity.ide.rider": "3.0.38",
     "com.unity.ide.visualstudio": "2.0.23",
@@ -55,8 +56,7 @@
       "name": "package.openupm.com",
       "url": "https://package.openupm.com",
       "scopes": [
-        "com.google.ads.mobile",
-        "com.google.external-dependency-manager"
+        "com.google.ads.mobile"
       ]
     }
   ]

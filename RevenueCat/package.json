@@ -23,5 +23,6 @@
   ],
   "repoUrl": "https://github.com/RevenueCat/purchases-unity",
   "dependencies": {
+    "com.unity.external-dependency-manager": "2.1.1"
   }
 }

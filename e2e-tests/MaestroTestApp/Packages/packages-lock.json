@@ -12,7 +12,9 @@
       "version": "file:../../../RevenueCat",
       "depth": 0,
       "source": "local",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.external-dependency-manager": "2.1.1"
+      }
     },
     "com.unity.external-dependency-manager": {
       "version": "2.1.1",

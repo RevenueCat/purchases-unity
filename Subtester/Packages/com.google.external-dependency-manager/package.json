@@ -1,0 +1,8 @@
+{
+  "name": "com.google.external-dependency-manager",
+  "version": "2.1.1",
+  "displayName": "External Dependency Manager for Unity",
+  "keywords": [],
+  "description": "This package is disabled. The Unity External Dependency Manager is currently active. To enable the Google EDM4U package, go to Assets > External Dependency Manager > Switch To Alternative EDM.",
+  "unity": "2022.3"
+}
