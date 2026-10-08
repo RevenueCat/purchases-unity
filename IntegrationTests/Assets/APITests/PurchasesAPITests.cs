@@ -270,6 +270,8 @@ public class PurchasesAPITests : MonoBehaviour
         purchases.AdTracker.TrackAdRevenue(new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "ad_unit", "imp_006", 500000L, "EUR", AdTracker.Precision.PublisherDefined, networkName: "network", placement: "end_level"));
         purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit"));
         purchases.AdTracker.TrackAdFailedToLoad(new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "ad_unit", placement: "home", mediatorErrorCode: 2));
+        purchases.AdTracker.TrackAdRewardEarnedUnverified(new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "ad_unit", "imp_007"));
+        purchases.AdTracker.TrackAdRewardEarnedUnverified(new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AppLovin, AdTracker.Format.Rewarded, "ad_unit", "imp_008", networkName: "network", placement: "home"));
         purchases.AdTracker.TrackRewardedAdPromptShown(new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "ad_unit"));
         purchases.AdTracker.TrackRewardedAdPromptShown(new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "ad_unit", placement: "home"));
         purchases.AdTracker.TrackRewardedAdPromptAccepted(new AdRewardPromptAcceptedData(AdTracker.MediatorName.AdMob, "ad_unit"));

@@ -173,6 +173,18 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void TrackAdRewardEarnedUnverifiedForwardsDataToWrapper()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1");
+
+            _purchases.AdTracker.TrackAdRewardEarnedUnverified(data);
+
+            var invocation = AssertLastInvocation(nameof(IPurchasesWrapper.TrackAdRewardEarnedUnverified), 1);
+            Assert.That(invocation.Arguments[0], Is.SameAs(data));
+        }
+
+        [Test]
         public void TrackRewardedAdPromptShownForwardsDataToWrapper()
         {
             var data = new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "unit_1");
@@ -260,6 +272,34 @@ namespace RevenueCat.Tests
 
             Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
             Assert.That(json["mediatorErrorCode"].AsInt, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringOmitsOptionalFieldsWhenAbsent()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["mediatorName"].Value, Is.EqualTo("AdMob"));
+            Assert.That(json["adFormat"].Value, Is.EqualTo("rewarded"));
+            Assert.That(json["adUnitId"].Value, Is.EqualTo("unit_1"));
+            Assert.That(json["impressionId"].Value, Is.EqualTo("impression_1"));
+            Assert.That(json.HasKey("networkName"), Is.False);
+            Assert.That(json.HasKey("placement"), Is.False);
+        }
+
+        [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringIncludesOptionalFieldsWhenPresent()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AppLovin, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1", "network_1", "placement_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["networkName"].Value, Is.EqualTo("network_1"));
+            Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
         }
 
         [Test]
