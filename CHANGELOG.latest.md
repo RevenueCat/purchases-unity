@@ -1,9 +1,9 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Track rewarded ad prompt shown and accepted (#1114) via Drago Crnjac (@popcorn)
+### 🐞 Bugfixes
+* Fix iOS ignoring `automaticDeviceIdentifierCollectionEnabled` in `configure` (RevenueCat/purchases-hybrid-common#1956) via Álvaro Brey (@AlvaroBrey)
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.6.0 (#1112) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 10.24.1](https://github.com/RevenueCat/purchases-android/releases/tag/10.24.1)
-
-### 🔄 Other Changes
-* chore(deps): bump fastlane-plugin-revenuecat_internal from `9f7a03e` to `4c49d48` (#1116) via dependabot[bot] (@dependabot[bot])
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.8.0 (#1119) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.26.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.26.0)
+  * [Android 10.25.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.25.0)
+  * [Android 10.24.2](https://github.com/RevenueCat/purchases-android/releases/tag/10.24.2)
+  * [iOS 5.93.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.93.0)
