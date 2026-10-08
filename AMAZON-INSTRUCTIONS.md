@@ -8,7 +8,7 @@
 
 <img width="472" alt="Screen Shot 2021-11-24 at 3 56 10 PM" src="https://user-images.githubusercontent.com/664544/143326950-ec8d5993-cd9e-468a-9a9a-27fee8a63519.png">
 
-- If `Package Manager Resolver` asks to solve conflicts, choose library versions and select OK
+- If the External Dependency Manager asks to resolve dependency conflicts, choose library versions and select OK
 
 - Select Use Amazon in the Editor
 

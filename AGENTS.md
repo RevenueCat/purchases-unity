@@ -43,7 +43,7 @@ purchases-unity/
 │   │   ├── iOS/                   # Native iOS integration (Objective-C)
 │   │   ├── Android/               # Native Android integration (Java)
 │   │   └── Editor/                # Dependency configuration
-│   └── Editor/                    # Editor tools & post-install
+│   └── Editor/                    # Editor tools, iOS post-install, EDM installer
 ├── RevenueCatUI/                  # UI SDK package (UPM)
 │   ├── Scripts/                   # Paywall/Customer center UI
 │   └── Plugins/Android/           # Android UI library
@@ -63,6 +63,10 @@ purchases-unity/
 # Create .unitypackage files
 ./scripts/create-unity-package.sh -u <unity_path> [-v]
 ```
+
+The exported `.unitypackage` no longer bundles a dependency manager. `RevenueCat/Editor/RevenueCatDependencyManagerInstaller.cs` installs Unity's External Dependency Manager on first import when the project has none.
+
+Subtester depends on Google Mobile Ads, which still pulls Google's EDM4U. `Subtester/Packages/com.google.external-dependency-manager/` is the dummy package Unity's EDM uses to disable EDM4U, committed so batch-mode CI never has two active managers. Remove it once Google Mobile Ads depends on `com.unity.external-dependency-manager`.
 
 ### Fastlane Commands
 
@@ -94,13 +98,13 @@ Refer to `fastlane/README.md` for fastlane actions
 
 ### Dependencies
 - `purchases-hybrid-common` — Native iOS/Android bridge
-- External Dependency Manager (EDM4U) — Manages native dependencies
+- External Dependency Manager — Unity's `com.unity.external-dependency-manager` (declared as a UPM dependency) resolves the native dependencies declared in `*Dependencies.xml`; Google's EDM4U is still supported for projects that already use it
 
 ## Constraints / Support Policy
 
 | Platform | Minimum Version |
 |----------|-----------------|
-| Unity | 2021.3+ |
+| Unity | 2022.3+ (2021.3 only via `.unitypackage` with EDM4U) |
 | iOS | 13.0+ |
 | Android | API 21+ |
 | Play Billing Library | 8.0.0+ |
