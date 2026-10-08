@@ -1,3 +1,12 @@
+## 9.13.2
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.10.0 (#1124) via RevenueCat Git Bot (@RCGitBot)
+  * [iOS 5.94.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.94.0)
+
+### 🔄 Other Changes
+* Bump CI to Ruby 3.3 (#1122) via Josh Holtz (@joshdholtz)
+
 ## 9.13.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
