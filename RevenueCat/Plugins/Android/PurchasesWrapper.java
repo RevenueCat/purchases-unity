@@ -851,6 +851,16 @@ public class PurchasesWrapper {
         }
     }
 
+    public static void trackAdRewardEarnedUnverified(String dataJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(dataJson);
+            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            CommonKt.trackAdRewardEarnedUnverified(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
     public static void trackRewardedAdPromptShown(String dataJson) {
         try {
             JSONObject jsonObject = new JSONObject(dataJson);
