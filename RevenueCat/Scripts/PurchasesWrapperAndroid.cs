@@ -474,6 +474,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
     public void TrackAdFailedToLoad(AdFailedToLoadData data) =>
         CallPurchases("trackAdFailedToLoad", data.ToJsonString());
 
+    public void TrackAdRewardEarnedUnverified(AdRewardEarnedUnverifiedData data) =>
+        CallPurchases("trackAdRewardEarnedUnverified", data.ToJsonString());
+
     public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) =>
         CallPurchases("trackRewardedAdPromptShown", data.ToJsonString());
 
