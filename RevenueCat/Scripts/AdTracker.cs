@@ -63,6 +63,27 @@ namespace RevenueCat
             public static bool operator !=(Precision a, Precision b) => !Equals(a, b);
         }
 
+        /// <summary>
+        /// Identifies the integration that emitted an ad event. Reserved for the official
+        /// RevenueCat ad-network adapters; leave it unset when tracking manually.
+        /// </summary>
+        public class CaptureMethod
+        {
+            public string Value { get; }
+
+            public CaptureMethod(string value)
+            {
+                Value = value;
+            }
+
+            public static readonly CaptureMethod UnityAdMobAdapter = new CaptureMethod("unity_admob_adapter");
+
+            public override bool Equals(object obj) => obj is CaptureMethod other && other.Value == Value;
+            public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+            public static bool operator ==(CaptureMethod a, CaptureMethod b) => Equals(a, b);
+            public static bool operator !=(CaptureMethod a, CaptureMethod b) => !Equals(a, b);
+        }
+
         private readonly IPurchasesWrapper _wrapper;
 
         internal AdTracker(IPurchasesWrapper wrapper)
