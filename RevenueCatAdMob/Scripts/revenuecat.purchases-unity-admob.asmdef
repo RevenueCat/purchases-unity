@@ -1,0 +1,20 @@
+{
+    "name": "revenuecat.purchases-unity-admob",
+    "rootNamespace": "RevenueCat.AdMob",
+    "references": [
+        "revenuecat.purchases-unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "GoogleMobileAds.dll",
+        "GoogleMobileAds.Core.dll",
+        "GoogleMobileAds.Common.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
