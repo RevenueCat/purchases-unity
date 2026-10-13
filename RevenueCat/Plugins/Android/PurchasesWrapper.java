@@ -33,6 +33,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -801,6 +802,16 @@ public class PurchasesWrapper {
         return value;
     }
 
+    private static Map<String, Object> jsonToTypedMap(JSONObject jsonObject) throws JSONException {
+        Map<String, Object> map = new HashMap<>();
+        Iterator<String> keys = jsonObject.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            map.put(key, jsonObject.isNull(key) ? null : jsonObject.get(key));
+        }
+        return map;
+    }
+
     public static void trackAdDisplayed(String dataJson) {
         try {
             JSONObject jsonObject = new JSONObject(dataJson);
@@ -824,7 +835,7 @@ public class PurchasesWrapper {
     public static void trackAdRevenue(String dataJson) {
         try {
             JSONObject jsonObject = new JSONObject(dataJson);
-            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            Map<String, ?> data = jsonToTypedMap(jsonObject);
             CommonKt.trackAdRevenue(data);
         } catch (JSONException e) {
             logJSONException(e);
@@ -844,7 +855,7 @@ public class PurchasesWrapper {
     public static void trackAdFailedToLoad(String dataJson) {
         try {
             JSONObject jsonObject = new JSONObject(dataJson);
-            Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
+            Map<String, ?> data = jsonToTypedMap(jsonObject);
             CommonKt.trackAdFailedToLoad(data);
         } catch (JSONException e) {
             logJSONException(e);
