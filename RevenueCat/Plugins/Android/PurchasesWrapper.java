@@ -33,6 +33,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -803,7 +804,7 @@ public class PurchasesWrapper {
 
     private static Map<String, Object> jsonToTypedMap(JSONObject jsonObject) throws JSONException {
         Map<String, Object> map = new HashMap<>();
-        java.util.Iterator<String> keys = jsonObject.keys();
+        Iterator<String> keys = jsonObject.keys();
         while (keys.hasNext()) {
             String key = keys.next();
             map.put(key, jsonObject.isNull(key) ? null : jsonObject.get(key));
