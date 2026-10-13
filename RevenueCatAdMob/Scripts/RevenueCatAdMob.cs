@@ -27,7 +27,10 @@ namespace RevenueCat.AdMob
         /// <summary>Called as soon as the user earned the reward, before verification starts.</summary>
         public delegate void RewardVerificationStartedFunc();
 
-        /// <summary>Called exactly once per show with the verification outcome.</summary>
+        /// <summary>
+        /// Called at most once per show with the verification outcome, after the user earns the
+        /// reward. Not called when the ad is dismissed or fails before a reward.
+        /// </summary>
         public delegate void RewardVerificationCompletedFunc(Purchases.RewardVerificationResult result);
 
         /// <summary>The <see cref="Purchases"/> component the adapter reports to.</summary>
@@ -199,7 +202,8 @@ namespace RevenueCat.AdMob
 
         /// <summary>
         /// Shows the ad and verifies the earned reward with RevenueCat. <paramref name="completed"/>
-        /// is called exactly once; it receives a failed result when
+        /// is called at most once, after the user earns the reward; it is not called when the ad
+        /// is dismissed or fails before a reward. It receives a failed result when
         /// <see cref="EnableRewardVerification(RewardedAd, Action{bool})"/> was not called for this ad.
         /// </summary>
         public static void ShowWithRewardVerification(
