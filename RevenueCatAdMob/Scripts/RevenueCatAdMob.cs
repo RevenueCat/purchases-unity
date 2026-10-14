@@ -270,8 +270,9 @@ namespace RevenueCat.AdMob
                 AdMobTracker.LogWarning("The loaded ad has no response id; reward verification will use an empty impression id.");
             }
 
-            purchases.GenerateRewardVerificationToken(state.ImpressionId, (token, error) =>
+            TokenQueue.Enqueue(() => purchases.GenerateRewardVerificationToken(state.ImpressionId, (token, error) =>
             {
+                TokenQueue.Completed();
                 if (error != null || token == null)
                 {
                     AdMobTracker.LogWarning($"Could not enable reward verification: {error}");
@@ -286,7 +287,7 @@ namespace RevenueCat.AdMob
                 state.ClientTransactionId = token.ClientTransactionId;
                 state.RewardVerificationDelivered = false;
                 callback?.Invoke(true);
-            });
+            }));
         }
 
         private static void OnRewardEarned(
@@ -335,34 +336,38 @@ namespace RevenueCat.AdMob
             new Purchases.RewardVerificationResult(SimpleJSON.JSON.Parse("{\"failed\":true,\"moreRewards\":[]}"));
 
         /// <summary>
-        /// <see cref="Purchases.PollRewardVerification"/> keeps a single pending callback, so two
-        /// overlapping polls would drop one result. Polls are run one at a time instead.
+        /// <see cref="Purchases.GenerateRewardVerificationToken"/> and
+        /// <see cref="Purchases.PollRewardVerification"/> each keep a single pending callback, so two
+        /// overlapping calls would drop one result. Calls to each are run one at a time instead.
         /// </summary>
-        private static class PollQueue
+        private sealed class SerialQueue
         {
-            private static readonly Queue<Action> Pending = new Queue<Action>();
-            private static bool _inFlight;
+            private readonly Queue<Action> _pending = new Queue<Action>();
+            private bool _inFlight;
 
-            public static void Enqueue(Action poll)
+            public void Enqueue(Action call)
             {
                 if (_inFlight)
                 {
-                    Pending.Enqueue(poll);
+                    _pending.Enqueue(call);
                     return;
                 }
                 _inFlight = true;
-                poll();
+                call();
             }
 
-            public static void Completed()
+            public void Completed()
             {
-                if (Pending.Count == 0)
+                if (_pending.Count == 0)
                 {
                     _inFlight = false;
                     return;
                 }
-                Pending.Dequeue()();
+                _pending.Dequeue()();
             }
         }
+
+        private static readonly SerialQueue TokenQueue = new SerialQueue();
+        private static readonly SerialQueue PollQueue = new SerialQueue();
     }
 }
