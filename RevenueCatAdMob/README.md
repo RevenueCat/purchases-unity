@@ -59,7 +59,7 @@ _rewarded.ShowWithRewardVerification(
     started: () => ShowSpinner());
 ```
 
-`completed` is called exactly once per show. The ad unit's server-side verification URL must point at RevenueCat and a reward must be configured for it in the RevenueCat dashboard; see the [rewards docs](https://www.revenuecat.com/docs/ad-monetization/rewards).
+`completed` is called at most once per show, after the user earns the reward; it is not called when the ad is dismissed or fails before a reward. The ad unit's server-side verification URL must point at RevenueCat and a reward must be configured for it in the RevenueCat dashboard; see the [rewards docs](https://www.revenuecat.com/docs/ad-monetization/rewards).
 
 ## Requirements
 
