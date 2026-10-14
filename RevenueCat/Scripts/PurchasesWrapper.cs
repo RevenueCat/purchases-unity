@@ -101,6 +101,7 @@ public interface IPurchasesWrapper
     void TrackAdRevenue(AdRevenueData data);
     void TrackAdLoaded(AdLoadedData data);
     void TrackAdFailedToLoad(AdFailedToLoadData data);
+    void TrackAdRewardEarnedUnverified(AdRewardEarnedUnverifiedData data);
     void TrackRewardedAdPromptShown(AdRewardPromptShownData data);
     void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data);
     void GenerateRewardVerificationToken(string impressionId);

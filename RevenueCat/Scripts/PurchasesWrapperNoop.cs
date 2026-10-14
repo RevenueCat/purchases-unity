@@ -309,6 +309,7 @@ public partial class Purchases
         public void TrackAdRevenue(AdRevenueData data) { }
         public void TrackAdLoaded(AdLoadedData data) { }
         public void TrackAdFailedToLoad(AdFailedToLoadData data) { }
+        public void TrackAdRewardEarnedUnverified(AdRewardEarnedUnverifiedData data) { }
         public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) { }
         public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) { }
         public void GenerateRewardVerificationToken(string impressionId) { }
