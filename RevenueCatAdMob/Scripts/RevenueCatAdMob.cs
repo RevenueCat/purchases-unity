@@ -346,23 +346,31 @@ namespace RevenueCat.AdMob
 
             public void Enqueue(Action call)
             {
-                if (_inFlight)
+                lock (_pending)
                 {
-                    _pending.Enqueue(call);
-                    return;
+                    if (_inFlight)
+                    {
+                        _pending.Enqueue(call);
+                        return;
+                    }
+                    _inFlight = true;
                 }
-                _inFlight = true;
                 call();
             }
 
             public void Completed()
             {
-                if (_pending.Count == 0)
+                Action next;
+                lock (_pending)
                 {
-                    _inFlight = false;
-                    return;
+                    if (_pending.Count == 0)
+                    {
+                        _inFlight = false;
+                        return;
+                    }
+                    next = _pending.Dequeue();
                 }
-                _pending.Dequeue()();
+                next();
             }
         }
 
