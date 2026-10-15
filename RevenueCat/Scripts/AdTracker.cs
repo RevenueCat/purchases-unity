@@ -64,8 +64,9 @@ namespace RevenueCat
         }
 
         /// <summary>
-        /// Identifies the integration that emitted an ad event. Reserved for the official
-        /// RevenueCat ad-network adapters; leave it unset when tracking manually.
+        /// Identifies how an ad event was captured.
+        /// Official RevenueCat ad-network adapters set this value automatically.
+        /// When creating and tracking ad event data directly, leave it unset.
         /// </summary>
         public class CaptureMethod
         {
