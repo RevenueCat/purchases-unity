@@ -25,7 +25,6 @@ namespace RevenueCatUI
 
         /// <summary>
         /// Invoked when a purchase completes successfully.
-        /// The StoreTransaction may be null in rare cases on iOS.
         /// </summary>
         public Action<Purchases.CustomerInfo, Purchases.StoreTransaction> OnPurchaseCompleted { get; set; }
 
