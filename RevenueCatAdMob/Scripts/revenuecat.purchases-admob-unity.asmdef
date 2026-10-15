@@ -1,5 +1,5 @@
 {
-    "name": "revenuecat.purchases-unity-admob",
+    "name": "revenuecat.purchases-admob-unity",
     "rootNamespace": "RevenueCat.AdMob",
     "references": [
         "revenuecat.purchases-unity"
