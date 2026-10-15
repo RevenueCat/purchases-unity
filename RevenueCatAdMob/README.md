@@ -9,9 +9,10 @@ Install `com.revenuecat.purchases-unity`, the Google Mobile Ads plugin (`com.goo
 ```csharp
 using RevenueCat.AdMob;
 
-MobileAds.RaiseAdEventsOnUnityMainThread = true;
 RevenueCatAdMob.Initialize(purchases); // your configured Purchases component
 ```
+
+The adapter tracks from whichever thread Google Mobile Ads raises its callbacks on. Enable `MobileAds.RaiseAdEventsOnUnityMainThread` only if your own ad callbacks touch Unity objects.
 
 ## Tracking full-screen ads
 

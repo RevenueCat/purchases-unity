@@ -18,9 +18,8 @@ namespace RevenueCat.AdMob
     /// Every method takes an optional <c>placement</c>, a free-form label for where in your game the
     /// ad is shown. The <c>ShowAndTrack</c> extensions can override it at show time.
     ///
-    /// Google Mobile Ads raises its callbacks on a background thread unless
-    /// <c>MobileAds.RaiseAdEventsOnUnityMainThread</c> is enabled; enable it so the tracking calls
-    /// reach the native RevenueCat SDK from the Unity main thread.
+    /// The adapter tracks from whichever thread Google Mobile Ads raises its callbacks on. Enable
+    /// <c>MobileAds.RaiseAdEventsOnUnityMainThread</c> only if your own callbacks touch Unity objects.
     /// </summary>
     public static class RevenueCatAdMob
     {
