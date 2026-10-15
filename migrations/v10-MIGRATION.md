@@ -39,6 +39,22 @@ purchases.SyncAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode
 
 The obsolete `SyncObserverModeAmazonPurchase` keeps its previous signature.
 
+### Paywalls on iOS skip `OnPurchaseCompleted` for purchases without a transaction
+
+On iOS, paywalls no longer call `OnPurchaseCompleted` for purchases that complete without a store transaction, such as purchases made by your own purchase logic. Previously it was called with a `null` `StoreTransaction`. This matches Android. If you relied on it for those purchases, handle them in your purchase logic instead.
+
+### `PurchasesConfiguration.Builder` defaults match the native SDKs
+
+Settings you don't set on `PurchasesConfiguration.Builder` used the C# default values instead of the native SDK defaults. They now match the native SDKs:
+
+| Setting | Before | Now |
+|---|---|---|
+| `SetStoreKitVersion` | `StoreKit1` | `Default` |
+| `SetShouldShowInAppMessagesAutomatically` | `false` | `true` |
+| `SetEntitlementVerificationMode` | `Disabled` | `Informational` |
+
+To keep the previous behavior, set these values explicitly.
+
 ### Jetpack Compose and `material-icons-core` on Android
 
 If your project has native Android code that uses Jetpack Compose, the `RevenueCatUI` package raises your Compose libraries to BOM 2026.06.01. Those versions no longer bring in `material-icons-core`, so declare it if your native code uses `Icons`. See the [Android guide](https://github.com/RevenueCat/purchases-android/blob/main/migrations/v11-MIGRATION.md#jetpack-compose-revenuecatui).
