@@ -55,9 +55,9 @@ Settings you don't set on `PurchasesConfiguration.Builder` used the C# default v
 
 To keep the previous behavior, set these values explicitly.
 
-### Jetpack Compose and `material-icons-core` on Android
+### Jetpack Compose on Android
 
-If your project has native Android code that uses Jetpack Compose, the `RevenueCatUI` package raises your Compose libraries to BOM 2026.06.01. Those versions no longer bring in `material-icons-core`, so declare it if your native code uses `Icons`. See the [Android guide](https://github.com/RevenueCat/purchases-android/blob/main/migrations/v11-MIGRATION.md#jetpack-compose-revenuecatui).
+If your project has native Android code that uses Jetpack Compose, the `RevenueCatUI` package raises your Compose libraries to BOM 2026.06.01. See the [Android guide](https://github.com/RevenueCat/purchases-android/blob/main/migrations/v11-MIGRATION.md#jetpack-compose-revenuecatui).
 
 ### Blocked Play Store reports `PurchaseNotAllowedError`
 
