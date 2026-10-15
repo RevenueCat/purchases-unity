@@ -1,6 +1,6 @@
 # RevenueCat AdMob adapter for Unity
 
-Connects the [Google Mobile Ads Unity plugin](https://developers.google.com/admob/unity/quick-start) to [RevenueCat](https://www.revenuecat.com/)'s ad tracking and reward verification. Load your ads through the adapter and it reports loaded, failed-to-load, displayed, opened and revenue events for you; rewarded ads can additionally have their rewards verified server-side. See the [AdMob integration docs](https://www.revenuecat.com/docs/ad-monetization/admob).
+Connects the [Google Mobile Ads Unity plugin](https://developers.google.com/admob/unity/quick-start) to [RevenueCat](https://www.revenuecat.com/)'s ad tracking and reward verification. Load your ads through the adapter and it reports loaded, failed-to-load, displayed, opened, revenue and earned-reward events for you; rewarded ads can additionally have their rewards verified server-side. See the [AdMob integration docs](https://www.revenuecat.com/docs/ad-monetization/admob).
 
 ## Installation
 

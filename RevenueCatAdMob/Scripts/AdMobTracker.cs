@@ -50,6 +50,11 @@ namespace RevenueCat.AdMob
                 AdTracker.MediatorName.AdMob, state.AdFormat, state.AdUnitId, state.ImpressionId,
                 state.NetworkName, state.Placement, CaptureMethod));
 
+        public static void TrackRewardEarnedUnverified(TrackedAdState state) =>
+            Tracker("reward earned")?.TrackAdRewardEarnedUnverified(new AdRewardEarnedUnverifiedData(
+                AdTracker.MediatorName.AdMob, state.AdFormat, state.AdUnitId, state.ImpressionId,
+                state.NetworkName, state.Placement, CaptureMethod));
+
         public static void TrackRevenue(TrackedAdState state, AdValue value) =>
             Tracker("ad revenue")?.TrackAdRevenue(new AdRevenueData(
                 AdTracker.MediatorName.AdMob, state.AdFormat, state.AdUnitId, state.ImpressionId,
