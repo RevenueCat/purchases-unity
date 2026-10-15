@@ -324,6 +324,28 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringOmitsCaptureMethodByDefault()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json.HasKey("captureMethod"), Is.False);
+        }
+
+        [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringIncludesCaptureMethodWhenSet()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1", null, null, AdTracker.CaptureMethod.UnityAdMobAdapter);
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"));
+        }
+
+        [Test]
         public void AdRewardPromptShownDataToJsonStringOmitsPlacementWhenAbsent()
         {
             var data = new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "unit_1");

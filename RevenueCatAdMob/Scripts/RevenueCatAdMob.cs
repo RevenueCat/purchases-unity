@@ -172,15 +172,15 @@ namespace RevenueCat.AdMob
         /// <summary>Shows the ad; <paramref name="placement"/> overrides the load-time placement for this impression.</summary>
         public static void ShowAndTrack(this RewardedAd ad, Action<Reward> userRewardEarnedCallback, string placement = null)
         {
-            PrepareShow(ad, placement);
-            ad.Show(userRewardEarnedCallback);
+            var state = PrepareShow(ad, placement);
+            ad.Show(reward => OnRewardEarnedUnverified(state, reward, userRewardEarnedCallback));
         }
 
         /// <summary>Shows the ad; <paramref name="placement"/> overrides the load-time placement for this impression.</summary>
         public static void ShowAndTrack(this RewardedInterstitialAd ad, Action<Reward> userRewardEarnedCallback, string placement = null)
         {
-            PrepareShow(ad, placement);
-            ad.Show(userRewardEarnedCallback);
+            var state = PrepareShow(ad, placement);
+            ad.Show(reward => OnRewardEarnedUnverified(state, reward, userRewardEarnedCallback));
         }
 
         // Reward verification
@@ -289,6 +289,13 @@ namespace RevenueCat.AdMob
             }));
         }
 
+        // With verification enabled the core SDK reports the earned reward from the poll.
+        private static void OnRewardEarnedUnverified(TrackedAdState state, Reward reward, Action<Reward> userRewardEarnedCallback)
+        {
+            if (state != null) AdMobTracker.TrackRewardEarnedUnverified(state);
+            userRewardEarnedCallback?.Invoke(reward);
+        }
+
         private static void OnRewardEarned(
             TrackedAdState state, Reward reward, Action<Reward> userRewardEarnedCallback,
             RewardVerificationStartedFunc started, RewardVerificationCompletedFunc completed)
@@ -312,6 +319,7 @@ namespace RevenueCat.AdMob
                 AdMobTracker.LogWarning(
                     "Reward earned but reward verification was not enabled for this ad. " +
                     "Call EnableRewardVerification() after the ad loads.");
+                if (state != null) AdMobTracker.TrackRewardEarnedUnverified(state);
                 Deliver(FailedResult);
                 return;
             }
