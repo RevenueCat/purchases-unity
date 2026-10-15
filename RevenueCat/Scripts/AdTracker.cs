@@ -68,16 +68,16 @@ namespace RevenueCat
         /// Official RevenueCat ad-network adapters set this value automatically.
         /// When creating and tracking ad event data directly, leave it unset.
         /// </summary>
-        public class CaptureMethod
+        internal sealed class CaptureMethod
         {
-            public string Value { get; }
+            internal string Value { get; }
 
-            public CaptureMethod(string value)
+            private CaptureMethod(string value)
             {
                 Value = value;
             }
 
-            public static readonly CaptureMethod UnityAdMobAdapter = new CaptureMethod("unity_admob_adapter");
+            internal static readonly CaptureMethod UnityAdMobAdapter = new CaptureMethod("unity_admob_adapter");
 
             public override bool Equals(object obj) => obj is CaptureMethod other && other.Value == Value;
             public override int GetHashCode() => Value?.GetHashCode() ?? 0;

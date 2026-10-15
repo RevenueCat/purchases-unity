@@ -14,8 +14,7 @@ namespace RevenueCat
         public string NetworkName { get; }
         public string Placement { get; }
 
-        /// <summary>Reserved for the official RevenueCat ad-network adapters.</summary>
-        public AdTracker.CaptureMethod CaptureMethod { get; }
+        internal AdTracker.CaptureMethod CaptureMethod { get; }
 
         public AdRevenueData(
             AdTracker.MediatorName mediatorName,
@@ -26,8 +25,32 @@ namespace RevenueCat
             string currency,
             AdTracker.Precision precision,
             string networkName = null,
-            string placement = null,
-            AdTracker.CaptureMethod captureMethod = null)
+            string placement = null)
+            : this(
+                mediatorName,
+                adFormat,
+                adUnitId,
+                impressionId,
+                revenueMicros,
+                currency,
+                precision,
+                networkName,
+                placement,
+                null)
+        {
+        }
+
+        internal AdRevenueData(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
+            string adUnitId,
+            string impressionId,
+            long revenueMicros,
+            string currency,
+            AdTracker.Precision precision,
+            string networkName,
+            string placement,
+            AdTracker.CaptureMethod captureMethod)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;

@@ -9,8 +9,7 @@ namespace RevenueCat
         public string AdUnitId { get; }
         public string Placement { get; }
 
-        /// <summary>Reserved for the official RevenueCat ad-network adapters.</summary>
-        public AdTracker.CaptureMethod CaptureMethod { get; }
+        internal AdTracker.CaptureMethod CaptureMethod { get; }
         public int? MediatorErrorCode { get; }
 
         public AdFailedToLoadData(
@@ -18,8 +17,24 @@ namespace RevenueCat
             AdTracker.Format adFormat,
             string adUnitId,
             string placement = null,
-            int? mediatorErrorCode = null,
-            AdTracker.CaptureMethod captureMethod = null)
+            int? mediatorErrorCode = null)
+            : this(
+                mediatorName,
+                adFormat,
+                adUnitId,
+                placement,
+                mediatorErrorCode,
+                null)
+        {
+        }
+
+        internal AdFailedToLoadData(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
+            string adUnitId,
+            string placement,
+            int? mediatorErrorCode,
+            AdTracker.CaptureMethod captureMethod)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;
