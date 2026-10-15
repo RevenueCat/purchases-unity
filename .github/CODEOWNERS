@@ -1,4 +1,28 @@
 # CODEOWNERS for purchases-unity
+#
+# The last matching pattern takes precedence, so rules go from broadest to most specific.
+# Code owner review is not required to merge: these rules only decide who gets a review request.
 
-# Default owners
+# Fallback for anything not matched below (build config, sample app, test projects, CI, release files)
 * @RevenueCat/sdk
+
+# Core SDK
+/RevenueCat/ @RevenueCat/coresdk
+/IntegrationTests/Assets/Tests/ @RevenueCat/coresdk
+
+# Paywalls
+/RevenueCatUI/ @RevenueCat/paywalls
+
+# Ads
+/RevenueCat/Scripts/Ad* @RevenueCat/ads
+/RevenueCat/Scripts/Reward* @RevenueCat/ads
+/RevenueCat/Scripts/VerifiedReward* @RevenueCat/ads
+/IntegrationTests/Assets/Tests/EditMode/JsonModelFixtures/*reward* @RevenueCat/ads
+/Subtester/Assets/GoogleMobileAds/ @RevenueCat/ads
+/Subtester/Assets/Tester/Scripts/Screens/RewardVerificationScreen.cs* @RevenueCat/ads
+
+# Customer Center
+/RevenueCatUI/**/*CustomerCenter* @RevenueCat/customer-center
+
+# Public API surface: changes here should stay visible to the whole SDK team
+/IntegrationTests/Assets/APITests/ @RevenueCat/sdk
