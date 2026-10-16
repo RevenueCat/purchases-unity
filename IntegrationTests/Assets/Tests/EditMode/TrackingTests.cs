@@ -222,6 +222,27 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void AdDisplayedDataToJsonStringOmitsCaptureMethodByDefault()
+        {
+            var data = new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "unit_1", "impression_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json.HasKey("captureMethod"), Is.False);
+        }
+
+        [Test]
+        public void AdDisplayedDataToJsonStringIncludesCaptureMethodWhenSet()
+        {
+            var data = new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "unit_1", "impression_1",
+                null, null, AdTracker.CaptureMethod.UnityAdMobAdapter);
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"));
+        }
+
+        [Test]
         public void AdDisplayedDataToJsonStringIncludesOptionalFieldsWhenPresent()
         {
             var data = new AdDisplayedData(AdTracker.MediatorName.AppLovin, AdTracker.Format.Interstitial, "unit_1",
@@ -300,6 +321,28 @@ namespace RevenueCat.Tests
 
             Assert.That(json["networkName"].Value, Is.EqualTo("network_1"));
             Assert.That(json["placement"].Value, Is.EqualTo("placement_1"));
+        }
+
+        [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringOmitsCaptureMethodByDefault()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json.HasKey("captureMethod"), Is.False);
+        }
+
+        [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringIncludesCaptureMethodWhenSet()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1", null, null, AdTracker.CaptureMethod.UnityAdMobAdapter);
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"));
         }
 
         [Test]

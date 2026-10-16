@@ -8,6 +8,8 @@ namespace RevenueCat
         public AdTracker.Format AdFormat { get; }
         public string AdUnitId { get; }
         public string Placement { get; }
+
+        internal AdTracker.CaptureMethod CaptureMethod { get; }
         public int? MediatorErrorCode { get; }
 
         public AdFailedToLoadData(
@@ -16,11 +18,29 @@ namespace RevenueCat
             string adUnitId,
             string placement = null,
             int? mediatorErrorCode = null)
+            : this(
+                mediatorName,
+                adFormat,
+                adUnitId,
+                placement,
+                mediatorErrorCode,
+                null)
+        {
+        }
+
+        internal AdFailedToLoadData(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
+            string adUnitId,
+            string placement,
+            int? mediatorErrorCode,
+            AdTracker.CaptureMethod captureMethod)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;
             AdUnitId = adUnitId;
             Placement = placement;
+            CaptureMethod = captureMethod;
             MediatorErrorCode = mediatorErrorCode;
         }
 
@@ -38,6 +58,7 @@ namespace RevenueCat
             obj["adFormat"] = AdFormat.Value;
             obj["adUnitId"] = AdUnitId;
             if (Placement != null) obj["placement"] = Placement;
+            if (CaptureMethod != null) obj["captureMethod"] = CaptureMethod.Value;
             if (MediatorErrorCode.HasValue) obj["mediatorErrorCode"] = MediatorErrorCode.Value;
             return obj.ToString();
         }
