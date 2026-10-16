@@ -37,9 +37,9 @@ purchases.SyncAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode
 purchases.SyncAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode, price, purchaseTimeMillis);
 ```
 
-### Paywalls on iOS skip `OnPurchaseCompleted` for purchases without a transaction
+### Only if using `PurchasesAreCompletedBy.MyApp`: iOS paywalls no longer call `OnPurchaseCompleted`
 
-On iOS, paywalls no longer call `OnPurchaseCompleted` for purchases that complete without a store transaction, such as purchases made by your own purchase logic. Previously it was called with a `null` `StoreTransaction`. This matches Android. If you relied on it for those purchases, handle them in your purchase logic instead.
+When your `PurchaseLogic` completes a paywall purchase, iOS paywalls no longer call `OnPurchaseCompleted` for it. Previously it was called with a `null` `StoreTransaction`. This matches Android. Handle the purchase result in your `PurchaseLogic` instead.
 
 ### `PurchasesConfiguration.Builder` defaults match the native SDKs
 
