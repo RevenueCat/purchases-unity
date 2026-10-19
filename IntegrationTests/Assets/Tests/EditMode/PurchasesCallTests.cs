@@ -89,7 +89,7 @@ namespace RevenueCat.Tests
 
             _purchases.Configure(configuration);
 
-            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 14);
+            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 16);
             Assert.That(invocation.Arguments[0], Is.EqualTo(_gameObject.name));
             Assert.That(invocation.Arguments[1], Is.EqualTo("test_api_key"));
             Assert.That(invocation.Arguments[2], Is.Null);
@@ -107,6 +107,8 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[11], Is.False);
             Assert.That(invocation.Arguments[12], Is.True);
             Assert.That(invocation.Arguments[13], Is.Null);
+            Assert.That(invocation.Arguments[14], Is.False);
+            Assert.That(invocation.Arguments[15], Is.True);
         }
 
         private PurchasesWrapperSpy.Invocation AssertOnlyInvocation(string method, int argumentCount)
