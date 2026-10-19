@@ -33,6 +33,7 @@ namespace DefaultNamespace
             string PresentedOfferingIdentifier = storeProduct.PresentedOfferingIdentifier;
             Purchases.Discount[] discounts = storeProduct.Discounts;
             string subscriptionPeriod = storeProduct.SubscriptionPeriod;
+            Purchases.SubscriptionOption.InstallmentsInfo installmentsInfo = storeProduct.InstallmentsInfo;
         }
     }
 }
