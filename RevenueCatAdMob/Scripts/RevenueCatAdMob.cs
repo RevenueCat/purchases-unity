@@ -19,7 +19,8 @@ namespace RevenueCat.AdMob
     /// ad is shown. The <c>ShowAndTrack</c> extensions can override it at show time.
     ///
     /// The adapter tracks from whichever thread Google Mobile Ads raises its callbacks on. Enable
-    /// <c>MobileAds.RaiseAdEventsOnUnityMainThread</c> only if your own callbacks touch Unity objects.
+    /// <c>MobileAds.RaiseAdEventsOnUnityMainThread</c> only if your own callbacks touch Unity objects; see
+    /// <see href="https://developers.google.com/admob/unity/global-settings#raise_ad_events_on_the_unity_main_thread"/>.
     /// </summary>
     public static class RevenueCatAdMob
     {

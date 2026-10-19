@@ -12,7 +12,7 @@ using RevenueCat.AdMob;
 RevenueCatAdMob.Initialize(purchases); // your configured Purchases component
 ```
 
-The adapter tracks from whichever thread Google Mobile Ads raises its callbacks on. Enable `MobileAds.RaiseAdEventsOnUnityMainThread` only if your own ad callbacks touch Unity objects.
+The adapter tracks from whichever thread Google Mobile Ads raises its callbacks on. Enable [`MobileAds.RaiseAdEventsOnUnityMainThread`](https://developers.google.com/admob/unity/global-settings#raise_ad_events_on_the_unity_main_thread) only if your own ad callbacks touch Unity objects.
 
 ## Tracking full-screen ads
 
