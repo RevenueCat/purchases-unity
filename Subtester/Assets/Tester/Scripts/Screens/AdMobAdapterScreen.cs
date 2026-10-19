@@ -62,7 +62,7 @@ namespace RevenueCat.Tester.Screens
             _showRewardedInterstitial = AddButton("Show Rewarded Interstitial", ShowRewardedInterstitial);
             AddButton("Load App Open", LoadAppOpen);
             _showAppOpen = AddButton("Show App Open", () => _appOpen?.ShowAndTrack("app_open_shown"));
-            AddButton("Load Banner", LoadBanner);
+            AddButtonRow(("Load Banner", LoadBanner), ("Remove Banner", RemoveBanner));
             SetShowButtons(false);
 
             MobileAds.RaiseAdEventsOnUnityMainThread = true;
@@ -82,6 +82,7 @@ namespace RevenueCat.Tester.Screens
         {
             _interstitial?.Destroy();
             _interstitial = null;
+            SetShowButtons(true);
             SetStatus("Loading interstitial...");
             RevenueCatAdMob.LoadAndTrackInterstitialAd(InterstitialAdUnitId, new AdRequest(), (ad, error) =>
             {
@@ -91,7 +92,8 @@ namespace RevenueCat.Tester.Screens
                     return;
                 }
                 _interstitial = ad;
-                ad.OnAdFullScreenContentClosed += () => { _interstitial = null; SetShowButtons(true); SetStatus("Interstitial dismissed."); };
+                ad.OnAdFullScreenContentClosed += () => { ReleaseInterstitial(); SetStatus("Interstitial dismissed."); };
+                ad.OnAdFullScreenContentFailed += error => { ReleaseInterstitial(); SetStatus($"Interstitial show failed: {error?.GetMessage()}"); };
                 SetStatus($"Interstitial ready ({ad.GetResponseInfo().GetResponseId()})");
                 SetShowButtons(true);
             }, "interstitial_tab");
@@ -101,6 +103,7 @@ namespace RevenueCat.Tester.Screens
         {
             _rewarded?.Destroy();
             _rewarded = null;
+            SetShowButtons(true);
             _resultLabel.text = "";
             SetStatus("Loading rewarded...");
             RevenueCatAdMob.LoadAndTrackRewardedAd(RewardedAdUnitId, new AdRequest(), (ad, error) =>
@@ -110,10 +113,12 @@ namespace RevenueCat.Tester.Screens
                     SetStatus($"Rewarded failed: {error?.GetMessage()}");
                     return;
                 }
-                ad.OnAdFullScreenContentClosed += () => { _rewarded = null; SetShowButtons(true); };
+                _rewarded = ad;
+                ad.OnAdFullScreenContentClosed += ReleaseRewarded;
+                ad.OnAdFullScreenContentFailed += error => { ReleaseRewarded(); SetStatus($"Rewarded show failed: {error?.GetMessage()}"); };
                 ad.EnableRewardVerification(enabled =>
                 {
-                    _rewarded = ad;
+                    if (_rewarded != ad) return;
                     SetStatus($"Rewarded ready, verification {(enabled ? "enabled" : "NOT enabled")} ({ad.GetResponseInfo().GetResponseId()})");
                     SetShowButtons(true);
                 });
@@ -131,6 +136,7 @@ namespace RevenueCat.Tester.Screens
         {
             _rewardedInterstitial?.Destroy();
             _rewardedInterstitial = null;
+            SetShowButtons(true);
             _resultLabel.text = "";
             SetStatus("Loading rewarded interstitial...");
             RevenueCatAdMob.LoadAndTrackRewardedInterstitialAd(RewardedInterstitialAdUnitId, new AdRequest(), (ad, error) =>
@@ -140,10 +146,12 @@ namespace RevenueCat.Tester.Screens
                     SetStatus($"Rewarded interstitial failed: {error?.GetMessage()}");
                     return;
                 }
-                ad.OnAdFullScreenContentClosed += () => { _rewardedInterstitial = null; SetShowButtons(true); };
+                _rewardedInterstitial = ad;
+                ad.OnAdFullScreenContentClosed += ReleaseRewardedInterstitial;
+                ad.OnAdFullScreenContentFailed += error => { ReleaseRewardedInterstitial(); SetStatus($"Rewarded interstitial show failed: {error?.GetMessage()}"); };
                 ad.EnableRewardVerification(enabled =>
                 {
-                    _rewardedInterstitial = ad;
+                    if (_rewardedInterstitial != ad) return;
                     SetStatus($"Rewarded interstitial ready, verification {(enabled ? "enabled" : "NOT enabled")}");
                     SetShowButtons(true);
                 });
@@ -161,6 +169,7 @@ namespace RevenueCat.Tester.Screens
         {
             _appOpen?.Destroy();
             _appOpen = null;
+            SetShowButtons(true);
             SetStatus("Loading app open...");
             RevenueCatAdMob.LoadAndTrackAppOpenAd(AppOpenAdUnitId, new AdRequest(), (ad, error) =>
             {
@@ -170,7 +179,8 @@ namespace RevenueCat.Tester.Screens
                     return;
                 }
                 _appOpen = ad;
-                ad.OnAdFullScreenContentClosed += () => { _appOpen = null; SetShowButtons(true); };
+                ad.OnAdFullScreenContentClosed += ReleaseAppOpen;
+                ad.OnAdFullScreenContentFailed += error => { ReleaseAppOpen(); SetStatus($"App open show failed: {error?.GetMessage()}"); };
                 SetStatus($"App open ready ({ad.GetResponseInfo().GetResponseId()})");
                 SetShowButtons(true);
             }, "app_open_tab");
@@ -185,6 +195,43 @@ namespace RevenueCat.Tester.Screens
             _banner.OnBannerAdLoadFailed += error => SetStatus($"Banner failed: {error?.GetMessage()}");
             _banner.OnAdPaid += value => SetStatus($"Banner paid {value.Value} {value.CurrencyCode}");
             _banner.LoadAd(new AdRequest());
+        }
+
+        private void RemoveBanner()
+        {
+            _banner?.Destroy();
+            _banner = null;
+            SetStatus("Banner removed.");
+        }
+
+        // Full-screen ads are single-use: once shown (or failed to show) the native object is only
+        // held so it can be destroyed.
+        private void ReleaseInterstitial()
+        {
+            _interstitial?.Destroy();
+            _interstitial = null;
+            SetShowButtons(true);
+        }
+
+        private void ReleaseRewarded()
+        {
+            _rewarded?.Destroy();
+            _rewarded = null;
+            SetShowButtons(true);
+        }
+
+        private void ReleaseRewardedInterstitial()
+        {
+            _rewardedInterstitial?.Destroy();
+            _rewardedInterstitial = null;
+            SetShowButtons(true);
+        }
+
+        private void ReleaseAppOpen()
+        {
+            _appOpen?.Destroy();
+            _appOpen = null;
+            SetShowButtons(true);
         }
 
         private void OnVerified(Purchases.RewardVerificationResult result)
