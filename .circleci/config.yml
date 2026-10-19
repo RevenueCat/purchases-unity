@@ -275,12 +275,16 @@ jobs:
           paths:
             - Purchases.unitypackage
             - PurchasesUI.unitypackage
+            - PurchasesAdMob.unitypackage
 
       - store_artifacts:
           path: Purchases.unitypackage
 
       - store_artifacts:
           path: PurchasesUI.unitypackage
+
+      - store_artifacts:
+          path: PurchasesAdMob.unitypackage
 
   build-subtester-android:
     resource_class: large

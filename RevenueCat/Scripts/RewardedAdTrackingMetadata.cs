@@ -11,6 +11,8 @@ namespace RevenueCat
         public string NetworkName { get; }
         public string Placement { get; }
 
+        internal AdTracker.CaptureMethod CaptureMethod { get; }
+
         public RewardedAdTrackingMetadata(
             AdTracker.MediatorName mediatorName,
             AdTracker.Format adFormat,
@@ -18,6 +20,25 @@ namespace RevenueCat
             string impressionId,
             string networkName = null,
             string placement = null)
+            : this(
+                mediatorName,
+                adFormat,
+                adUnitId,
+                impressionId,
+                networkName,
+                placement,
+                null)
+        {
+        }
+
+        internal RewardedAdTrackingMetadata(
+            AdTracker.MediatorName mediatorName,
+            AdTracker.Format adFormat,
+            string adUnitId,
+            string impressionId,
+            string networkName,
+            string placement,
+            AdTracker.CaptureMethod captureMethod)
         {
             MediatorName = mediatorName;
             AdFormat = adFormat;
@@ -25,6 +46,7 @@ namespace RevenueCat
             ImpressionId = impressionId;
             NetworkName = networkName;
             Placement = placement;
+            CaptureMethod = captureMethod;
         }
 
         public override string ToString() =>
@@ -44,6 +66,7 @@ namespace RevenueCat
             obj["impressionId"] = ImpressionId;
             if (NetworkName != null) obj["networkName"] = NetworkName;
             if (Placement != null) obj["placement"] = Placement;
+            if (CaptureMethod != null) obj["captureMethod"] = CaptureMethod.Value;
             return obj.ToString();
         }
     }

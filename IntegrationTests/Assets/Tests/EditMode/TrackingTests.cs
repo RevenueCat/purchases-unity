@@ -222,6 +222,27 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void AdDisplayedDataToJsonStringOmitsCaptureMethodByDefault()
+        {
+            var data = new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "unit_1", "impression_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json.HasKey("captureMethod"), Is.False);
+        }
+
+        [Test]
+        public void AdDisplayedDataToJsonStringIncludesCaptureMethodWhenSet()
+        {
+            var data = new AdDisplayedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Banner, "unit_1", "impression_1",
+                null, null, AdTracker.CaptureMethod.UnityAdMobAdapter);
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"));
+        }
+
+        [Test]
         public void AdDisplayedDataToJsonStringIncludesOptionalFieldsWhenPresent()
         {
             var data = new AdDisplayedData(AdTracker.MediatorName.AppLovin, AdTracker.Format.Interstitial, "unit_1",
@@ -303,6 +324,28 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringOmitsCaptureMethodByDefault()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1");
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json.HasKey("captureMethod"), Is.False);
+        }
+
+        [Test]
+        public void AdRewardEarnedUnverifiedDataToJsonStringIncludesCaptureMethodWhenSet()
+        {
+            var data = new AdRewardEarnedUnverifiedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded,
+                "unit_1", "impression_1", null, null, AdTracker.CaptureMethod.UnityAdMobAdapter);
+
+            var json = JSONNode.Parse(data.ToJsonString());
+
+            Assert.That(json["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"));
+        }
+
+        [Test]
         public void AdRewardPromptShownDataToJsonStringOmitsPlacementWhenAbsent()
         {
             var data = new AdRewardPromptShownData(AdTracker.MediatorName.AdMob, "unit_1");
@@ -367,6 +410,37 @@ namespace RevenueCat.Tests
                 "\"presentedOfferingContext\":{\"offeringIdentifier\":\"default\"}}" +
                 "]}"
             ));
+        }
+
+        [Test]
+        public void CaptureMethodIsSerializedOnlyWhenSetForEveryAdDataClass()
+        {
+            var adapter = AdTracker.CaptureMethod.UnityAdMobAdapter;
+            var withCaptureMethod = new[]
+            {
+                new AdLoadedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", null, null, adapter).ToJsonString(),
+                new AdOpenedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", null, null, adapter).ToJsonString(),
+                new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", null, null, adapter).ToJsonString(),
+                new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", 1000, "USD", AdTracker.Precision.Exact, null, null, adapter).ToJsonString(),
+                new RewardedAdTrackingMetadata(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "unit_1", "impression_1", null, null, adapter).ToJsonString(),
+            };
+            var withoutCaptureMethod = new[]
+            {
+                new AdLoadedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1").ToJsonString(),
+                new AdOpenedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1").ToJsonString(),
+                new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1").ToJsonString(),
+                new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", 1000, "USD", AdTracker.Precision.Exact).ToJsonString(),
+                new RewardedAdTrackingMetadata(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "unit_1", "impression_1").ToJsonString(),
+            };
+
+            foreach (var json in withCaptureMethod)
+            {
+                Assert.That(JSONNode.Parse(json)["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"), json);
+            }
+            foreach (var json in withoutCaptureMethod)
+            {
+                Assert.That(JSONNode.Parse(json).HasKey("captureMethod"), Is.False, json);
+            }
         }
     }
 }
