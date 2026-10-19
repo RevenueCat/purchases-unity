@@ -411,5 +411,36 @@ namespace RevenueCat.Tests
                 "]}"
             ));
         }
+
+        [Test]
+        public void CaptureMethodIsSerializedOnlyWhenSetForEveryAdDataClass()
+        {
+            var adapter = AdTracker.CaptureMethod.UnityAdMobAdapter;
+            var withCaptureMethod = new[]
+            {
+                new AdLoadedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", null, null, adapter).ToJsonString(),
+                new AdOpenedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", null, null, adapter).ToJsonString(),
+                new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", null, null, adapter).ToJsonString(),
+                new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", 1000, "USD", AdTracker.Precision.Exact, null, null, adapter).ToJsonString(),
+                new RewardedAdTrackingMetadata(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "unit_1", "impression_1", null, null, adapter).ToJsonString(),
+            };
+            var withoutCaptureMethod = new[]
+            {
+                new AdLoadedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1").ToJsonString(),
+                new AdOpenedData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1").ToJsonString(),
+                new AdFailedToLoadData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1").ToJsonString(),
+                new AdRevenueData(AdTracker.MediatorName.AdMob, AdTracker.Format.Interstitial, "unit_1", "impression_1", 1000, "USD", AdTracker.Precision.Exact).ToJsonString(),
+                new RewardedAdTrackingMetadata(AdTracker.MediatorName.AdMob, AdTracker.Format.Rewarded, "unit_1", "impression_1").ToJsonString(),
+            };
+
+            foreach (var json in withCaptureMethod)
+            {
+                Assert.That(JSONNode.Parse(json)["captureMethod"].Value, Is.EqualTo("unity_admob_adapter"), json);
+            }
+            foreach (var json in withoutCaptureMethod)
+            {
+                Assert.That(JSONNode.Parse(json).HasKey("captureMethod"), Is.False, json);
+            }
+        }
     }
 }

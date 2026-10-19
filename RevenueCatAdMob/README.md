@@ -66,4 +66,4 @@ _rewarded.ShowWithRewardVerification(
 
 * iOS 15.0+ (ad tracking is unavailable below that; calls are ignored with a warning)
 * Google Mobile Ads Unity plugin 10.x+
-* `com.revenuecat.purchases-unity` 9.13.2+
+* `com.revenuecat.purchases-unity` 9.14.0+
