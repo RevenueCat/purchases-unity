@@ -1,0 +1,11 @@
+{
+  "commitmentPaymentsCount": 12,
+  "renewalCommitmentPaymentsCount": 12,
+  "commitmentInstallmentPeriod": "P1M",
+  "installmentBillingPrice": 0.99,
+  "installmentBillingPriceString": "$0.99",
+  "commitmentTotalPeriod": "P1Y",
+  "commitmentTotalPrice": 11.88,
+  "commitmentTotalPriceString": "$11.88",
+  "billingPlanType": "MONTHLY"
+}
