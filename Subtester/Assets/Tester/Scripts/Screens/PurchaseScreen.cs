@@ -230,6 +230,12 @@ namespace RevenueCat.Tester.Screens
                 label.AddToClassList("dynamic-item-label");
                 group.Add(label);
 
+                var installmentsInfo = package.StoreProduct.InstallmentsInfo;
+                if (installmentsInfo != null)
+                {
+                    AddInstallmentsInfoLabels(group, installmentsInfo);
+                }
+
                 var row = new VisualElement();
                 row.AddToClassList("button-row");
 
@@ -276,6 +282,34 @@ namespace RevenueCat.Tester.Screens
                 }
 
                 _packagesContainer.Add(group);
+            }
+        }
+
+        private static void AddInstallmentsInfoLabels(VisualElement group,
+            Purchases.SubscriptionOption.InstallmentsInfo info)
+        {
+            var header = new Label("InstallmentsInfo");
+            header.AddToClassList("dynamic-item-label");
+            group.Add(header);
+
+            var properties = new (string name, object value)[]
+            {
+                (nameof(info.CommitmentPaymentsCount), info.CommitmentPaymentsCount),
+                (nameof(info.RenewalCommitmentPaymentsCount), info.RenewalCommitmentPaymentsCount),
+                (nameof(info.CommitmentInstallmentPeriod), info.CommitmentInstallmentPeriod),
+                (nameof(info.InstallmentBillingPrice), info.InstallmentBillingPrice),
+                (nameof(info.InstallmentBillingPriceString), info.InstallmentBillingPriceString),
+                (nameof(info.CommitmentTotalPeriod), info.CommitmentTotalPeriod),
+                (nameof(info.CommitmentTotalPrice), info.CommitmentTotalPrice),
+                (nameof(info.CommitmentTotalPriceString), info.CommitmentTotalPriceString),
+                (nameof(info.BillingPlanType), info.BillingPlanType),
+            };
+
+            foreach (var (name, value) in properties)
+            {
+                var row = new Label($"  {name}: {value?.ToString() ?? "null"}");
+                row.AddToClassList("info-label");
+                group.Add(row);
             }
         }
 
