@@ -37,6 +37,9 @@ namespace RevenueCat.Tester.Screens
         private RewardedInterstitialAd _rewardedInterstitial;
         private AppOpenAd _appOpen;
         private BannerView _banner;
+        // Rewarded formats are only ready once EnableRewardVerification has attached the token.
+        private bool _rewardedReady;
+        private bool _rewardedInterstitialReady;
 
         private Label _statusLabel;
         private Label _resultLabel;
@@ -73,8 +76,8 @@ namespace RevenueCat.Tester.Screens
         private void SetShowButtons(bool enabled)
         {
             _showInterstitial.SetEnabled(enabled && _interstitial != null);
-            _showRewarded.SetEnabled(enabled && _rewarded != null);
-            _showRewardedInterstitial.SetEnabled(enabled && _rewardedInterstitial != null);
+            _showRewarded.SetEnabled(enabled && _rewardedReady);
+            _showRewardedInterstitial.SetEnabled(enabled && _rewardedInterstitialReady);
             _showAppOpen.SetEnabled(enabled && _appOpen != null);
         }
 
@@ -103,6 +106,7 @@ namespace RevenueCat.Tester.Screens
         {
             _rewarded?.Destroy();
             _rewarded = null;
+            _rewardedReady = false;
             SetShowButtons(true);
             _resultLabel.text = "";
             SetStatus("Loading rewarded...");
@@ -119,6 +123,7 @@ namespace RevenueCat.Tester.Screens
                 ad.EnableRewardVerification(enabled =>
                 {
                     if (_rewarded != ad) return;
+                    _rewardedReady = true;
                     SetStatus($"Rewarded ready, verification {(enabled ? "enabled" : "NOT enabled")} ({ad.GetResponseInfo().GetResponseId()})");
                     SetShowButtons(true);
                 });
@@ -136,6 +141,7 @@ namespace RevenueCat.Tester.Screens
         {
             _rewardedInterstitial?.Destroy();
             _rewardedInterstitial = null;
+            _rewardedInterstitialReady = false;
             SetShowButtons(true);
             _resultLabel.text = "";
             SetStatus("Loading rewarded interstitial...");
@@ -152,6 +158,7 @@ namespace RevenueCat.Tester.Screens
                 ad.EnableRewardVerification(enabled =>
                 {
                     if (_rewardedInterstitial != ad) return;
+                    _rewardedInterstitialReady = true;
                     SetStatus($"Rewarded interstitial ready, verification {(enabled ? "enabled" : "NOT enabled")}");
                     SetShowButtons(true);
                 });
@@ -217,6 +224,7 @@ namespace RevenueCat.Tester.Screens
         {
             _rewarded?.Destroy();
             _rewarded = null;
+            _rewardedReady = false;
             SetShowButtons(true);
         }
 
@@ -224,6 +232,7 @@ namespace RevenueCat.Tester.Screens
         {
             _rewardedInterstitial?.Destroy();
             _rewardedInterstitial = null;
+            _rewardedInterstitialReady = false;
             SetShowButtons(true);
         }
 
