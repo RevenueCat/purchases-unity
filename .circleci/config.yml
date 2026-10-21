@@ -574,6 +574,14 @@ jobs:
       - attach_workspace:
           at: .
       - install-bundle-dependencies
+      - run:
+          name: Point JAVA_HOME at the image's JDK
+          # The project environment sets JAVA_HOME to a path that doesn't exist on macOS images.
+          command: |
+            unset JAVA_HOME
+            JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | awk -F' = ' '/java.home/ {print $2}')"
+            "$JAVA_HOME/bin/java" -version
+            echo "export JAVA_HOME=$JAVA_HOME" >> "$BASH_ENV"
       - revenuecat/install-maestro
       - run:
           name: Boot iOS Simulator
