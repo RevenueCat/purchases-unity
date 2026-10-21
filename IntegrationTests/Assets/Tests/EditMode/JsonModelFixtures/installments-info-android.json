@@ -1,0 +1,11 @@
+{
+  "commitmentPaymentsCount": 6,
+  "renewalCommitmentPaymentsCount": 2,
+  "commitmentInstallmentPeriod": null,
+  "installmentBillingPrice": null,
+  "installmentBillingPriceString": null,
+  "commitmentTotalPeriod": null,
+  "commitmentTotalPrice": null,
+  "commitmentTotalPriceString": null,
+  "billingPlanType": null
+}

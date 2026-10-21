@@ -32,6 +32,13 @@ namespace DefaultNamespace
             Purchases.SubscriptionOption.InstallmentsInfo installmentsInfo = subscriptionOption.OptionInstallmentsInfo;
             int commitmentPaymentsCount = installmentsInfo.CommitmentPaymentsCount;
             int renewalCommitmentPaymentsCount = installmentsInfo.RenewalCommitmentPaymentsCount;
+            string commitmentInstallmentPeriod = installmentsInfo.CommitmentInstallmentPeriod;
+            float? installmentBillingPrice = installmentsInfo.InstallmentBillingPrice;
+            string installmentBillingPriceString = installmentsInfo.InstallmentBillingPriceString;
+            string commitmentTotalPeriod = installmentsInfo.CommitmentTotalPeriod;
+            float? commitmentTotalPrice = installmentsInfo.CommitmentTotalPrice;
+            string commitmentTotalPriceString = installmentsInfo.CommitmentTotalPriceString;
+            Purchases.BillingPlanType? billingPlanType = installmentsInfo.BillingPlanType;
         }
     }
 }

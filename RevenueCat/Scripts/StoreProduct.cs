@@ -157,6 +157,16 @@ public partial class Purchases
         /// </summary>
         /// <returns></returns>
         [CanBeNull] public readonly string SubscriptionPeriod;
+
+        /// <summary>
+        /// Describes the billing plan that a user is committing to when they purchase a subscription.
+        /// This will be present when a product uses a non-upFront billing plan.
+        /// Always null on Android, when using StoreKit 1, or when running on iOS <26.4.
+        /// For Play Store installment subscriptions, use the OptionInstallmentsInfo of the DefaultOption or
+        /// SubscriptionOptions instead.
+        /// </summary>
+        /// <returns></returns>
+        [CanBeNull] public readonly SubscriptionOption.InstallmentsInfo InstallmentsInfo;
             
         public StoreProduct(JSONNode response)
         {
@@ -226,6 +236,12 @@ public partial class Purchases
                 }
                 Discounts = temporaryList.ToArray();
             }
+
+            var installmentsInfoNode = response["installmentsInfo"];
+            if (installmentsInfoNode != null && !installmentsInfoNode.IsNull)
+            {
+                InstallmentsInfo = new SubscriptionOption.InstallmentsInfo(installmentsInfoNode);
+            }
         }
 
         public override string ToString()
@@ -249,7 +265,8 @@ public partial class Purchases
                    $"{nameof(SubscriptionOptions)}: {SubscriptionOptions}\n" +
                    $"{nameof(IntroductoryPrice)}: {IntroductoryPrice}\n" +
                    $"{nameof(Discounts)}: {Discounts}\n" +
-                   $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}";
+                   $"{nameof(SubscriptionPeriod)}: {SubscriptionPeriod}\n" +
+                   $"{nameof(InstallmentsInfo)}: {InstallmentsInfo}";
         }
     }
 }
