@@ -50,6 +50,12 @@ public static class RevenueCatDependencyManagerInstaller
         SessionState.SetBool(SessionKey, true);
 
 #if UNITY_2022_3_OR_NEWER
+        if (!IsSupportedEditor())
+        {
+            LogUnsupportedEditor();
+            return;
+        }
+
         if (Application.isBatchMode)
         {
             Debug.LogWarning($"RevenueCat: no External Dependency Manager found. Add \"{UnityEdmPackage}\": \"{UnityEdmVersion}\" " +
@@ -62,11 +68,34 @@ public static class RevenueCatDependencyManagerInstaller
         _addRequest = Client.Add($"{UnityEdmPackage}@{UnityEdmVersion}");
         EditorApplication.update += PollAddRequest;
 #else
-        Debug.LogError("RevenueCat: no External Dependency Manager found. Unity's External Dependency Manager requires " +
-                       "Unity 2022.3.33 or newer. Upgrade Unity, or import Google's EDM4U 1.2.190 " +
-                       "(https://github.com/googlesamples/unity-jar-resolver) before building.");
+        LogUnsupportedEditor();
 #endif
     }
+
+    private static void LogUnsupportedEditor()
+    {
+        Debug.LogError($"RevenueCat: no External Dependency Manager found, and Unity's External Dependency Manager requires " +
+                       $"Unity 2022.3.33 or newer (this editor is {Application.unityVersion}). The RevenueCat SDK requires " +
+                       "Unity 2022.3.33 or newer; please upgrade Unity.");
+    }
+
+#if UNITY_2022_3_OR_NEWER
+    // Unity has no patch-level define symbol, and 2022.3.0 to 2022.3.32 lack the PackageInfo APIs Unity's EDM uses.
+    private static bool IsSupportedEditor()
+    {
+        var parts = Application.unityVersion.Split('.');
+        if (parts.Length < 3 || !int.TryParse(parts[0], out var major) || !int.TryParse(parts[1], out var minor))
+        {
+            return true;
+        }
+        if (major != 2022 || minor != 3)
+        {
+            return true;
+        }
+        var patchDigits = new string(parts[2].TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(patchDigits, out var patch) && patch >= 33;
+    }
+#endif
 
     private static bool IsAnyDependencyManagerPresent()
     {

@@ -102,7 +102,7 @@ Refer to `fastlane/README.md` for fastlane actions
 
 | Platform | Minimum Version |
 |----------|-----------------|
-| Unity | 2022.3.33+ (2021.3 only via `.unitypackage` with EDM4U) |
+| Unity | 2022.3.33+ |
 | iOS | 13.0+ |
 | Android | API 21+ |
 | Play Billing Library | 8.0.0+ |
