@@ -567,7 +567,7 @@ jobs:
 
   run-maestro-e2e-tests-ios:
     macos:
-      xcode: 26.3.0
+      xcode: 26.6
     resource_class: m4pro.medium
     steps:
       - checkout
