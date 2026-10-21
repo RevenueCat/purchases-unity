@@ -188,14 +188,6 @@ if [ -d "Assets/RevenueCatAdMob" ]; then
     verbose_echo "Removing .DS_Store files from RevenueCatAdMob"
     find Assets/RevenueCatAdMob -name ".DS_Store" -type f -delete 2>/dev/null
 fi
-if [ -d "Assets/PlayServicesResolver" ]; then
-    FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/PlayServicesResolver"
-    verbose_echo "Found PlayServicesResolver folder"
-fi  
-if [ -d "Assets/ExternalDependencyManager" ]; then
-    FOLDERS_TO_EXPORT="$FOLDERS_TO_EXPORT Assets/ExternalDependencyManager"
-    verbose_echo "Found ExternalDependencyManager folder"
-fi
 cd - > /dev/null
 
 echo "📁 Folders to export: $FOLDERS_TO_EXPORT"
@@ -219,7 +211,7 @@ if [ -z "$UNITY_BIN" ]; then
     echo "Usage: ./scripts/create-unity-package.sh -u <unity_path> [-v]"
     echo "  -u <unity_path>  Path to Unity binary"
     echo "  -v              Enable verbose output"
-    echo "Note: This script is optimized for Unity 6.2 (6000.2.x) but should work with Unity 2021.3+ versions"
+    echo "Note: This script is optimized for Unity 6.2 (6000.2.x) but should work with Unity 2022.3+ versions"
     rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" "$PROJECT/Assets/RevenueCatAdMob" 2>/dev/null
     exit 1
 fi
@@ -232,49 +224,6 @@ if [ ! -x "$UNITY_BIN" ]; then
     exit 1
 fi
 verbose_echo "Unity binary verified successfully"
-
-if [ -d "$PROJECT/Assets/PlayServicesResolver" ]; then
-    verbose_echo "PlayServicesResolver folder found in assets. It will be deleted and reimported."
-    verbose_echo "Removing existing PlayServicesResolver folder"
-    rm -rf $PROJECT/Assets/PlayServicesResolver
-fi
-
-if [ -d "$PROJECT/Assets/ExternalDependencyManager" ]; then
-    verbose_echo "ExternalDependencyManager folder found in assets. It will be deleted and reimported."
-    verbose_echo "Removing existing ExternalDependencyManager folder"
-    rm -rf $PROJECT/Assets/ExternalDependencyManager
-fi
-
-if [ -f $PROJECT/external-dependency-manager-*.unitypackage ]; then
-    verbose_echo "External dependency manager plugin found. It will be added to the unitypackage."
-    verbose_echo "Using existing External Dependency Manager package"
-else
-    echo "⬇️ Downloading External Dependency Manager..."
-    EDM_URL="https://github.com/googlesamples/unity-jar-resolver/raw/master/external-dependency-manager-latest.unitypackage"
-    EDM_FILE="$PROJECT/external-dependency-manager-latest.unitypackage"
-    
-    verbose_echo "Download URL: $EDM_URL"
-    verbose_echo "Download destination: $EDM_FILE"
-    
-    # Try wget first (more reliable in CI), fallback to curl
-    if command -v wget >/dev/null 2>&1; then
-        verbose_echo "Using wget to download External Dependency Manager"
-        wget "$EDM_URL" -O "$EDM_FILE"
-    elif command -v curl >/dev/null 2>&1; then
-        verbose_echo "Using curl to download External Dependency Manager"
-        curl -L "$EDM_URL" -o "$EDM_FILE"
-    else
-        echo "❌ Neither wget nor curl found. Please install one of them."
-        rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" "$PROJECT/Assets/RevenueCatAdMob" 2>/dev/null
-        exit 1
-    fi
-    
-    if [ ! -f "$EDM_FILE" ]; then
-        echo "❌ Failed to download External Dependency Manager"
-        rm -rf "$PROJECT/Assets/RevenueCat" "$PROJECT/Assets/RevenueCatUI" "$PROJECT/Assets/RevenueCatAdMob" 2>/dev/null
-        exit 1
-    fi
-fi
 
 if [ -f $PACKAGE ]; then
     verbose_echo "Old package found. Removing it."
@@ -293,29 +242,26 @@ echo "📦 Creating Purchases.unitypackage, this may take a minute."
 
 # Unity 6.2+ optimizations:
 # -disable-assembly-updater: Speeds up package creation by skipping assembly updates
-# -gvh_disable: Required for External Dependency Manager compatibility
 verbose_echo "Starting Unity package creation process..."
 if [ ! -z "$CI" ] ; then
     verbose_echo "Running Unity in CI mode with xvfb-run"
-    verbose_echo "Unity command: xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable -nographics -silent-crashes -projectPath $PROJECT -force-free -quit -batchmode -logFile /dev/stdout -disable-assembly-updater -importPackage $PROJECT/external-dependency-manager-latest.unitypackage -exportPackage $FOLDERS_TO_EXPORT $PACKAGE"
-    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
+    verbose_echo "Unity command: xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -nographics -silent-crashes -projectPath $PROJECT -force-free -quit -batchmode -logFile /dev/stdout -disable-assembly-updater -exportPackage $FOLDERS_TO_EXPORT $PACKAGE"
+    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN \
     -nographics \
     -silent-crashes \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile /dev/stdout \
     -disable-assembly-updater \
-    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
     UNITY_EXIT_CODE=$?
 else
     verbose_echo "Running Unity in local mode"
-    verbose_echo "Unity command: $UNITY_BIN -gvh_disable -nographics -projectPath $PROJECT -force-free -quit -batchmode -logFile exportlog.txt -disable-assembly-updater -importPackage $PROJECT/external-dependency-manager-latest.unitypackage -exportPackage $FOLDERS_TO_EXPORT $PACKAGE"
-    $UNITY_BIN -gvh_disable \
+    verbose_echo "Unity command: $UNITY_BIN -nographics -projectPath $PROJECT -force-free -quit -batchmode -logFile exportlog.txt -disable-assembly-updater -exportPackage $FOLDERS_TO_EXPORT $PACKAGE"
+    $UNITY_BIN \
     -nographics \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile exportlog.txt \
     -disable-assembly-updater \
-    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $FOLDERS_TO_EXPORT $PACKAGE
     UNITY_EXIT_CODE=$?
 fi
@@ -340,23 +286,21 @@ echo "📦 Creating PurchasesUI.unitypackage, this may take a minute."
 verbose_echo "Starting Unity package creation process for UI..."
 if [ ! -z "$CI" ] ; then
     verbose_echo "Running Unity in CI mode with xvfb-run for UI package"
-    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
+    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN \
     -nographics \
     -silent-crashes \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile /dev/stdout \
     -disable-assembly-updater \
-    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $UI_FOLDERS_TO_EXPORT $UI_PACKAGE
     UI_UNITY_EXIT_CODE=$?
 else
     verbose_echo "Running Unity in local mode for UI package"
-    $UNITY_BIN -gvh_disable \
+    $UNITY_BIN \
     -nographics \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile exportlog.txt \
     -disable-assembly-updater \
-    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $UI_FOLDERS_TO_EXPORT $UI_PACKAGE
     UI_UNITY_EXIT_CODE=$?
 fi
