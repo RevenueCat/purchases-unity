@@ -69,6 +69,17 @@ namespace RevenueCat.Tests
             Assert.That(invocation.Arguments[15], Is.False);
         }
 
+        [Test]
+        public void InspectorConfigureForwardsPendingTransactionsForPrepaidPlansEnabled()
+        {
+            _purchases.pendingTransactionsForPrepaidPlansEnabled = true;
+
+            _purchases.Configure((string)null);
+
+            var invocation = AssertOnlyInvocation(nameof(IPurchasesWrapper.Setup), 16);
+            Assert.That(invocation.Arguments[10], Is.True);
+        }
+
         private PurchasesWrapperSpy.Invocation AssertOnlyInvocation(string method, int argumentCount)
         {
             Assert.That(_wrapper.Invocations, Has.Count.EqualTo(1));
