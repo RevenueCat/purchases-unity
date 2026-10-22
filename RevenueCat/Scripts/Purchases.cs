@@ -125,7 +125,7 @@ public partial class Purchases : MonoBehaviour
         GetProducts(productIdentifiers, null);
     }
 
-    private void Configure(string newUserId)
+    internal void Configure(string newUserId)
     {
         var apiKey = "";
 
@@ -151,7 +151,8 @@ public partial class Purchases : MonoBehaviour
             .SetDangerousSettings(dangerousSettings)
             .SetStoreKitVersion(storeKitVersion)
             .SetShouldShowInAppMessagesAutomatically(shouldShowInAppMessagesAutomatically)
-            .SetEntitlementVerificationMode(entitlementVerificationMode);
+            .SetEntitlementVerificationMode(entitlementVerificationMode)
+            .SetPendingTransactionsForPrepaidPlansEnabled(pendingTransactionsForPrepaidPlansEnabled);
 
         Configure(builder.Build());
     }

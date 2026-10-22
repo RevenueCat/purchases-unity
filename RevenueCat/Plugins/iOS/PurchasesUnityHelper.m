@@ -102,7 +102,7 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
     if (error) {
         NSLog(@"Error parsing dangerousSettings JSON: %@ %@", dangerousSettingsJson, error.localizedDescription);
     } else {
-        BOOL autoSyncPurchases = dangerousSettingsDict[@"AutoSyncPurchases"];
+        BOOL autoSyncPurchases = [dangerousSettingsDict[@"AutoSyncPurchases"] boolValue];
         dangerousSettings = [[RCDangerousSettings alloc] initWithAutoSyncPurchases:autoSyncPurchases];
     }
 
