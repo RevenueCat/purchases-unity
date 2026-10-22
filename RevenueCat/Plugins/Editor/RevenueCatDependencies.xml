@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dependencies>
     <androidPackages>
-        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[19.14.1]" />
+        <!-- TODO: remove the purchases-hybrid-common 20.0.0-SNAPSHOT pin and its repository before merging. -->
+        <androidPackage spec="com.revenuecat.purchases:purchases-hybrid-common:[20.0.0-SNAPSHOT]">
+            <repositories>
+                <repository>https://central.sonatype.com/repository/maven-snapshots/</repository>
+            </repositories>
+        </androidPackage>
         <androidPackage spec="androidx.annotation:annotation:[1.2.0]" />
     </androidPackages>
     <remoteSwiftPackage url="https://github.com/RevenueCat/purchases-hybrid-common.git" version="19.14.1">

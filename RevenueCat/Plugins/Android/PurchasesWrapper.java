@@ -355,6 +355,8 @@ public class PurchasesWrapper {
         });
     }
 
+    // Only reached from the obsolete SyncObserverModeAmazonPurchase.
+    @SuppressWarnings("deprecation")
     public static void syncAmazonPurchase(
             String productID,
             String receiptID,
@@ -364,6 +366,18 @@ public class PurchasesWrapper {
     ) {
         Purchases.getSharedInstance().syncAmazonPurchase(productID, receiptID,
                 amazonUserID, isoCurrencyCode, price);
+    }
+
+    public static void syncAmazonPurchase(
+            String productID,
+            String receiptID,
+            String amazonUserID,
+            String isoCurrencyCode,
+            double price,
+            long purchaseTime
+    ) {
+        Purchases.getSharedInstance().syncAmazonPurchase(productID, receiptID,
+                amazonUserID, isoCurrencyCode, price, purchaseTime);
     }
 
     public static void getAmazonLWAConsentStatus() {
