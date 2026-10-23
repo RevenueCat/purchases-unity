@@ -294,6 +294,7 @@ public class PaywallViewPresenter {
 
         paywallView.setDisplayDismissButton(displayCloseButton);
         paywallView.setPaywallListener(createPaywallListener(hasPaywallListener));
+        setupExitOfferHandler(paywallView);
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
                 if (currentDialog != null) {
@@ -338,6 +339,33 @@ public class PaywallViewPresenter {
         }
 
         return paywallView;
+    }
+
+    /**
+     * When the paywall is closed and an exit offer should be presented, shows the exit offering in the same
+     * PaywallView instead of dismissing. This mirrors PaywallActivity, which launches the exit offering's paywall
+     * when the original one is closed without a purchase. The handler stays set, so exit offers can chain as they
+     * do there.
+     *
+     * The same PaywallView is re-targeted rather than replaced: the Dialog's window has no lifecycle owner, so
+     * PaywallView installs its own, and a second PaywallView added after the first is removed renders but never
+     * recomposes or receives input.
+     */
+    private static void setupExitOfferHandler(PaywallView paywallView) {
+        paywallView.setExitOfferHandler(exitOffering -> {
+            // Posted so the paywall isn't re-targeted from inside its own close callback.
+            paywallView.post(() -> {
+                if (currentDialog == null) {
+                    return;
+                }
+                // The exit paywall's outcome is the presentation's result, as with PaywallActivity.
+                lastResult = RESULT_CANCELLED;
+                String exitOfferingId = exitOffering.getIdentifier();
+                // PaywallActivity drops the presented offering context for the exit offering.
+                paywallView.setOfferingId(exitOfferingId, new PresentedOfferingContext(exitOfferingId));
+            });
+            return Unit.INSTANCE;
+        });
     }
 
     // When forwarding events, FLAG_NOT_FOCUSABLE is set on the dialog while a purchase
