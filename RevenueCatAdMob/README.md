@@ -4,7 +4,7 @@ Connects the [Google Mobile Ads Unity plugin](https://developers.google.com/admo
 
 ## Installation
 
-Install `com.revenuecat.purchases-unity`, the Google Mobile Ads plugin (`com.google.ads.mobile` 10.x or newer, from OpenUPM or the `.unitypackage`) and this package (`com.revenuecat.purchases-admob-unity`). The adapter references the plugin's `GoogleMobileAds.dll`, so it compiles wherever the plugin lives.
+Install `com.revenuecat.purchases-unity`, the Google Mobile Ads plugin (`com.google.ads.mobile` 10.x or newer, from OpenUPM or the `.unitypackage`; 11.6.0 or newer when installed through the Package Manager, so that it shares Unity's External Dependency Manager with this package) and this package (`com.revenuecat.purchases-admob-unity`). The adapter references the plugin's `GoogleMobileAds.dll`, so it compiles wherever the plugin lives.
 
 ```csharp
 using RevenueCat.AdMob;
@@ -65,5 +65,5 @@ _rewarded.ShowWithRewardVerification(
 ## Requirements
 
 * iOS 15.0+ (ad tracking is unavailable below that; calls are ignored with a warning)
-* Google Mobile Ads Unity plugin 10.x+
+* Google Mobile Ads Unity plugin 10.x+ (11.6.0+ when installed through the Package Manager)
 * `com.revenuecat.purchases-unity` 9.14.0+
