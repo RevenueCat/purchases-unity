@@ -311,7 +311,7 @@ jobs:
           path: PurchasesAdMob.unitypackage
 
   build-subtester-android:
-    resource_class: large
+    resource_class: xlarge
     executor: unity-android
     steps:
       - checkout
