@@ -76,7 +76,9 @@ Google has deprecated the External Dependency Manager for Unity (EDM4U) and will
 
 - If you install the plugin through the Unity Package Manager or OpenUPM, Unity's External Dependency Manager is now a dependency of the package and is installed automatically.
 - If you install the plugin from `Purchases.unitypackage`, Google's EDM4U is no longer bundled. On first import, if the project has no dependency manager, the plugin installs Unity's External Dependency Manager through the Package Manager.
-- If your project already uses Google's EDM4U (on its own or through another plugin), you can keep using it. Nothing changes until you decide to migrate.
+- If your project already uses Google's EDM4U through a `.unitypackage` (on its own or through another plugin), you can keep using it: the plugin does not install Unity's External Dependency Manager while EDM4U is present.
+- If you install the plugin through the Unity Package Manager into a project that already has EDM4U, both managers end up installed and the Editor asks which one to use. Select `Close` to keep EDM4U, or `Use Unity's External Dependency Manager` to migrate. In batch mode there is no prompt and EDM4U stays active.
+- The Google Mobile Ads plugin (`com.google.ads.mobile`) depends on EDM4U up to 11.5.0 and on Unity's External Dependency Manager from 11.6.0. If you use it through the Package Manager, upgrade it to 11.6.0 or newer to keep a single dependency manager.
 
 To migrate an existing project from EDM4U:
 
