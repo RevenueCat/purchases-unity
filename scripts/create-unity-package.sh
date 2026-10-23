@@ -325,23 +325,21 @@ echo "📦 Creating PurchasesAdMob.unitypackage, this may take a minute."
 verbose_echo "Starting Unity package creation process for AdMob..."
 if [ ! -z "$CI" ] ; then
     verbose_echo "Running Unity in CI mode with xvfb-run for AdMob package"
-    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN -gvh_disable \
+    xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' $UNITY_BIN \
     -nographics \
     -silent-crashes \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile /dev/stdout \
     -disable-assembly-updater \
-    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $ADMOB_FOLDERS_TO_EXPORT $ADMOB_PACKAGE
     ADMOB_UNITY_EXIT_CODE=$?
 else
     verbose_echo "Running Unity in local mode for AdMob package"
-    $UNITY_BIN -gvh_disable \
+    $UNITY_BIN \
     -nographics \
     -projectPath $PROJECT \
     -force-free -quit -batchmode -logFile exportlog.txt \
     -disable-assembly-updater \
-    -importPackage $PROJECT/external-dependency-manager-latest.unitypackage \
     -exportPackage $ADMOB_FOLDERS_TO_EXPORT $ADMOB_PACKAGE
     ADMOB_UNITY_EXIT_CODE=$?
 fi
