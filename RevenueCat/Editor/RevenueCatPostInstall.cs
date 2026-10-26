@@ -16,13 +16,15 @@ public static class XcodeSwiftVersionPostProcess
     // so without this phase the bundles never reach the app and RevenueCatUI's Bundle.module
     // lookup hits a fatalError when a paywall is presented. CocoaPods builds its bundles in
     // per-pod directories, so nothing matches there.
+    // Archive products are symlinks: dereference them so the app contains the actual resources.
     private const string CopyResourceBundlesScript =
+        "set -e\n" +
         "for bundle in \"${BUILT_PRODUCTS_DIR}\"/RevenueCat_*.bundle; do\n" +
         "  [ -d \"$bundle\" ] || continue\n" +
-        "  rsync -a --delete \"$bundle\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n" +
+        "  rsync -aL --delete \"$bundle\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n" +
         "  if [ \"$ACTION\" = \"install\" ]; then\n" +
         "    mkdir -p \"${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\n" +
-        "    rsync -a --delete \"$bundle\" \"${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n" +
+        "    rsync -aL --delete \"$bundle\" \"${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n" +
         "  fi\n" +
         "done\n";
 

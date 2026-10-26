@@ -167,10 +167,11 @@ lane :xcode_build_maestro_test_app do
   # RevenueCatPostInstall adds the phase that embeds these. Without RevenueCat_RevenueCatUI
   # the app dies the moment a paywall is presented, so fail here rather than in Maestro.
   missing = ["RevenueCat_RevenueCat.bundle", "RevenueCat_RevenueCatUI.bundle"].reject do |bundle|
-    File.directory?("#{app_path}/#{bundle}")
+    bundle_path = "#{app_path}/#{bundle}"
+    File.directory?(bundle_path) && !File.symlink?(bundle_path)
   end
   unless missing.empty?
-    UI.user_error!("Swift package resource bundles missing from #{app_path}: #{missing.join(', ')}")
+    UI.user_error!("Swift package resource bundles missing or symlinked in #{app_path}: #{missing.join(', ')}")
   end
 end
 
