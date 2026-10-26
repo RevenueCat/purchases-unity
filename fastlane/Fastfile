@@ -15,7 +15,8 @@ files_with_version_number = {
     './RevenueCat/Plugins/iOS/PurchasesUnityHelper.m' => ['return @"{x}"'],
     './RevenueCat/Plugins/Android/PurchasesWrapper.java' => ['PLUGIN_VERSION = "{x}"'],
     './RevenueCat/package.json' => ['"version": "{x}"'],
-    './RevenueCatUI/package.json' => ['"version": "{x}"']
+    './RevenueCatUI/package.json' => ['"version": "{x}"'],
+    './RevenueCatAdMob/package.json' => ['"version": "{x}"']
 }
 ANDROID_PHC_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common:[{x}]'
 ANDROID_PHC_UI_DEPENDENCY_PATTERN = 'com.revenuecat.purchases:purchases-hybrid-common-ui:[{x}]'
@@ -101,7 +102,7 @@ lane :github_release do |options|
     repo_name: repo_name,
     github_api_token: ENV["GITHUB_TOKEN"],
     changelog_latest_path: changelog_latest_path,
-    upload_assets: ['Purchases.unitypackage', 'PurchasesUI.unitypackage']
+    upload_assets: ['Purchases.unitypackage', 'PurchasesUI.unitypackage', 'PurchasesAdMob.unitypackage']
   )
 end
 

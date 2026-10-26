@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@4.6.2
+  revenuecat: revenuecat/sdks-common-config@4.7.0
   unity: game-ci/unity@1.7.1
   android: circleci/android@3.0.2
 
@@ -320,12 +320,16 @@ jobs:
           paths:
             - Purchases.unitypackage
             - PurchasesUI.unitypackage
+            - PurchasesAdMob.unitypackage
 
       - store_artifacts:
           path: Purchases.unitypackage
 
       - store_artifacts:
           path: PurchasesUI.unitypackage
+
+      - store_artifacts:
+          path: PurchasesAdMob.unitypackage
 
   build-subtester-android:
     resource_class: large
@@ -608,7 +612,7 @@ jobs:
 
   run-maestro-e2e-tests-ios:
     macos:
-      xcode: 26.3.0
+      xcode: 26.6
     resource_class: m4pro.medium
     steps:
       - checkout
@@ -616,20 +620,13 @@ jobs:
           at: .
       - install-bundle-dependencies
       - run:
-          name: Install Java for Maestro
+          name: Point JAVA_HOME at the image's JDK
+          # The project environment sets JAVA_HOME to a path that doesn't exist on macOS images.
           command: |
-            # `brew install` exits non-zero when a dependency's post-install step fails
-            # (glib's does on this image) even though openjdk@17 itself installs fine, so
-            # don't let that abort the step. The `java -version` check below is what
-            # actually verifies the JDK is usable.
-            brew install openjdk@17 || echo "brew install exited non-zero, verifying the JDK anyway"
-            # openjdk@17 is keg-only, so point JAVA_HOME at the keg directly instead
-            # of symlinking into /Library/Java/JavaVirtualMachines (which doesn't
-            # necessarily exist on the runner) and resolving it via java_home.
-            JAVA_HOME="$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home"
+            unset JAVA_HOME
+            JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | awk -F' = ' '/java.home/ {print $2}')"
             "$JAVA_HOME/bin/java" -version
             echo "export JAVA_HOME=$JAVA_HOME" >> "$BASH_ENV"
-            echo "export PATH=$JAVA_HOME/bin:\$PATH" >> "$BASH_ENV"
       - revenuecat/install-maestro
       - run:
           name: Boot iOS Simulator

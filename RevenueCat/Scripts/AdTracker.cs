@@ -63,6 +63,28 @@ namespace RevenueCat
             public static bool operator !=(Precision a, Precision b) => !Equals(a, b);
         }
 
+        /// <summary>
+        /// Identifies how an ad event was captured.
+        /// Official RevenueCat ad-network adapters set this value automatically.
+        /// When creating and tracking ad event data directly, leave it unset.
+        /// </summary>
+        internal sealed class CaptureMethod
+        {
+            internal string Value { get; }
+
+            private CaptureMethod(string value)
+            {
+                Value = value;
+            }
+
+            internal static readonly CaptureMethod UnityAdMobAdapter = new CaptureMethod("unity_admob_adapter");
+
+            public override bool Equals(object obj) => obj is CaptureMethod other && other.Value == Value;
+            public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+            public static bool operator ==(CaptureMethod a, CaptureMethod b) => Equals(a, b);
+            public static bool operator !=(CaptureMethod a, CaptureMethod b) => !Equals(a, b);
+        }
+
         private readonly IPurchasesWrapper _wrapper;
 
         internal AdTracker(IPurchasesWrapper wrapper)
@@ -75,6 +97,7 @@ namespace RevenueCat
         public void TrackAdRevenue(AdRevenueData data) => _wrapper.TrackAdRevenue(data);
         public void TrackAdLoaded(AdLoadedData data) => _wrapper.TrackAdLoaded(data);
         public void TrackAdFailedToLoad(AdFailedToLoadData data) => _wrapper.TrackAdFailedToLoad(data);
+        public void TrackAdRewardEarnedUnverified(AdRewardEarnedUnverifiedData data) => _wrapper.TrackAdRewardEarnedUnverified(data);
         public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) => _wrapper.TrackRewardedAdPromptShown(data);
         public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) => _wrapper.TrackRewardedAdPromptAccepted(data);
     }

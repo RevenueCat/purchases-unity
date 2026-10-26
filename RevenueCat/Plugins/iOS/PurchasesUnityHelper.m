@@ -102,7 +102,7 @@ purchasesAreCompletedBy:(NSString *)purchasesAreCompletedBy
     if (error) {
         NSLog(@"Error parsing dangerousSettings JSON: %@ %@", dangerousSettingsJson, error.localizedDescription);
     } else {
-        BOOL autoSyncPurchases = dangerousSettingsDict[@"AutoSyncPurchases"];
+        BOOL autoSyncPurchases = [dangerousSettingsDict[@"AutoSyncPurchases"] boolValue];
         dangerousSettings = [[RCDangerousSettings alloc] initWithAutoSyncPurchases:autoSyncPurchases];
     }
 
@@ -693,6 +693,20 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
+- (void)trackAdRewardEarnedUnverified:(NSString *)dataJson {
+    NSError *error = nil;
+    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (error) {
+        NSLog(@"[Purchases] trackAdRewardEarnedUnverified: JSON parse error: %@", error.localizedDescription);
+        return;
+    }
+    if (@available(iOS 15.0, tvOS 15.0, macOS 12.0, watchOS 8.0, *)) {
+        [RCCommonFunctionality trackAdRewardEarnedUnverified:data];
+    } else {
+        NSLog(@"[Purchases] trackAdRewardEarnedUnverified: requires iOS 15.0+, skipping");
+    }
+}
+
 - (void)trackRewardedAdPromptShown:(NSString *)dataJson {
     NSError *error = nil;
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[dataJson dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
@@ -881,7 +895,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (NSString *)platformFlavorVersion {
-    return @"9.12.0";
+    return @"9.15.0";
 }
 
 @end
@@ -1286,6 +1300,10 @@ void _RCTrackAdLoaded(const char *dataJson) {
 
 void _RCTrackAdFailedToLoad(const char *dataJson) {
     [_RCUnityHelperShared() trackAdFailedToLoad:convertCString(dataJson)];
+}
+
+void _RCTrackAdRewardEarnedUnverified(const char *dataJson) {
+    [_RCUnityHelperShared() trackAdRewardEarnedUnverified:convertCString(dataJson)];
 }
 
 void _RCTrackRewardedAdPromptShown(const char *dataJson) {
