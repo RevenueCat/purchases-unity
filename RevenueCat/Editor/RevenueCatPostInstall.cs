@@ -10,25 +10,77 @@ using UnityEditor.iOS.Xcode;
 public static class XcodeSwiftVersionPostProcess
 {
     private const string CopyResourceBundlesPhaseName = "[RevenueCat] Copy Swift Package Resource Bundles";
+    private const string CopyResourceBundlesFileName = "RevenueCatCopySwiftPackageResources.sh";
+    private const string CopyResourceBundlesPhaseScript = "/bin/sh \"$SRCROOT/" + CopyResourceBundlesFileName + "\"";
 
-    // Xcode embeds a Swift package's resource bundles only into an application target linked
-    // against the package. The dependency manager links our packages against UnityFramework,
-    // so without this phase the bundles never reach the app and RevenueCatUI's Bundle.module
-    // lookup hits a fatalError when a paywall is presented. CocoaPods builds its bundles in
-    // per-pod directories, so nothing matches there.
-    // Archive products are symlinks: dereference them so the app contains the actual resources.
-    private const string CopyResourceBundlesScript =
-        "set -e\n" +
-        "for bundle in \"${BUILT_PRODUCTS_DIR}\"/RevenueCat_*.bundle; do\n" +
-        "  [ -d \"$bundle\" ] || continue\n" +
-        "  rsync -aL --delete \"$bundle\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n" +
-        "  if [ \"$ACTION\" = \"install\" ]; then\n" +
-        "    mkdir -p \"${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\n" +
-        "    rsync -aL --delete \"$bundle\" \"${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n" +
-        "  fi\n" +
-        "done\n";
+    // Unity links packages to UnityFramework, so Xcode does not embed their resources in the app.
+    // Inspect its active package products instead of copying stale bundles left in build products.
+    // Archive products can be symlinks; rsync must dereference them.
+    private const string CopyResourceBundlesScript = @"set -e
 
-    // set callbackOrder to 999 to ensure this runs as the last post process step
+project_file=""${PROJECT_FILE_PATH}/project.pbxproj""
+# Read the final project at build time: other post-processors may add packages after ours.
+core=false
+ui=false
+for target in __UNITY_FRAMEWORK_GUID__ __UNITY_MAIN_GUID__; do
+  /usr/libexec/PlistBuddy -c ""Print :objects:${target}:isa"" ""$project_file"" >/dev/null
+  index=0
+  while product=$(/usr/libexec/PlistBuddy -c ""Print :objects:${target}:packageProductDependencies:${index}"" ""$project_file"" 2>/dev/null); do
+    name=$(/usr/libexec/PlistBuddy -c ""Print :objects:${product}:productName"" ""$project_file"")
+    case ""$name"" in
+      PurchasesHybridCommon|RevenueCat) core=true ;;
+      PurchasesHybridCommonUI|RevenueCatUI) core=true; ui=true ;;
+    esac
+    index=$((index + 1))
+  done
+done
+bundles=""""
+if [ ""$core"" = true ]; then bundles=""RevenueCat_RevenueCat.bundle""; fi
+if [ ""$ui"" = true ]; then bundles=""$bundles RevenueCat_RevenueCatUI.bundle""; fi
+
+app_resources=""${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}""
+manifest=""${TARGET_TEMP_DIR}/RevenueCatCopiedResourceBundles.txt""
+mkdir -p ""$TARGET_TEMP_DIR""
+# Record bundle identifiers so cleanup preserves any replacement copied by CocoaPods.
+: > ""${manifest}.tmp""
+for bundle in $bundles; do
+  source=""${BUILT_PRODUCTS_DIR}/${bundle}""
+  identifier=$(/usr/libexec/PlistBuddy -c ""Print :CFBundleIdentifier"" ""$source/Info.plist"")
+  printf '%s|%s\n' ""$bundle"" ""$identifier"" >> ""${manifest}.tmp""
+done
+
+remove_previous_bundle() {
+  destination=""$1/$bundle""
+  current_identifier=$(/usr/libexec/PlistBuddy -c ""Print :CFBundleIdentifier"" ""$destination/Info.plist"" 2>/dev/null || true)
+  if [ -n ""$identifier"" ] && [ ""$current_identifier"" = ""$identifier"" ]; then
+    rm -rf ""$destination""
+  fi
+}
+if [ -f ""$manifest"" ]; then
+  while IFS='|' read -r bundle identifier; do
+    case ""$bundle"" in
+      RevenueCat_RevenueCat.bundle|RevenueCat_RevenueCatUI.bundle) ;;
+      *) continue ;;
+    esac
+    case "" $bundles "" in *"" $bundle ""*) continue ;; esac
+    remove_previous_bundle ""$app_resources""
+    if [ ""$ACTION"" = install ]; then
+      remove_previous_bundle ""${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}""
+    fi
+  done < ""$manifest""
+fi
+# Keep ownership information even if a subsequent copy fails partway through.
+mv ""${manifest}.tmp"" ""$manifest""
+for bundle in $bundles; do
+  rsync -aL --delete ""${BUILT_PRODUCTS_DIR}/${bundle}"" ""$app_resources/""
+  if [ ""$ACTION"" = install ]; then
+    mkdir -p ""${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}""
+    rsync -aL --delete ""${BUILT_PRODUCTS_DIR}/${bundle}"" ""${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/""
+  fi
+done
+";
+
+    // Run after the dependency manager has updated the Xcode project.
     [PostProcessBuild(999)]
     public static void OnPostProcessBuild(BuildTarget buildTarget, string path)
     {
@@ -80,13 +132,19 @@ public static class XcodeSwiftVersionPostProcess
         var project = new PBXProject();
         project.ReadFromFile(projPath);
 
+        // Refresh the exported script on every build while keeping the phase itself stable.
+        string script = CopyResourceBundlesScript
+            .Replace("__UNITY_FRAMEWORK_GUID__", project.GetUnityFrameworkTargetGuid())
+            .Replace("__UNITY_MAIN_GUID__", project.GetUnityMainTargetGuid());
+        File.WriteAllText(Path.Combine(path, CopyResourceBundlesFileName), script);
+
         string mainTargetGuid = project.GetUnityMainTargetGuid();
         // Appending to an existing export keeps the phases from the previous build.
-        if (project.GetShellScriptBuildPhaseForTarget(mainTargetGuid, CopyResourceBundlesPhaseName, "/bin/sh", CopyResourceBundlesScript) != null)
+        if (project.GetShellScriptBuildPhaseForTarget(mainTargetGuid, CopyResourceBundlesPhaseName, "/bin/sh", CopyResourceBundlesPhaseScript) != null)
         {
             return;
         }
-        project.AddShellScriptBuildPhase(mainTargetGuid, CopyResourceBundlesPhaseName, "/bin/sh", CopyResourceBundlesScript);
+        project.AddShellScriptBuildPhase(mainTargetGuid, CopyResourceBundlesPhaseName, "/bin/sh", CopyResourceBundlesPhaseScript);
 
         project.WriteToFile(projPath);
     }

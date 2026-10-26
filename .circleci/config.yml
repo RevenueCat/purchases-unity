@@ -457,6 +457,9 @@ jobs:
       xcode: 16.4.0
     steps:
       - checkout
+      - run:
+          name: Test iOS resource bundle copying
+          command: python3 scripts/test-ios-resource-bundles.py
       - attach_workspace:
           at: .
 
