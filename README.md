@@ -25,6 +25,8 @@ Purchases Unity is a client for the [RevenueCat](https://www.revenuecat.com/) su
 ## Getting Started
 For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/docs/unity).
 
+After switching the iOS dependency manager between Swift Package Manager and CocoaPods, re-export the Xcode project and choose **Product > Clean Build Folder** in Xcode before rebuilding. Also clean after removing RevenueCat UI. This removes resource bundles left over from the previous configuration.
+
 ## Dependencies and Unity IAP
 We use StoreKit for iOS and BillingClient for Android. This plugin also depends on [purchases-ios](https://github.com/RevenueCat/purchases-ios), [purchases-android](https://github.com/RevenueCat/purchases-android) and [purchases-hybrid-common](https://github.com/RevenueCat/purchases-hybrid-common). 
 

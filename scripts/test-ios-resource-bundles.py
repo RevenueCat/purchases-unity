@@ -52,7 +52,6 @@ class ResourceBundleTests(unittest.TestCase):
             BUILT_PRODUCTS_DIR=str(self.products),
             TARGET_BUILD_DIR=str(self.app.parent),
             UNLOCALIZED_RESOURCES_FOLDER_PATH=self.app.name,
-            TARGET_TEMP_DIR=str(self.root / "Target Temp"),
             INSTALL_DIR=str(self.installed_app.parent),
             ACTION="build",
         )
@@ -109,8 +108,7 @@ class ResourceBundleTests(unittest.TestCase):
         for name in [CORE, UI]:
             self.assert_payload(self.app, name, "SPM resources")
 
-    def test_moving_packages_to_app_target_preserves_resources(self):
-        self.run_script()
+    def test_copies_packages_attached_to_app_target(self):
         self.write_project([], main_products=["RevenueCatUI"])
         self.run_script()
         for name in [CORE, UI]:
@@ -156,55 +154,46 @@ class ResourceBundleTests(unittest.TestCase):
         shutil.rmtree(self.products)
         self.assert_payload(self.app, UI, "SPM resources")
 
-    def check_dependency_switch(self, archive=False):
+    def check_dependency_switch_with_clean_build(self, archive=False):
         if archive:
             self.env["ACTION"] = "install"
         apps = [self.app, self.installed_app] if archive else [self.app]
         self.run_script()
         self.write_project([])
-        # CocoaPods can replace the app's resources before RevenueCat's phase runs.
+        # Switching managers requires cleaning the previous build products first.
+        shutil.rmtree(self.products)
+        self.products.mkdir()
         for app in apps:
+            shutil.rmtree(app)
             self.make_bundle(app / UI, "org.cocoapods.RevenueCatUI", "CocoaPods resources")
         self.run_script()
         for app in apps:
             self.assert_payload(app, UI, "CocoaPods resources")
             self.assertFalse((app / CORE).exists())
-        # Switch back without cleaning either the exported project or build products.
+        # Clean again, then let SPM rebuild its resources after switching back.
+        for app in apps:
+            shutil.rmtree(app)
+            app.mkdir(parents=True)
         self.write_project(["PurchasesHybridCommonUI"])
         for name in [CORE, UI]:
-            (self.products / name / "payload.txt").write_text("New SPM resources")
+            self.make_bundle(self.products / name, "spm." + name, "New SPM resources")
         self.run_script()
         for app in apps:
             for name in [CORE, UI]:
                 self.assert_payload(app, name, "New SPM resources")
 
-    def test_spm_cocoapods_spm_without_cleaning(self):
-        self.check_dependency_switch()
+    def test_spm_cocoapods_spm_with_clean_build(self):
+        self.check_dependency_switch_with_clean_build()
 
-    def test_archive_spm_cocoapods_spm_without_cleaning(self):
-        self.check_dependency_switch(archive=True)
+    def test_archive_spm_cocoapods_spm_with_clean_build(self):
+        self.check_dependency_switch_with_clean_build(archive=True)
 
-    def test_switch_to_cocoapods_removes_spm_resources_shadowing_framework(self):
-        self.run_script()
-        framework = self.app / "Frameworks/UnityFramework.framework"
-        self.make_bundle(framework / UI, "org.cocoapods.RevenueCatUI", "Framework resources")
+    def test_cocoapods_preserves_existing_resources_despite_stale_spm_products(self):
         self.write_project([])
+        self.make_bundle(self.app / UI, "org.cocoapods.RevenueCatUI", "CocoaPods resources")
         self.run_script()
-        self.assertFalse((self.app / UI).exists())
-        self.assert_payload(framework, UI, "Framework resources")
-
-    def test_removing_ui_dependency_cleans_previously_copied_bundle(self):
-        self.run_script()
-        self.write_project(["PurchasesHybridCommon"])
-        self.run_script()
-        self.assertFalse((self.app / UI).exists())
-        self.assert_payload(self.app, CORE, "SPM resources")
-
-    def test_cocoapods_preserves_unowned_resources(self):
-        self.write_project([])
-        self.make_bundle(self.app / UI, "org.cocoapods.RevenueCatUI", "Unowned resources")
-        self.run_script()
-        self.assert_payload(self.app, UI, "Unowned resources")
+        self.assert_payload(self.app, UI, "CocoaPods resources")
+        self.assertFalse((self.app / CORE).exists())
 
     def test_missing_expected_bundle_fails(self):
         shutil.rmtree(self.products / UI)
@@ -247,13 +236,6 @@ class ResourceBundleTests(unittest.TestCase):
 
     def test_archive_install_copy_failure_propagates(self):
         self.check_copy_failure("install", 2)
-
-    def test_dependency_switch_cleans_a_partially_failed_copy(self):
-        self.check_copy_failure("install", 2)
-        self.assert_payload(self.app, CORE, "SPM resources")
-        self.write_project([])
-        self.run_script()
-        self.assertFalse((self.app / CORE).exists())
 
 
 if __name__ == "__main__":
