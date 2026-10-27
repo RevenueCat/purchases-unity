@@ -200,6 +200,9 @@ namespace RevenueCat.Tests
         [TestCase("MONTHLY", Purchases.BillingPlanType.MONTHLY)]
         [TestCase("UNKNOWN", Purchases.BillingPlanType.UNKNOWN)]
         [TestCase("SOME_FUTURE_VALUE", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("1", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("UP_FRONT, MONTHLY", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("monthly", Purchases.BillingPlanType.UNKNOWN)]
         public void InstallmentsInfoParsesBillingPlanType(string value, Purchases.BillingPlanType expected)
         {
             var response = JSONNode.Parse(
