@@ -25,6 +25,42 @@ Purchases Unity is a client for the [RevenueCat](https://www.revenuecat.com/) su
 ## Getting Started
 For more detailed information, you can view our complete documentation at [docs.revenuecat.com](https://docs.revenuecat.com/docs/unity).
 
+## Checkpoints (experimental, invite only)
+
+Checkpoints require a configured Purchases instance and a native iOS 15+ or Android build.
+Call them from the Unity main thread. The callback runs once on the Unity main thread when
+the checkpoint passes; backing out, a blocking error, or another checkpoint owning presentation
+does not invoke it. A checkpoint with nothing to present passes with `result.Flow == null`.
+Errors use the SDK's native UI. Custom error presenters are not supported yet.
+
+```csharp
+using System;
+using System.Collections.Generic;
+using RevenueCatUI;
+
+private Action detachCheckpoint;
+
+void Upgrade()
+{
+    detachCheckpoint?.Invoke();
+    detachCheckpoint = Checkpoints.Checkpoint("upgrade", result =>
+    {
+        // Continue the app here. result.Customer contains the latest customer information.
+        // result.Flow, when present, includes ObtainedEntitlements and ObtainedProducts.
+    }, new CheckpointParams(
+        customVariables: new Dictionary<string, CustomVariableValue>
+        {
+            { "level", CustomVariableValue.Number(42) }
+        },
+        presentationMode: FlowPresentationMode.ModalSheet));
+}
+
+void OnDestroy() => detachCheckpoint?.Invoke();
+```
+
+Keep and invoke the returned function when the owning screen is destroyed, including calls
+that never pass. It detaches the callback without dismissing a flow already on screen.
+
 ## Dependencies and Unity IAP
 We use StoreKit for iOS and BillingClient for Android. This plugin also depends on [purchases-ios](https://github.com/RevenueCat/purchases-ios), [purchases-android](https://github.com/RevenueCat/purchases-android) and [purchases-hybrid-common](https://github.com/RevenueCat/purchases-hybrid-common). 
 

@@ -3,6 +3,7 @@
     "rootNamespace": "RevenueCat.Tests",
     "references": [
         "revenuecat.purchases-unity",
+        "revenuecat.purchases-unity-ui",
         "revenuecat.purchases-unity.Editor"
     ],
     "includePlatforms": [
