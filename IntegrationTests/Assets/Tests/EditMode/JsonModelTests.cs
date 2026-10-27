@@ -94,6 +94,21 @@ namespace RevenueCat.Tests
             Assert.That(customerInfo.AllPurchaseDates["lifetime"], Is.Null);
         }
 
+        [TestCase("PURCHASED")]
+        [TestCase("FAMILY_SHARED")]
+        [TestCase("ASSIGNED")]
+        [TestCase("UNKNOWN")]
+        public void SubscriptionInfoParsesOwnershipType(string ownershipType)
+        {
+            var response = JSONNode.Parse(
+                "{\"productIdentifier\":\"monthly\",\"purchaseDate\":\"2023-01-01T00:00:00Z\"," +
+                "\"ownershipType\":\"" + ownershipType + "\"}");
+
+            var subscriptionInfo = new Purchases.SubscriptionInfo(response);
+
+            Assert.That(subscriptionInfo.OwnershipType, Is.EqualTo(ownershipType));
+        }
+
         [Test]
         public void SubscriptionOptionParsesFullPayloadWithPricingPhases()
         {
