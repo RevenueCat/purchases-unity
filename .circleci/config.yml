@@ -433,6 +433,22 @@ jobs:
           project: IntegrationTests
           target: iOS
 
+      - when:
+          condition:
+            equal: [spm, << parameters.variant >>]
+          steps:
+            - unity/test:
+                step-name: Test iOS resource bundle postprocessor
+                project-path: IntegrationTests
+                test-platform: editmode
+                custom-parameters: -buildTarget iOS -testFilter RevenueCat.Tests.XcodeResourceBundlePostProcessTests -disable-assembly-updater
+
+            - store_artifacts:
+                path: IntegrationTests/editmode-results.xml
+
+            - store_artifacts:
+                path: IntegrationTests/editmode-junit-results.xml
+
       - perform-build:
           project: IntegrationTests
           target: iOS
@@ -457,6 +473,9 @@ jobs:
       xcode: 16.4.0
     steps:
       - checkout
+      - run:
+          name: Test iOS resource bundle copying
+          command: python3 scripts/test-ios-resource-bundles.py
       - attach_workspace:
           at: .
 

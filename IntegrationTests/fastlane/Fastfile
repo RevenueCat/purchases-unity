@@ -27,13 +27,31 @@ platform :ios do
     project = options[:project]
     fail ArgumentError, "missing workspace or project" unless workspace || project
 
-    gym(
+    archive_path = gym(
       export_method: "app-store",
       workspace: workspace,
       project: project,
       skip_codesigning: true,
       skip_package_ipa: true
     )
+
+    # The project-based CI build uses SPM; CocoaPods builds use a workspace.
+    if project
+      app_paths = Dir.glob("#{archive_path}/Products/Applications/*.app")
+      unless app_paths.length == 1
+        UI.user_error!("Expected one app in #{archive_path}, found #{app_paths.length}")
+      end
+      app_path = app_paths.first
+
+      # Xcode can archive successfully with links to bundles outside the app.
+      missing = ["RevenueCat_RevenueCat.bundle", "RevenueCat_RevenueCatUI.bundle"].reject do |bundle|
+        bundle_path = "#{app_path}/#{bundle}"
+        File.directory?(bundle_path) && !File.symlink?(bundle_path)
+      end
+      unless missing.empty?
+        UI.user_error!("Swift package resource bundles missing or symlinked in #{app_path}: #{missing.join(', ')}")
+      end
+    end
   end
 
 end
