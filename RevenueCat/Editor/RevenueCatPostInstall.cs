@@ -16,7 +16,7 @@ public static class XcodeSwiftVersionPostProcess
     // Work around missing SPM resources when packages are linked through UnityFramework:
     // https://github.com/googlesamples/unity-jar-resolver/issues/766
     // https://github.com/googlesamples/unity-jar-resolver/issues/779
-    // EDM4U is archived; monitor Unity's com.unity.external-dependency-manager releases.
+    // Monitor Unity's com.unity.external-dependency-manager releases.
     // Remove once supported Unity/resolver versions embed these bundles without this phase;
     // verify paywall presentation from both a normal build and an archive before removing it.
     // Clean Xcode build products after switching dependency managers or removing RevenueCat UI.
