@@ -1,11 +1,10 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Fix iOS ignoring autoSyncPurchases = false and inspector prepaid plans setting (#1147) via Álvaro Brey (@AlvaroBrey)
+* Fix RevenueCatUI paywall crash on iOS when installed with SPM (#1153) via Antonio Pallares (@ajpallares)
 ### 📦 Dependency Updates
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.16.0 (#1155) via RevenueCat Git Bot (@RCGitBot)
-  * [Android 10.29.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.29.0)
-  * [iOS 5.99.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.99.0)
-  * [iOS 5.98.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.98.0)
-  * [iOS 5.97.0](https://github.com/RevenueCat/purchases-ios/releases/tag/5.97.0)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.15.1 (#1152) via RevenueCat Git Bot (@RCGitBot)
-* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.15.0 (#1148) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.17.0 (#1160) via RevenueCat Git Bot (@RCGitBot)
+  * [Android 10.30.0](https://github.com/RevenueCat/purchases-android/releases/tag/10.30.0)
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 19.16.1 (#1159) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* other: add tests for ownership type (#1156) via Will Taylor (@fire-at-will)

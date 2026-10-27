@@ -1,6 +1,6 @@
 {
   "name": "com.revenuecat.purchases-admob-unity",
-  "version": "9.15.1",
+  "version": "9.16.0",
   "displayName": "RevenueCat AdMob adapter for Unity",
   "description": "Connects the Google Mobile Ads Unity plugin to RevenueCat's ad tracking and reward verification. Supports iOS and Android.",
   "documentationUrl": "https://www.revenuecat.com/docs/ad-monetization/admob",
