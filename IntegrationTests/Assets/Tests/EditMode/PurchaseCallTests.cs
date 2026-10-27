@@ -249,9 +249,12 @@ namespace RevenueCat.Tests
 
         private void SendNativeResponse(string method, string response)
         {
+            var responseNode = JSONNode.Parse(response);
+            responseNode["requestId"] = _wrapper.LastInvocation.RequestId;
+
             var receiver = typeof(Purchases).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(receiver, Is.Not.Null, $"Native response receiver {method} does not exist");
-            receiver.Invoke(_purchases, new object[] { response });
+            receiver.Invoke(_purchases, new object[] { responseNode.ToString() });
         }
 
         // The payloads below mirror what the native layers send. customerInfo, productIdentifier and
