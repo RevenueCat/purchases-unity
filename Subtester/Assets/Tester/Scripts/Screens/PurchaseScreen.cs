@@ -286,7 +286,7 @@ namespace RevenueCat.Tester.Screens
         }
 
         private static void AddInstallmentsInfoLabels(VisualElement group,
-            Purchases.SubscriptionOption.InstallmentsInfo info)
+            Purchases.InstallmentsInfo info)
         {
             var header = new Label("InstallmentsInfo");
             header.AddToClassList("dynamic-item-label");

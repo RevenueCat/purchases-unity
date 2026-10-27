@@ -148,7 +148,7 @@ namespace RevenueCat.Tests
         {
             var response = LoadFixture("installments-info-ios.json");
 
-            var installmentsInfo = new Purchases.SubscriptionOption.InstallmentsInfo(response);
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
 
             Assert.That(installmentsInfo.CommitmentPaymentsCount, Is.EqualTo(12));
             Assert.That(installmentsInfo.RenewalCommitmentPaymentsCount, Is.EqualTo(12));
@@ -168,7 +168,7 @@ namespace RevenueCat.Tests
             // explicit nulls rather than omitting them.
             var response = LoadFixture("installments-info-android.json");
 
-            var installmentsInfo = new Purchases.SubscriptionOption.InstallmentsInfo(response);
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
 
             Assert.That(installmentsInfo.CommitmentPaymentsCount, Is.EqualTo(6));
             Assert.That(installmentsInfo.RenewalCommitmentPaymentsCount, Is.EqualTo(2));
@@ -186,7 +186,7 @@ namespace RevenueCat.Tests
         {
             var response = LoadFixture("installments-info-integer-prices.json");
 
-            var installmentsInfo = new Purchases.SubscriptionOption.InstallmentsInfo(response);
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
 
             Assert.That(installmentsInfo.InstallmentBillingPrice, Is.EqualTo(10f));
             Assert.That(installmentsInfo.CommitmentTotalPrice, Is.EqualTo(120f));
@@ -206,7 +206,7 @@ namespace RevenueCat.Tests
                 "{\"commitmentPaymentsCount\": 12, \"renewalCommitmentPaymentsCount\": 12, " +
                 $"\"billingPlanType\": \"{value}\"}}");
 
-            var installmentsInfo = new Purchases.SubscriptionOption.InstallmentsInfo(response);
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
 
             Assert.That(installmentsInfo.BillingPlanType, Is.EqualTo(expected));
         }

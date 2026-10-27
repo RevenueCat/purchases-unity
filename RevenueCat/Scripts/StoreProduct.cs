@@ -166,7 +166,7 @@ public partial class Purchases
         /// SubscriptionOptions instead.
         /// </summary>
         /// <returns></returns>
-        [CanBeNull] public readonly SubscriptionOption.InstallmentsInfo InstallmentsInfo;
+        [CanBeNull] public readonly InstallmentsInfo InstallmentsInfo;
             
         public StoreProduct(JSONNode response)
         {
@@ -240,7 +240,7 @@ public partial class Purchases
             var installmentsInfoNode = response["installmentsInfo"];
             if (installmentsInfoNode != null && !installmentsInfoNode.IsNull)
             {
-                InstallmentsInfo = new SubscriptionOption.InstallmentsInfo(installmentsInfoNode);
+                InstallmentsInfo = new InstallmentsInfo(installmentsInfoNode);
             }
         }
 
