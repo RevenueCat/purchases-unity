@@ -67,12 +67,11 @@ public partial class Purchases
             var billingPlanTypeNode = response["billingPlanType"];
             if (billingPlanTypeNode != null && !billingPlanTypeNode.IsNull)
             {
-                // Enum.TryParse also accepts numeric strings and comma-separated names, so only keep
-                // values that are exactly the name of a defined member.
-                if (Enum.TryParse(billingPlanTypeNode.Value, out Purchases.BillingPlanType billingPlanType)
-                    && Enum.GetName(typeof(Purchases.BillingPlanType), billingPlanType) == billingPlanTypeNode.Value)
+                var billingPlanTypeString = billingPlanTypeNode.Value;
+                if (Enum.IsDefined(typeof(Purchases.BillingPlanType), billingPlanTypeString))
                 {
-                    BillingPlanType = billingPlanType;
+                    BillingPlanType = (Purchases.BillingPlanType)Enum.Parse(typeof(Purchases.BillingPlanType),
+                        billingPlanTypeString);
                 }
                 else
                 {
