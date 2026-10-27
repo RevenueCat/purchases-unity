@@ -45,8 +45,10 @@ if [ ""$ui"" = true ]; then bundles=""$bundles RevenueCat_RevenueCatUI.bundle"";
 
 app_resources=""${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}""
 for bundle in $bundles; do
+  printf '%s\n' ""[RevenueCat] Copying $bundle to $app_resources/""
   rsync -aL --delete ""${BUILT_PRODUCTS_DIR}/${bundle}"" ""$app_resources/""
   if [ ""$ACTION"" = install ]; then
+    printf '%s\n' ""[RevenueCat] Copying $bundle to ${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/""
     mkdir -p ""${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}""
     rsync -aL --delete ""${BUILT_PRODUCTS_DIR}/${bundle}"" ""${INSTALL_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/""
   fi

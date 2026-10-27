@@ -433,6 +433,22 @@ jobs:
           project: IntegrationTests
           target: iOS
 
+      - when:
+          condition:
+            equal: [spm, << parameters.variant >>]
+          steps:
+            - unity/test:
+                step-name: Test iOS resource bundle postprocessor
+                project-path: IntegrationTests
+                test-platform: editmode
+                custom-parameters: -buildTarget iOS -testFilter RevenueCat.Tests.XcodeResourceBundlePostProcessTests -disable-assembly-updater
+
+            - store_artifacts:
+                path: IntegrationTests/editmode-results.xml
+
+            - store_artifacts:
+                path: IntegrationTests/editmode-junit-results.xml
+
       - perform-build:
           project: IntegrationTests
           target: iOS

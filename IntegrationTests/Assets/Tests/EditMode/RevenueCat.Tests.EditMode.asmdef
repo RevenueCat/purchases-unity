@@ -2,7 +2,8 @@
     "name": "RevenueCat.Tests.EditMode",
     "rootNamespace": "RevenueCat.Tests",
     "references": [
-        "revenuecat.purchases-unity"
+        "revenuecat.purchases-unity",
+        "revenuecat.purchases-unity.Editor"
     ],
     "includePlatforms": [
         "Editor"
