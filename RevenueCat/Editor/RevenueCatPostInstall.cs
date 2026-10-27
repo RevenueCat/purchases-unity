@@ -18,8 +18,7 @@ public static class XcodeSwiftVersionPostProcess
     // Archive products can be symlinks; rsync must dereference them.
     private const string CopyResourceBundlesScript = @"set -e
 
-project_file=""${PROJECT_FILE_PATH}/project.pbxproj""
-# Read the final project at build time: other post-processors may add packages after ours.
+project_file=""${PROJECT_FILE_PATH}/project.pbxproj"" # Other post-processors may add packages after ours.
 core=false
 ui=false
 for target in __UNITY_FRAMEWORK_GUID__ __UNITY_MAIN_GUID__; do
@@ -39,9 +38,8 @@ if [ ""$core"" = true ]; then bundles=""RevenueCat_RevenueCat.bundle""; fi
 if [ ""$ui"" = true ]; then bundles=""$bundles RevenueCat_RevenueCatUI.bundle""; fi
 
 app_resources=""${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}""
-manifest=""${TARGET_TEMP_DIR}/RevenueCatCopiedResourceBundles.txt""
+manifest=""${TARGET_TEMP_DIR}/RevenueCatCopiedResourceBundles.txt"" # Track identifiers to preserve CocoaPods replacements.
 mkdir -p ""$TARGET_TEMP_DIR""
-# Record bundle identifiers so cleanup preserves any replacement copied by CocoaPods.
 : > ""${manifest}.tmp""
 for bundle in $bundles; do
   source=""${BUILT_PRODUCTS_DIR}/${bundle}""
@@ -69,8 +67,7 @@ if [ -f ""$manifest"" ]; then
     fi
   done < ""$manifest""
 fi
-# Keep ownership information even if a subsequent copy fails partway through.
-mv ""${manifest}.tmp"" ""$manifest""
+mv ""${manifest}.tmp"" ""$manifest"" # Keep ownership information even if a subsequent copy fails.
 for bundle in $bundles; do
   rsync -aL --delete ""${BUILT_PRODUCTS_DIR}/${bundle}"" ""$app_resources/""
   if [ ""$ACTION"" = install ]; then
