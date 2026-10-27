@@ -757,21 +757,23 @@ workflows:
           context: unity
           requires:
             - export-package
-      - build-integration-tests-ios:
-          name: build-integration-tests-ios-cocoapods
-          variant: cocoapods
-          context: unity
-          requires:
-            - export-package
+      # TODO: restore after Nov 7, 2026, once the matching RevenueCat pods are backfilled.
+      # - build-integration-tests-ios:
+      #     name: build-integration-tests-ios-cocoapods
+      #     variant: cocoapods
+      #     context: unity
+      #     requires:
+      #       - export-package
       - archive-ios:
           variant: spm
           requires:
             - build-integration-tests-ios
-      - archive-ios:
-          name: archive-ios-cocoapods
-          variant: cocoapods
-          requires:
-            - build-integration-tests-ios-cocoapods
+      # TODO: restore after Nov 7, 2026, once the matching RevenueCat pods are backfilled.
+      # - archive-ios:
+      #     name: archive-ios-cocoapods
+      #     variant: cocoapods
+      #     requires:
+      #       - build-integration-tests-ios-cocoapods
       - build-integration-tests-android:
           name: build-integration-tests-android-edm4u
           dependency_manager: edm4u
@@ -822,7 +824,8 @@ workflows:
             - build-subtester-android
             - build-subtester-ios
             - archive-ios
-            - archive-ios-cocoapods
+            # TODO: restore after Nov 7, 2026, once the matching RevenueCat pods are backfilled.
+            # - archive-ios-cocoapods
             - build-integration-tests-android-edm4u
             - archive-ios-edm4u
             - run-maestro-e2e-tests-ios
