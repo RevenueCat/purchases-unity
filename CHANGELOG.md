@@ -1,3 +1,8 @@
+## 10.0.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* [AUTOMATIC BUMP] Updates purchases-hybrid-common to 20.1.0 (#1166) via RevenueCat Git Bot (@RCGitBot)
+
 ## 10.0.0
 ### CocoaPods
 Because of the CocoaPods trunk freeze (November 1 to 7), the `PurchasesHybridCommon` 20.0.0 pod this release depends on is not published yet; it will be after November 7. Until then, iOS projects that install through CocoaPods can't resolve this version. Let External Dependency Manager resolve iOS dependencies through Swift Package Manager, or stay on 9.x until the pod is available.
