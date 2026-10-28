@@ -84,7 +84,7 @@ public partial class Purchases
         /**
          * Information about the installment subscription. Currently only supported in Google Play.
          */
-        [CanBeNull] public readonly InstallmentsInfo OptionInstallmentsInfo;
+        [CanBeNull] public readonly Purchases.InstallmentsInfo OptionInstallmentsInfo;
 
         public SubscriptionOption(JSONNode response)
         {
@@ -138,7 +138,7 @@ public partial class Purchases
             var installmentsInfoNode = response["installmentsInfo"];
             if (installmentsInfoNode != null && !installmentsInfoNode.IsNull)
             {
-                OptionInstallmentsInfo = new InstallmentsInfo(installmentsInfoNode);
+                OptionInstallmentsInfo = new Purchases.InstallmentsInfo(installmentsInfoNode);
             }
         }
 
@@ -338,5 +338,8 @@ public partial class Purchases
                     $"{nameof(CurrencyCode)}: {CurrencyCode}\n";
             }
         }
+
+        [Obsolete("Moved to Purchases.InstallmentsInfo.", true)]
+        public class InstallmentsInfo { }
     }
 }
