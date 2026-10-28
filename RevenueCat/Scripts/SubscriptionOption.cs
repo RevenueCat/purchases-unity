@@ -341,7 +341,7 @@ public partial class Purchases
 
         // Kept so v9 code gets a migration hint instead of a missing-type error. Remove in v11.
         /// Type containing information of installment subscriptions. Currently only supported in Google Play.
-        [Obsolete("Moved to Purchases.InstallmentsInfo. See migrations/v10-MIGRATION.md for more information.", true)]
+        [Obsolete("Moved to Purchases.InstallmentsInfo. See https://github.com/RevenueCat/purchases-unity/blob/main/migrations/v10-MIGRATION.md#installmentsinfo-is-a-top-level-type", true)]
         public class InstallmentsInfo {
             /// Number of payments the customer commits to in order to purchase the subscription.
             public readonly int CommitmentPaymentsCount;
