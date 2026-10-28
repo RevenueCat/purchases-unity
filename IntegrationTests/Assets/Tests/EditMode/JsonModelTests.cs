@@ -159,6 +159,112 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void InstallmentsInfoParsesIOSPayload()
+        {
+            var response = LoadFixture("installments-info-ios.json");
+
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
+
+            Assert.That(installmentsInfo.CommitmentPaymentsCount, Is.EqualTo(12));
+            Assert.That(installmentsInfo.RenewalCommitmentPaymentsCount, Is.EqualTo(12));
+            Assert.That(installmentsInfo.CommitmentInstallmentPeriod, Is.EqualTo("P1M"));
+            Assert.That(installmentsInfo.InstallmentBillingPrice, Is.EqualTo(0.99f));
+            Assert.That(installmentsInfo.InstallmentBillingPriceString, Is.EqualTo("$0.99"));
+            Assert.That(installmentsInfo.CommitmentTotalPeriod, Is.EqualTo("P1Y"));
+            Assert.That(installmentsInfo.CommitmentTotalPrice, Is.EqualTo(11.88f));
+            Assert.That(installmentsInfo.CommitmentTotalPriceString, Is.EqualTo("$11.88"));
+            Assert.That(installmentsInfo.BillingPlanType, Is.EqualTo(Purchases.BillingPlanType.MONTHLY));
+        }
+
+        [Test]
+        public void InstallmentsInfoParsesNullIOSOnlyFieldsSentFromAndroid()
+        {
+            // purchases-hybrid-common's Android StoreProductMapper sends the iOS-only fields as
+            // explicit nulls rather than omitting them.
+            var response = LoadFixture("installments-info-android.json");
+
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
+
+            Assert.That(installmentsInfo.CommitmentPaymentsCount, Is.EqualTo(6));
+            Assert.That(installmentsInfo.RenewalCommitmentPaymentsCount, Is.EqualTo(2));
+            Assert.That(installmentsInfo.CommitmentInstallmentPeriod, Is.Null);
+            Assert.That(installmentsInfo.InstallmentBillingPrice, Is.Null);
+            Assert.That(installmentsInfo.InstallmentBillingPriceString, Is.Null);
+            Assert.That(installmentsInfo.CommitmentTotalPeriod, Is.Null);
+            Assert.That(installmentsInfo.CommitmentTotalPrice, Is.Null);
+            Assert.That(installmentsInfo.CommitmentTotalPriceString, Is.Null);
+            Assert.That(installmentsInfo.BillingPlanType, Is.Null);
+        }
+
+        [Test]
+        public void InstallmentsInfoParsesIntegerPrices()
+        {
+            var response = LoadFixture("installments-info-integer-prices.json");
+
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
+
+            Assert.That(installmentsInfo.InstallmentBillingPrice, Is.EqualTo(10f));
+            Assert.That(installmentsInfo.CommitmentTotalPrice, Is.EqualTo(120f));
+            Assert.That(installmentsInfo.BillingPlanType, Is.Null);
+        }
+
+        // "SOME_FUTURE_VALUE" is deliberately synthetic: purchases-hybrid-common only sends UP_FRONT,
+        // MONTHLY or UNKNOWN. It pins down the fallback for a billing plan type added natively before
+        // Unity knows about it.
+        [TestCase("UP_FRONT", Purchases.BillingPlanType.UP_FRONT)]
+        [TestCase("MONTHLY", Purchases.BillingPlanType.MONTHLY)]
+        [TestCase("UNKNOWN", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("SOME_FUTURE_VALUE", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("1", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("UP_FRONT, MONTHLY", Purchases.BillingPlanType.UNKNOWN)]
+        [TestCase("monthly", Purchases.BillingPlanType.UNKNOWN)]
+        public void InstallmentsInfoParsesBillingPlanType(string value, Purchases.BillingPlanType expected)
+        {
+            var response = JSONNode.Parse(
+                "{\"commitmentPaymentsCount\": 12, \"renewalCommitmentPaymentsCount\": 12, " +
+                $"\"billingPlanType\": \"{value}\"}}");
+
+            var installmentsInfo = new Purchases.InstallmentsInfo(response);
+
+            Assert.That(installmentsInfo.BillingPlanType, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void StoreProductParsesInstallmentsInfo()
+        {
+            var response = LoadFixture("store-product-installments-info.json");
+
+            var product = new Purchases.StoreProduct(response);
+
+            Assert.That(product.InstallmentsInfo, Is.Not.Null);
+            Assert.That(product.InstallmentsInfo.CommitmentPaymentsCount, Is.EqualTo(12));
+            Assert.That(product.InstallmentsInfo.RenewalCommitmentPaymentsCount, Is.EqualTo(12));
+            Assert.That(product.InstallmentsInfo.CommitmentInstallmentPeriod, Is.EqualTo("P1M"));
+            Assert.That(product.InstallmentsInfo.InstallmentBillingPrice, Is.EqualTo(0.99f));
+            Assert.That(product.InstallmentsInfo.InstallmentBillingPriceString, Is.EqualTo("$0.99"));
+            Assert.That(product.InstallmentsInfo.CommitmentTotalPeriod, Is.EqualTo("P1Y"));
+            Assert.That(product.InstallmentsInfo.CommitmentTotalPrice, Is.EqualTo(11.88f));
+            Assert.That(product.InstallmentsInfo.CommitmentTotalPriceString, Is.EqualTo("$11.88"));
+            Assert.That(product.InstallmentsInfo.BillingPlanType, Is.EqualTo(Purchases.BillingPlanType.MONTHLY));
+        }
+
+        [Test]
+        public void StoreProductParsesNullInstallmentsInfo()
+        {
+            var response = LoadFixture("store-product-null-installments-info.json");
+            var product = new Purchases.StoreProduct(response);
+            Assert.That(product.InstallmentsInfo, Is.Null);
+        }
+
+        [Test]
+        public void StoreProductParsesMissingInstallmentsInfo()
+        {
+            var response = LoadFixture("store-product-known-category.json");
+            var product = new Purchases.StoreProduct(response);
+            Assert.That(product.InstallmentsInfo, Is.Null);
+        }
+
+        [Test]
         public void WebPurchaseRedemptionWrapsRedemptionLink()
         {
             var redemption = new Purchases.WebPurchaseRedemption("https://rev.cat/redeem/abc");

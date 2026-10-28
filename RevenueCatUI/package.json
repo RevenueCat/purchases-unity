@@ -1,6 +1,8 @@
 {
   "name": "com.revenuecat.purchases-ui-unity",
-  "version": "9.16.0",
+  "version": "10.0.0",
+  "unity": "2022.3",
+  "unityRelease": "33f1",
   "displayName": "RevenueCat UI SDK for Unity",
   "description": "Unity UI components for RevenueCat paywalls and customer center. Supports iOS and Android.",
   "documentationUrl": "https://www.revenuecat.com/docs",

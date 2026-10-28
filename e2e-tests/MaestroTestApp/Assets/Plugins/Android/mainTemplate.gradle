@@ -1,25 +1,8 @@
-// Android Resolver Repos Start
-([rootProject] + (rootProject.subprojects as List)).each { project ->
-    project.repositories {
-        maven {
-            url "https://maven.google.com"
-        }
-        mavenLocal()
-        mavenCentral()
-    }
-}
-// Android Resolver Repos End
 apply plugin: 'com.android.library'
 **APPLY_PLUGINS**
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-// Android Resolver Dependencies Start
-    implementation 'androidx.annotation:annotation:[1.2.0]'
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common:[18.26.0]'
-    implementation 'com.revenuecat.purchases:purchases-hybrid-common-ui:[18.26.0]'
-    implementation 'androidx.activity:activity:1.8.2'
-// Android Resolver Dependencies End
 **DEPS**}
 
 android {

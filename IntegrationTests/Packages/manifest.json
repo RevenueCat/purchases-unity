@@ -5,6 +5,7 @@
     "com.unity.ai.navigation": "2.0.9",
     "com.unity.analytics": "3.8.1",
     "com.unity.collab-proxy": "2.9.3",
+    "com.unity.external-dependency-manager": "2.1.1",
     "com.unity.ext.nunit": "2.0.5",
     "com.unity.ide.rider": "3.0.38",
     "com.unity.ide.visualstudio": "2.0.23",
@@ -45,14 +46,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "scopedRegistries": [
-    {
-      "name": "Game Package Registry by Google",
-      "url": "https://unityregistry-pa.googleapis.com",
-      "scopes": [
-        "com.google"
-      ]
-    }
-  ]
+  }
 }

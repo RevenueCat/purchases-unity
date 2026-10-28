@@ -69,7 +69,7 @@ public class PurchasesWrapper {
     private static final String POLL_REWARD_VERIFICATION = "_pollRewardVerification";
 
     private static final String PLATFORM_NAME = "unity";
-    private static final String PLUGIN_VERSION = "9.16.0";
+    private static final String PLUGIN_VERSION = "10.0.0";
 
     private static String gameObject;
 
@@ -355,6 +355,8 @@ public class PurchasesWrapper {
         });
     }
 
+    // Only reached from the obsolete SyncObserverModeAmazonPurchase.
+    @SuppressWarnings("deprecation")
     public static void syncAmazonPurchase(
             String productID,
             String receiptID,
@@ -364,6 +366,18 @@ public class PurchasesWrapper {
     ) {
         Purchases.getSharedInstance().syncAmazonPurchase(productID, receiptID,
                 amazonUserID, isoCurrencyCode, price);
+    }
+
+    public static void syncAmazonPurchase(
+            String productID,
+            String receiptID,
+            String amazonUserID,
+            String isoCurrencyCode,
+            double price,
+            long purchaseTime
+    ) {
+        Purchases.getSharedInstance().syncAmazonPurchase(productID, receiptID,
+                amazonUserID, isoCurrencyCode, price, purchaseTime);
     }
 
     public static void getAmazonLWAConsentStatus() {
