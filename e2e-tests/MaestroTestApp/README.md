@@ -43,6 +43,10 @@ The test uses a RevenueCat project configured with:
 - A **V2 Paywall** (the test asserts "Paywall V2" is visible)
 - A `pro` entitlement (the test checks entitlement status after purchase)
 - The **Test Store** environment for purchase confirmation
+- A checkpoint `donottouch_sdk_everyone` whose flow presents a paywall to every user with the
+  monthly package (`pro_monthly_subscription`, granting `pro`) preselected, used by the
+  `checkpoint_purchase` flow. The `checkpoint_unknown_identifier` flow uses an identifier that must
+  **not** exist in the dashboard.
 
 ## Dependencies
 

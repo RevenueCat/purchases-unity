@@ -35,6 +35,12 @@ static class SceneSetup
         CreateButton(testCasesScreen.transform, "PurchaseButton", "Purchase through paywall",
             new Vector2(0.1f, 0.3f), new Vector2(0.9f, 0.4f));
 
+        CreateButton(testCasesScreen.transform, "CheckpointButton", "Checkpoint",
+            new Vector2(0.1f, 0.2f), new Vector2(0.9f, 0.28f));
+
+        CreateButton(testCasesScreen.transform, "CheckpointUnknownButton", "Checkpoint unknown identifier",
+            new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.18f));
+
         var purchaseScreen = CreatePanel(canvas.transform, "PurchaseScreen");
         purchaseScreen.SetActive(false);
 
@@ -52,6 +58,33 @@ static class SceneSetup
         CreateButton(purchaseScreen.transform, "BackButton", "Back",
             new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.2f));
 
+        var checkpointScreen = CreatePanel(canvas.transform, "CheckpointScreen");
+        checkpointScreen.SetActive(false);
+
+        var checkpointIdentifierLabel = CreateText(checkpointScreen.transform, "CheckpointIdentifierLabel", "Identifier: ", 16, FontStyle.Normal,
+            new Vector2(0, 0.8f), new Vector2(1, 0.9f), TextAnchor.MiddleCenter);
+
+        CreateButton(checkpointScreen.transform, "HitCheckpointButton", "Hit checkpoint",
+            new Vector2(0.1f, 0.65f), new Vector2(0.9f, 0.75f));
+
+        var checkpointStatusLabel = CreateText(checkpointScreen.transform, "CheckpointStatusLabel", "Callback: not invoked", 14, FontStyle.Normal,
+            new Vector2(0, 0.58f), new Vector2(1, 0.64f), TextAnchor.MiddleCenter);
+
+        var checkpointLineLabels = new Text[4];
+        for (var i = 0; i < checkpointLineLabels.Length; i++)
+        {
+            checkpointLineLabels[i] = CreateText(checkpointScreen.transform, "CheckpointLine" + i, "", 14, FontStyle.Normal,
+                new Vector2(0, 0.52f - 0.06f * i), new Vector2(1, 0.58f - 0.06f * i), TextAnchor.MiddleCenter);
+        }
+
+        var checkpointErrorLabel = CreateText(checkpointScreen.transform, "CheckpointErrorLabel", "", 14, FontStyle.Normal,
+            new Vector2(0, 0.22f), new Vector2(1, 0.28f), TextAnchor.MiddleCenter);
+        checkpointErrorLabel.color = Color.red;
+        checkpointErrorLabel.gameObject.SetActive(false);
+
+        CreateButton(checkpointScreen.transform, "BackButton", "Back",
+            new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.2f));
+
         var purchasesGO = new GameObject("Purchases");
         var purchasesComp = purchasesGO.AddComponent<Purchases>();
         purchasesComp.useRuntimeSetup = true;
@@ -61,6 +94,11 @@ static class SceneSetup
         maestroApp.purchaseScreen = purchaseScreen;
         maestroApp.entitlementsLabel = entitlementsLabel;
         maestroApp.errorLabel = errorLabel;
+        maestroApp.checkpointScreen = checkpointScreen;
+        maestroApp.checkpointIdentifierLabel = checkpointIdentifierLabel;
+        maestroApp.checkpointStatusLabel = checkpointStatusLabel;
+        maestroApp.checkpointLineLabels = checkpointLineLabels;
+        maestroApp.checkpointErrorLabel = checkpointErrorLabel;
 
         // Button onClick handlers are deliberately not wired here: SaveScene only
         // serializes persistent listeners, so anything added with AddListener would be
