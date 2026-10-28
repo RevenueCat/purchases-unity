@@ -340,9 +340,28 @@ public partial class Purchases
             }
         }
 
-        // Stub kept so v9 code gets a migration hint instead of a missing-type error. Remove in v11.
+        // Kept so v9 code gets a migration hint instead of a missing-type error. Remove in v11.
+        /// Type containing information of installment subscriptions. Currently only supported in Google Play.
         [Obsolete("Moved to Purchases.InstallmentsInfo. Use Purchases.InstallmentsInfo instead.", true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public class InstallmentsInfo { }
+        public class InstallmentsInfo {
+            /// Number of payments the customer commits to in order to purchase the subscription.
+            public readonly int CommitmentPaymentsCount;
+
+            /// After the commitment payments are complete, the number of payments the user commits to upon a renewal.
+            public readonly int RenewalCommitmentPaymentsCount;
+
+            public InstallmentsInfo(JSONNode response)
+            {
+                CommitmentPaymentsCount = response["commitmentPaymentsCount"];
+                RenewalCommitmentPaymentsCount = response["renewalCommitmentPaymentsCount"];
+            }
+
+            public override string ToString()
+            {
+                return $"{nameof(CommitmentPaymentsCount)}: {CommitmentPaymentsCount}\n" +
+                    $"{nameof(RenewalCommitmentPaymentsCount)}: {RenewalCommitmentPaymentsCount}\n";
+            }
+        }
     }
 }
