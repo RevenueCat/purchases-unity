@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 using UnityEngine;
@@ -342,8 +341,7 @@ public partial class Purchases
 
         // Kept so v9 code gets a migration hint instead of a missing-type error. Remove in v11.
         /// Type containing information of installment subscriptions. Currently only supported in Google Play.
-        [Obsolete("Moved to Purchases.InstallmentsInfo. Use Purchases.InstallmentsInfo instead.", true)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Moved to Purchases.InstallmentsInfo. See migrations/v10-MIGRATION.md for more information.", true)]
         public class InstallmentsInfo {
             /// Number of payments the customer commits to in order to purchase the subscription.
             public readonly int CommitmentPaymentsCount;
