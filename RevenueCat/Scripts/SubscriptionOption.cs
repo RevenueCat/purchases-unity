@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using JetBrains.Annotations;
 using RevenueCat.SimpleJSON;
 using UnityEngine;
@@ -339,7 +340,9 @@ public partial class Purchases
             }
         }
 
-        [Obsolete("Moved to Purchases.InstallmentsInfo.", true)]
+        // Stub kept so v9 code gets a migration hint instead of a missing-type error. Remove in v11.
+        [Obsolete("Moved to Purchases.InstallmentsInfo. Use Purchases.InstallmentsInfo instead.", true)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public class InstallmentsInfo { }
     }
 }
