@@ -136,6 +136,32 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void NativeErrorLogsAndDetachesWithoutPassing()
+        {
+            var previous = SynchronizationContext.Current;
+            var context = new QueuedContext();
+            SynchronizationContext.SetSynchronizationContext(context);
+            var calls = 0;
+            var callId = Guid.NewGuid().ToString();
+            var remove = CheckpointBridge.Register(callId, _ => calls++);
+            try
+            {
+                CheckpointBridge.OnError(callId, "NOT_CONFIGURED", "Configure Purchases before calling a checkpoint.");
+                UnityEngine.TestTools.LogAssert.Expect(LogType.Error,
+                    "[RevenueCatUI] Checkpoint could not be started (NOT_CONFIGURED): Configure Purchases before calling a checkpoint.");
+                context.Drain();
+                CheckpointBridge.OnPassed(callId, Result().ToString());
+                context.Drain();
+                Assert.That(calls, Is.Zero);
+            }
+            finally
+            {
+                remove();
+                SynchronizationContext.SetSynchronizationContext(previous);
+            }
+        }
+
+        [Test]
         public void EditorDoesNotPretendToPassCheckpoints()
         {
             Assert.Throws<PlatformNotSupportedException>(() => Checkpoints.Checkpoint("upgrade", _ => Assert.Fail()));

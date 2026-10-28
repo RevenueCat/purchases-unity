@@ -57,6 +57,23 @@ namespace RevenueCatUI.Internal
             }, null);
         }
 
+        internal static void OnError(string callId, string code, string message)
+        {
+            Subscription subscription;
+            lock (Gate)
+            {
+                if (!Subscriptions.TryGetValue(callId, out subscription)) return;
+            }
+            subscription.Context.Post(_ =>
+            {
+                lock (Gate)
+                {
+                    if (!Subscriptions.Remove(callId)) return;
+                }
+                Debug.LogError($"[RevenueCatUI] Checkpoint could not be started ({code}): {message}");
+            }, null);
+        }
+
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
         internal static Action Start(string identifier, Action<CheckpointResult> callback, CheckpointParams parameters)
         {
@@ -65,8 +82,7 @@ namespace RevenueCatUI.Internal
             try
             {
 #if UNITY_IOS
-                if (!rcui_checkpoint(identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId, NativePassedCallback))
-                    throw new PlatformNotSupportedException("Checkpoints require iOS 15 or later and configured Purchases.");
+                rcui_checkpoint(identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId, NativePassedCallback, NativeErrorCallback);
 #elif UNITY_ANDROID
                 using (var plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.Checkpoints"))
                     plugin.CallStatic("checkpoint", identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId, NativeCallbacks);
@@ -83,15 +99,19 @@ namespace RevenueCatUI.Internal
 
 #if UNITY_IOS && !UNITY_EDITOR
         private delegate void PassedCallback(string callId, string resultJson);
+        private delegate void ErrorCallback(string callId, string code, string message);
         private static readonly PassedCallback NativePassedCallback = NativeOnPassed;
+        private static readonly ErrorCallback NativeErrorCallback = NativeOnError;
 
         [System.Runtime.InteropServices.DllImport("__Internal")]
-        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.I1)]
-        private static extern bool rcui_checkpoint(string identifier, string customVariablesJson, string presentationMode,
-            string callId, PassedCallback callback);
+        private static extern void rcui_checkpoint(string identifier, string customVariablesJson, string presentationMode,
+            string callId, PassedCallback passedCallback, ErrorCallback errorCallback);
 
         [AOT.MonoPInvokeCallback(typeof(PassedCallback))]
         private static void NativeOnPassed(string callId, string resultJson) => OnPassed(callId, resultJson);
+
+        [AOT.MonoPInvokeCallback(typeof(ErrorCallback))]
+        private static void NativeOnError(string callId, string code, string message) => OnError(callId, code, message);
 #endif
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -103,6 +123,9 @@ namespace RevenueCatUI.Internal
 
             [UnityEngine.Scripting.Preserve]
             public void onPassed(string callId, string resultJson) => OnPassed(callId, resultJson);
+
+            [UnityEngine.Scripting.Preserve]
+            public void onError(string callId, string code, string message) => OnError(callId, code, message);
         }
 #endif
     }

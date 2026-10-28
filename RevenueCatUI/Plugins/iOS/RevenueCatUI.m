@@ -10,6 +10,8 @@ typedef void (*RCUIPaywallEventCallback)(const char *eventName, const char *payl
 typedef void (*RCUICustomerCenterDismissedCallback)(void);
 typedef void (*RCUICustomerCenterErrorCallback)(void);
 typedef void (*RCUICustomerCenterEventCallback)(const char *eventName, const char *payload);
+typedef void (*RCUICheckpointPassedCallback)(const char *callId, const char *resultJson);
+typedef void (*RCUICheckpointErrorCallback)(const char *callId, const char *code, const char *message);
 
 static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEntitlementIdentifier";
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
@@ -686,5 +688,45 @@ void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCal
         } else {
             RCUICustomerCenterInvokeErrorCallback(errorCallback);
         }
+    });
+}
+
+// Experimental, invite only. All strings are copied before returning: the checkpoint may finish long after this call.
+void rcui_checkpoint(const char *identifier,
+                     const char *customVariablesJson,
+                     const char *presentationMode,
+                     const char *callId,
+                     RCUICheckpointPassedCallback passedCallback,
+                     RCUICheckpointErrorCallback errorCallback) {
+    NSString *checkpointIdentifier = RCUIStringFromCString(identifier);
+    NSString *invocationId = RCUIStringFromCString(callId);
+    NSString *mode = RCUIStringFromCString(presentationMode);
+    NSDictionary *variables = RCUIJSONObjectFromJSONString(RCUIStringFromCString(customVariablesJson));
+    if (![variables isKindOfClass:[NSDictionary class]]) {
+        variables = nil;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [CheckpointProxy presentWithIdentifier:checkpointIdentifier
+                               customVariables:variables
+                              presentationMode:mode
+                                      onPassed:^(NSDictionary<NSString *, id> * _Nonnull result) {
+            NSData *data = [NSJSONSerialization isValidJSONObject:result]
+                ? [NSJSONSerialization dataWithJSONObject:result options:0 error:nil]
+                : nil;
+            if (data == nil) {
+                NSLog(@"[RevenueCatUI] Failed to serialize checkpoint result.");
+                return;
+            }
+            NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            if (passedCallback != NULL) {
+                passedCallback(invocationId.UTF8String, json.UTF8String);
+            }
+        }
+                                       onError:^(NSString * _Nonnull code, NSString * _Nonnull message) {
+            if (errorCallback != NULL) {
+                errorCallback(invocationId.UTF8String, code.UTF8String, message.UTF8String);
+            }
+        }];
     });
 }

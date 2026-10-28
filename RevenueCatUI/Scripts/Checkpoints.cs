@@ -10,6 +10,8 @@ namespace RevenueCatUI
         /// Calls onPassed once, on the Unity main thread, only when the app can continue past
         /// the checkpoint. It is not called when the user backs out, a blocking error occurs,
         /// or another checkpoint owns presentation. The SDK presents errors with its native UI.
+        /// A checkpoint that cannot start (for example, Purchases is not configured or iOS is older
+        /// than 15) logs an error and does not call onPassed.
         /// Must be called from the Unity main thread. Requires iOS 15+ or Android, outside the Editor.
         /// </summary>
         /// <returns>
