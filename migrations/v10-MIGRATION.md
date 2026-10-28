@@ -38,6 +38,18 @@ purchases.SyncAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode
 purchases.SyncAmazonPurchase(productID, receiptID, amazonUserID, isoCurrencyCode, price, purchaseTimeMillis);
 ```
 
+### `InstallmentsInfo` is a top-level type
+
+`InstallmentsInfo` moved out of `SubscriptionOption` to be a top-level type. Replace `Purchases.SubscriptionOption.InstallmentsInfo` with `Purchases.InstallmentsInfo`. `SubscriptionOption.OptionInstallmentsInfo` and the existing properties don't change.
+
+```csharp
+// Before
+Purchases.SubscriptionOption.InstallmentsInfo installmentsInfo = subscriptionOption.OptionInstallmentsInfo;
+
+// After
+Purchases.InstallmentsInfo installmentsInfo = subscriptionOption.OptionInstallmentsInfo;
+```
+
 ### Only if using `PurchasesAreCompletedBy.MyApp`: iOS paywalls no longer call `OnPurchaseCompleted`
 
 When your `PurchaseLogic` completes a paywall purchase, iOS paywalls no longer call `OnPurchaseCompleted` for it. Previously it was called with a `null` `StoreTransaction`. This matches Android. Handle the purchase result in your `PurchaseLogic` instead.

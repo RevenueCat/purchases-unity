@@ -1,0 +1,21 @@
+{
+  "title": "12mo Commitment",
+  "identifier": "monthly.12mocommitment",
+  "description": "12mo commitment product",
+  "price": 0.99,
+  "priceString": "$0.99",
+  "currencyCode": "USD",
+  "productCategory": "SUBSCRIPTION",
+  "subscriptionPeriod": "P1M",
+  "installmentsInfo": {
+    "commitmentPaymentsCount": 12,
+    "renewalCommitmentPaymentsCount": 12,
+    "commitmentInstallmentPeriod": "P1M",
+    "installmentBillingPrice": 0.99,
+    "installmentBillingPriceString": "$0.99",
+    "commitmentTotalPeriod": "P1Y",
+    "commitmentTotalPrice": 11.88,
+    "commitmentTotalPriceString": "$11.88",
+    "billingPlanType": "MONTHLY"
+  }
+}

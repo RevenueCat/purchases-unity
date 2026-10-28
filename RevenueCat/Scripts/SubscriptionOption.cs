@@ -84,7 +84,7 @@ public partial class Purchases
         /**
          * Information about the installment subscription. Currently only supported in Google Play.
          */
-        [CanBeNull] public readonly InstallmentsInfo OptionInstallmentsInfo;
+        [CanBeNull] public readonly Purchases.InstallmentsInfo OptionInstallmentsInfo;
 
         public SubscriptionOption(JSONNode response)
         {
@@ -138,7 +138,7 @@ public partial class Purchases
             var installmentsInfoNode = response["installmentsInfo"];
             if (installmentsInfoNode != null && !installmentsInfoNode.IsNull)
             {
-                OptionInstallmentsInfo = new InstallmentsInfo(installmentsInfoNode);
+                OptionInstallmentsInfo = new Purchases.InstallmentsInfo(installmentsInfoNode);
             }
         }
 
@@ -339,7 +339,9 @@ public partial class Purchases
             }
         }
 
+        // Kept so v9 code gets a migration hint instead of a missing-type error. Remove in v11.
         /// Type containing information of installment subscriptions. Currently only supported in Google Play.
+        [Obsolete("Moved to Purchases.InstallmentsInfo. See https://github.com/RevenueCat/purchases-unity/blob/main/migrations/v10-MIGRATION.md#installmentsinfo-is-a-top-level-type", true)]
         public class InstallmentsInfo {
             /// Number of payments the customer commits to in order to purchase the subscription.
             public readonly int CommitmentPaymentsCount;
