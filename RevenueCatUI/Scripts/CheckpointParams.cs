@@ -1,8 +1,10 @@
+using RevenueCatUI.Internal;
 using System.Collections.Generic;
 
 namespace RevenueCatUI
 {
-    /// <summary>How the SDK presents the flow selected by a checkpoint.</summary>
+    /// <summary>Experimental, invite-only. How the SDK presents the flow selected by a checkpoint.</summary>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public enum FlowPresentationMode
     {
         Default,
@@ -10,7 +12,8 @@ namespace RevenueCatUI
         ModalSheet
     }
 
-    /// <summary>Per-call options for the experimental, invite-only checkpoints API.</summary>
+    /// <summary>Per-call options for the experimental, invite-only checkpoints API. It may change or be removed in any release.</summary>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public class CheckpointParams
     {
         /// <summary>Values used in targeting rules and in the presented paywall.</summary>

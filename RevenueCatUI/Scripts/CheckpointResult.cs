@@ -1,9 +1,11 @@
+using RevenueCatUI.Internal;
 using System.Collections.Generic;
 using RevenueCat.SimpleJSON;
 
 namespace RevenueCatUI
 {
-    /// <summary>The result of passing a checkpoint.</summary>
+    /// <summary>Experimental, invite-only. The result of passing a checkpoint.</summary>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public class CheckpointResult
     {
         /// <summary>Null when the checkpoint had nothing to present.</summary>
@@ -20,7 +22,8 @@ namespace RevenueCatUI
         }
     }
 
-    /// <summary>What the customer obtained during the checkpoint's flow.</summary>
+    /// <summary>Experimental, invite-only. What the customer obtained during the checkpoint's flow.</summary>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public class FlowResult
     {
         public IReadOnlyList<ObtainedEntitlement> ObtainedEntitlements { get; }
@@ -40,6 +43,8 @@ namespace RevenueCatUI
         }
     }
 
+    /// <summary>Experimental, invite-only. An entitlement obtained during the checkpoint's flow.</summary>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public class ObtainedEntitlement
     {
         public Purchases.EntitlementInfo EntitlementInfo { get; }
@@ -50,6 +55,8 @@ namespace RevenueCatUI
         }
     }
 
+    /// <summary>Experimental, invite-only. A product obtained during the checkpoint's flow.</summary>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public class ObtainedProduct
     {
         public Purchases.StoreProduct Product { get; }

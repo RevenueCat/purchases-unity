@@ -1,3 +1,4 @@
+#pragma warning disable CS0618 // Checkpoints are experimental on purpose.
 // Both players need a native accessibility overlay for Maestro to see the uGUI.
 #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
 #define ACCESSIBILITY_OVERLAY

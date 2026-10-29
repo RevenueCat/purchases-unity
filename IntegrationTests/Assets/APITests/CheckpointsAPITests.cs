@@ -1,3 +1,4 @@
+#pragma warning disable CS0618 // Checkpoints are experimental on purpose.
 using System;
 using System.Collections.Generic;
 using RevenueCatUI;

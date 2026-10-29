@@ -4,6 +4,12 @@ using RevenueCatUI.Internal;
 namespace RevenueCatUI
 {
     /// <summary>Experimental, invite-only checkpoints configured in the RevenueCat dashboard.</summary>
+    /// <remarks>
+    /// This API is experimental and only available to invited customers. It may change or be
+    /// removed in any release, so don't rely on it without talking to RevenueCat first.
+    /// Using it produces an obsolete warning at compile time on purpose.
+    /// </remarks>
+    [System.Obsolete(CheckpointsApi.ExperimentalMessage)]
     public static class Checkpoints
     {
         /// <summary>
@@ -14,6 +20,7 @@ namespace RevenueCatUI
         /// than 15) logs an error and does not call onPassed.
         /// Must be called from the Unity main thread. Requires iOS 15+ or Android, outside the Editor.
         /// </summary>
+        /// <remarks>Experimental and invite-only. This API may change or be removed in any release.</remarks>
         /// <example>
         /// <code>
         /// private Action detachCheckpoint;

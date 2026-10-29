@@ -1,3 +1,4 @@
+#pragma warning disable CS0618 // Checkpoints are experimental on purpose.
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
