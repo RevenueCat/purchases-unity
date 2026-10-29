@@ -47,6 +47,26 @@ namespace RevenueCat.Tester.Screens
             return vars.Count > 0 ? vars : null;
         }
 
+        // Checkpoint targeting rules can match on Number and Boolean variables, so infer the type from the text.
+        private Dictionary<string, CustomVariableValue> GetTypedCustomVariables()
+        {
+            var vars = new Dictionary<string, CustomVariableValue>();
+            foreach (var (keyField, valueField) in _customVarFields)
+            {
+                var key = keyField.value?.Trim();
+                if (string.IsNullOrEmpty(key)) continue;
+                var text = valueField.value ?? "";
+                if (bool.TryParse(text.Trim(), out var boolean))
+                    vars[key] = CustomVariableValue.Boolean(boolean);
+                else if (double.TryParse(text.Trim(), System.Globalization.NumberStyles.Float,
+                             System.Globalization.CultureInfo.InvariantCulture, out var number))
+                    vars[key] = CustomVariableValue.Number(number);
+                else
+                    vars[key] = CustomVariableValue.String(text);
+            }
+            return vars.Count > 0 ? vars : null;
+        }
+
         private PaywallOptions BuildOptions(bool displayCloseButton = true, Purchases.Offering offering = null, PaywallPresentationConfiguration presentationConfiguration = null, PurchaseLogic purchaseLogic = null, PaywallListener listener = null)
         {
             var customVars = GetCustomVariables();
@@ -113,6 +133,7 @@ namespace RevenueCat.Tester.Screens
         protected override void Build()
         {
             AddSectionHeader("Checkpoints (Experimental, Invite Only)");
+            AddInfoLabel("Sends the Custom Variables below. Values like true/false or 42 are sent as Boolean/Number, anything else as String.");
             var checkpointId = AddTextField("Checkpoint ID", "Dashboard checkpoint identifier");
             var checkpointStatus = new UnityEngine.UIElements.Label("Callback: not invoked");
             Content.Add(checkpointStatus);
@@ -133,7 +154,7 @@ namespace RevenueCat.Tester.Screens
                                 $"Callback: passed, entitlements: {string.Join(", ", entitlements)}, products: {string.Join(", ", products)}";
                             LogSuccess(checkpointStatus.text);
                             Log($"Customer active entitlements: {string.Join(", ", result.Customer.Entitlements.Active.Keys)}");
-                        }, new CheckpointParams(GetCustomVariables(), mode));
+                        }, new CheckpointParams(GetTypedCustomVariables(), mode));
                         _checkpointCallbacks.Add(detach);
                     }
                     catch (System.Exception e)
