@@ -1,3 +1,4 @@
+#pragma warning disable CS0618 // Checkpoints are experimental on purpose.
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,10 +10,16 @@ namespace RevenueCat.Tester.Screens
     public class PaywallScreen : ScreenBase
     {
         private UnityEngine.UIElements.TextField _offeringIdField;
+        private readonly HashSet<System.Action> _checkpointCallbacks = new HashSet<System.Action>();
 
         public PaywallScreen(Purchases purchases, LogConsole console, string defaultOfferingId = null, RevenueCatUI.PaywallsBehaviour.CustomVariableEntry[] defaultCustomVariables = null)
             : base(purchases, console)
         {
+            Root.RegisterCallback<UnityEngine.UIElements.DetachFromPanelEvent>(_ =>
+            {
+                foreach (var detach in _checkpointCallbacks) detach();
+                _checkpointCallbacks.Clear();
+            });
             if (!string.IsNullOrEmpty(defaultOfferingId) && _offeringIdField != null)
                 _offeringIdField.value = defaultOfferingId;
 
@@ -36,6 +43,26 @@ namespace RevenueCat.Tester.Screens
                 var key = keyField.value?.Trim();
                 if (!string.IsNullOrEmpty(key))
                     vars[key] = CustomVariableValue.String(valueField.value ?? "");
+            }
+            return vars.Count > 0 ? vars : null;
+        }
+
+        // Checkpoint targeting rules can match on Number and Boolean variables, so infer the type from the text.
+        private Dictionary<string, CustomVariableValue> GetTypedCustomVariables()
+        {
+            var vars = new Dictionary<string, CustomVariableValue>();
+            foreach (var (keyField, valueField) in _customVarFields)
+            {
+                var key = keyField.value?.Trim();
+                if (string.IsNullOrEmpty(key)) continue;
+                var text = valueField.value ?? "";
+                if (bool.TryParse(text.Trim(), out var boolean))
+                    vars[key] = CustomVariableValue.Boolean(boolean);
+                else if (double.TryParse(text.Trim(), System.Globalization.NumberStyles.Float,
+                             System.Globalization.CultureInfo.InvariantCulture, out var number))
+                    vars[key] = CustomVariableValue.Number(number);
+                else
+                    vars[key] = CustomVariableValue.String(text);
             }
             return vars.Count > 0 ? vars : null;
         }
@@ -105,6 +132,39 @@ namespace RevenueCat.Tester.Screens
 
         protected override void Build()
         {
+            AddSectionHeader("Checkpoints (Experimental, Invite Only)");
+            AddInfoLabel("Sends the Custom Variables below. Values like true/false or 42 are sent as Boolean/Number, anything else as String.");
+            var checkpointId = AddTextField("Checkpoint ID", "Dashboard checkpoint identifier");
+            var checkpointStatus = new UnityEngine.UIElements.Label("Callback: not invoked");
+            Content.Add(checkpointStatus);
+            foreach (var mode in new[] { FlowPresentationMode.Default, FlowPresentationMode.ModalSheet, FlowPresentationMode.ModalFullScreen })
+            {
+                AddButton($"Hit Checkpoint ({mode})", () =>
+                {
+                    checkpointStatus.text = "Callback: not invoked (backing out does not invoke it)";
+                    try
+                    {
+                        System.Action detach = null;
+                        detach = Checkpoints.Checkpoint(checkpointId.value, result =>
+                        {
+                            _checkpointCallbacks.Remove(detach);
+                            var entitlements = result.Flow?.ObtainedEntitlements.Select(value => value.EntitlementInfo.Identifier);
+                            var products = result.Flow?.ObtainedProducts.Select(value => value.Product.Identifier);
+                            checkpointStatus.text = result.Flow == null ? "Callback: passed, no flow" :
+                                $"Callback: passed, entitlements: {string.Join(", ", entitlements)}, products: {string.Join(", ", products)}";
+                            LogSuccess(checkpointStatus.text);
+                            Log($"Customer active entitlements: {string.Join(", ", result.Customer.Entitlements.Active.Keys)}");
+                        }, new CheckpointParams(GetTypedCustomVariables(), mode));
+                        _checkpointCallbacks.Add(detach);
+                    }
+                    catch (System.Exception e)
+                    {
+                        checkpointStatus.text = $"Checkpoint error: {e.Message}";
+                        LogError(checkpointStatus.text);
+                    }
+                });
+            }
+
             AddSectionHeader("Custom Variables");
             AddInfoLabel("Variables use {{ custom.key }} syntax in V2 paywalls");
 
