@@ -14,6 +14,28 @@ namespace RevenueCatUI
         /// than 15) logs an error and does not call onPassed.
         /// Must be called from the Unity main thread. Requires iOS 15+ or Android, outside the Editor.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// private Action detachCheckpoint;
+        ///
+        /// void Upgrade()
+        /// {
+        ///     detachCheckpoint?.Invoke();
+        ///     detachCheckpoint = Checkpoints.Checkpoint("upgrade", result =>
+        ///     {
+        ///         // Continue the app here. result.Customer has the latest customer info.
+        ///         // result.Flow, when present, has ObtainedEntitlements and ObtainedProducts.
+        ///     }, new CheckpointParams(
+        ///         customVariables: new Dictionary&lt;string, CustomVariableValue&gt;
+        ///         {
+        ///             { "level", CustomVariableValue.Number(42) }
+        ///         },
+        ///         presentationMode: FlowPresentationMode.ModalSheet));
+        /// }
+        ///
+        /// void OnDestroy() => detachCheckpoint?.Invoke();
+        /// </code>
+        /// </example>
         /// <returns>
         /// A function that detaches the callback. Call it when its owning screen is destroyed,
         /// including calls that never pass. Detaching does not dismiss a flow already on screen.
