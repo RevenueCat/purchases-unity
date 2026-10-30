@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 
@@ -294,7 +295,7 @@ public class PaywallViewPresenter {
 
         paywallView.setDisplayDismissButton(displayCloseButton);
         paywallView.setPaywallListener(createPaywallListener(hasPaywallListener));
-        setupExitOfferHandler(paywallView);
+        setupExitOfferHandler(activity, paywallView, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener);
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
                 if (currentDialog != null) {
@@ -342,27 +343,39 @@ public class PaywallViewPresenter {
     }
 
     /**
-     * When the paywall is closed and an exit offer should be presented, shows the exit offering in the same
-     * PaywallView instead of dismissing. This mirrors PaywallActivity, which launches the exit offering's paywall
-     * when the original one is closed without a purchase. The handler stays set, so exit offers can chain as they
-     * do there.
+     * When the paywall is closed and an exit offer should be presented, dismisses the current Dialog and presents the
+     * exit offering in a new one. This mirrors PaywallActivity, which launches the exit offering's paywall in a new
+     * Activity when the original one is closed without a purchase. The new paywall gets the same handler, so exit
+     * offers can chain as they do there.
      *
-     * The same PaywallView is re-targeted rather than replaced: the Dialog's window has no lifecycle owner, so
-     * PaywallView installs its own, and a second PaywallView added after the first is removed renders but never
-     * recomposes or receives input.
+     * The paywall is presented in a new Dialog rather than swapped into the current one: the Dialog's window has no
+     * lifecycle owner, so PaywallView installs its own, and a second PaywallView added after the first is removed
+     * renders but never recomposes or receives input.
+     *
+     * The current Dialog is torn down without sending a result to C#, so the whole flow is a single presentation.
+     * The exit paywall's outcome is the presentation's result, as with PaywallActivity.
      */
-    private static void setupExitOfferHandler(PaywallView paywallView) {
+    private static void setupExitOfferHandler(
+            Activity activity,
+            PaywallView paywallView,
+            boolean displayCloseButton,
+            @Nullable String customVariablesJson,
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
+    ) {
+        // A repeated close on the same PaywallView (e.g. a double tap) must not tear down the exit paywall.
+        AtomicBoolean handled = new AtomicBoolean(false);
         paywallView.setExitOfferHandler(exitOffering -> {
-            // Posted so the paywall isn't re-targeted from inside its own close callback.
-            paywallView.post(() -> {
-                if (currentDialog == null) {
+            activity.runOnUiThread(() -> {
+                if (currentDialog == null || !handled.compareAndSet(false, true)) {
                     return;
                 }
-                // The exit paywall's outcome is the presentation's result, as with PaywallActivity.
-                lastResult = RESULT_CANCELLED;
-                String exitOfferingId = exitOffering.getIdentifier();
+                dismissDialog();
                 // PaywallActivity drops the presented offering context for the exit offering.
-                paywallView.setOfferingId(exitOfferingId, new PresentedOfferingContext(exitOfferingId));
+                showPaywallView(
+                        activity, exitOffering.getIdentifier(), null, displayCloseButton, customVariablesJson,
+                        hasPurchaseLogic, hasPaywallListener
+                );
             });
             return Unit.INSTANCE;
         });
