@@ -25,7 +25,9 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
 
@@ -208,6 +210,7 @@ public class PaywallViewPresenter {
 
         lastResult = RESULT_CANCELLED;
 
+        int hostHiddenSystemBars = hiddenSystemBarTypes(activity);
         Dialog dialog = createDialog(activity);
         currentDialog = dialog;
 
@@ -226,6 +229,41 @@ public class PaywallViewPresenter {
         ));
 
         dialog.show();
+        hideSystemBars(dialog.getWindow(), hostHiddenSystemBars);
+    }
+
+    /**
+     * Returns the system bar types the host activity currently hides (e.g. Unity with
+     * unity.launch-fullscreen=True hides both).
+     */
+    private static int hiddenSystemBarTypes(Activity activity) {
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(activity.getWindow().getDecorView());
+        if (insets == null) return 0;
+        int hidden = 0;
+        if (!insets.isVisible(WindowInsetsCompat.Type.statusBars())) {
+            hidden |= WindowInsetsCompat.Type.statusBars();
+        }
+        if (!insets.isVisible(WindowInsetsCompat.Type.navigationBars())) {
+            hidden |= WindowInsetsCompat.Type.navigationBars();
+        }
+        return hidden;
+    }
+
+    /**
+     * Hides the given system bars on the dialog window. System bar visibility follows the
+     * focused window, so the host's immersive mode does not carry over to the dialog: without
+     * this, the navigation bar appears as soon as the paywall is shown. Hidden bars can still
+     * be revealed temporarily with a swipe, as in the host.
+     *
+     * Must run after the dialog is shown: on some API levels a request made before the window
+     * is attached is dropped.
+     */
+    private static void hideSystemBars(@Nullable Window window, int types) {
+        if (window == null || types == 0) return;
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(window, window.getDecorView());
+        controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        controller.hide(types);
     }
 
     /**
