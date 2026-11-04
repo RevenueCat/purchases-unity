@@ -29,6 +29,14 @@ Bump version, edit changelog, and create pull request
 
 Automatically bumps version, edit changelog, and create pull request
 
+### hotfix
+
+```sh
+[bundle exec] fastlane hotfix
+```
+
+Open a hotfix release PR that patches an older release with a PR merged into main. Usage: fastlane hotfix pr:1234 version:9.16.0
+
 ### github_release
 
 ```sh
@@ -44,6 +52,30 @@ Make github release
 ```
 
 Update hybrid common pod and gradle and pushes changes to a new branch if open_pr option is true
+
+### xcode_build_maestro_test_app
+
+```sh
+[bundle exec] fastlane xcode_build_maestro_test_app
+```
+
+Build the Unity-generated Xcode project for iOS Simulator
+
+### run_maestro_e2e_tests_ios
+
+```sh
+[bundle exec] fastlane run_maestro_e2e_tests_ios
+```
+
+Run maestro E2E tests on iOS (booted simulator required)
+
+### run_maestro_e2e_tests_android
+
+```sh
+[bundle exec] fastlane run_maestro_e2e_tests_android
+```
+
+Run maestro E2E tests on Android (running emulator required)
 
 ### tag_current_branch
 
