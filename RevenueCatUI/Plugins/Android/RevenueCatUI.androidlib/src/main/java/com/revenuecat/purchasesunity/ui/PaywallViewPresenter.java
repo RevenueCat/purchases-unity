@@ -213,7 +213,8 @@ public class PaywallViewPresenter {
         currentDialog = dialog;
 
         PaywallView paywallView = createPaywallView(
-                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener
+                activity, dialog, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson,
+                hasPurchaseLogic, hasPaywallListener
         );
 
         setupBackPressedOwner(dialog.getWindow());
@@ -273,6 +274,7 @@ public class PaywallViewPresenter {
 
     private static PaywallView createPaywallView(
             Activity activity,
+            Dialog dialog,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
@@ -295,10 +297,12 @@ public class PaywallViewPresenter {
 
         paywallView.setDisplayDismissButton(displayCloseButton);
         paywallView.setPaywallListener(createPaywallListener(hasPaywallListener));
-        setupExitOfferHandler(activity, paywallView, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener);
+        setupExitOfferHandler(
+                activity, dialog, paywallView, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener
+        );
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
-                if (currentDialog != null) {
+                if (currentDialog == dialog) {
                     String result = lastResult;
                     dismissDialog();
                     RevenueCatUI.sendPaywallResult(result);
@@ -348,6 +352,7 @@ public class PaywallViewPresenter {
      */
     private static void setupExitOfferHandler(
             Activity activity,
+            Dialog dialog,
             PaywallView paywallView,
             boolean displayCloseButton,
             @Nullable String customVariablesJson,
@@ -358,7 +363,7 @@ public class PaywallViewPresenter {
         AtomicBoolean handled = new AtomicBoolean(false);
         paywallView.setExitOfferHandler(exitOffering -> {
             activity.runOnUiThread(() -> {
-                if (currentDialog == null || !handled.compareAndSet(false, true)) {
+                if (currentDialog != dialog || !handled.compareAndSet(false, true)) {
                     return;
                 }
                 dismissDialog();
