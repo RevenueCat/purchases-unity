@@ -222,7 +222,7 @@ public class PaywallViewPresenter {
         setupBackPressRouting(dialog);
         setupDismissListener(dialog);
 
-        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView, dialog.getWindow());
+        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView, dialog.getWindow(), hostHiddenSystemBars);
         dialog.setContentView(container, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -580,7 +580,7 @@ public class PaywallViewPresenter {
      * (see {@link InsetsCachingListener}).
      */
     private static FrameLayout createEdgeToEdgeContainer(
-            Activity activity, PaywallView paywallView, @Nullable Window dialogWindow) {
+            Activity activity, PaywallView paywallView, @Nullable Window dialogWindow, int hiddenSystemBars) {
         FrameLayout container = new FrameLayout(activity);
         container.addView(paywallView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -588,7 +588,7 @@ public class PaywallViewPresenter {
         ));
 
         ViewCompat.setOnApplyWindowInsetsListener(container,
-                new InsetsCachingListener(paywallView, dialogWindow));
+                new InsetsCachingListener(paywallView, dialogWindow, hiddenSystemBars));
 
         return container;
     }
@@ -608,18 +608,21 @@ public class PaywallViewPresenter {
      * does not read.
      *
      * The cache is kept as a defensive fallback for older APIs or edge configurations where
-     * a dispatch might transiently arrive with zero typed values.
+     * a dispatch might transiently arrive with zero typed values. Bars deliberately hidden
+     * on the dialog bypass this fallback so a zero inset clears any previous padding.
      */
     private static final class InsetsCachingListener implements OnApplyWindowInsetsListener {
         private final PaywallView paywallView;
         @Nullable private final Window dialogWindow;
+        private final int hiddenSystemBars;
         @Nullable private Insets cachedStatusBars;
         @Nullable private Insets cachedNavBars;
         private boolean edgeToEdgeFlagsApplied;
 
-        InsetsCachingListener(PaywallView paywallView, @Nullable Window dialogWindow) {
+        InsetsCachingListener(PaywallView paywallView, @Nullable Window dialogWindow, int hiddenSystemBars) {
             this.paywallView = paywallView;
             this.dialogWindow = dialogWindow;
+            this.hiddenSystemBars = hiddenSystemBars;
         }
 
         @NonNull
@@ -635,8 +638,10 @@ public class PaywallViewPresenter {
                 cachedNavBars = incomingNavBars;
             }
 
-            Insets effectiveStatusBars = cachedStatusBars != null ? cachedStatusBars : incomingStatusBars;
-            Insets effectiveNavBars = cachedNavBars != null ? cachedNavBars : incomingNavBars;
+            Insets effectiveStatusBars = (hiddenSystemBars & WindowInsetsCompat.Type.statusBars()) != 0
+                    || cachedStatusBars == null ? incomingStatusBars : cachedStatusBars;
+            Insets effectiveNavBars = (hiddenSystemBars & WindowInsetsCompat.Type.navigationBars()) != 0
+                    || cachedNavBars == null ? incomingNavBars : cachedNavBars;
 
             WindowInsetsCompat corrected = new WindowInsetsCompat.Builder(insets)
                     .setInsets(WindowInsetsCompat.Type.statusBars(), effectiveStatusBars)
