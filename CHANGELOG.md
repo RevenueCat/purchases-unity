@@ -1,3 +1,8 @@
+## 9.16.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(paywalls): keep system bars hidden on the Android paywall dialog in fullscreen games (#1176) via andsolleiro (@andsolleiro)
+
 ## 9.16.0
 ## RevenueCat SDK
 ### 🐞 Bugfixes
