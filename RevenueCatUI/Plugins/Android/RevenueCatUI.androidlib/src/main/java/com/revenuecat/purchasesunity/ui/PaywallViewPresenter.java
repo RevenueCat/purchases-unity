@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.revenuecat.purchases.ui.revenuecatui.CustomVariableValue;
 
@@ -212,7 +213,8 @@ public class PaywallViewPresenter {
         currentDialog = dialog;
 
         PaywallView paywallView = createPaywallView(
-                activity, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener
+                activity, dialog, offeringIdentifier, presentedOfferingContextJson, displayCloseButton, customVariablesJson,
+                hasPurchaseLogic, hasPaywallListener
         );
 
         setupBackPressedOwner(dialog.getWindow());
@@ -272,6 +274,7 @@ public class PaywallViewPresenter {
 
     private static PaywallView createPaywallView(
             Activity activity,
+            Dialog dialog,
             @Nullable String offeringIdentifier,
             @Nullable String presentedOfferingContextJson,
             boolean displayCloseButton,
@@ -294,9 +297,12 @@ public class PaywallViewPresenter {
 
         paywallView.setDisplayDismissButton(displayCloseButton);
         paywallView.setPaywallListener(createPaywallListener(hasPaywallListener));
+        setupExitOfferHandler(
+                activity, dialog, paywallView, displayCloseButton, customVariablesJson, hasPurchaseLogic, hasPaywallListener
+        );
         paywallView.setDismissHandler(() -> {
             activity.runOnUiThread(() -> {
-                if (currentDialog != null) {
+                if (currentDialog == dialog) {
                     String result = lastResult;
                     dismissDialog();
                     RevenueCatUI.sendPaywallResult(result);
@@ -338,6 +344,37 @@ public class PaywallViewPresenter {
         }
 
         return paywallView;
+    }
+
+    /**
+     * Uses a new Dialog so the exit paywall gets a fresh view lifecycle.
+     * Keeps the C# presentation open until the final paywall closes.
+     */
+    private static void setupExitOfferHandler(
+            Activity activity,
+            Dialog dialog,
+            PaywallView paywallView,
+            boolean displayCloseButton,
+            @Nullable String customVariablesJson,
+            boolean hasPurchaseLogic,
+            boolean hasPaywallListener
+    ) {
+        // A repeated close on the same PaywallView (e.g. a double tap) must not tear down the exit paywall.
+        AtomicBoolean handled = new AtomicBoolean(false);
+        paywallView.setExitOfferHandler(exitOffering -> {
+            activity.runOnUiThread(() -> {
+                if (currentDialog != dialog || !handled.compareAndSet(false, true)) {
+                    return;
+                }
+                dismissDialog();
+                // PaywallActivity drops the presented offering context for the exit offering.
+                showPaywallView(
+                        activity, exitOffering.getIdentifier(), null, displayCloseButton, customVariablesJson,
+                        hasPurchaseLogic, hasPaywallListener
+                );
+            });
+            return Unit.INSTANCE;
+        });
     }
 
     // When forwarding events, FLAG_NOT_FOCUSABLE is set on the dialog while a purchase

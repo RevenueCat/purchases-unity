@@ -47,6 +47,9 @@ static class SceneSetup
         var entitlementsLabel = CreateText(purchaseScreen.transform, "EntitlementsLabel", "Entitlements: none", 16, FontStyle.Normal,
             new Vector2(0, 0.6f), new Vector2(1, 0.7f), TextAnchor.MiddleCenter);
 
+        var paywallResultLabel = CreateText(purchaseScreen.transform, "PaywallResultLabel", "Paywall result: not completed", 14, FontStyle.Normal,
+            new Vector2(0, 0.3f), new Vector2(1, 0.4f), TextAnchor.MiddleCenter);
+
         CreateButton(purchaseScreen.transform, "PaywallButton", "Present Paywall",
             new Vector2(0.1f, 0.4f), new Vector2(0.9f, 0.5f));
 
@@ -93,6 +96,7 @@ static class SceneSetup
         maestroApp.testCasesScreen = testCasesScreen;
         maestroApp.purchaseScreen = purchaseScreen;
         maestroApp.entitlementsLabel = entitlementsLabel;
+        maestroApp.paywallResultLabel = paywallResultLabel;
         maestroApp.errorLabel = errorLabel;
         maestroApp.checkpointScreen = checkpointScreen;
         maestroApp.checkpointIdentifierLabel = checkpointIdentifierLabel;

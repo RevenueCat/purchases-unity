@@ -40,6 +40,9 @@ cannot be created outside the editor.
 - Add a child **Text** named "EntitlementsLabel" (UI > Legacy > Text):
   - Text content: `Entitlements: none`
   - Font size: 16, centered.
+- Add a child **Text** named "PaywallResultLabel" (UI > Legacy > Text):
+  - Text content: `Paywall result: not completed`
+  - Font size: 14, centered.
 - Add a child **Button** (UI > Legacy > Button):
   - Set the button's child Text to: `Present Paywall`
   - On Click: drag the Purchases GameObject, select `MaestroTestApp > PresentPaywall`.
@@ -56,6 +59,7 @@ cannot be created outside the editor.
 - Drag "TestCasesScreen" to the `testCasesScreen` field.
 - Drag "PurchaseScreen" to the `purchaseScreen` field.
 - Drag "EntitlementsLabel" Text to the `entitlementsLabel` field.
+- Drag "PaywallResultLabel" Text to the `paywallResultLabel` field.
 - Drag "ErrorLabel" Text to the `errorLabel` field.
 
 ### 6. Project Settings
