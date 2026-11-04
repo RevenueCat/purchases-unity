@@ -1,6 +1,6 @@
 {
   "name": "com.revenuecat.purchases-unity",
-  "version": "10.0.0",
+  "version": "10.0.1",
   "unity": "2022.3",
   "unityRelease": "33f1",
   "displayName": "RevenueCat SDK for Unity",
