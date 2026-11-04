@@ -28,7 +28,16 @@ name: Paywall exit offer dismissal returns cancelled result
     visible: "Unlock full access"
     timeout: 15000
 # Close the exit offer and verify the dismissal result returned to Unity.
-- tapOn: { point: "89%,5%" }
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: { point: "89%,5%" }
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: { point: "92%,8%" }
 - extendedWaitUntil:
     visible: "Paywall result: Cancelled"
     timeout: 8000
