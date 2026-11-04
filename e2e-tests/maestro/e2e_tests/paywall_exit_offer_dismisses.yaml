@@ -23,7 +23,7 @@ name: Paywall exit offer dismissal returns cancelled result
     visible: "People Who Meditate Daily Sleep 40% Better"
     timeout: 15000
 # Close the last page to show its exit offer.
-- tapOn: { point: "8%,6%" }
+- tapOn: { text: "Close Paywall" }
 - extendedWaitUntil:
     visible: "Unlock full access"
     timeout: 15000
