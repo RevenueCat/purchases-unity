@@ -5,7 +5,7 @@ using RevenueCat;
 using UnityEngine;
 
 #if UNITY_IOS || UNITY_VISIONOS
-public class PurchasesWrapperiOS : IPurchasesWrapper
+public class PurchasesWrapperiOS : IPurchasesWrapper, IPromotedPurchasesWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, string purchasesAreCompletedBy,
@@ -37,6 +37,13 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
             userDefaultsSuiteName, dangerousSettingsJson, shouldShowInAppMessagesAutomatically, entitlementVerificationMode.Name(),
             diagnosticsEnabled, automaticDeviceIdentifierCollectionEnabled, preferredUILocaleOverride,
             useExternalPurchaseCustomLinks, enableExternalPurchasesInSimulator);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCMakeDeferredPurchase(string callbackID, string gameObject);
+    public void MakeDeferredPurchase(string callbackID, string gameObject)
+    {
+        _RCMakeDeferredPurchase(callbackID, gameObject);
     }
 
     [DllImport("__Internal")]
