@@ -289,6 +289,39 @@ public partial class Purchases : MonoBehaviour
 
     private MakePurchaseFunc MakePurchaseCallback { get; set; }
 
+    /// <summary>
+    /// Apple StoreKit 2 only. Purchases a product with a server-signed introductory offer eligibility JWS.
+    /// Requires iOS 15+ or visionOS 2.4+ and a supporting PHC release. Unsupported paths reject instead of
+    /// ignoring the token. The token must be non-empty; use PurchaseProduct for default store eligibility.
+    /// </summary>
+    public void PurchaseProductWithIntroductoryOfferEligibilityJWS(string productIdentifier,
+        string introductoryOfferEligibilityJWS, MakePurchaseFunc callback)
+    {
+        var wrapper = GetIntroductoryOfferEligibilityWrapper(introductoryOfferEligibilityJWS);
+        MakePurchaseCallback = callback;
+        wrapper.PurchaseProductWithIntroductoryOfferEligibilityJWS(productIdentifier, introductoryOfferEligibilityJWS);
+    }
+
+    /// <summary>Purchases a package with the same eligibility JWS requirements as the product method.</summary>
+    public void PurchasePackageWithIntroductoryOfferEligibilityJWS(Package package,
+        string introductoryOfferEligibilityJWS, MakePurchaseFunc callback)
+    {
+        if (package == null) throw new ArgumentNullException(nameof(package));
+        var wrapper = GetIntroductoryOfferEligibilityWrapper(introductoryOfferEligibilityJWS);
+        MakePurchaseCallback = callback;
+        wrapper.PurchasePackageWithIntroductoryOfferEligibilityJWS(package, introductoryOfferEligibilityJWS);
+    }
+
+    private IIntroductoryOfferEligibilityPurchasesWrapper GetIntroductoryOfferEligibilityWrapper(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            throw new ArgumentException("introductoryOfferEligibilityJWS must be a non-empty string.", nameof(token));
+        var wrapper = _wrapper as IIntroductoryOfferEligibilityPurchasesWrapper;
+        if (wrapper == null)
+            throw new PlatformNotSupportedException("Introductory offer eligibility JWS requires a supported Apple StoreKit 2 wrapper.");
+        return wrapper;
+    }
+
     ///
     /// <summary>
     /// Initiates a purchase of a <see cref="StoreProduct"/>.

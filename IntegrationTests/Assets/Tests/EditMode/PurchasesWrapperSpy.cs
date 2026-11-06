@@ -4,7 +4,7 @@ using RevenueCat;
 
 namespace RevenueCat.Tests
 {
-    internal sealed class PurchasesWrapperSpy : IPurchasesWrapper
+    internal class PurchasesWrapperSpy : IPurchasesWrapper
     {
         internal sealed class Invocation
         {
