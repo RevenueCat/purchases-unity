@@ -708,6 +708,7 @@ void rcui_checkpoint(const char *identifier,
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [CheckpointProxy presentWithIdentifier:checkpointIdentifier
+                                        callId:invocationId
                                customVariables:variables
                               presentationMode:mode
                                       onPassed:^(NSDictionary<NSString *, id> * _Nonnull result) {
@@ -727,6 +728,8 @@ void rcui_checkpoint(const char *identifier,
             if (errorCallback != NULL) {
                 errorCallback(invocationId.UTF8String, code.UTF8String, message.UTF8String);
             }
-        }];
+        }
+                onPaywallPresentationRequested:nil
+                        onErrorDialogRequested:nil];
     });
 }
