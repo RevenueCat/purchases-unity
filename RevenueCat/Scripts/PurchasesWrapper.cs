@@ -110,3 +110,10 @@ public interface IPurchasesWrapper
     void GenerateRewardVerificationToken(string impressionId);
     void PollRewardVerification(string clientTransactionId, RevenueCat.RewardedAdTrackingMetadata trackingMetadata = null);
 }
+
+/// <summary>Optional purchase capability. Existing IPurchasesWrapper implementations remain compatible.</summary>
+public interface IIntroductoryOfferEligibilityPurchasesWrapper
+{
+    void PurchaseProductWithIntroductoryOfferEligibilityJWS(string productIdentifier, string introductoryOfferEligibilityJWS);
+    void PurchasePackageWithIntroductoryOfferEligibilityJWS(Purchases.Package package, string introductoryOfferEligibilityJWS);
+}
