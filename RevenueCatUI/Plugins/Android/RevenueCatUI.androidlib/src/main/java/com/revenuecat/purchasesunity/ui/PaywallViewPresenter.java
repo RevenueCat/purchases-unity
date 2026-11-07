@@ -224,7 +224,7 @@ public class PaywallViewPresenter {
         setupBackPressRouting(dialog);
         setupDismissListener(dialog);
 
-        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView, dialog.getWindow());
+        FrameLayout container = createEdgeToEdgeContainer(activity, paywallView, dialog.getWindow(), hostHiddenSystemBars);
         dialog.setContentView(container, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -281,6 +281,9 @@ public class PaywallViewPresenter {
         Window window = dialog.getWindow();
         if (window != null) {
             window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+            // Deliver insets to our listener instead of letting the decor consume them.
+            // Android 14 and below do not enforce edge-to-edge layout for this window.
+            WindowCompat.setDecorFitsSystemWindows(window, false);
 
             // NOTE: FLAG_NOT_FOCUSABLE is NOT set here so the Dialog can receive
             // back navigation events (key events on pre-API 33, gesture back on
@@ -613,11 +616,11 @@ public class PaywallViewPresenter {
      * (e.g. Unity with unity.launch-fullscreen=True) may hide system bars, which makes
      * the activity report zero nav-bar insets while the dialog still shows them.
      *
-     * The listener also defers FLAG_LAYOUT_NO_LIMITS until after the first inset dispatch
+     * The listener also defers FLAG_LAYOUT_NO_LIMITS until after the first usable inset dispatch
      * (see {@link InsetsCachingListener}).
      */
     private static FrameLayout createEdgeToEdgeContainer(
-            Activity activity, PaywallView paywallView, @Nullable Window dialogWindow) {
+            Activity activity, PaywallView paywallView, @Nullable Window dialogWindow, int hiddenSystemBars) {
         FrameLayout container = new FrameLayout(activity);
         container.addView(paywallView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -625,7 +628,7 @@ public class PaywallViewPresenter {
         ));
 
         ViewCompat.setOnApplyWindowInsetsListener(container,
-                new InsetsCachingListener(paywallView, dialogWindow));
+                new InsetsCachingListener(paywallView, dialogWindow, hiddenSystemBars));
 
         return container;
     }
@@ -633,8 +636,9 @@ public class PaywallViewPresenter {
     /**
      * Inset listener that forwards the dialog window's status and navigation bar insets to
      * the PaywallView. Triggers FLAG_LAYOUT_NO_LIMITS on the dialog window once it has
-     * observed a real (non-zero) inset, to avoid a race where the flag would be set before
-     * any inset has been dispatched.
+     * observed a real (non-zero) inset, or the first dispatch if both bars are deliberately
+     * hidden. Hidden bars report zero insets, so waiting for non-zero values would prevent
+     * edge-to-edge setup entirely.
      *
      * On API 30+ the typed insets ({@link WindowInsetsCompat.Type#statusBars()} and
      * {@link WindowInsetsCompat.Type#navigationBars()}) are descriptive: they keep being
@@ -645,25 +649,30 @@ public class PaywallViewPresenter {
      * does not read.
      *
      * The cache is kept as a defensive fallback for older APIs or edge configurations where
-     * a dispatch might transiently arrive with zero typed values.
+     * a dispatch might transiently arrive with zero typed values. It also preserves the
+     * reserved space for navigation controls when the dialog hides the host's system bars.
+     * Navigation bar dimensions are read regardless of visibility so this space is also
+     * reserved when the controls are already hidden on the first dispatch.
      */
     private static final class InsetsCachingListener implements OnApplyWindowInsetsListener {
         private final PaywallView paywallView;
         @Nullable private final Window dialogWindow;
+        private final int hiddenSystemBars;
         @Nullable private Insets cachedStatusBars;
         @Nullable private Insets cachedNavBars;
         private boolean edgeToEdgeFlagsApplied;
 
-        InsetsCachingListener(PaywallView paywallView, @Nullable Window dialogWindow) {
+        InsetsCachingListener(PaywallView paywallView, @Nullable Window dialogWindow, int hiddenSystemBars) {
             this.paywallView = paywallView;
             this.dialogWindow = dialogWindow;
+            this.hiddenSystemBars = hiddenSystemBars;
         }
 
         @NonNull
         @Override
         public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
             Insets incomingStatusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
-            Insets incomingNavBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            Insets incomingNavBars = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.navigationBars());
 
             if (!Insets.NONE.equals(incomingStatusBars)) {
                 cachedStatusBars = incomingStatusBars;
@@ -672,6 +681,8 @@ public class PaywallViewPresenter {
                 cachedNavBars = incomingNavBars;
             }
 
+            boolean statusBarHidden = (hiddenSystemBars & WindowInsetsCompat.Type.statusBars()) != 0;
+            boolean navBarHidden = (hiddenSystemBars & WindowInsetsCompat.Type.navigationBars()) != 0;
             Insets effectiveStatusBars = cachedStatusBars != null ? cachedStatusBars : incomingStatusBars;
             Insets effectiveNavBars = cachedNavBars != null ? cachedNavBars : incomingNavBars;
 
@@ -681,7 +692,8 @@ public class PaywallViewPresenter {
                     .build();
             ViewCompat.dispatchApplyWindowInsets(paywallView, corrected);
 
-            if (!edgeToEdgeFlagsApplied && (cachedStatusBars != null || cachedNavBars != null)) {
+            if (!edgeToEdgeFlagsApplied &&
+                    ((statusBarHidden && navBarHidden) || cachedStatusBars != null || cachedNavBars != null)) {
                 edgeToEdgeFlagsApplied = true;
                 v.post(() -> applyEdgeToEdgeFlags(dialogWindow));
             }
@@ -692,7 +704,7 @@ public class PaywallViewPresenter {
 
     /**
      * Applies edge-to-edge window flags. Called by {@link InsetsCachingListener} after the
-     * first real inset dispatch has been observed and cached.
+     * first usable inset dispatch has been observed.
      */
     private static void applyEdgeToEdgeFlags(@Nullable Window window) {
         if (window == null) return;
