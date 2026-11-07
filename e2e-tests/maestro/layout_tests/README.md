@@ -22,8 +22,12 @@ settings. On the dedicated emulator it forces display rotation with
 `wm fixed-to-user-rotation enabled` and `wm user-rotation lock 0/1`, waits
 for the display dimensions to match, and tests portrait and landscape. This
 allows landscape coverage even when Unity or the launcher requests portrait. For each it
-captures the initial hidden state, swipes from the physical navigation edge,
-waits for Back to appear and disappear, then captures again. A wrong orientation,
+captures the initial hidden state, uses `adb input swipe` from the last physical
+pixel of the navigation edge, and captures again after a verified reveal/hide
+cycle. WindowManager must report the navigation source becoming visible within
+5 seconds, then hidden within 15 seconds. Both dumps are saved, including any
+optional transient-state diagnostics reported by that Android version. Maestro captures screenshots and
+asserts the paywall UI before the geometry checks. A wrong orientation,
 visible controls, missing labels, unsafe geometry, or insufficient gutter fails
 the run. The paywall must support rotation and hide system navigation controls.
 
@@ -51,6 +55,7 @@ The geometry checker has no emulator or SDK dependencies:
 
 ```sh
 python3 scripts/test-assert-android-paywall-margins.py
+python3 scripts/test-android-paywall-runner.py
 python3 scripts/assert-android-paywall-margins.py \
   --hierarchy hierarchy.json --insets insets.txt --report geometry.json
 ```

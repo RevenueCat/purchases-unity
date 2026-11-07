@@ -718,6 +718,7 @@ jobs:
           name: Run Android paywall navigation margin tests
           command: |
             python3 scripts/test-assert-android-paywall-margins.py
+            python3 scripts/test-android-paywall-runner.py
             adb install -r e2e-tests/MaestroTestApp/build/android/MaestroTestApp.apk
             python3 scripts/test-android-paywall-margins.py --device "$(adb get-serialno)"
           no_output_timeout: 10m

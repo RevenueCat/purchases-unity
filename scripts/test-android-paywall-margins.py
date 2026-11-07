@@ -136,14 +136,43 @@ def main():
             if not case(f'{orientation}.open', prepare):
                 continue
             case(f'{orientation}.initial-hidden', lambda: capture(orientation, 'initial-hidden'))
-            # The flow waits for Back to appear and then disappear, proving the
-            # second capture follows an actual transient-navigation cycle.
             def reveal_and_capture():
                 report = json.loads((output / orientation / 'initial-hidden/geometry.json').read_text())
                 if 'navigation_edge' not in report:
                     raise RuntimeError('Initial capture has no valid navigation edge')
-                edge = report['navigation_edge']
-                maestro('reveal_navigation.yaml', output / orientation / 'reveal', NAVIGATION_EDGE=edge)
+                left, top, right, bottom = report['display']
+                width, height = right - left, bottom - top
+                center_x, center_y = left + width // 2, top + height // 2
+                coordinates = {
+                    'bottom': (center_x, bottom - 1, center_x, top + height * 4 // 5),
+                    'right': (right - 1, center_y, left + width * 4 // 5, center_y),
+                    'left': (left, center_y, left + width // 5, center_y),
+                }[report['navigation_edge']]
+                directory = output / orientation / 'reveal'
+                directory.mkdir(parents=True, exist_ok=True)
+                # Maestro percentage coordinates can be relative to the dialog;
+                # adb targets the physical display edge that reveals system bars.
+                adb('input', 'swipe', *map(str, coordinates), '300')
+                for visible, timeout, name in ((True, 5, 'visible'), (False, 15, 'hidden')):
+                    deadline = time.monotonic() + timeout
+                    last_window = ''
+                    while time.monotonic() < deadline:
+                        last_window = adb('dumpsys', 'window', 'displays')
+                        sources = [line for line in last_window.splitlines()
+                                   if re.search(r'\bInsetsSource\b', line) and
+                                   re.search(r'\b(?:type|mType)=navigationBars\b', line)]
+                        source_matches = sources and all(re.search(
+                            r'\b(?:visible|mVisible)=' + str(visible).lower() + r'\b', line) for line in sources)
+                        # Transient markers vary by Android version; the source
+                        # visibility transition proves the actual reveal/hide cycle.
+                        if source_matches:
+                            (directory / f'{name}-insets.txt').write_text(last_window)
+                            break
+                        time.sleep(0.1)
+                    else:
+                        (directory / f'{name}-timeout-insets.txt').write_text(last_window)
+                        raise RuntimeError(f'Navigation controls did not become {name} within {timeout}s '
+                                           '(requires navigationBars source visibility to change)')
                 capture(orientation, 'hidden-after-reveal')
             case(f'{orientation}.hidden-after-reveal', reveal_and_capture)
     except (OSError, RuntimeError, ValueError, subprocess.TimeoutExpired) as error:
