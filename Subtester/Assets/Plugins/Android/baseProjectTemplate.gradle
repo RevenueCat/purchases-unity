@@ -4,8 +4,8 @@ plugins {
     // See official Gradle and Android Gradle Plugin compatibility table here https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
     // To specify a custom Gradle version in Unity, go do "Preferences > External Tools", uncheck "Gradle Installed with Unity (recommended)" and specify a path to a custom Gradle version
     // 8.8.2 is the latest version that is compatible with Unity 6000.2.2f1 which comes with Gradle 8.11 embedded
-    id 'com.android.application' version '8.8.2' apply false
-    id 'com.android.library' version '8.8.2' apply false
+    id 'com.android.application' version '9.5.1' apply false
+    id 'com.android.library' version '9.5.1' apply false
     **BUILD_SCRIPT_DEPS**
 }
 
