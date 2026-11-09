@@ -834,6 +834,7 @@ workflows:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
+          context: github-bot-public
           ruby_version: "3.3.0"
           requires:
             - wait-for-pr-approval
@@ -862,10 +863,12 @@ workflows:
           context: unity
           <<: *release-tags
       - github-release:
+          context: github-bot-public
           requires:
             - export-package
           <<: *release-tags
       - revenuecat/merge-release-pr:
+          context: github-bot-public
           repo_name: purchases-unity
           requires:
             - github-release
@@ -878,6 +881,7 @@ workflows:
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump:
+          context: github-bot-public
           ruby_version: "3.3.0"
 
   manual-trigger-bump:
@@ -885,6 +889,7 @@ workflows:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump:
+          context: github-bot-public
           ruby_version: "3.3.0"
 
   maestro-e2e-tests-ios:
@@ -921,4 +926,5 @@ workflows:
     when:
       equal: [ upgrade-hybrid-common, << pipeline.parameters.action >> ]
     jobs:
-      - update-hybrid-common-versions
+      - update-hybrid-common-versions:
+          context: github-bot-public
