@@ -71,6 +71,11 @@ This release updates the Android SDK dependency from v10 to [v11](https://github
 ### 🔄 Other Changes
 * Remove the nullable StoreTransaction note from OnPurchaseCompleted (#1131) via Álvaro Brey (@AlvaroBrey)
 
+## 9.16.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix Android 14 paywall system bars while preserving navigation margins (#1191) via Cesar de la Vega (@vegaro)
+
 ## 9.16.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes
