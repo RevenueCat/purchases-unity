@@ -71,6 +71,19 @@ This release updates the Android SDK dependency from v10 to [v11](https://github
 ### 🔄 Other Changes
 * Remove the nullable StoreTransaction note from OnPurchaseCompleted (#1131) via Álvaro Brey (@AlvaroBrey)
 
+## 9.16.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix exit offers not showing on Android (#1164) via Cesar de la Vega (@vegaro)
+### 📦 Dependency Updates
+* Update purchases-hybrid-common to 19.17.1
+  * [Android 10.30.2](https://github.com/RevenueCat/purchases-android/releases/tag/10.30.2)
+
+## 9.16.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(paywalls): keep system bars hidden on the Android paywall dialog in fullscreen games (#1176) via andsolleiro (@andsolleiro)
+
 ## 9.16.0
 ## RevenueCat SDK
 ### 🐞 Bugfixes
