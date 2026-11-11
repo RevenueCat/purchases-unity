@@ -4,7 +4,7 @@ using RevenueCat;
 
 namespace RevenueCat.Tests
 {
-    internal sealed class PurchasesWrapperSpy : IPurchasesWrapper
+    internal sealed class PurchasesWrapperSpy : IPurchasesWrapper, IAdRewardsWrapper
     {
         internal sealed class Invocation
         {
@@ -226,6 +226,9 @@ namespace RevenueCat.Tests
         public void TrackAdRewardEarnedUnverified(AdRewardEarnedUnverifiedData data) => Record(nameof(TrackAdRewardEarnedUnverified), data);
         public void TrackRewardedAdPromptShown(AdRewardPromptShownData data) => Record(nameof(TrackRewardedAdPromptShown), data);
         public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) => Record(nameof(TrackRewardedAdPromptAccepted), data);
+
+        public void GetAdRewards(string adUnitId, string requestId) =>
+            Record(nameof(GetAdRewards), adUnitId, requestId);
 
         public void GenerateRewardVerificationToken(string impressionId) =>
             Record(nameof(GenerateRewardVerificationToken), impressionId);

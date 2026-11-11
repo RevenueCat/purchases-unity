@@ -65,6 +65,7 @@ public class PurchasesWrapper {
     private static final String PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = "_purchaseProductWithWinBackOffer";
     private static final String PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = "_purchasePackageWithWinBackOffer";
     private static final String HANDLE_LOG = "_handleLog";
+    private static final String GET_AD_REWARDS = "_getAdRewards";
     private static final String GENERATE_REWARD_VERIFICATION_TOKEN = "_generateRewardVerificationToken";
     private static final String POLL_REWARD_VERIFICATION = "_pollRewardVerification";
 
@@ -901,6 +902,35 @@ public class PurchasesWrapper {
             JSONObject jsonObject = new JSONObject(dataJson);
             Map<String, ?> data = MappersHelpersKt.convertToMap(jsonObject);
             CommonKt.trackRewardedAdPromptAccepted(data);
+        } catch (JSONException e) {
+            logJSONException(e);
+        }
+    }
+
+    public static void getAdRewards(String adUnitId, final String requestId) {
+        CommonKt.getAdRewards(adUnitId, new OnNullableResult() {
+            @Override
+            public void onReceived(@Nullable Map<String, ?> map) {
+                sendAdRewardsResponse(requestId, map, null);
+            }
+
+            @Override
+            public void onError(ErrorContainer errorContainer) {
+                sendAdRewardsResponse(requestId, null, errorContainer);
+            }
+        });
+    }
+
+    private static void sendAdRewardsResponse(String requestId, @Nullable Map<String, ?> rewards,
+                                             @Nullable ErrorContainer error) {
+        JSONObject response = new JSONObject();
+        try {
+            response.put("requestId", requestId);
+            response.put("rewards", rewards == null ? JSONObject.NULL : MappersHelpersKt.convertToJson(rewards));
+            if (error != null) {
+                response.put("error", MappersHelpersKt.convertToJson(error.getInfo()));
+            }
+            sendJSONObject(response, GET_AD_REWARDS);
         } catch (JSONException e) {
             logJSONException(e);
         }

@@ -1,0 +1,20 @@
+{
+  "reward": {
+    "amount": 10,
+    "code": "coins",
+    "type": "virtual_currency"
+  },
+  "moreRewards": [
+    {
+      "identifier": "pro",
+      "durationSeconds": 1800,
+      "type": "entitlement"
+    },
+    {"type": "unsupported_reward"},
+    {
+      "amount": 10,
+      "code": "coins",
+      "type": "virtual_currency"
+    }
+  ]
+}
