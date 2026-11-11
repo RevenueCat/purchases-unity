@@ -1,3 +1,8 @@
+## 9.16.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix Android 14 paywall system bars while preserving navigation margins (#1191) via Cesar de la Vega (@vegaro)
+
 ## 9.16.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes
