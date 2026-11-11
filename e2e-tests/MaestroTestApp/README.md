@@ -41,6 +41,8 @@ sed -i '' "s|MAESTRO_TESTS_REVENUECAT_API_KEY|$RC_E2E_TEST_API_KEY_PRODUCTION_TE
 
 The test uses a RevenueCat project configured with:
 - A **V2 Paywall** (the test asserts "Paywall V2" is visible)
+- A `default_workflows` offering with the three-page workflow and exit offer used by the
+  `paywall_exit_offer_dismisses` Maestro flow
 - A `pro` entitlement (the test checks entitlement status after purchase)
 - The **Test Store** environment for purchase confirmation
 

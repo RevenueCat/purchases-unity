@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using RevenueCatUI;
 
 [DefaultExecutionOrder(100)]
@@ -23,15 +24,18 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     private static readonly Dictionary<string, System.Action<MaestroTestApp>> TestFlowScreenMap =
         new Dictionary<string, System.Action<MaestroTestApp>>
         {
-            { "purchase_through_paywall", app => app.ShowPurchaseScreen() }
+            { "purchase_through_paywall", app => app.ShowPurchaseScreen() },
+            { "paywall_exit_offer_dismisses", app => app.ShowExitOfferScreen() }
         };
 
     public GameObject testCasesScreen;
     public GameObject purchaseScreen;
     public Text entitlementsLabel;
+    public Text paywallResultLabel;
     public Text errorLabel;
 
     private Purchases purchases;
+    private bool useExitOfferTestOffering;
 
 #if ACCESSIBILITY_OVERLAY
     private bool overlayReady;
@@ -145,19 +149,59 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         testCasesScreen.SetActive(false);
         purchaseScreen.SetActive(true);
         ClearError();
+        if (paywallResultLabel != null)
+        {
+            paywallResultLabel.text = "Paywall result: not completed";
+        }
         UpdateEntitlements();
 #if ACCESSIBILITY_OVERLAY
         StartCoroutine(UpdateOverlay("purchase"));
 #endif
     }
 
-    public async void PresentPaywall()
+    private void ShowExitOfferScreen()
+    {
+        useExitOfferTestOffering = true;
+        ShowPurchaseScreen();
+    }
+
+    public void PresentPaywall()
     {
         ClearError();
 
+        if (useExitOfferTestOffering)
+        {
+            purchases.GetOfferings((offerings, error) =>
+            {
+                if (error != null || offerings == null ||
+                    !offerings.All.TryGetValue("default_workflows", out var offering))
+                {
+                    ShowError("Could not load default_workflows offering");
+                    return;
+                }
+
+                _ = PresentPaywallAsync(offering);
+            });
+            return;
+        }
+
+        _ = PresentPaywallAsync(null);
+    }
+
+    private async Task PresentPaywallAsync(Purchases.Offering offering)
+    {
         // Present() traps its own exceptions and reports failure through the result, so
         // there is nothing here to catch; the result has to be inspected instead.
-        var result = await PaywallsPresenter.Present();
+        var options = offering == null ? new PaywallOptions() : new PaywallOptions(offering);
+        var result = await PaywallsPresenter.Present(options);
+
+        if (paywallResultLabel != null)
+        {
+            paywallResultLabel.text = "Paywall result: " + result.Result;
+#if ACCESSIBILITY_OVERLAY
+            StartCoroutine(UpdateOverlay("purchase"));
+#endif
+        }
 
         if (result.Result == PaywallResultType.Error)
         {
@@ -275,6 +319,9 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         {
             if (entitlementsLabel != null)
                 SetOverlayElement("entitlements", entitlementsLabel.text, entitlementsLabel.rectTransform);
+
+            if (paywallResultLabel != null)
+                SetOverlayElement("paywallResult", paywallResultLabel.text, paywallResultLabel.rectTransform);
 
             var paywallBtn = purchaseScreen.transform.Find("PaywallButton");
             if (paywallBtn != null)
