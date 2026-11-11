@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: Open the default paywall for navigation margin checks
+---
+- launchApp:
+    clearState: true
+    arguments:
+      e2e_test_flow: purchase_through_paywall
+- extendedWaitUntil:
+    visible: "Present Paywall"
+    timeout: 30000
+- tapOn: "Present Paywall"
+- extendedWaitUntil:
+    visible: "Restore Purchases"
+    timeout: 30000

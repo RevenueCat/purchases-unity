@@ -1,0 +1,12 @@
+appId: ${APP_ID}
+name: Capture the rendered paywall and navigation margin
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible: ${FOOTER_TEXT}
+    timeout: 30000
+- assertVisible: ${CTA_TEXT}
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: ${SCREENSHOT_NAME}

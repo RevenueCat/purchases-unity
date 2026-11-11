@@ -688,6 +688,13 @@ jobs:
           path: fastlane/test_output
 
   run-maestro-e2e-tests-android:
+    parameters:
+      api-level:
+        type: integer
+        default: 34
+      run-functional:
+        type: boolean
+        default: true
     machine:
       image: android:2025.10.1
     resource_class: xlarge
@@ -700,16 +707,27 @@ jobs:
           cache-version: v1
       - android/create_avd:
           avd_name: test-e2e
-          system_image: system-images;android-34;google_apis;x86_64
+          system_image: system-images;android-<< parameters.api-level >>;google_apis;x86_64
           install: true
       - android/start_emulator:
           avd_name: test-e2e
           post_emulator_launch_assemble_command: ""
       - revenuecat/install-maestro
+      - when:
+          condition: << parameters.run-functional >>
+          steps:
+            - run:
+                name: Run Maestro E2E Tests (Android)
+                command: bundle exec fastlane run_maestro_e2e_tests_android
+                no_output_timeout: 15m
       - run:
-          name: Run Maestro E2E Tests (Android)
-          command: bundle exec fastlane run_maestro_e2e_tests_android
-          no_output_timeout: 15m
+          name: Run Android paywall navigation margin tests
+          command: |
+            python3 scripts/test-assert-android-paywall-margins.py
+            python3 scripts/test-android-paywall-runner.py
+            adb install -r e2e-tests/MaestroTestApp/build/android/MaestroTestApp.apk
+            python3 scripts/test-android-paywall-margins.py --device "$(adb get-serialno)"
+          no_output_timeout: 10m
       - run:
           name: Capture logcat on failure
           command: |
@@ -835,6 +853,14 @@ workflows:
             - e2e-tests
           requires:
             - build-maestro-test-app-android
+      - run-maestro-e2e-tests-android:
+          name: run-maestro-layout-tests-android-api36
+          api-level: 36
+          run-functional: false
+          context:
+            - e2e-tests
+          requires:
+            - build-maestro-test-app-android
       - wait-for-pr-approval:
           type: approval
           <<: *release-branches
@@ -854,6 +880,7 @@ workflows:
             - archive-ios-edm4u
             - run-maestro-e2e-tests-ios
             - run-maestro-e2e-tests-android
+            - run-maestro-layout-tests-android-api36
           <<: *release-branches
 
   deploy:
@@ -931,6 +958,14 @@ workflows:
             - e2e-tests
             - unity
       - run-maestro-e2e-tests-android:
+          context:
+            - e2e-tests
+          requires:
+            - build-maestro-test-app-android
+      - run-maestro-e2e-tests-android:
+          name: run-maestro-layout-tests-android-api36
+          api-level: 36
+          run-functional: false
           context:
             - e2e-tests
           requires:
