@@ -1,3 +1,11 @@
+## 11.0.0 (unreleased)
+
+<!-- TODO: before merging 11.0-dev into main, preserve these breaking notes in the final major release changelog and remove this staging heading. (SDK-4606) -->
+
+### 💥 Breaking Changes
+
+- **Apple installation:** PHC 21 stops publishing its core/UI podspecs to CocoaPods trunk. Standard CocoaPods installation of RevenueCat is no longer supported. Migrate to Swift Package Manager before upgrading; see the [Unity migration guide](https://rev.cat/unity-spm-migration).
+
 ## 10.0.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes
