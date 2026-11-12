@@ -482,7 +482,8 @@ jobs:
                 step-name: Test iOS resource bundle postprocessor
                 project-path: IntegrationTests
                 test-platform: editmode
-                custom-parameters: -buildTarget iOS -testFilter RevenueCat.Tests.XcodeResourceBundlePostProcessTests -disable-assembly-updater
+                # TODO: remove PHCDevBranchTests from this filter before merging 11.0-dev into main. (SDK-4602)
+                custom-parameters: -buildTarget iOS -testFilter "RevenueCat.Tests.(XcodeResourceBundlePostProcessTests|PHCDevBranchTests)" -disable-assembly-updater
 
             - store_artifacts:
                 path: IntegrationTests/editmode-results.xml
