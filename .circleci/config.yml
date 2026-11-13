@@ -307,15 +307,6 @@ jobs:
             - PurchasesUI.unitypackage
             - PurchasesAdMob.unitypackage
 
-      - store_artifacts:
-          path: Purchases.unitypackage
-
-      - store_artifacts:
-          path: PurchasesUI.unitypackage
-
-      - store_artifacts:
-          path: PurchasesAdMob.unitypackage
-
   build-subtester-android:
     resource_class: xlarge
     executor: unity-android
@@ -344,9 +335,6 @@ jobs:
       - run:
           name: Verify APK exists
           command: test -f Subtester/Builds/Android/Android.apk
-
-      - store_artifacts:
-          path: Subtester/Builds/Android/Android.apk
 
   build-subtester-ios:
     executor: unity-ios
@@ -408,9 +396,6 @@ jobs:
           name: Verify APK exists
           command: test -f IntegrationTests/Builds/Android/Android.apk
 
-      - store_artifacts:
-          path: IntegrationTests/Builds/Android/Android.apk
-
   test-edit-mode:
     executor: unity
     steps:
@@ -428,10 +413,7 @@ jobs:
           test-platform: editmode
           custom-parameters: -disable-assembly-updater
 
-      - store_artifacts:
-          path: IntegrationTests/editmode-results.xml
-
-      - store_artifacts:
+      - store_test_results:
           path: IntegrationTests/editmode-junit-results.xml
 
   build-integration-tests-ios:
@@ -484,10 +466,7 @@ jobs:
                 test-platform: editmode
                 custom-parameters: -buildTarget iOS -testFilter RevenueCat.Tests.XcodeResourceBundlePostProcessTests -disable-assembly-updater
 
-            - store_artifacts:
-                path: IntegrationTests/editmode-results.xml
-
-            - store_artifacts:
+            - store_test_results:
                 path: IntegrationTests/editmode-junit-results.xml
 
       - perform-build:
@@ -671,20 +650,7 @@ jobs:
           name: Run Maestro E2E Tests (iOS)
           command: bundle exec fastlane run_maestro_e2e_tests_ios
           no_output_timeout: 15m
-      - run:
-          name: Capture simulator diagnostics on failure
-          command: |
-            mkdir -p fastlane/test_output/diagnostics
-            # Simulator crashes are written to the host's DiagnosticReports directory.
-            cp ~/Library/Logs/DiagnosticReports/MaestroTestApp*.ips \
-              fastlane/test_output/diagnostics/ 2>/dev/null || echo "no crash reports found"
-            xcrun simctl spawn booted log show --last 15m --style compact \
-              --predicate 'process == "MaestroTestApp"' \
-              > fastlane/test_output/diagnostics/app.log 2>&1 || true
-          when: on_fail
       - store_test_results:
-          path: fastlane/test_output
-      - store_artifacts:
           path: fastlane/test_output
 
   run-maestro-e2e-tests-android:
@@ -710,15 +676,7 @@ jobs:
           name: Run Maestro E2E Tests (Android)
           command: bundle exec fastlane run_maestro_e2e_tests_android
           no_output_timeout: 15m
-      - run:
-          name: Capture logcat on failure
-          command: |
-            mkdir -p fastlane/test_output
-            adb logcat -d > fastlane/test_output/logcat.txt 2>&1 || true
-          when: on_fail
       - store_test_results:
-          path: fastlane/test_output
-      - store_artifacts:
           path: fastlane/test_output
 
   update-hybrid-common-versions:
