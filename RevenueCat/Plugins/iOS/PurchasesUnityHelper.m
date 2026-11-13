@@ -40,6 +40,7 @@ static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PRODUCT = @"_getEligible
 static NSString *const GET_ELIGIBLE_WIN_BACK_OFFERS_FOR_PACKAGE = @"_getEligibleWinBackOffersForPackage";
 static NSString *const PURCHASE_PRODUCT_WITH_WIN_BACK_OFFER = @"_purchaseProductWithWinBackOffer";
 static NSString *const PURCHASE_PACKAGE_WITH_WIN_BACK_OFFER = @"_purchasePackageWithWinBackOffer";
+static NSString *const GET_AD_REWARDS = @"_getAdRewards";
 static NSString *const GENERATE_REWARD_VERIFICATION_TOKEN = @"_generateRewardVerificationToken";
 static NSString *const POLL_REWARD_VERIFICATION = @"_pollRewardVerification";
 #pragma mark Utility Methods
@@ -735,6 +736,19 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     }
 }
 
+- (void)getAdRewards:(NSString *)adUnitId requestId:(NSString *)requestId {
+    [RCCommonFunctionality getAdRewardsWithAdUnitId:adUnitId
+                                       completion:^(NSDictionary *_Nullable rewards, RCErrorContainer *_Nullable error) {
+        NSMutableDictionary *response = [NSMutableDictionary new];
+        response[@"requestId"] = requestId;
+        response[@"rewards"] = rewards ?: [NSNull null];
+        if (error) {
+            response[@"error"] = error.info;
+        }
+        [self sendJSONObject:response toMethod:GET_AD_REWARDS];
+    }];
+}
+
 - (void)generateRewardVerificationToken:(NSString *)impressionId {
     NSDictionary *token = [RCCommonFunctionality generateRewardVerificationTokenWithImpressionId:impressionId];
     [self sendJSONObject:token toMethod:GENERATE_REWARD_VERIFICATION_TOKEN];
@@ -1312,6 +1326,10 @@ void _RCTrackRewardedAdPromptShown(const char *dataJson) {
 
 void _RCTrackRewardedAdPromptAccepted(const char *dataJson) {
     [_RCUnityHelperShared() trackRewardedAdPromptAccepted:convertCString(dataJson)];
+}
+
+void _RCGetAdRewards(const char *adUnitId, const char *requestId) {
+    [_RCUnityHelperShared() getAdRewards:convertCString(adUnitId) requestId:convertCString(requestId)];
 }
 
 void _RCGenerateRewardVerificationToken(const char *impressionId) {

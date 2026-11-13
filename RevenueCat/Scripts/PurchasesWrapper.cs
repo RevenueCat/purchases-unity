@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using RevenueCat;
 
+internal interface IAdRewardsWrapper
+{
+    void GetAdRewards(string adUnitId, string requestId);
+}
+
 public interface IPurchasesWrapper
 {
     void Setup(string gameObject, string apiKey, string appUserId, Purchases.PurchasesAreCompletedBy purchasesAreCompletedBy,

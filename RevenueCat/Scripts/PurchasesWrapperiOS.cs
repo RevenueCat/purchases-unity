@@ -5,7 +5,7 @@ using RevenueCat;
 using UnityEngine;
 
 #if UNITY_IOS || UNITY_VISIONOS
-public class PurchasesWrapperiOS : IPurchasesWrapper
+public class PurchasesWrapperiOS : IPurchasesWrapper, IAdRewardsWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, string purchasesAreCompletedBy,
@@ -616,6 +616,10 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
     private static extern void _RCTrackRewardedAdPromptAccepted(string dataJson);
     public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) =>
         _RCTrackRewardedAdPromptAccepted(data.ToJsonString());
+
+    [DllImport("__Internal")]
+    private static extern void _RCGetAdRewards(string adUnitId, string requestId);
+    public void GetAdRewards(string adUnitId, string requestId) => _RCGetAdRewards(adUnitId, requestId);
 
     [DllImport("__Internal")]
     private static extern void _RCGenerateRewardVerificationToken(string impressionId);

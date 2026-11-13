@@ -4,7 +4,7 @@ using RevenueCat.SimpleJSON;
 using UnityEngine;
 
 #if UNITY_ANDROID
-public class PurchasesWrapperAndroid : IPurchasesWrapper
+public class PurchasesWrapperAndroid : IPurchasesWrapper, IAdRewardsWrapper
 {
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     private class ProductsRequest
@@ -489,6 +489,9 @@ public class PurchasesWrapperAndroid : IPurchasesWrapper
 
     public void TrackRewardedAdPromptAccepted(AdRewardPromptAcceptedData data) =>
         CallPurchases("trackRewardedAdPromptAccepted", data.ToJsonString());
+
+    public void GetAdRewards(string adUnitId, string requestId) =>
+        CallPurchases("getAdRewards", adUnitId, requestId);
 
     public void GenerateRewardVerificationToken(string impressionId) =>
         CallPurchases("generateRewardVerificationToken", impressionId);

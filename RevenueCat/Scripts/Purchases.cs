@@ -697,6 +697,55 @@ public partial class Purchases : MonoBehaviour
         _wrapper.SyncAttributesAndOfferingsIfNeeded();
     }
 
+    /// <summary> Callback for <see cref="GetAdRewards"/>. </summary>
+    /// <param name="rewards"> Configured rewards, or null when configuration is unavailable or malformed.
+    /// A non-null value with a null <see cref="ConfiguredAdRewards.Reward"/> means no reward is configured.</param>
+    /// <param name="error"> A native bridge error, if any. Unavailable configuration returns null rewards
+    /// without an error.</param>
+    public delegate void GetAdRewardsFunc(ConfiguredAdRewards rewards, Error error);
+
+    private readonly Dictionary<string, GetAdRewardsFunc> _getAdRewardsCallbacks =
+        new Dictionary<string, GetAdRewardsFunc>();
+
+    /// <summary>
+    /// Gets the rewards configured for an exact, case-sensitive ad unit identifier, before showing an ad.
+    /// Uses the native SDK's validated cached configuration when available and loads it on demand otherwise.
+    /// No separate reward cache is maintained. Configured rewards can change; the result of
+    /// <see cref="PollRewardVerification"/> describes what was actually granted.
+    /// </summary>
+    /// <param name="adUnitId"> The ad network's ad unit identifier. Empty identifiers return null.</param>
+    /// <param name="callback"> Called once with configured rewards, or null when configuration is
+    /// unavailable, malformed, or unsupported on this platform. Overlapping calls complete independently.</param>
+    public void GetAdRewards(string adUnitId, GetAdRewardsFunc callback)
+    {
+        if (callback == null) throw new ArgumentNullException(nameof(callback));
+        if (string.IsNullOrEmpty(adUnitId))
+        {
+            Debug.LogWarning("[Purchases] GetAdRewards requires a non-empty ad unit identifier.");
+            callback(null, null);
+            return;
+        }
+
+        // Keep IPurchasesWrapper compatible with existing custom implementations.
+        if (!(_wrapper is IAdRewardsWrapper wrapper))
+        {
+            callback(null, null);
+            return;
+        }
+
+        var requestId = Guid.NewGuid().ToString();
+        _getAdRewardsCallbacks.Add(requestId, callback);
+        try
+        {
+            wrapper.GetAdRewards(adUnitId, requestId);
+        }
+        catch
+        {
+            _getAdRewardsCallbacks.Remove(requestId);
+            throw;
+        }
+    }
+
     /// <summary>
     /// Callback for <see cref="Purchases.GenerateRewardVerificationToken"/>.
     /// </summary>
@@ -1771,6 +1820,24 @@ public partial class Purchases : MonoBehaviour
         {
             var offeringsResponse = response["offerings"];
             callback(new Offerings(offeringsResponse), null);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private void _getAdRewards(string rewardsJson)
+    {
+        var response = JSON.Parse(rewardsJson);
+        var requestId = (string)response?["requestId"];
+        if (requestId == null || !_getAdRewardsCallbacks.TryGetValue(requestId, out var callback)) return;
+
+        _getAdRewardsCallbacks.Remove(requestId);
+        if (ResponseHasError(response))
+        {
+            callback(null, new Error(response["error"]));
+        }
+        else
+        {
+            callback(ConfiguredAdRewards.FromJson(response["rewards"]), null);
         }
     }
 
