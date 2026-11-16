@@ -28,6 +28,22 @@ namespace DefaultNamespace
             detach();
             Action detachDefault = Checkpoints.Checkpoint("upgrade", result => { });
             detachDefault();
+
+            CheckpointPaywallPresenter presenter = (PaywallPresentationParams presentation, Action<PaywallPresentationResult> completion) =>
+            {
+                string identifier = presentation.CheckpointIdentifier;
+                IReadOnlyDictionary<string, CustomVariableValue> customVariables = presentation.CustomVariables;
+                FlowPresentationMode presentationMode = presentation.PresentationMode;
+                Purchases.Offering offering = presentation.Offering;
+                completion(PaywallPresentationResult.Continued);
+                completion(PaywallPresentationResult.Closed);
+                completion(PaywallPresentationResult.NavigatedBack);
+            };
+            Checkpoints.SetPaywallPresenter(presenter);
+            Checkpoints.SetPaywallPresenter(null);
+            var presenterParameters = new CheckpointParams(paywallPresenter: presenter, useNativePaywallPresenter: true);
+            CheckpointPaywallPresenter paywallPresenter = presenterParameters.PaywallPresenter;
+            bool useNativePaywallPresenter = presenterParameters.UseNativePaywallPresenter;
         }
     }
 }

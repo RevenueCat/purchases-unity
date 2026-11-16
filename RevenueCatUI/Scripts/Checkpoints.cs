@@ -18,6 +18,8 @@ namespace RevenueCatUI
         /// or another checkpoint owns presentation. The SDK presents errors with its native UI.
         /// A checkpoint that cannot start (for example, Purchases is not configured or iOS is older
         /// than 15) logs an error and does not call onPassed.
+        /// With a paywall presenter, onPassed is called only after the presentation completes and the
+        /// native SDK synchronizes purchases. Purchasing alone does not pass the checkpoint.
         /// Must be called from the Unity main thread. Requires iOS 15+ or Android, outside the Editor.
         /// </summary>
         /// <remarks>Experimental and invite-only. This API may change or be removed in any release.</remarks>
@@ -45,7 +47,8 @@ namespace RevenueCatUI
         /// </example>
         /// <returns>
         /// A function that detaches the callback. Call it when its owning screen is destroyed,
-        /// including calls that never pass. Detaching does not dismiss a flow already on screen.
+        /// including calls that never pass. Detaching does not dismiss a flow already on screen:
+        /// an app-owned paywall that is already presented must still be dismissed and completed.
         /// </returns>
         public static Action Checkpoint(string identifier, Action<CheckpointResult> onPassed,
             CheckpointParams parameters = null)
@@ -58,6 +61,26 @@ namespace RevenueCatUI
 #else
             throw new PlatformNotSupportedException("Checkpoints require a native iOS or Android build.");
 #endif
+        }
+
+        /// <summary>
+        /// Sets the presenter used by later checkpoint calls that don't set
+        /// <see cref="CheckpointParams.PaywallPresenter"/>. Each call captures the presenter set when it starts.
+        /// Pass null to go back to the SDK's presenter.
+        /// </summary>
+        /// <remarks>Experimental and invite-only. This API may change or be removed in any release.</remarks>
+        /// <example>
+        /// <code>
+        /// Checkpoints.SetPaywallPresenter((parameters, completion) =>
+        /// {
+        ///     // Show your own paywall for parameters.Offering. When the user leaves it, dismiss it and then call
+        ///     // completion(PaywallPresentationResult.Continued), Closed, or NavigatedBack.
+        /// });
+        /// </code>
+        /// </example>
+        public static void SetPaywallPresenter(CheckpointPaywallPresenter presenter)
+        {
+            CheckpointBridge.PaywallPresenter = presenter;
         }
     }
 }

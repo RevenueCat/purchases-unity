@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using RevenueCat.SimpleJSON;
@@ -25,12 +26,34 @@ namespace RevenueCat.Tests
         private SynchronizationContext _previousContext;
         private QueuedContext _context;
 
+        private readonly List<string> _starts = new List<string>();
+        private Action<string, CheckpointParams, string, bool> _previousStartNative;
+        private string _lastCallId;
+
+        private const string PaywallParams = "{\"checkpointIdentifier\":\"upgrade\"," +
+            "\"customVariables\":{\"name\":\"Taylor\",\"level\":12,\"premium\":true}," +
+            "\"presentationMode\":\"MODAL_SHEET\"," +
+            "\"offering\":{\"identifier\":\"pro\",\"serverDescription\":\"Pro\",\"metadata\":{},\"availablePackages\":[]}}";
+
+        private Action Start(CheckpointPaywallPresenter presenter = null, bool native = false)
+        {
+            return CheckpointBridge.Start("upgrade", _ => { },
+                new CheckpointParams(paywallPresenter: presenter, useNativePaywallPresenter: native));
+        }
+
         [SetUp]
         public void SetUp()
         {
             _native.Clear();
+            _starts.Clear();
             _previousSendToNative = CheckpointBridge.SendToNative;
             CheckpointBridge.SendToNative = (method, first, second) => _native.Add($"{method}({first}, {second ?? "null"})");
+            _previousStartNative = CheckpointBridge.StartNative;
+            CheckpointBridge.StartNative = (identifier, parameters, callId, custom) =>
+            {
+                _lastCallId = callId;
+                _starts.Add($"{identifier}, custom presenter: {custom}");
+            };
             _previousContext = SynchronizationContext.Current;
             _context = new QueuedContext();
             SynchronizationContext.SetSynchronizationContext(_context);
@@ -39,6 +62,8 @@ namespace RevenueCat.Tests
         [TearDown]
         public void TearDown()
         {
+            Checkpoints.SetPaywallPresenter(null);
+            CheckpointBridge.StartNative = _previousStartNative;
             CheckpointBridge.SendToNative = _previousSendToNative;
             SynchronizationContext.SetSynchronizationContext(_previousContext);
         }
@@ -233,6 +258,151 @@ namespace RevenueCat.Tests
             CheckpointBridge.OnErrorDialogRequested("unknown", "request-1", "{\"kind\":\"flowActionFailed\",\"code\":1,\"message\":\"m\"}");
             _context.Drain();
             Assert.That(_native, Is.EqualTo(new[] { "resolveErrorDialog(request-1, {\"type\":\"useDefault\"})" }));
+        }
+
+        [Test]
+        public void RoutesTypedPaywallParamsAndCompletesAtMostOnce()
+        {
+            PaywallPresentationParams received = null;
+            var detach = Start((parameters, complete) =>
+            {
+                received = parameters;
+                complete(PaywallPresentationResult.Continued);
+                complete(PaywallPresentationResult.NavigatedBack);
+            });
+            Assert.That(_starts, Is.EqualTo(new[] { "upgrade, custom presenter: True" }));
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", PaywallParams);
+            Assert.That(received, Is.Null, "The presenter runs on the Unity main thread, not the native one.");
+            _context.Drain();
+            Assert.That(received.CheckpointIdentifier, Is.EqualTo("upgrade"));
+            Assert.That(received.Offering.Identifier, Is.EqualTo("pro"));
+            Assert.That(received.PresentationMode, Is.EqualTo(FlowPresentationMode.ModalSheet));
+            Assert.That(received.CustomVariables, Is.EquivalentTo(new Dictionary<string, CustomVariableValue>
+            {
+                { "name", CustomVariableValue.String("Taylor") },
+                { "level", CustomVariableValue.Number(12) },
+                { "premium", CustomVariableValue.Boolean(true) }
+            }));
+            Assert.That(_native, Is.EqualTo(new[] { "completePaywallPresentation(request, CONTINUED)" }));
+            detach();
+        }
+
+        [Test]
+        public void CapturesGlobalPresenterAndSupportsPerCallAndNativeOverrides()
+        {
+            var called = new List<string>();
+            Checkpoints.SetPaywallPresenter((_, complete) => { called.Add("first"); complete(PaywallPresentationResult.Closed); });
+            var detachFirst = Start();
+            var first = _lastCallId;
+            Checkpoints.SetPaywallPresenter((_, complete) => { called.Add("second"); complete(PaywallPresentationResult.Closed); });
+            var detachSecond = Start((_, complete) => { called.Add("override"); complete(PaywallPresentationResult.Closed); });
+            var second = _lastCallId;
+            var detachNative = Start(native: true);
+            var native = _lastCallId;
+            Assert.That(_starts, Is.EqualTo(new[]
+            {
+                "upgrade, custom presenter: True", "upgrade, custom presenter: True", "upgrade, custom presenter: False"
+            }));
+            CheckpointBridge.OnPaywallPresentationRequested(first, "one", PaywallParams);
+            CheckpointBridge.OnPaywallPresentationRequested(second, "two", PaywallParams);
+            CheckpointBridge.OnPaywallPresentationRequested(native, "three", PaywallParams);
+            _context.Drain();
+            Assert.That(called, Is.EqualTo(new[] { "first", "override" }));
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "completePaywallPresentation(three, NAVIGATED_BACK)",
+                "completePaywallPresentation(one, CLOSED)",
+                "completePaywallPresentation(two, CLOSED)"
+            }));
+            detachFirst();
+            detachSecond();
+            detachNative();
+        }
+
+        [Test]
+        public void PresenterThatThrowsNavigatesBack()
+        {
+            var detach = Start((_, __) => throw new InvalidOperationException("boom"));
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", PaywallParams);
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("presenter failed.*boom"));
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[] { "completePaywallPresentation(request, NAVIGATED_BACK)" }));
+            detach();
+            Assert.That(_native.Count, Is.EqualTo(1), "Backing out ends the call, so there is nothing to detach.");
+        }
+
+        [Test]
+        public void ReturningFromThePresenterDoesNotCompleteThePaywall()
+        {
+            var detach = Start((_, __) => { });
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", PaywallParams);
+            _context.Drain();
+            Assert.That(_native, Is.Empty);
+            detach();
+        }
+
+        [Test]
+        public void MalformedPaywallParamsNavigateBackWithoutInvokingPresenter()
+        {
+            var called = false;
+            var detach = Start((_, __) => called = true);
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", "{\"bad\":true}");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("Malformed checkpoint paywall parameters"));
+            _context.Drain();
+            Assert.That(called, Is.False);
+            Assert.That(_native, Is.EqualTo(new[] { "completePaywallPresentation(request, NAVIGATED_BACK)" }));
+            detach();
+        }
+
+        [Test]
+        public void DetachCancelsQueuedAndLatePresentations()
+        {
+            var called = false;
+            var detach = Start((_, __) => called = true);
+            var callId = _lastCallId;
+            CheckpointBridge.OnPaywallPresentationRequested(callId, "queued", PaywallParams);
+            detach();
+            detach();
+            CheckpointBridge.OnPaywallPresentationRequested(callId, "late", PaywallParams);
+            _context.Drain();
+            Assert.That(called, Is.False);
+            // Native already backed out the queued request when it detached without an active request.
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                $"detachCheckpoint({callId}, null)",
+                "completePaywallPresentation(late, NAVIGATED_BACK)"
+            }));
+        }
+
+        [Test]
+        public void PresentedPaywallCanCompleteAfterDetach()
+        {
+            Action<PaywallPresentationResult> complete = null;
+            var detach = Start((_, completion) => complete = completion);
+            var callId = _lastCallId;
+            CheckpointBridge.OnPaywallPresentationRequested(callId, "request", PaywallParams);
+            _context.Drain();
+            detach();
+            Assert.That(_native, Is.EqualTo(new[] { $"detachCheckpoint({callId}, request)" }));
+            complete(PaywallPresentationResult.Continued);
+            _context.Drain();
+            Assert.That(_native.Last(), Is.EqualTo("completePaywallPresentation(request, CONTINUED)"));
+        }
+
+        [Test]
+        public void PassingAfterCompletionCallsTheCallbackOnce()
+        {
+            var passes = 0;
+            var detach = CheckpointBridge.Start("upgrade", _ => passes++,
+                new CheckpointParams(paywallPresenter: (_, complete) => complete(PaywallPresentationResult.Continued)));
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", PaywallParams);
+            _context.Drain();
+            CheckpointBridge.OnPassed(_lastCallId, Result().ToString());
+            CheckpointBridge.OnPassed(_lastCallId, Result().ToString());
+            _context.Drain();
+            detach();
+            Assert.That(passes, Is.EqualTo(1));
+            Assert.That(_native, Is.EqualTo(new[] { "completePaywallPresentation(request, CONTINUED)" }));
         }
 
         [Test]

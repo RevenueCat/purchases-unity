@@ -22,11 +22,26 @@ namespace RevenueCatUI
         /// <summary>How the SDK presents the selected flow.</summary>
         public FlowPresentationMode PresentationMode { get; }
 
+        /// <summary>
+        /// Presents the selected offering with app-owned UI. Null uses the presenter set with
+        /// <see cref="Checkpoints.SetPaywallPresenter"/> when the checkpoint is called, if any.
+        /// </summary>
+        public CheckpointPaywallPresenter PaywallPresenter { get; }
+
+        /// <summary>
+        /// Uses the SDK's presenter even when a global presenter is set. Takes precedence over <see cref="PaywallPresenter"/>.
+        /// </summary>
+        public bool UseNativePaywallPresenter { get; }
+
         public CheckpointParams(Dictionary<string, CustomVariableValue> customVariables = null,
-            FlowPresentationMode presentationMode = FlowPresentationMode.Default)
+            FlowPresentationMode presentationMode = FlowPresentationMode.Default,
+            CheckpointPaywallPresenter paywallPresenter = null,
+            bool useNativePaywallPresenter = false)
         {
             CustomVariables = customVariables;
             PresentationMode = presentationMode;
+            PaywallPresenter = paywallPresenter;
+            UseNativePaywallPresenter = useNativePaywallPresenter;
         }
 
         internal string CustomVariablesToJsonString() =>
