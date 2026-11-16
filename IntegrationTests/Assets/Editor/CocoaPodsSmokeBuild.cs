@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public static class CocoaPodsSmokeBuild
@@ -32,9 +33,12 @@ public static class CocoaPodsSmokeBuild
         var output = Environment.GetEnvironmentVariable("COCOAPODS_SMOKE_BUILD_PATH");
         if (string.IsNullOrEmpty(output))
             throw new InvalidOperationException("COCOAPODS_SMOKE_BUILD_PATH is required");
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        new GameObject("CocoaPodsSmokeTest", typeof(Purchases), typeof(CocoaPodsSmokeTest));
         const string scenePath = "Assets/Scenes/CocoaPodsSmokeTest.unity";
+        EditorSceneManager.SaveScene(scene, scenePath);
         PlayerSettings.productName = "CocoaPodsSmokeTest";
-        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.revenuecat.cocoapodssmoke");
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.revenuecat.unitycocoapodssmoke");
         PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
         PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
 

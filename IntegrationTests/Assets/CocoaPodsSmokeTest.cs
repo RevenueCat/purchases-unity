@@ -1,14 +1,10 @@
 using System;
-using System.Runtime.InteropServices;
+using System.IO;
 using UnityEngine;
 
 // Built only into the integration fixture's dedicated smoke scene.
 public class CocoaPodsSmokeTest : MonoBehaviour
 {
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern void CocoaPodsSmokeShowResult(string result);
-#endif
 
     private void Start()
     {
@@ -29,8 +25,6 @@ public class CocoaPodsSmokeTest : MonoBehaviour
         }
 
         Debug.Log(result);
-#if UNITY_IOS && !UNITY_EDITOR
-        CocoaPodsSmokeShowResult(result);
-#endif
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, "cocoapods-smoke-result.txt"), result);
     }
 }

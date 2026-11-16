@@ -594,13 +594,6 @@ jobs:
             equal: [cocoapods, << parameters.variant >>]
           steps:
             - run:
-                name: Select the macOS image's JDK for Maestro
-                command: |
-                  unset JAVA_HOME
-                  JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | awk -F' = ' '/java.home/ {print $2}')"
-                  echo "export JAVA_HOME=$JAVA_HOME" >> "$BASH_ENV"
-            - revenuecat/install-maestro
-            - run:
                 name: Build and run the Git-sourced CocoaPods smoke app
                 command: |
                   set -euo pipefail
@@ -615,11 +608,18 @@ jobs:
                   test -n "$(find "$app" -name RevenueCat_RevenueCatUI.bundle -type d -print -quit)"
                   xcrun simctl boot "iPhone 16" || true
                   xcrun simctl bootstatus "iPhone 16" -b
+                  app_id=com.revenuecat.unitycocoapodssmoke
+                  xcrun simctl uninstall booted "$app_id" || true
                   xcrun simctl install booted "$app"
-                  maestro test --format junit --output ../../build/cocoapods-<< parameters.dependency_manager >>/report.xml \
-                    ../../e2e-tests/CocoaPodsSmokeTest/flow.yaml
-            - store_test_results:
-                path: build/cocoapods-<< parameters.dependency_manager >>
+                  container=$(xcrun simctl get_app_container booted "$app_id" data)
+                  result="$container/Documents/cocoapods-smoke-result.txt"
+                  xcrun simctl launch booted "$app_id"
+                  for attempt in {1..30}; do
+                    if test -f "$result"; then break; fi
+                    sleep 1
+                  done
+                  cat "$result"
+                  grep -qx COCOAPODS_SMOKE_PASSED "$result"
 
 
   github-release:
