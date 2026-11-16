@@ -10,6 +10,7 @@ jobs:
   hotfix:
     permissions:
       issues: write
-    uses: revenuecat/sdk-github-workflows/.github/workflows/hotfix.yml@e488ef1a23e75b8df04ef86d697a1fc08327256e # v11
+      pull-requests: write
+    uses: revenuecat/sdk-github-workflows/.github/workflows/hotfix.yml@221e47fa39eca4babbd96a999a5140ba6a44ec4a # v11.1.1
     secrets:
       CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
