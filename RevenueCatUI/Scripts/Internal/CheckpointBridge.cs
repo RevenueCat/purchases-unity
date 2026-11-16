@@ -226,9 +226,18 @@ namespace RevenueCatUI.Internal
         private static async void ResolveErrorDialog(string requestId, string errorJson, Subscription subscription)
         {
             CheckpointErrorDialogFactory factory;
-            lock (Gate) factory = subscription.Factory;
-            // Detached while queued: native already uses the default dialog.
-            if (factory == null) return;
+            bool detachedByApp;
+            lock (Gate)
+            {
+                factory = subscription.Factory;
+                detachedByApp = subscription.DetachedByApp;
+            }
+            if (factory == null)
+            {
+                // The call ended while this request was queued. An app detach already defaulted it natively.
+                if (!detachedByApp) SendToNative(ResolveErrorDialogMethod, requestId, UseDefaultErrorDialog);
+                return;
+            }
 
             var outcome = UseDefaultErrorDialog;
             try
@@ -244,7 +253,7 @@ namespace RevenueCatUI.Internal
             lock (Gate)
             {
                 // Detaching while the factory ran already resolved this request with the default dialog.
-                if (subscription.Detached) return;
+                if (subscription.DetachedByApp) return;
             }
             SendToNative(ResolveErrorDialogMethod, requestId, outcome);
         }

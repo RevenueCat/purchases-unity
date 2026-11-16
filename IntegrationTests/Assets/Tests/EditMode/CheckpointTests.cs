@@ -461,7 +461,7 @@ namespace RevenueCat.Tests
         [Test]
         public void NativeStartFailureDetachesAndRethrows()
         {
-            CheckpointBridge.StartNative = (identifier, parameters, callId, custom) =>
+            CheckpointBridge.StartNative = (identifier, parameters, callId, custom, factory) =>
             {
                 _lastCallId = callId;
                 throw new InvalidOperationException("start failed");
@@ -602,6 +602,37 @@ namespace RevenueCat.Tests
             {
                 $"detachCheckpoint({callId}, null)",
                 "resolveErrorDialog(late, {\"type\":\"useDefault\"})"
+            }));
+        }
+
+        [Test]
+        public void ErrorRequestsAreStillAnsweredWhenTheCallEndsOnItsOwn()
+        {
+            var pending = new TaskCompletionSource<CheckpointErrorDialogOutcome>();
+            var calls = 0;
+            var detach = CheckpointBridge.Start("upgrade", _ => { }, new CheckpointParams(
+                paywallPresenter: (_, complete) => complete(PaywallPresentationResult.NavigatedBack),
+                errorDialogFactory: _ =>
+                {
+                    calls++;
+                    return pending.Task;
+                }));
+            _detachers.Add(detach);
+            var callId = _lastCallId;
+            CheckpointBridge.OnErrorDialogRequested(callId, "pending", Error);
+            _context.Drain();
+            CheckpointBridge.OnPaywallPresentationRequested(callId, "paywall", PaywallParams);
+            CheckpointBridge.OnErrorDialogRequested(callId, "queued", Error);
+            // Backing out ends the call before the queued error request runs.
+            _context.Drain();
+            pending.SetResult(CheckpointErrorDialogOutcome.Suppress());
+            _context.Drain();
+            Assert.That(calls, Is.EqualTo(1));
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "completePaywallPresentation(paywall, NAVIGATED_BACK)",
+                "resolveErrorDialog(queued, {\"type\":\"useDefault\"})",
+                "resolveErrorDialog(pending, {\"type\":\"suppress\"})"
             }));
         }
 
