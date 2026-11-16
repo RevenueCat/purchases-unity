@@ -1,6 +1,7 @@
 #pragma warning disable CS0618 // Checkpoints are experimental on purpose.
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using RevenueCatUI;
 using UnityEngine;
 
@@ -44,6 +45,30 @@ namespace DefaultNamespace
             var presenterParameters = new CheckpointParams(paywallPresenter: presenter, useNativePaywallPresenter: true);
             CheckpointPaywallPresenter paywallPresenter = presenterParameters.PaywallPresenter;
             bool useNativePaywallPresenter = presenterParameters.UseNativePaywallPresenter;
+
+            CheckpointErrorDialogFactory factory = async (CheckpointError error) =>
+            {
+                CheckpointErrorKind kind = error.Kind;
+                switch (kind)
+                {
+                    case CheckpointErrorKind.Unknown:
+                    case CheckpointErrorKind.FlowCouldNotBeShown:
+                    case CheckpointErrorKind.FlowActionFailed:
+                    case CheckpointErrorKind.FlowResultSyncFailed:
+                        break;
+                }
+                int code = error.Code;
+                string message = error.Message;
+                var dialog = new CheckpointErrorDialog(message: "Try again", primaryButtonTitle: "OK");
+                string dialogMessage = dialog.Message;
+                string primaryButtonTitle = dialog.PrimaryButtonTitle;
+                await Task.Yield();
+                CheckpointErrorDialogOutcome useDefault = CheckpointErrorDialogOutcome.UseDefault();
+                CheckpointErrorDialogOutcome suppress = CheckpointErrorDialogOutcome.Suppress();
+                return CheckpointErrorDialogOutcome.Show(dialog);
+            };
+            var factoryParameters = new CheckpointParams(errorDialogFactory: factory);
+            CheckpointErrorDialogFactory errorDialogFactory = factoryParameters.ErrorDialogFactory;
         }
     }
 }

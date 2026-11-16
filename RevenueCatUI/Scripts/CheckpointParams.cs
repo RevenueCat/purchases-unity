@@ -33,15 +33,23 @@ namespace RevenueCatUI
         /// </summary>
         public bool UseNativePaywallPresenter { get; }
 
+        /// <summary>
+        /// Chooses custom error dialog content, the SDK's default dialog, or no dialog.
+        /// The SDK still presents and dismisses the dialog. Null uses the SDK's default handling.
+        /// </summary>
+        public CheckpointErrorDialogFactory ErrorDialogFactory { get; }
+
         public CheckpointParams(Dictionary<string, CustomVariableValue> customVariables = null,
             FlowPresentationMode presentationMode = FlowPresentationMode.Default,
             CheckpointPaywallPresenter paywallPresenter = null,
-            bool useNativePaywallPresenter = false)
+            bool useNativePaywallPresenter = false,
+            CheckpointErrorDialogFactory errorDialogFactory = null)
         {
             CustomVariables = customVariables;
             PresentationMode = presentationMode;
             PaywallPresenter = paywallPresenter;
             UseNativePaywallPresenter = useNativePaywallPresenter;
+            ErrorDialogFactory = errorDialogFactory;
         }
 
         internal string CustomVariablesToJsonString() =>

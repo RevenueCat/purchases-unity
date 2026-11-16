@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using RevenueCat.SimpleJSON;
 using RevenueCatUI;
@@ -27,8 +28,19 @@ namespace RevenueCat.Tests
         private QueuedContext _context;
 
         private readonly List<string> _starts = new List<string>();
-        private Action<string, CheckpointParams, string, bool> _previousStartNative;
+        private Action<string, CheckpointParams, string, bool, bool> _previousStartNative;
         private string _lastCallId;
+        private bool _lastHasErrorDialogFactory;
+
+        private const string Error = "{\"kind\":\"flowResultSyncFailed\",\"code\":10,\"message\":\"Offline\"}";
+
+        private string StartWithFactory(CheckpointErrorDialogFactory factory)
+        {
+            _detachers.Add(CheckpointBridge.Start("upgrade", _ => { }, new CheckpointParams(errorDialogFactory: factory)));
+            return _lastCallId;
+        }
+
+        private readonly List<Action> _detachers = new List<Action>();
 
         private const string PaywallParams = "{\"checkpointIdentifier\":\"upgrade\"," +
             "\"customVariables\":{\"name\":\"Taylor\",\"level\":12,\"premium\":true}," +
@@ -49,9 +61,10 @@ namespace RevenueCat.Tests
             _previousSendToNative = CheckpointBridge.SendToNative;
             CheckpointBridge.SendToNative = (method, first, second) => _native.Add($"{method}({first}, {second ?? "null"})");
             _previousStartNative = CheckpointBridge.StartNative;
-            CheckpointBridge.StartNative = (identifier, parameters, callId, custom) =>
+            CheckpointBridge.StartNative = (identifier, parameters, callId, custom, factory) =>
             {
                 _lastCallId = callId;
+                _lastHasErrorDialogFactory = factory;
                 _starts.Add($"{identifier}, custom presenter: {custom}");
             };
             _previousContext = SynchronizationContext.Current;
@@ -62,6 +75,8 @@ namespace RevenueCat.Tests
         [TearDown]
         public void TearDown()
         {
+            foreach (var detach in _detachers) detach();
+            _detachers.Clear();
             Checkpoints.SetPaywallPresenter(null);
             CheckpointBridge.StartNative = _previousStartNative;
             CheckpointBridge.SendToNative = _previousSendToNative;
@@ -475,6 +490,147 @@ namespace RevenueCat.Tests
             detach();
             Assert.That(passes, Is.EqualTo(1));
             Assert.That(_native, Is.EqualTo(new[] { "completePaywallPresentation(request, CONTINUED)" }));
+        }
+
+        [Test]
+        public void UsesTypedAsyncErrorFactoryAndMapsPrimaryButtonTitle()
+        {
+            CheckpointError received = null;
+            var callId = StartWithFactory(async error =>
+            {
+                received = error;
+                await Task.Yield();
+                return CheckpointErrorDialogOutcome.Show(new CheckpointErrorDialog("Try again", "OK"));
+            });
+            Assert.That(_lastHasErrorDialogFactory, Is.True);
+            CheckpointBridge.OnErrorDialogRequested(callId, "request", Error);
+            Assert.That(received, Is.Null, "The factory runs on the Unity main thread, not the native one.");
+            _context.Drain();
+            Assert.That(received.Kind, Is.EqualTo(CheckpointErrorKind.FlowResultSyncFailed));
+            Assert.That(received.Code, Is.EqualTo(10));
+            Assert.That(received.Message, Is.EqualTo("Offline"));
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "resolveErrorDialog(request, {\"type\":\"show\",\"dialog\":{\"message\":\"Try again\",\"buttonTitle\":\"OK\"}})"
+            }));
+        }
+
+        [Test]
+        public void ResolvesUseDefaultAndSuppressOutcomes()
+        {
+            var useDefault = StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.UseDefault()));
+            var suppress = StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.Suppress()));
+            CheckpointBridge.OnErrorDialogRequested(useDefault, "one", Error);
+            CheckpointBridge.OnErrorDialogRequested(suppress, "two", Error);
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "resolveErrorDialog(one, {\"type\":\"useDefault\"})",
+                "resolveErrorDialog(two, {\"type\":\"suppress\"})"
+            }));
+        }
+
+        [Test]
+        public void UnknownErrorKindsAreReportedAsUnknown()
+        {
+            CheckpointError received = null;
+            var callId = StartWithFactory(error =>
+            {
+                received = error;
+                return Task.FromResult(CheckpointErrorDialogOutcome.UseDefault());
+            });
+            CheckpointBridge.OnErrorDialogRequested(callId, "request", "{\"kind\":\"somethingNew\",\"code\":1,\"message\":\"m\"}");
+            _context.Drain();
+            Assert.That(received.Kind, Is.EqualTo(CheckpointErrorKind.Unknown));
+        }
+
+        [Test]
+        public void FallsBackToDefaultWhenFactoryFailsOrReturnsInvalidContent()
+        {
+            var ids = new[]
+            {
+                StartWithFactory(_ => throw new InvalidOperationException("sync")),
+                StartWithFactory(_ => Task.FromException<CheckpointErrorDialogOutcome>(new InvalidOperationException("faulted"))),
+                StartWithFactory(_ => null),
+                StartWithFactory(_ => Task.FromResult<CheckpointErrorDialogOutcome>(null)),
+                StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.Show(new CheckpointErrorDialog("", "OK")))),
+                StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.Show(new CheckpointErrorDialog("Try again", null))))
+            };
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("default checkpoint error dialog.*sync"));
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("default checkpoint error dialog.*faulted"));
+            for (var i = 0; i < ids.Length; i++) CheckpointBridge.OnErrorDialogRequested(ids[i], $"request-{i}", Error);
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(Enumerable.Range(0, ids.Length)
+                .Select(i => $"resolveErrorDialog(request-{i}, {{\"type\":\"useDefault\"}})")));
+        }
+
+        [Test]
+        public void DetachWhileFactoryIsPendingPreventsALateResolution()
+        {
+            var response = new TaskCompletionSource<CheckpointErrorDialogOutcome>();
+            var invoked = false;
+            var callId = StartWithFactory(_ =>
+            {
+                invoked = true;
+                return response.Task;
+            });
+            CheckpointBridge.OnErrorDialogRequested(callId, "request", Error);
+            _context.Drain();
+            Assert.That(invoked, Is.True);
+            _detachers.Single()();
+            response.SetResult(CheckpointErrorDialogOutcome.Suppress());
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[] { $"detachCheckpoint({callId}, null)" }));
+        }
+
+        [Test]
+        public void DetachDefaultsQueuedAndLateErrorRequestsWithoutCallingTheFactory()
+        {
+            var called = false;
+            var callId = StartWithFactory(_ =>
+            {
+                called = true;
+                return Task.FromResult(CheckpointErrorDialogOutcome.Suppress());
+            });
+            CheckpointBridge.OnErrorDialogRequested(callId, "queued", Error);
+            _detachers.Single()();
+            CheckpointBridge.OnErrorDialogRequested(callId, "late", Error);
+            _context.Drain();
+            Assert.That(called, Is.False);
+            // Native already resolved the queued request with the default dialog when the call detached.
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                $"detachCheckpoint({callId}, null)",
+                "resolveErrorDialog(late, {\"type\":\"useDefault\"})"
+            }));
+        }
+
+        [Test]
+        public void ConcurrentCallsKeepTheirErrorFactoriesSeparate()
+        {
+            var first = StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.Suppress()));
+            var second = StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.UseDefault()));
+            Assert.That(first, Is.Not.EqualTo(second));
+            CheckpointBridge.OnErrorDialogRequested(second, "two", Error);
+            CheckpointBridge.OnErrorDialogRequested(first, "one", Error);
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "resolveErrorDialog(two, {\"type\":\"useDefault\"})",
+                "resolveErrorDialog(one, {\"type\":\"suppress\"})"
+            }));
+        }
+
+        [Test]
+        public void NativeStartupErrorReleasesTheFactoryAndDefaultsLateRequests()
+        {
+            var callId = StartWithFactory(_ => Task.FromResult(CheckpointErrorDialogOutcome.Suppress()));
+            CheckpointBridge.OnError(callId, "NOT_CONFIGURED", "Not configured.");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[RevenueCatUI] Checkpoint could not be started (NOT_CONFIGURED): Not configured.");
+            _context.Drain();
+            CheckpointBridge.OnErrorDialogRequested(callId, "request", Error);
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[] { "resolveErrorDialog(request, {\"type\":\"useDefault\"})" }));
         }
 
         [Test]

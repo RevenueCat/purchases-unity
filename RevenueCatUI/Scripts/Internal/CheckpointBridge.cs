@@ -19,6 +19,7 @@ namespace RevenueCatUI.Internal
         {
             internal Action<CheckpointResult> Callback;
             internal CheckpointPaywallPresenter Presenter;
+            internal CheckpointErrorDialogFactory Factory;
             internal SynchronizationContext Context;
             internal string ActivePaywallRequestId;
             internal bool Detached;
@@ -30,6 +31,7 @@ namespace RevenueCatUI.Internal
                 Detached = true;
                 Callback = null;
                 Presenter = null;
+                Factory = null;
             }
         }
 
@@ -40,8 +42,8 @@ namespace RevenueCatUI.Internal
         // Edit Mode tests replace it to observe what would reach native.
         internal static Action<string, string, string> SendToNative = SendToPlatform;
 
-        // Starts the native checkpoint: (identifier, parameters, callId, useCustomPaywallPresenter).
-        internal static Action<string, CheckpointParams, string, bool> StartNative = StartOnPlatform;
+        // Starts the native checkpoint: (identifier, parameters, callId, useCustomPaywallPresenter, hasErrorDialogFactory).
+        internal static Action<string, CheckpointParams, string, bool, bool> StartNative = StartOnPlatform;
 
         // Set by Checkpoints.SetPaywallPresenter. Each call captures it when it starts.
         internal static CheckpointPaywallPresenter PaywallPresenter;
@@ -59,10 +61,11 @@ namespace RevenueCatUI.Internal
         {
             var presenter = parameters.UseNativePaywallPresenter ? null : parameters.PaywallPresenter ?? PaywallPresenter;
             var callId = Guid.NewGuid().ToString();
-            var detach = Register(callId, callback, presenter);
+            var factory = parameters.ErrorDialogFactory;
+            var detach = Register(callId, callback, presenter, factory);
             try
             {
-                StartNative(identifier, parameters, callId, presenter != null);
+                StartNative(identifier, parameters, callId, presenter != null, factory != null);
             }
             catch
             {
@@ -73,12 +76,15 @@ namespace RevenueCatUI.Internal
         }
 
         internal static Action Register(string callId, Action<CheckpointResult> callback,
-            CheckpointPaywallPresenter presenter = null)
+            CheckpointPaywallPresenter presenter = null, CheckpointErrorDialogFactory factory = null)
         {
             var context = SynchronizationContext.Current;
             if (context == null)
                 throw new InvalidOperationException("Call Checkpoint from the Unity main thread.");
-            var subscription = new Subscription { Callback = callback, Presenter = presenter, Context = context };
+            var subscription = new Subscription
+            {
+                Callback = callback, Presenter = presenter, Factory = factory, Context = context
+            };
             lock (Gate) Subscriptions.Add(callId, subscription);
             return () =>
             {
@@ -205,10 +211,42 @@ namespace RevenueCatUI.Internal
             }
         }
 
-        // Native only requests a dialog when the call has an error-dialog factory. None exists yet, so use the default.
         internal static void OnErrorDialogRequested(string callId, string requestId, string errorJson)
         {
-            SendToNative(ResolveErrorDialogMethod, requestId, UseDefaultErrorDialog);
+            Subscription subscription;
+            lock (Gate) Subscriptions.TryGetValue(callId, out subscription);
+            if (subscription?.Factory == null)
+            {
+                SendToNative(ResolveErrorDialogMethod, requestId, UseDefaultErrorDialog);
+                return;
+            }
+            subscription.Context.Post(_ => ResolveErrorDialog(requestId, errorJson, subscription), null);
+        }
+
+        private static async void ResolveErrorDialog(string requestId, string errorJson, Subscription subscription)
+        {
+            CheckpointErrorDialogFactory factory;
+            lock (Gate) factory = subscription.Factory;
+            // Detached while queued: native already uses the default dialog.
+            if (factory == null) return;
+
+            var outcome = UseDefaultErrorDialog;
+            try
+            {
+                var task = factory(new CheckpointError(JSON.Parse(errorJson)));
+                var chosen = task == null ? null : await task;
+                if (chosen != null) outcome = chosen.ToJsonString();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[RevenueCatUI] Using the default checkpoint error dialog: {e}");
+            }
+            lock (Gate)
+            {
+                // Detaching while the factory ran already resolved this request with the default dialog.
+                if (subscription.Detached) return;
+            }
+            SendToNative(ResolveErrorDialogMethod, requestId, outcome);
         }
 
         private static void SendToPlatform(string method, string first, string second)
@@ -257,9 +295,8 @@ namespace RevenueCatUI.Internal
 #endif
 
         private static void StartOnPlatform(string identifier, CheckpointParams parameters, string callId,
-            bool useCustomPaywallPresenter)
+            bool useCustomPaywallPresenter, bool hasErrorDialogFactory)
         {
-            const bool hasErrorDialogFactory = false;
 #if UNITY_IOS && !UNITY_EDITOR
             rcui_checkpoint(identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId,
                 useCustomPaywallPresenter, hasErrorDialogFactory, NativePassedCallback, NativeErrorCallback,
