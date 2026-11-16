@@ -48,11 +48,13 @@ name: Custom checkpoint presenter completes after owner unmounts
     text: "Remount checkpoint owner"
 # Native synchronization may still be finishing after the detached completion.
 # Retry only starting the next call; never retry the purchase or the whole flow.
+# The button hides once a paywall is presented, so a late presentation makes the retried tap a no-op.
 - retry:
     maxRetries: 2
     commands:
       - tapOn:
           text: "Hit custom checkpoint"
+          optional: true
       - extendedWaitUntil:
           visible: "Custom checkpoint paywall"
           timeout: 8000
