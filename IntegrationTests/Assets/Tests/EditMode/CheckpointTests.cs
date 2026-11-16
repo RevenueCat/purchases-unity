@@ -390,6 +390,78 @@ namespace RevenueCat.Tests
         }
 
         [Test]
+        public void CompletionReachesNativeBeforeADetachThatFollowsIt()
+        {
+            Action<PaywallPresentationResult> complete = null;
+            var detach = Start((_, completion) => complete = completion);
+            var callId = _lastCallId;
+            CheckpointBridge.OnPaywallPresentationRequested(callId, "request", PaywallParams);
+            _context.Drain();
+            complete(PaywallPresentationResult.Continued);
+            detach();
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "completePaywallPresentation(request, CONTINUED)",
+                $"detachCheckpoint({callId}, null)"
+            }));
+        }
+
+        [Test]
+        public void CompletionFromAnotherThreadReachesNativeOnTheMainThread()
+        {
+            Action<PaywallPresentationResult> complete = null;
+            var detach = Start((_, completion) => complete = completion);
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", PaywallParams);
+            _context.Drain();
+            var worker = new Thread(() => complete(PaywallPresentationResult.Closed));
+            worker.Start();
+            worker.Join();
+            Assert.That(_native, Is.Empty);
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[] { "completePaywallPresentation(request, CLOSED)" }));
+            detach();
+        }
+
+        [Test]
+        public void RequestQueuedWhenTheCallBacksOutIsStillAnswered()
+        {
+            var presented = 0;
+            var detach = Start((_, complete) =>
+            {
+                presented++;
+                complete(PaywallPresentationResult.NavigatedBack);
+            });
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "first", PaywallParams);
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "second", PaywallParams);
+            _context.Drain();
+            Assert.That(presented, Is.EqualTo(1));
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "completePaywallPresentation(first, NAVIGATED_BACK)",
+                "completePaywallPresentation(second, NAVIGATED_BACK)"
+            }));
+            detach();
+        }
+
+        [Test]
+        public void NativeStartFailureDetachesAndRethrows()
+        {
+            CheckpointBridge.StartNative = (identifier, parameters, callId, custom) =>
+            {
+                _lastCallId = callId;
+                throw new InvalidOperationException("start failed");
+            };
+            Assert.Throws<InvalidOperationException>(() => Start((_, __) => Assert.Fail()));
+            CheckpointBridge.OnPaywallPresentationRequested(_lastCallId, "request", PaywallParams);
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                $"detachCheckpoint({_lastCallId}, null)",
+                "completePaywallPresentation(request, NAVIGATED_BACK)"
+            }));
+        }
+
+        [Test]
         public void PassingAfterCompletionCallsTheCallbackOnce()
         {
             var passes = 0;

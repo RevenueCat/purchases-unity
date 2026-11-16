@@ -22,6 +22,8 @@ namespace RevenueCatUI.Internal
             internal SynchronizationContext Context;
             internal string ActivePaywallRequestId;
             internal bool Detached;
+            // Only the app's detach makes native answer pending requests itself.
+            internal bool DetachedByApp;
 
             internal void Clear()
             {
@@ -86,6 +88,7 @@ namespace RevenueCatUI.Internal
                     if (subscription.Detached) return;
                     Subscriptions.Remove(callId);
                     subscription.Clear();
+                    subscription.DetachedByApp = true;
                     activePaywallRequestId = subscription.ActivePaywallRequestId;
                 }
                 // Native keeps a paywall whose presenter already ran: the app still dismisses and completes it.
@@ -154,12 +157,18 @@ namespace RevenueCatUI.Internal
         private static void Present(string callId, string requestId, string paramsJson, Subscription subscription)
         {
             CheckpointPaywallPresenter presenter;
+            bool detachedByApp;
             lock (Gate)
             {
                 presenter = subscription.Presenter;
-                // Detached while queued: native already backed this request out.
-                if (presenter == null) return;
-                subscription.ActivePaywallRequestId = requestId;
+                detachedByApp = subscription.DetachedByApp;
+                if (presenter != null) subscription.ActivePaywallRequestId = requestId;
+            }
+            if (presenter == null)
+            {
+                // The call ended while this request was queued. An app detach already backed it out natively.
+                if (!detachedByApp) SendToNative(CompletePaywallPresentationMethod, requestId, NavigatedBack);
+                return;
             }
 
             var completed = 0;
@@ -176,9 +185,13 @@ namespace RevenueCatUI.Internal
                         subscription.Clear();
                     }
                 }
-                // Completion may come from any thread; reach native from the Unity main thread.
-                subscription.Context.Post(
-                    __ => SendToNative(CompletePaywallPresentationMethod, requestId, result.ToNativeString()), null);
+                // Reach native from the Unity main thread. Sending right away there keeps the completion
+                // ahead of a detach that follows it, so native doesn't back the request out first.
+                if (SynchronizationContext.Current == subscription.Context)
+                    SendToNative(CompletePaywallPresentationMethod, requestId, result.ToNativeString());
+                else
+                    subscription.Context.Post(
+                        __ => SendToNative(CompletePaywallPresentationMethod, requestId, result.ToNativeString()), null);
             }
 
             try
