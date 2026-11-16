@@ -8,6 +8,7 @@ permissions: {}
 
 jobs:
   hotfix:
+    if: github.repository_visibility != 'public'
     permissions:
       issues: write
       pull-requests: write

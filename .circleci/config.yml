@@ -32,7 +32,7 @@ aliases:
         only: main
 
 orbs:
-  revenuecat: revenuecat/sdks-common-config@4.8.0
+  revenuecat: revenuecat/sdks-common-config@4.9.0
   unity: game-ci/unity@1.7.1
   android: circleci/android@3.0.2
 
@@ -797,7 +797,7 @@ workflows:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
-          context: github-bot-public
+          context: github-bot-internal
           ruby_version: "3.3.0"
           requires:
             - wait-for-pr-approval
@@ -814,6 +814,20 @@ workflows:
             - run-maestro-e2e-tests-android
           <<: *release-branches
 
+  mirror:
+    when:
+      and:
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ build, << pipeline.parameters.action >> ]
+    jobs:
+      - revenuecat/mirror-to-public:
+          public_repo_name: purchases-unity
+          context: sdk-public-mirror
+          filters:
+            branches:
+              only: main
+
   deploy:
     when:
       and:
@@ -824,14 +838,19 @@ workflows:
       - export-package:
           context: unity
           <<: *release-tags
+      - revenuecat/mirror-to-public:
+          public_repo_name: purchases-unity
+          context: sdk-public-mirror
+          <<: *release-tags
       - github-release:
-          context: github-bot-public
+          context: github-bot-public-release
           requires:
             - export-package
+            - revenuecat/mirror-to-public
           <<: *release-tags
       - revenuecat/merge-release-pr:
-          context: github-bot-public
-          repo_name: purchases-unity
+          context: github-bot-internal
+          repo_name: purchases-unity_internal
           requires:
             - github-release
           <<: *release-tags
@@ -843,7 +862,7 @@ workflows:
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump:
-          context: github-bot-public
+          context: github-bot-internal
           ruby_version: "3.3.0"
 
   manual-trigger-bump:
@@ -851,7 +870,7 @@ workflows:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump:
-          context: github-bot-public
+          context: github-bot-internal
           ruby_version: "3.3.0"
 
   manual-trigger-hotfix:
@@ -859,7 +878,7 @@ workflows:
       equal: [ hotfix, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/hotfix:
-          context: github-bot-public
+          context: github-bot-internal
           ruby_version: "3.3.0"
           pr_number: << pipeline.parameters.hotfix_pr >>
           version: << pipeline.parameters.hotfix_version >>
@@ -899,4 +918,4 @@ workflows:
       equal: [ upgrade-hybrid-common, << pipeline.parameters.action >> ]
     jobs:
       - update-hybrid-common-versions:
-          context: github-bot-public
+          context: github-bot-internal
