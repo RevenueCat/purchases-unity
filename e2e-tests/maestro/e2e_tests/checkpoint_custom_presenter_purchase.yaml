@@ -1,0 +1,45 @@
+# This flow tests a purchase through an app-owned checkpoint paywall.
+# Purchasing alone must not pass the checkpoint: it passes only after the presenter completes
+# and the native SDK synchronizes the purchase.
+# Mirrors purchases-flutter's e2e-tests/maestro/e2e_tests/checkpoint_custom_presenter_purchase.yaml.
+
+appId: com.revenuecat.automatedsdktests
+name: Custom checkpoint presenter purchase
+
+---
+- clearState
+- pressKey: home
+- launchApp:
+    arguments:
+        e2e_test_flow: checkpoint_custom_presenter_purchase
+        rc_test_api_key: "${typeof MAESTRO_RC_TEST_API_KEY === 'undefined' ? '' : MAESTRO_RC_TEST_API_KEY}"
+- extendedWaitUntil:
+    visible: "Hit custom checkpoint"
+    timeout: 30000
+- tapOn:
+    text: "Hit custom checkpoint"
+- runFlow:
+    file: ../utils/assert_custom_checkpoint_presenter.yaml
+- assertVisible: "Presentation count: 1"
+- assertVisible: "Callback count: 0"
+- tapOn:
+    text: "Buy monthly package"
+- runFlow:
+    file: ../utils/confirm_purchase.yaml
+- extendedWaitUntil:
+    visible: "Purchase: complete"
+    timeout: 30000
+# Purchasing alone must not pass the checkpoint while the app-owned UI remains open.
+- assertVisible: "Callback count: 0"
+- assertVisible: "Completion count: 0"
+- tapOn:
+    text: "Continue checkpoint"
+- extendedWaitUntil:
+    visible: "Callback count: 1"
+    timeout: 30000
+- assertVisible: "Completion count: 1"
+- assertVisible: "Last completion: CONTINUED"
+- assertVisible: "Customer active entitlements: pro"
+- assertVisible: "Callbacks before completion: 0"
+- assertVisible: "Stale callbacks: 0"
+- assertNotVisible: "Custom checkpoint paywall"

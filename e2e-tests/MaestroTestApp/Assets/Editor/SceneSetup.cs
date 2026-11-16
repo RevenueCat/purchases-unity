@@ -30,7 +30,13 @@ static class SceneSetup
 
         var testCasesScreen = CreatePanel(canvas.transform, "TestCasesScreen");
         CreateText(testCasesScreen.transform, "Title", "Test Cases", 24, FontStyle.Bold,
-            new Vector2(0, 0.5f), new Vector2(1, 1f), TextAnchor.MiddleCenter);
+            new Vector2(0, 0.7f), new Vector2(1, 1f), TextAnchor.MiddleCenter);
+
+        CreateButton(testCasesScreen.transform, "CustomCheckpointPresenterButton", "Custom checkpoint presenter",
+            new Vector2(0.1f, 0.6f), new Vector2(0.9f, 0.68f));
+
+        CreateButton(testCasesScreen.transform, "CheckpointCustomErrorDialogButton", "Checkpoint custom error dialog",
+            new Vector2(0.1f, 0.5f), new Vector2(0.9f, 0.58f));
 
         CreateButton(testCasesScreen.transform, "PurchaseButton", "Purchase through paywall",
             new Vector2(0.1f, 0.3f), new Vector2(0.9f, 0.4f));
@@ -88,6 +94,51 @@ static class SceneSetup
         CreateButton(checkpointScreen.transform, "BackButton", "Back",
             new Vector2(0.1f, 0.1f), new Vector2(0.9f, 0.2f));
 
+        // Everything Maestro reads here is a fixed row so the screen never needs scrolling.
+        // MaestroTestApp finds these by name and fills them in at runtime.
+        var customCheckpointScreen = CreatePanel(canvas.transform, "CustomCheckpointScreen");
+        customCheckpointScreen.SetActive(false);
+        var row = 0;
+        foreach (var name in new[]
+                 {
+                     "Owner", "PresentationCount", "CallbackCount", "EarlyCallbacks", "StaleCallbacks",
+                     "CompletionCount", "LastCompletion", "Entitlements", "Error"
+                 })
+        {
+            CreateText(customCheckpointScreen.transform, name + "Label", "", 12, FontStyle.Normal,
+                Row(row, 0.03f, 0.97f).Item1, Row(row++, 0.03f, 0.97f).Item2, TextAnchor.MiddleCenter);
+        }
+        CreateButton(customCheckpointScreen.transform, "HitCustomCheckpointButton", "Hit custom checkpoint",
+            new Vector2(0.1f, 0.61f), new Vector2(0.9f, 0.66f));
+        CreateButton(customCheckpointScreen.transform, "RemountCheckpointOwnerButton", "Remount checkpoint owner",
+            new Vector2(0.1f, 0.61f), new Vector2(0.9f, 0.66f));
+        row = 0;
+        foreach (var name in new[]
+                 {
+                     "PaywallTitle", "PaywallCheckpointIdentifier", "PaywallOffering", "PaywallProduct", "PaywallMode",
+                     "PaywallCustomString", "PaywallCustomNumber", "PaywallCustomBoolean", "PaywallPurchase"
+                 })
+        {
+            CreateText(customCheckpointScreen.transform, name + "Label", "", 12, FontStyle.Normal,
+                Row(row, 0.03f, 0.6f).Item1, Row(row++, 0.03f, 0.6f).Item2, TextAnchor.MiddleCenter);
+        }
+        row = 0;
+        foreach (var (name, label) in new[]
+                 {
+                     ("BuyButton", "Buy monthly package"),
+                     ("ContinueButton", "Continue checkpoint"),
+                     ("CloseButton", "Close checkpoint"),
+                     ("BackFromPaywallButton", "Back from custom paywall"),
+                     ("UnmountCheckpointOwnerButton", "Unmount checkpoint owner")
+                 })
+        {
+            CreateButton(customCheckpointScreen.transform, name, label,
+                Row(row, 0.04f, 0.32f, 0.005f).Item1 + new Vector2(0.1f, 0),
+                Row(row++, 0.04f, 0.32f, 0.005f).Item2 - new Vector2(0.1f, 0));
+        }
+        CreateButton(customCheckpointScreen.transform, "BackButton", "Back",
+            new Vector2(0.1f, 0.04f), new Vector2(0.9f, 0.09f));
+
         var purchasesGO = new GameObject("Purchases");
         var purchasesComp = purchasesGO.AddComponent<Purchases>();
         purchasesComp.useRuntimeSetup = true;
@@ -103,6 +154,7 @@ static class SceneSetup
         maestroApp.checkpointStatusLabel = checkpointStatusLabel;
         maestroApp.checkpointLineLabels = checkpointLineLabels;
         maestroApp.checkpointErrorLabel = checkpointErrorLabel;
+        maestroApp.customCheckpointScreen = customCheckpointScreen;
 
         // Button onClick handlers are deliberately not wired here: SaveScene only
         // serializes persistent listeners, so anything added with AddListener would be
@@ -126,6 +178,13 @@ static class SceneSetup
         PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
 
         Debug.Log(":: Scene setup completed successfully");
+    }
+
+    // Anchors for the row-th row of a column that starts at top and stacks rows of the given height downwards.
+    static (Vector2, Vector2) Row(int row, float height, float top, float gap = 0)
+    {
+        var max = top - row * (height + gap);
+        return (new Vector2(0, max - height), new Vector2(1, max));
     }
 
     static GameObject CreatePanel(Transform parent, string name)

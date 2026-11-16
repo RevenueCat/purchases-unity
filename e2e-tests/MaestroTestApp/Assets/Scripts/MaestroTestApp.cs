@@ -21,6 +21,9 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern string GetLaunchTestFlow();
+
+    [DllImport("__Internal")]
+    private static extern string GetLaunchTestApiKey();
 #endif
 
     private static readonly Dictionary<string, System.Action<MaestroTestApp>> TestFlowScreenMap =
@@ -31,7 +34,12 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             // Presents its paywall to every user, with the monthly package preselected.
             { "checkpoint_purchase", app => app.ShowCheckpointScreen("donottouch_sdk_everyone") },
             // A well-formed identifier that is not configured in the dashboard.
-            { "checkpoint_unknown_identifier", app => app.ShowCheckpointScreen("maestro_unknown_checkpoint") }
+            { "checkpoint_unknown_identifier", app => app.ShowCheckpointScreen("maestro_unknown_checkpoint") },
+            { "checkpoint_custom_presenter_purchase", app => app.ShowCustomCheckpointScreen() },
+            { "checkpoint_custom_presenter_back", app => app.ShowCustomCheckpointScreen() },
+            { "checkpoint_custom_presenter_unmount", app => app.ShowCustomCheckpointScreen() },
+            // An invalid identifier fails the checkpoint without relying on a network outage.
+            { "checkpoint_custom_error_dialog", app => app.ShowCheckpointScreen("!", customErrorDialog: true) }
         };
 
     public GameObject testCasesScreen;
@@ -46,6 +54,8 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     public Text[] checkpointLineLabels;
     public Text checkpointErrorLabel;
 
+    public GameObject customCheckpointScreen;
+
     private const string CheckpointEntitlementId = "pro";
     private const string CheckpointProductId = "pro_monthly_subscription";
 
@@ -53,7 +63,33 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     private string checkpointIdentifier;
     private int checkpointInvocations;
     private System.Action detachCheckpoint;
+    private bool customErrorDialog;
     private bool useExitOfferTestOffering;
+
+    // The custom presenter screen. The checkpoint owner stands in for a screen that registers the
+    // checkpoint, while this screen owns the paywall UI, so unmounting the owner detaches a real
+    // registration without dismissing the paywall. The counters expose premature callbacks and
+    // callbacks from a detached owner instead of hiding them.
+    private sealed class CheckpointOwner
+    {
+        internal int Id;
+        internal System.Action Detach;
+    }
+
+    private CheckpointOwner checkpointOwner;
+    private int nextOwnerId;
+    private PaywallPresentationParams presentation;
+    private System.Action<PaywallPresentationResult> completePresentation;
+    private bool awaitingCompletion;
+    private int presentationCount;
+    private int callbackCount;
+    private int earlyCallbacks;
+    private int staleCallbacks;
+    private int completionCount;
+    private string lastCompletion;
+    private string customEntitlements;
+    private string purchaseStatus;
+    private string customError;
 
 #if ACCESSIBILITY_OVERLAY
     private bool overlayReady;
@@ -77,7 +113,10 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         Debug.Log("MaestroTestApp: Start() called");
         purchases = GetComponent<Purchases>();
 
-        var config = Purchases.PurchasesConfiguration.Builder.Init(API_KEY).Build();
+        // Local runs pass a Test Store key as a launch argument so it never has to be written to source.
+        var testApiKey = GetLaunchArgument("rc_test_api_key");
+        var apiKey = string.IsNullOrEmpty(testApiKey) ? API_KEY : testApiKey;
+        var config = Purchases.PurchasesConfiguration.Builder.Init(apiKey).Build();
         purchases.Configure(config);
         purchases.SetLogLevel(Purchases.LogLevel.Verbose);
         purchases.listener = this;
@@ -106,17 +145,19 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         }
     }
 
-    private string GetTestFlow()
+    private string GetTestFlow() => GetLaunchArgument("e2e_test_flow");
+
+    private string GetLaunchArgument(string name)
     {
 #if UNITY_IOS && !UNITY_EDITOR
-        return GetLaunchTestFlow();
+        return name == "rc_test_api_key" ? GetLaunchTestApiKey() : GetLaunchTestFlow();
 #elif UNITY_ANDROID && !UNITY_EDITOR
         try
         {
             using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             using var intent = activity.Call<AndroidJavaObject>("getIntent");
-            return intent.Call<string>("getStringExtra", "e2e_test_flow");
+            return intent.Call<string>("getStringExtra", name);
         }
         catch (System.Exception)
         {
@@ -137,7 +178,17 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         WireButton(testCasesScreen, "CheckpointButton", () => ShowCheckpointScreen("donottouch_sdk_everyone"));
         WireButton(testCasesScreen, "CheckpointUnknownButton", () => ShowCheckpointScreen("maestro_unknown_checkpoint"));
         WireButton(checkpointScreen, "HitCheckpointButton", HitCheckpoint);
+        WireButton(testCasesScreen, "CustomCheckpointPresenterButton", ShowCustomCheckpointScreen);
+        WireButton(testCasesScreen, "CheckpointCustomErrorDialogButton", () => ShowCheckpointScreen("!", customErrorDialog: true));
         WireButton(checkpointScreen, "BackButton", ShowTestCases);
+        WireButton(customCheckpointScreen, "HitCustomCheckpointButton", HitCustomCheckpoint);
+        WireButton(customCheckpointScreen, "RemountCheckpointOwnerButton", RemountCheckpointOwner);
+        WireButton(customCheckpointScreen, "BuyButton", BuyMonthlyPackage);
+        WireButton(customCheckpointScreen, "ContinueButton", () => FinishPresentation(PaywallPresentationResult.Continued));
+        WireButton(customCheckpointScreen, "CloseButton", () => FinishPresentation(PaywallPresentationResult.Closed));
+        WireButton(customCheckpointScreen, "BackFromPaywallButton", () => FinishPresentation(PaywallPresentationResult.NavigatedBack));
+        WireButton(customCheckpointScreen, "UnmountCheckpointOwnerButton", UnmountCheckpointOwner);
+        WireButton(customCheckpointScreen, "BackButton", ShowTestCases);
         WireButton(purchaseScreen, "PaywallButton", PresentPaywall);
         WireButton(purchaseScreen, "BackButton", ShowTestCases);
     }
@@ -160,9 +211,12 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
     {
         detachCheckpoint?.Invoke();
         detachCheckpoint = null;
+        checkpointOwner?.Detach?.Invoke();
+        checkpointOwner = null;
         testCasesScreen.SetActive(true);
         purchaseScreen.SetActive(false);
         checkpointScreen.SetActive(false);
+        customCheckpointScreen.SetActive(false);
 #if ACCESSIBILITY_OVERLAY
         StartCoroutine(UpdateOverlay("testCases"));
 #endif
@@ -174,6 +228,7 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         testCasesScreen.SetActive(false);
         purchaseScreen.SetActive(true);
         checkpointScreen.SetActive(false);
+        customCheckpointScreen.SetActive(false);
         ClearError();
         if (paywallResultLabel != null)
         {
@@ -191,16 +246,18 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         ShowPurchaseScreen();
     }
 
-    public void ShowCheckpointScreen(string identifier)
+    public void ShowCheckpointScreen(string identifier, bool customErrorDialog = false)
     {
         Debug.Log($"MaestroTestApp: ShowCheckpointScreen({identifier}) called");
         detachCheckpoint?.Invoke();
         detachCheckpoint = null;
         checkpointIdentifier = identifier;
+        this.customErrorDialog = customErrorDialog;
         checkpointInvocations = 0;
         testCasesScreen.SetActive(false);
         purchaseScreen.SetActive(false);
         checkpointScreen.SetActive(true);
+        customCheckpointScreen.SetActive(false);
         checkpointErrorLabel.gameObject.SetActive(false);
         checkpointIdentifierLabel.text = "Identifier: " + identifier;
         checkpointStatusLabel.text = "Callback: not invoked";
@@ -216,7 +273,11 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         detachCheckpoint?.Invoke();
         try
         {
-            detachCheckpoint = Checkpoints.Checkpoint(checkpointIdentifier, OnCheckpointPassed);
+            var parameters = new CheckpointParams(errorDialogFactory: customErrorDialog
+                ? _ => Task.FromResult(CheckpointErrorDialogOutcome.Show(
+                    new CheckpointErrorDialog("Custom checkpoint error dialog", "Got it")))
+                : (CheckpointErrorDialogFactory)null);
+            detachCheckpoint = Checkpoints.Checkpoint(checkpointIdentifier, OnCheckpointPassed, parameters);
         }
         catch (System.Exception e)
         {
@@ -246,6 +307,187 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
         checkpointLineLabels[3].text = $"Customer active entitlements: {ListOrNone(result.Customer.Entitlements.Active.Keys)}";
 #if ACCESSIBILITY_OVERLAY
         StartCoroutine(UpdateOverlay("checkpoint"));
+#endif
+    }
+
+    public void ShowCustomCheckpointScreen()
+    {
+        Debug.Log("MaestroTestApp: ShowCustomCheckpointScreen() called");
+        detachCheckpoint?.Invoke();
+        detachCheckpoint = null;
+        checkpointOwner?.Detach?.Invoke();
+        checkpointOwner = new CheckpointOwner { Id = ++nextOwnerId };
+        presentation = null;
+        completePresentation = null;
+        awaitingCompletion = false;
+        presentationCount = callbackCount = earlyCallbacks = staleCallbacks = completionCount = 0;
+        lastCompletion = "none";
+        customEntitlements = "none";
+        purchaseStatus = "not started";
+        customError = null;
+        testCasesScreen.SetActive(false);
+        purchaseScreen.SetActive(false);
+        checkpointScreen.SetActive(false);
+        customCheckpointScreen.SetActive(true);
+        RenderCustomCheckpoint();
+    }
+
+    private void HitCustomCheckpoint()
+    {
+        var owner = checkpointOwner;
+        if (owner == null) return;
+        owner.Detach?.Invoke();
+        customError = null;
+        try
+        {
+            owner.Detach = Checkpoints.Checkpoint("donottouch_sdk_everyone",
+                result => OnCustomCheckpointPassed(owner.Id, result),
+                new CheckpointParams(
+                    customVariables: new Dictionary<string, CustomVariableValue>
+                    {
+                        { "name", CustomVariableValue.String("Maestro") },
+                        { "level", CustomVariableValue.Number(42) },
+                        { "premium", CustomVariableValue.Boolean(true) }
+                    },
+                    presentationMode: FlowPresentationMode.ModalFullScreen,
+                    paywallPresenter: PresentCustomPaywall));
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"MaestroTestApp: failed to hit custom checkpoint: {e}");
+            customError = e.Message;
+        }
+        RenderCustomCheckpoint();
+    }
+
+    private void PresentCustomPaywall(PaywallPresentationParams parameters, System.Action<PaywallPresentationResult> completion)
+    {
+        awaitingCompletion = true;
+        presentationCount++;
+        purchaseStatus = "not started";
+        presentation = parameters;
+        completePresentation = completion;
+        RenderCustomCheckpoint();
+    }
+
+    private void OnCustomCheckpointPassed(int ownerId, CheckpointResult result)
+    {
+        callbackCount++;
+        if (awaitingCompletion) earlyCallbacks++;
+        if (checkpointOwner == null || checkpointOwner.Id != ownerId) staleCallbacks++;
+        customEntitlements = ListOrNone(result.Customer.Entitlements.Active.Keys);
+        RenderCustomCheckpoint();
+    }
+
+    private void FinishPresentation(PaywallPresentationResult result)
+    {
+        var completion = completePresentation;
+        if (presentation == null || completion == null || purchaseStatus == "in progress") return;
+        presentation = null;
+        completePresentation = null;
+        RenderCustomCheckpoint();
+        StartCoroutine(CompleteAfterDismissal(completion, result));
+    }
+
+    // Remove the app-owned UI for a frame before resuming native work, as an app dismissing its paywall would.
+    private IEnumerator CompleteAfterDismissal(System.Action<PaywallPresentationResult> completion, PaywallPresentationResult result)
+    {
+        yield return null;
+        awaitingCompletion = false;
+        completion(result);
+        completionCount++;
+        lastCompletion = result == PaywallPresentationResult.Continued ? "CONTINUED"
+            : result == PaywallPresentationResult.Closed ? "CLOSED" : "NAVIGATED_BACK";
+        RenderCustomCheckpoint();
+    }
+
+    private Purchases.Package MonthlyPackage => presentation?.Offering.AvailablePackages
+        .FirstOrDefault(package => package.StoreProduct.Identifier == CheckpointProductId);
+
+    private void BuyMonthlyPackage()
+    {
+        var package = MonthlyPackage;
+        if (package == null || purchaseStatus == "in progress" || purchaseStatus == "complete") return;
+        purchaseStatus = "in progress";
+        customError = null;
+        RenderCustomCheckpoint();
+        // Use the package from the presenter so the purchase keeps its offering context.
+        purchases.PurchasePackage(package, result =>
+        {
+            if (result.Error != null)
+            {
+                purchaseStatus = "failed";
+                customError = result.Error.Message;
+            }
+            else
+            {
+                purchaseStatus = result.UserCancelled ? "cancelled" : "complete";
+            }
+            RenderCustomCheckpoint();
+        });
+    }
+
+    private void UnmountCheckpointOwner()
+    {
+        if (purchaseStatus == "in progress" || checkpointOwner == null) return;
+        checkpointOwner.Detach?.Invoke();
+        checkpointOwner = null;
+        RenderCustomCheckpoint();
+    }
+
+    private void RemountCheckpointOwner()
+    {
+        if (checkpointOwner != null || presentation != null) return;
+        checkpointOwner = new CheckpointOwner { Id = ++nextOwnerId };
+        RenderCustomCheckpoint();
+    }
+
+    private string DescribeVariable(string key)
+    {
+        if (presentation == null || !presentation.CustomVariables.TryGetValue(key, out var value)) return "missing";
+        if (value.Equals(CustomVariableValue.String("Maestro"))) return "string Maestro";
+        if (value.Equals(CustomVariableValue.Number(42))) return "number 42";
+        if (value.Equals(CustomVariableValue.Boolean(true))) return "boolean true";
+        return "unexpected " + value;
+    }
+
+    private void RenderCustomCheckpoint()
+    {
+        var screen = customCheckpointScreen.transform;
+        void Set(string name, string text) => screen.Find(name + "Label").GetComponent<Text>().text = text;
+        void Show(string name, bool visible) => screen.Find(name).gameObject.SetActive(visible);
+
+        var presenting = presentation != null;
+        var purchasing = purchaseStatus == "in progress";
+        Set("Owner", "Checkpoint owner: " + (checkpointOwner == null ? "unmounted" : "mounted"));
+        Set("PresentationCount", $"Presentation count: {presentationCount}");
+        Set("CallbackCount", $"Callback count: {callbackCount}");
+        Set("EarlyCallbacks", $"Callbacks before completion: {earlyCallbacks}");
+        Set("StaleCallbacks", $"Stale callbacks: {staleCallbacks}");
+        Set("CompletionCount", $"Completion count: {completionCount}");
+        Set("LastCompletion", $"Last completion: {lastCompletion}");
+        Set("Entitlements", $"Customer active entitlements: {customEntitlements}");
+        Set("Error", customError == null ? "" : "Error: " + customError);
+
+        Set("PaywallTitle", presenting ? "Custom checkpoint paywall" : "");
+        Set("PaywallCheckpointIdentifier", presenting ? $"Checkpoint identifier: {presentation.CheckpointIdentifier}" : "");
+        Set("PaywallOffering", presenting ? $"Offering identifier: {presentation.Offering.Identifier}" : "");
+        Set("PaywallProduct", presenting ? $"Product available: {MonthlyPackage?.StoreProduct.Identifier ?? "missing"}" : "");
+        Set("PaywallMode", presenting ? $"Presentation mode: {(presentation.PresentationMode == FlowPresentationMode.ModalFullScreen ? "MODAL_FULL_SCREEN" : presentation.PresentationMode == FlowPresentationMode.ModalSheet ? "MODAL_SHEET" : "DEFAULT")}" : "");
+        Set("PaywallCustomString", presenting ? $"Custom string: {DescribeVariable("name")}" : "");
+        Set("PaywallCustomNumber", presenting ? $"Custom number: {DescribeVariable("level")}" : "");
+        Set("PaywallCustomBoolean", presenting ? $"Custom boolean: {DescribeVariable("premium")}" : "");
+        Set("PaywallPurchase", presenting ? $"Purchase: {purchaseStatus}" : "");
+
+        Show("HitCustomCheckpointButton", checkpointOwner != null && !presenting);
+        Show("RemountCheckpointOwnerButton", checkpointOwner == null && !presenting);
+        Show("BuyButton", presenting && MonthlyPackage != null && !purchasing && purchaseStatus != "complete");
+        Show("ContinueButton", presenting && !purchasing);
+        Show("CloseButton", presenting && !purchasing);
+        Show("BackFromPaywallButton", presenting && !purchasing);
+        Show("UnmountCheckpointOwnerButton", presenting && !purchasing && checkpointOwner != null);
+#if ACCESSIBILITY_OVERLAY
+        StartCoroutine(UpdateOverlay("customCheckpoint"));
 #endif
     }
 
@@ -412,6 +654,14 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             var unknownBtn = testCasesScreen.transform.Find("CheckpointUnknownButton");
             if (unknownBtn != null)
                 SetOverlayElement("checkpointUnknownBtn", "Checkpoint unknown identifier", unknownBtn.GetComponent<RectTransform>());
+
+            var customPresenterBtn = testCasesScreen.transform.Find("CustomCheckpointPresenterButton");
+            if (customPresenterBtn != null)
+                SetOverlayElement("customCheckpointPresenterBtn", "Custom checkpoint presenter", customPresenterBtn.GetComponent<RectTransform>());
+
+            var customErrorDialogBtn = testCasesScreen.transform.Find("CheckpointCustomErrorDialogButton");
+            if (customErrorDialogBtn != null)
+                SetOverlayElement("checkpointCustomErrorDialogBtn", "Checkpoint custom error dialog", customErrorDialogBtn.GetComponent<RectTransform>());
         }
         else if (screen == "purchase")
         {
@@ -447,6 +697,18 @@ public class MaestroTestApp : Purchases.UpdatedCustomerInfoListener
             var backBtn = checkpointScreen.transform.Find("BackButton");
             if (backBtn != null)
                 SetOverlayElement("backBtn", "Back", backBtn.GetComponent<RectTransform>());
+        }
+        else if (screen == "customCheckpoint")
+        {
+            // Expose exactly what is on screen: hidden buttons and empty rows must not match.
+            foreach (Transform child in customCheckpointScreen.transform)
+            {
+                if (!child.gameObject.activeSelf) continue;
+                var button = child.GetComponent<Button>();
+                var text = button != null ? child.GetComponentInChildren<Text>() : child.GetComponent<Text>();
+                if (text != null && text.text.Length > 0)
+                    SetOverlayElement(child.name, text.text, child.GetComponent<RectTransform>());
+            }
         }
     }
 

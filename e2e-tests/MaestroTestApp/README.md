@@ -37,6 +37,32 @@ sed -i '' "s|MAESTRO_TESTS_REVENUECAT_API_KEY|$RC_E2E_TEST_API_KEY_PRODUCTION_TE
   Assets/Scripts/MaestroTestApp.cs
 ```
 
+The checkpoint flows also pass an optional `rc_test_api_key` launch argument, read from
+`MAESTRO_RC_TEST_API_KEY`. When it is set, the app configures Purchases with it instead of the
+placeholder, so a local run never needs the key written to source. For example, with the key in the
+macOS login Keychain:
+
+```sh
+MAESTRO_RC_TEST_API_KEY="$(security find-generic-password -s RC_TEST_API_KEY -w ~/Library/Keychains/login.keychain-db)" \
+  maestro --device <simulator-or-emulator-id> test \
+  ../maestro/e2e_tests/checkpoint_custom_presenter_purchase.yaml \
+  ../maestro/e2e_tests/checkpoint_custom_presenter_back.yaml \
+  ../maestro/e2e_tests/checkpoint_custom_presenter_unmount.yaml \
+  ../maestro/e2e_tests/checkpoint_custom_error_dialog.yaml
+```
+
+## Custom checkpoint coverage
+
+The custom presenter screen receives its offering and typed custom variables from the native
+checkpoint. A checkpoint owner object holds the checkpoint registration while the screen owns the
+paywall UI, so the unmount flow detaches a real registration without dismissing the paywall.
+Counters expose premature callbacks and callbacks to a detached owner instead of hiding them.
+
+The four flows cover buying before completing the presentation, backing out and retrying,
+completing after the owner detaches and then remounting, and custom error-dialog content. The error
+case uses the invalid checkpoint identifier `!` so it doesn't rely on a network outage to reach the
+error-dialog factory.
+
 ## RevenueCat Project
 
 The test uses a RevenueCat project configured with:
@@ -47,8 +73,8 @@ The test uses a RevenueCat project configured with:
 - The **Test Store** environment for purchase confirmation
 - A checkpoint `donottouch_sdk_everyone` whose flow presents a paywall to every user with the
   monthly package (`pro_monthly_subscription`, granting `pro`) preselected, used by the
-  `checkpoint_purchase` flow. The `checkpoint_unknown_identifier` flow uses an identifier that must
-  **not** exist in the dashboard.
+  `checkpoint_purchase` and custom presenter flows. The `checkpoint_unknown_identifier` flow uses an
+  identifier that must **not** exist in the dashboard.
 
 ## Dependencies
 

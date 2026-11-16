@@ -1,0 +1,75 @@
+# This flow detaches the checkpoint while its app-owned paywall is open, then purchases and completes it.
+# The detached owner must never be called back. A new owner then presents again and closes,
+# and only that owner passes the checkpoint.
+# Mirrors purchases-flutter's e2e-tests/maestro/e2e_tests/checkpoint_custom_presenter_unmount.yaml.
+
+appId: com.revenuecat.automatedsdktests
+name: Custom checkpoint presenter completes after owner unmounts
+
+---
+- clearState
+- pressKey: home
+- launchApp:
+    arguments:
+        e2e_test_flow: checkpoint_custom_presenter_unmount
+        rc_test_api_key: "${typeof MAESTRO_RC_TEST_API_KEY === 'undefined' ? '' : MAESTRO_RC_TEST_API_KEY}"
+- extendedWaitUntil:
+    visible: "Hit custom checkpoint"
+    timeout: 30000
+- tapOn:
+    text: "Hit custom checkpoint"
+- runFlow:
+    file: ../utils/assert_custom_checkpoint_presenter.yaml
+- tapOn:
+    text: "Unmount checkpoint owner"
+- extendedWaitUntil:
+    visible: "Checkpoint owner: unmounted"
+    timeout: 10000
+- assertVisible: "Custom checkpoint paywall"
+- assertVisible: "Callback count: 0"
+- tapOn:
+    text: "Buy monthly package"
+- runFlow:
+    file: ../utils/confirm_purchase.yaml
+- extendedWaitUntil:
+    visible: "Purchase: complete"
+    timeout: 30000
+- assertVisible: "Callback count: 0"
+- tapOn:
+    text: "Continue checkpoint"
+- extendedWaitUntil:
+    visible: "Completion count: 1"
+    timeout: 10000
+- assertVisible: "Last completion: CONTINUED"
+- assertVisible: "Callback count: 0"
+- assertVisible: "Stale callbacks: 0"
+- assertNotVisible: "Custom checkpoint paywall"
+- tapOn:
+    text: "Remount checkpoint owner"
+# Native synchronization may still be finishing after the detached completion.
+# Retry only starting the next call; never retry the purchase or the whole flow.
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          text: "Hit custom checkpoint"
+      - extendedWaitUntil:
+          visible: "Custom checkpoint paywall"
+          timeout: 8000
+- runFlow:
+    file: ../utils/assert_custom_checkpoint_presenter.yaml
+- assertVisible: "Presentation count: 2"
+- assertVisible: "Callback count: 0"
+# This customer now has pro. Closing the second UI exercises CLOSED and lets only
+# the new owner receive the callback; the old owner remains able to detect a leak.
+- tapOn:
+    text: "Close checkpoint"
+- extendedWaitUntil:
+    visible: "Callback count: 1"
+    timeout: 30000
+- assertVisible: "Completion count: 2"
+- assertVisible: "Last completion: CLOSED"
+- assertVisible: "Customer active entitlements: pro"
+- assertVisible: "Callbacks before completion: 0"
+- assertVisible: "Stale callbacks: 0"
+- assertNotVisible: "Custom checkpoint paywall"

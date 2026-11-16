@@ -1,0 +1,26 @@
+# This flow fails a checkpoint with the invalid identifier `!` and checks that the error-dialog factory's
+# content is shown in the SDK's dialog. Acknowledging it must not pass the checkpoint.
+# Mirrors purchases-flutter's e2e-tests/maestro/e2e_tests/checkpoint_custom_error_dialog.yaml.
+
+appId: com.revenuecat.automatedsdktests
+name: Checkpoint custom error dialog
+
+---
+- clearState
+- pressKey: home
+- launchApp:
+    arguments:
+        e2e_test_flow: checkpoint_custom_error_dialog
+        rc_test_api_key: "${typeof MAESTRO_RC_TEST_API_KEY === 'undefined' ? '' : MAESTRO_RC_TEST_API_KEY}"
+- extendedWaitUntil:
+    visible: "Hit checkpoint"
+    timeout: 30000
+- tapOn:
+    text: "Hit checkpoint"
+- extendedWaitUntil:
+    visible: "Custom checkpoint error dialog"
+    timeout: 20000
+- assertVisible: "Got it"
+- tapOn:
+    text: "Got it"
+- assertVisible: "Callback: not invoked"

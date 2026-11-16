@@ -1,0 +1,45 @@
+# This flow backs out of an app-owned checkpoint paywall and then presents it again.
+# Backing out must not pass the checkpoint, and must release native state so the next call can present.
+# Mirrors purchases-flutter's e2e-tests/maestro/e2e_tests/checkpoint_custom_presenter_back.yaml.
+
+appId: com.revenuecat.automatedsdktests
+name: Custom checkpoint presenter back and retry
+
+---
+- clearState
+- pressKey: home
+- launchApp:
+    arguments:
+        e2e_test_flow: checkpoint_custom_presenter_back
+        rc_test_api_key: "${typeof MAESTRO_RC_TEST_API_KEY === 'undefined' ? '' : MAESTRO_RC_TEST_API_KEY}"
+- extendedWaitUntil:
+    visible: "Hit custom checkpoint"
+    timeout: 30000
+- tapOn:
+    text: "Hit custom checkpoint"
+- runFlow:
+    file: ../utils/assert_custom_checkpoint_presenter.yaml
+- assertVisible: "Presentation count: 1"
+- tapOn:
+    text: "Back from custom paywall"
+- extendedWaitUntil:
+    visible: "Completion count: 1"
+    timeout: 10000
+- assertVisible: "Last completion: NAVIGATED_BACK"
+- assertVisible: "Callback count: 0"
+- assertNotVisible: "Custom checkpoint paywall"
+# The first presentation must release native state so this call can present again.
+- tapOn:
+    text: "Hit custom checkpoint"
+- runFlow:
+    file: ../utils/assert_custom_checkpoint_presenter.yaml
+- assertVisible: "Presentation count: 2"
+- assertVisible: "Callback count: 0"
+- tapOn:
+    text: "Back from custom paywall"
+- extendedWaitUntil:
+    visible: "Completion count: 2"
+    timeout: 10000
+- assertVisible: "Callback count: 0"
+- assertVisible: "Stale callbacks: 0"
+- assertNotVisible: "Custom checkpoint paywall"
