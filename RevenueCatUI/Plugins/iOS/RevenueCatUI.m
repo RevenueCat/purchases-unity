@@ -12,6 +12,7 @@ typedef void (*RCUICustomerCenterErrorCallback)(void);
 typedef void (*RCUICustomerCenterEventCallback)(const char *eventName, const char *payload);
 typedef void (*RCUICheckpointPassedCallback)(const char *callId, const char *resultJson);
 typedef void (*RCUICheckpointErrorCallback)(const char *callId, const char *code, const char *message);
+typedef void (*RCUICheckpointRequestCallback)(const char *callId, const char *requestId, const char *payloadJson);
 
 static NSString *const kRCUIOptionRequiredEntitlementIdentifier = @"requiredEntitlementIdentifier";
 static NSString *const kRCUIOptionOfferingIdentifier = @"offeringIdentifier";
@@ -691,13 +692,26 @@ void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCal
     });
 }
 
+static NSString *RCUICheckpointJSONString(NSDictionary *object) {
+    NSData *data = [NSJSONSerialization isValidJSONObject:object]
+        ? [NSJSONSerialization dataWithJSONObject:object options:0 error:nil]
+        : nil;
+    return data == nil ? nil : [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
+
 // Experimental, invite only. All strings are copied before returning: the checkpoint may finish long after this call.
+// Paywall and error-dialog requests are delivered only when their flag is set, and must be answered with
+// rcui_checkpoint_complete_paywall_presentation and rcui_checkpoint_resolve_error_dialog.
 void rcui_checkpoint(const char *identifier,
                      const char *customVariablesJson,
                      const char *presentationMode,
                      const char *callId,
+                     bool useCustomPaywallPresenter,
+                     bool hasErrorDialogFactory,
                      RCUICheckpointPassedCallback passedCallback,
-                     RCUICheckpointErrorCallback errorCallback) {
+                     RCUICheckpointErrorCallback errorCallback,
+                     RCUICheckpointRequestCallback paywallPresentationCallback,
+                     RCUICheckpointRequestCallback errorDialogCallback) {
     NSString *checkpointIdentifier = RCUIStringFromCString(identifier);
     NSString *invocationId = RCUIStringFromCString(callId);
     NSString *mode = RCUIStringFromCString(presentationMode);
@@ -706,20 +720,42 @@ void rcui_checkpoint(const char *identifier,
         variables = nil;
     }
 
+    void (^presentPaywall)(NSString *, NSDictionary<NSString *, id> *) = nil;
+    if (useCustomPaywallPresenter && paywallPresentationCallback != NULL) {
+        presentPaywall = ^(NSString *requestId, NSDictionary<NSString *, id> *params) {
+            NSString *json = RCUICheckpointJSONString(params);
+            if (json == nil) {
+                NSLog(@"[RevenueCatUI] Failed to serialize checkpoint paywall parameters.");
+                [CheckpointProxy completePaywallPresentationWithRequestId:requestId result:@"NAVIGATED_BACK"];
+                return;
+            }
+            paywallPresentationCallback(invocationId.UTF8String, requestId.UTF8String, json.UTF8String);
+        };
+    }
+    void (^errorDialog)(NSString *, NSDictionary<NSString *, id> *) = nil;
+    if (hasErrorDialogFactory && errorDialogCallback != NULL) {
+        errorDialog = ^(NSString *requestId, NSDictionary<NSString *, id> *error) {
+            NSString *json = RCUICheckpointJSONString(error);
+            if (json == nil) {
+                NSLog(@"[RevenueCatUI] Failed to serialize checkpoint error.");
+                [CheckpointProxy resolveErrorDialogWithRequestId:requestId outcome:nil];
+                return;
+            }
+            errorDialogCallback(invocationId.UTF8String, requestId.UTF8String, json.UTF8String);
+        };
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [CheckpointProxy presentWithIdentifier:checkpointIdentifier
                                         callId:invocationId
                                customVariables:variables
                               presentationMode:mode
                                       onPassed:^(NSDictionary<NSString *, id> * _Nonnull result) {
-            NSData *data = [NSJSONSerialization isValidJSONObject:result]
-                ? [NSJSONSerialization dataWithJSONObject:result options:0 error:nil]
-                : nil;
-            if (data == nil) {
+            NSString *json = RCUICheckpointJSONString(result);
+            if (json == nil) {
                 NSLog(@"[RevenueCatUI] Failed to serialize checkpoint result.");
                 return;
             }
-            NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if (passedCallback != NULL) {
                 passedCallback(invocationId.UTF8String, json.UTF8String);
             }
@@ -729,7 +765,53 @@ void rcui_checkpoint(const char *identifier,
                 errorCallback(invocationId.UTF8String, code.UTF8String, message.UTF8String);
             }
         }
-                onPaywallPresentationRequested:nil
-                        onErrorDialogRequested:nil];
+                onPaywallPresentationRequested:presentPaywall
+                        onErrorDialogRequested:errorDialog];
+    });
+}
+
+// Reports how an app-owned checkpoint paywall ended: CONTINUED, CLOSED, or NAVIGATED_BACK.
+void rcui_checkpoint_complete_paywall_presentation(const char *requestId, const char *result) {
+    NSString *request = RCUIStringFromCString(requestId);
+    NSString *outcome = RCUIStringFromCString(result);
+    if (request == nil) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [CheckpointProxy completePaywallPresentationWithRequestId:request result:outcome ?: @"NAVIGATED_BACK"];
+    });
+}
+
+// Resolves an error-dialog request. Missing or invalid outcomes use the SDK's default dialog.
+void rcui_checkpoint_resolve_error_dialog(const char *requestId, const char *outcomeJson) {
+    NSString *request = RCUIStringFromCString(requestId);
+    NSDictionary *outcome = RCUIJSONObjectFromJSONString(RCUIStringFromCString(outcomeJson));
+    if (![outcome isKindOfClass:[NSDictionary class]]) {
+        outcome = nil;
+    }
+    if (request == nil) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [CheckpointProxy resolveErrorDialogWithRequestId:request outcome:outcome];
+    });
+}
+
+// Stops delivering callbacks for a call. A paywall whose presenter already ran stays open until it completes.
+void rcui_checkpoint_detach(const char *callId, const char *activePaywallRequestId) {
+    NSString *invocationId = RCUIStringFromCString(callId);
+    NSString *activeRequest = RCUIStringFromCString(activePaywallRequestId);
+    if (invocationId == nil) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [CheckpointProxy detachCheckpointWithCallId:invocationId activePaywallRequestId:activeRequest];
+    });
+}
+
+// Backs out pending paywalls and defaults pending dialogs from a previous Unity runtime.
+void rcui_checkpoint_invalidate(void) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [CheckpointProxy invalidateCheckpointPresentations];
     });
 }

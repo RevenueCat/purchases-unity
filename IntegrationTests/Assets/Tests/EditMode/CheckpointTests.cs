@@ -20,6 +20,29 @@ namespace RevenueCat.Tests
             internal void Drain() { while (_queue.Count > 0) _queue.Dequeue()(); }
         }
 
+        private readonly List<string> _native = new List<string>();
+        private Action<string, string, string> _previousSendToNative;
+        private SynchronizationContext _previousContext;
+        private QueuedContext _context;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _native.Clear();
+            _previousSendToNative = CheckpointBridge.SendToNative;
+            CheckpointBridge.SendToNative = (method, first, second) => _native.Add($"{method}({first}, {second ?? "null"})");
+            _previousContext = SynchronizationContext.Current;
+            _context = new QueuedContext();
+            SynchronizationContext.SetSynchronizationContext(_context);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            CheckpointBridge.SendToNative = _previousSendToNative;
+            SynchronizationContext.SetSynchronizationContext(_previousContext);
+        }
+
         private static JSONNode Result(bool withFlow = false)
         {
             var root = Path.Combine(Application.dataPath, "Tests", "EditMode", "JsonModelFixtures");
@@ -160,6 +183,56 @@ namespace RevenueCat.Tests
                 remove();
                 SynchronizationContext.SetSynchronizationContext(previous);
             }
+        }
+
+        [Test]
+        public void DetachNotifiesNativeOnce()
+        {
+            var callId = Guid.NewGuid().ToString();
+            var detach = CheckpointBridge.Register(callId, _ => Assert.Fail());
+            detach();
+            detach();
+            Assert.That(_native, Is.EqualTo(new[] { $"detachCheckpoint({callId}, null)" }));
+        }
+
+        [Test]
+        public void DetachAfterPassingOrFailingDoesNotNotifyNative()
+        {
+            var passedId = Guid.NewGuid().ToString();
+            var failedId = Guid.NewGuid().ToString();
+            var detachPassed = CheckpointBridge.Register(passedId, _ => { });
+            var detachFailed = CheckpointBridge.Register(failedId, _ => Assert.Fail());
+            CheckpointBridge.OnPassed(passedId, Result().ToString());
+            CheckpointBridge.OnError(failedId, "NOT_CONFIGURED", "Not configured.");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[RevenueCatUI] Checkpoint could not be started (NOT_CONFIGURED): Not configured.");
+            _context.Drain();
+            detachPassed();
+            detachFailed();
+            Assert.That(_native, Is.Empty);
+        }
+
+        [Test]
+        public void PaywallRequestsWithoutPresenterNavigateBack()
+        {
+            var callId = Guid.NewGuid().ToString();
+            var detach = CheckpointBridge.Register(callId, _ => Assert.Fail());
+            CheckpointBridge.OnPaywallPresentationRequested(callId, "request-1", "{}");
+            CheckpointBridge.OnPaywallPresentationRequested("unknown", "request-2", "{}");
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[]
+            {
+                "completePaywallPresentation(request-1, NAVIGATED_BACK)",
+                "completePaywallPresentation(request-2, NAVIGATED_BACK)"
+            }));
+            detach();
+        }
+
+        [Test]
+        public void ErrorDialogRequestsWithoutFactoryUseDefault()
+        {
+            CheckpointBridge.OnErrorDialogRequested("unknown", "request-1", "{\"kind\":\"flowActionFailed\",\"code\":1,\"message\":\"m\"}");
+            _context.Drain();
+            Assert.That(_native, Is.EqualTo(new[] { "resolveErrorDialog(request-1, {\"type\":\"useDefault\"})" }));
         }
 
         [Test]

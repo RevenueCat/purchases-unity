@@ -9,19 +9,37 @@ namespace RevenueCatUI.Internal
 {
     internal static class CheckpointBridge
     {
+        internal const string CompletePaywallPresentationMethod = "completePaywallPresentation";
+        internal const string ResolveErrorDialogMethod = "resolveErrorDialog";
+        internal const string DetachCheckpointMethod = "detachCheckpoint";
+        internal const string NavigatedBack = "NAVIGATED_BACK";
+        internal const string UseDefaultErrorDialog = "{\"type\":\"useDefault\"}";
+
         private sealed class Subscription
         {
             internal Action<CheckpointResult> Callback;
             internal SynchronizationContext Context;
+            internal bool Detached;
+
+            internal void Clear()
+            {
+                Detached = true;
+                Callback = null;
+            }
         }
 
         private static readonly Dictionary<string, Subscription> Subscriptions = new Dictionary<string, Subscription>();
         private static readonly object Gate = new object();
 
+        // Sends a request to the native checkpoint bridge: (method, first argument, second argument).
+        // Edit Mode tests replace it to observe what would reach native.
+        internal static Action<string, string, string> SendToNative = SendToPlatform;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
             lock (Gate) Subscriptions.Clear();
+            SendToNative = SendToPlatform;
         }
 
         internal static Action Register(string callId, Action<CheckpointResult> callback)
@@ -29,8 +47,18 @@ namespace RevenueCatUI.Internal
             var context = SynchronizationContext.Current;
             if (context == null)
                 throw new InvalidOperationException("Call Checkpoint from the Unity main thread.");
-            lock (Gate) Subscriptions.Add(callId, new Subscription { Callback = callback, Context = context });
-            return () => { lock (Gate) Subscriptions.Remove(callId); };
+            var subscription = new Subscription { Callback = callback, Context = context };
+            lock (Gate) Subscriptions.Add(callId, subscription);
+            return () =>
+            {
+                lock (Gate)
+                {
+                    if (subscription.Detached) return;
+                    Subscriptions.Remove(callId);
+                    subscription.Clear();
+                }
+                SendToNative(DetachCheckpointMethod, callId, null);
+            };
         }
 
         internal static void OnPassed(string callId, string resultJson)
@@ -42,14 +70,17 @@ namespace RevenueCatUI.Internal
             }
             subscription.Context.Post(_ =>
             {
+                Action<CheckpointResult> callback;
                 lock (Gate)
                 {
                     // Check again after posting: the screen may have detached in the meantime.
                     if (!Subscriptions.Remove(callId)) return;
+                    callback = subscription.Callback;
+                    subscription.Clear();
                 }
                 try
                 {
-                    subscription.Callback(new CheckpointResult(JSON.Parse(resultJson)));
+                    callback(new CheckpointResult(JSON.Parse(resultJson)));
                 }
                 catch (Exception e)
                 {
@@ -70,23 +101,83 @@ namespace RevenueCatUI.Internal
                 lock (Gate)
                 {
                     if (!Subscriptions.Remove(callId)) return;
+                    subscription.Clear();
                 }
                 Debug.LogError($"[RevenueCatUI] Checkpoint could not be started ({code}): {message}");
             }, null);
         }
 
+        // Native only requests presentation when the call asked for a custom presenter. None exists yet, so back out.
+        internal static void OnPaywallPresentationRequested(string callId, string requestId, string paramsJson)
+        {
+            SendToNative(CompletePaywallPresentationMethod, requestId, NavigatedBack);
+        }
+
+        // Native only requests a dialog when the call has an error-dialog factory. None exists yet, so use the default.
+        internal static void OnErrorDialogRequested(string callId, string requestId, string errorJson)
+        {
+            SendToNative(ResolveErrorDialogMethod, requestId, UseDefaultErrorDialog);
+        }
+
+        private static void SendToPlatform(string method, string first, string second)
+        {
+#if UNITY_IOS && !UNITY_EDITOR
+            switch (method)
+            {
+                case CompletePaywallPresentationMethod: rcui_checkpoint_complete_paywall_presentation(first, second); break;
+                case ResolveErrorDialogMethod: rcui_checkpoint_resolve_error_dialog(first, second); break;
+                case DetachCheckpointMethod: rcui_checkpoint_detach(first, second); break;
+            }
+#elif UNITY_ANDROID && !UNITY_EDITOR
+            try
+            {
+                using (var plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.Checkpoints"))
+                    plugin.CallStatic(method, first, second);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI] Checkpoint {method} failed: {e.Message}");
+            }
+#endif
+        }
+
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+        // A reloaded Unity runtime (for example, Unity as a Library) can't receive callbacks for calls started
+        // before the reload. Matches the hybrid SDKs, which invalidate when their runtime starts.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InvalidateNativePresentations()
+        {
+            try
+            {
+#if UNITY_IOS
+                rcui_checkpoint_invalidate();
+#else
+                using (var plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.Checkpoints"))
+                    plugin.CallStatic("invalidate");
+#endif
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RevenueCatUI] Failed to reset checkpoints: {e.Message}");
+            }
+        }
+
         internal static Action Start(string identifier, Action<CheckpointResult> callback, CheckpointParams parameters)
         {
             var callId = Guid.NewGuid().ToString();
             var detach = Register(callId, callback);
+            const bool useCustomPaywallPresenter = false;
+            const bool hasErrorDialogFactory = false;
             try
             {
 #if UNITY_IOS
-                rcui_checkpoint(identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId, NativePassedCallback, NativeErrorCallback);
+                rcui_checkpoint(identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId,
+                    useCustomPaywallPresenter, hasErrorDialogFactory, NativePassedCallback, NativeErrorCallback,
+                    NativePaywallPresentationCallback, NativeErrorDialogCallback);
 #elif UNITY_ANDROID
                 using (var plugin = new AndroidJavaClass("com.revenuecat.purchasesunity.ui.Checkpoints"))
-                    plugin.CallStatic("checkpoint", identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId, NativeCallbacks);
+                    plugin.CallStatic("checkpoint", identifier, parameters.CustomVariablesToJsonString(), parameters.NativePresentationMode, callId,
+                        useCustomPaywallPresenter, hasErrorDialogFactory, NativeCallbacks);
 #endif
             }
             catch
@@ -101,18 +192,43 @@ namespace RevenueCatUI.Internal
 #if UNITY_IOS && !UNITY_EDITOR
         private delegate void PassedCallback(string callId, string resultJson);
         private delegate void ErrorCallback(string callId, string code, string message);
+        private delegate void RequestCallback(string callId, string requestId, string payloadJson);
         private static readonly PassedCallback NativePassedCallback = NativeOnPassed;
         private static readonly ErrorCallback NativeErrorCallback = NativeOnError;
+        private static readonly RequestCallback NativePaywallPresentationCallback = NativeOnPaywallPresentationRequested;
+        private static readonly RequestCallback NativeErrorDialogCallback = NativeOnErrorDialogRequested;
 
         [System.Runtime.InteropServices.DllImport("__Internal")]
         private static extern void rcui_checkpoint(string identifier, string customVariablesJson, string presentationMode,
-            string callId, PassedCallback passedCallback, ErrorCallback errorCallback);
+            string callId, bool useCustomPaywallPresenter, bool hasErrorDialogFactory,
+            PassedCallback passedCallback, ErrorCallback errorCallback,
+            RequestCallback paywallPresentationCallback, RequestCallback errorDialogCallback);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void rcui_checkpoint_complete_paywall_presentation(string requestId, string result);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void rcui_checkpoint_resolve_error_dialog(string requestId, string outcomeJson);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void rcui_checkpoint_detach(string callId, string activePaywallRequestId);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void rcui_checkpoint_invalidate();
 
         [AOT.MonoPInvokeCallback(typeof(PassedCallback))]
         private static void NativeOnPassed(string callId, string resultJson) => OnPassed(callId, resultJson);
 
         [AOT.MonoPInvokeCallback(typeof(ErrorCallback))]
         private static void NativeOnError(string callId, string code, string message) => OnError(callId, code, message);
+
+        [AOT.MonoPInvokeCallback(typeof(RequestCallback))]
+        private static void NativeOnPaywallPresentationRequested(string callId, string requestId, string paramsJson) =>
+            OnPaywallPresentationRequested(callId, requestId, paramsJson);
+
+        [AOT.MonoPInvokeCallback(typeof(RequestCallback))]
+        private static void NativeOnErrorDialogRequested(string callId, string requestId, string errorJson) =>
+            OnErrorDialogRequested(callId, requestId, errorJson);
 #endif
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -127,6 +243,14 @@ namespace RevenueCatUI.Internal
 
             [UnityEngine.Scripting.Preserve]
             public void onError(string callId, string code, string message) => OnError(callId, code, message);
+
+            [UnityEngine.Scripting.Preserve]
+            public void onPaywallPresentationRequested(string callId, string requestId, string paramsJson) =>
+                OnPaywallPresentationRequested(callId, requestId, paramsJson);
+
+            [UnityEngine.Scripting.Preserve]
+            public void onErrorDialogRequested(string callId, string requestId, string errorJson) =>
+                OnErrorDialogRequested(callId, requestId, errorJson);
         }
 #endif
     }
