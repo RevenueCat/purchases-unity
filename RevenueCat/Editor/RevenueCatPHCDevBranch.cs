@@ -1,4 +1,4 @@
-#if UNITY_IOS
+#if UNITY_EDITOR && UNITY_IOS
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
