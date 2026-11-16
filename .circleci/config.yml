@@ -96,6 +96,8 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs IntegrationTests/Assets/Editor/CIEditorScript.cs.break
             mv IntegrationTests/Assets/Main.cs IntegrationTests/Assets/Main.cs.break
+            mv IntegrationTests/Assets/CocoaPodsSmokeTest.cs IntegrationTests/Assets/CocoaPodsSmokeTest.cs.break
+            mv IntegrationTests/Assets/Editor/CocoaPodsSmokeBuild.cs IntegrationTests/Assets/Editor/CocoaPodsSmokeBuild.cs.break
             # Hide API fixtures and tests until the SDK assemblies have been imported.
             find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
               -type f \( -name "*.cs" -o -name "*.asmdef" \) \
@@ -150,6 +152,8 @@ commands:
           command: |
             mv IntegrationTests/Assets/Editor/CIEditorScript.cs.break IntegrationTests/Assets/Editor/CIEditorScript.cs
             mv IntegrationTests/Assets/Main.cs.break IntegrationTests/Assets/Main.cs
+            mv IntegrationTests/Assets/CocoaPodsSmokeTest.cs.break IntegrationTests/Assets/CocoaPodsSmokeTest.cs
+            mv IntegrationTests/Assets/Editor/CocoaPodsSmokeBuild.cs.break IntegrationTests/Assets/Editor/CocoaPodsSmokeBuild.cs
             find IntegrationTests/Assets/APITests IntegrationTests/Assets/Tests \
               -type f -name "*.break" \
               -exec sh -c 'for file do mv "$file" "${file%.break}"; done' sh {} +
@@ -463,6 +467,7 @@ jobs:
             - run:
                 name: Disable SPM in iOS Resolver settings
                 command: |
+                  echo 'export RC_GIT_OVERRIDE_ENABLED=1' >> "$BASH_ENV"
                   XML=IntegrationTests/ProjectSettings/GvhProjectSettings.xml
                   if grep -q SwiftPackageManagerEnabled "$XML"; then
                     sed -i 's|SwiftPackageManagerEnabled" value="True"|SwiftPackageManagerEnabled" value="False"|' "$XML"
@@ -494,6 +499,23 @@ jobs:
       - perform-build:
           project: IntegrationTests
           target: iOS
+
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - run:
+                name: Export the committed CocoaPods smoke scene twice
+                environment:
+                  COCOAPODS_SMOKE_BUILD_PATH: buildiOS-smoke-<< parameters.dependency_manager >>
+                command: |
+                  /opt/unity/Editor/Unity -projectPath IntegrationTests -quit -batchmode \
+                    -buildTarget iOS -executeMethod CocoaPodsSmokeBuild.Build \
+                    -nographics -logFile /dev/stdout -disable-assembly-updater
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - IntegrationTests/buildiOS-smoke-<< parameters.dependency_manager >>
 
       - run:
           name: Move build to variant-specific dir
@@ -567,6 +589,38 @@ jobs:
                 name: Archive
                 working_directory: IntegrationTests/buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>
                 command: bundle exec fastlane archive project:"buildiOS-<< parameters.variant >>-<< parameters.dependency_manager >>/Unity-iPhone.xcodeproj"
+      - when:
+          condition:
+            equal: [cocoapods, << parameters.variant >>]
+          steps:
+            - run:
+                name: Select the macOS image's JDK for Maestro
+                command: |
+                  unset JAVA_HOME
+                  JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | awk -F' = ' '/java.home/ {print $2}')"
+                  echo "export JAVA_HOME=$JAVA_HOME" >> "$BASH_ENV"
+            - revenuecat/install-maestro
+            - run:
+                name: Build and run the Git-sourced CocoaPods smoke app
+                command: |
+                  set -euo pipefail
+                  cd IntegrationTests/buildiOS-smoke-<< parameters.dependency_manager >>
+                  bundle exec pod install
+                  xcodebuild -workspace Unity-iPhone.xcworkspace -scheme Unity-iPhone \
+                    -configuration Debug -sdk iphonesimulator \
+                    -destination 'platform=iOS Simulator,name=iPhone 16' \
+                    -derivedDataPath build ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
+                  app=build/Build/Products/Debug-iphonesimulator/CocoaPodsSmokeTest.app
+                  test -n "$(find "$app" -name PurchasesHybridCommon.bundle -type d -print -quit)"
+                  test -n "$(find "$app" -name RevenueCat_RevenueCatUI.bundle -type d -print -quit)"
+                  xcrun simctl boot "iPhone 16" || true
+                  xcrun simctl bootstatus "iPhone 16" -b
+                  xcrun simctl install booted "$app"
+                  maestro test --format junit --output ../../build/cocoapods-<< parameters.dependency_manager >>/report.xml \
+                    ../../e2e-tests/CocoaPodsSmokeTest/flow.yaml
+            - store_test_results:
+                path: build/cocoapods-<< parameters.dependency_manager >>
+
 
   github-release:
     description: "Creates a github release"
@@ -790,6 +844,19 @@ workflows:
           context: unity
           requires:
             - export-package
+      - build-integration-tests-ios:
+          name: build-integration-tests-ios-cocoapods-edm4u
+          variant: cocoapods
+          dependency_manager: edm4u
+          context: unity
+          requires:
+            - export-package
+      - archive-ios:
+          name: archive-ios-cocoapods-edm4u
+          variant: cocoapods
+          dependency_manager: edm4u
+          requires:
+            - build-integration-tests-ios-cocoapods-edm4u
       - archive-ios:
           variant: spm
           requires:
@@ -851,6 +918,7 @@ workflows:
             - build-subtester-ios
             - archive-ios
             - archive-ios-cocoapods
+            - archive-ios-cocoapods-edm4u
             - build-integration-tests-android-edm4u
             - archive-ios-edm4u
             - run-maestro-e2e-tests-ios

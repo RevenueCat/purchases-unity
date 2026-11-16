@@ -10,3 +10,9 @@ Development integration checklist (SDK-4602):
 - [ ] Refresh dependency lockfiles and validate the final release version chain through core and UI integrations.
 - [ ] Delete `RevenueCatPHCDevBranch.cs`, `PHCDevBranchTests.cs`, both `.meta` files, and the temporary CircleCI test-filter entry; verify Unity EDM and EDM4U exports use the released PHC package.
 - [ ] Regenerate Subtester Android resolver outputs from the final dependency XML.
+
+## Git-sourced CocoaPods CI
+
+- `e2e-tests/CocoaPodsSmokeTest/Podfile`
+
+- [ ] TODO (SDK-4602): before merging `11.0-dev` into main, replace every PHC `21.0-dev` Git source above with the final release tag and restore the matching tag bump patterns. Keep native core/UI tags aligned with the PHC podspecs.
