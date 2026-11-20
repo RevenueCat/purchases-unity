@@ -102,6 +102,7 @@ lane :hotfix do |options|
     changelog_path: changelog_path,
     files_to_update: files_with_version_number,
     repo_name: internal_repo_name,
+    omit_pr_references_in_changelog_files: true,
     dry_run: options[:dry_run]
   )
 end
