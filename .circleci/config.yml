@@ -222,8 +222,8 @@ commands:
       - restore_cache:
           keys:
             # This cache key should be updated whenever we change the Ruby version
-            - v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
-      # Ruby 3.3.0 via mise (see mise.toml). rbenv is deprecated here in favor of mise.
+            - v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.14
+      # Ruby 3.3.14 via mise (see mise.toml). rbenv is deprecated here in favor of mise.
       # rb-readline is added in IntegrationTests/Gemfile to avoid a Ruby 3.3+/fastlane
       # terminfo crash on macOS (https://github.com/fastlane/fastlane/issues/21794).
       - revenuecat/install-mise-tools:
@@ -240,7 +240,7 @@ commands:
             bundle install
       - save_cache:
           # This cache key should be updated whenever we change the Ruby version
-          key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.0
+          key: v5-gem-cache-{{ checksum "Gemfile.lock" }}-{{ arch }}-ruby-3.3.14
           paths:
             - vendor/bundle
 
@@ -549,7 +549,7 @@ jobs:
   github-release:
     description: "Creates a github release"
     docker:
-      - image: cimg/ruby:3.3.0
+      - image: cimg/ruby:3.3.14
     steps:
       - checkout
       - attach_workspace:
@@ -682,7 +682,7 @@ jobs:
   update-hybrid-common-versions:
     description: "Creates a PR updating purchases-hybrid-common to latest release"
     docker:
-      - image: cimg/ruby:3.3.0
+      - image: cimg/ruby:3.3.14
     steps:
       - checkout
       - revenuecat/install-gem-mac-dependencies:
@@ -708,7 +708,7 @@ workflows:
     jobs:
       - revenuecat/danger:
           context: danger-bot
-          ruby_version: "3.3.0"
+          ruby_version: "3.3.14"
           filters:
             branches:
               ignore: main
@@ -798,7 +798,7 @@ workflows:
           <<: *release-branches
       - revenuecat/tag-current-branch:
           context: github-bot-internal
-          ruby_version: "3.3.0"
+          ruby_version: "3.3.14"
           requires:
             - wait-for-pr-approval
             - check-android-keep-annotations
@@ -863,7 +863,7 @@ workflows:
     jobs:
       - revenuecat/automatic-bump:
           context: github-bot-internal
-          ruby_version: "3.3.0"
+          ruby_version: "3.3.14"
 
   manual-trigger-bump:
     when:
@@ -871,7 +871,7 @@ workflows:
     jobs:
       - revenuecat/automatic-bump:
           context: github-bot-internal
-          ruby_version: "3.3.0"
+          ruby_version: "3.3.14"
 
   manual-trigger-hotfix:
     when:
@@ -879,7 +879,7 @@ workflows:
     jobs:
       - revenuecat/hotfix:
           context: github-bot-internal
-          ruby_version: "3.3.0"
+          ruby_version: "3.3.14"
           pr_number: << pipeline.parameters.hotfix_pr >>
           version: << pipeline.parameters.hotfix_version >>
 
