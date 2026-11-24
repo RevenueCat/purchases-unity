@@ -58,10 +58,11 @@ static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *tok
         return;
     }
 
-    const char *payload = (token ?: @"ERROR").UTF8String;
+    // Capture the NSString, not its UTF8String: the C string is only valid while the NSString is alive.
+    NSString *payload = token ?: @"ERROR";
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        callback(payload);
+        callback(payload.UTF8String);
     });
 }
 
