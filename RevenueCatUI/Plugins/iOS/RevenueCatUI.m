@@ -420,148 +420,92 @@ void rcui_resolvePurchaseLogicResult(const char *requestId, const char *resultSt
 
 @implementation RCUICustomerCenterDelegate
 
+- (void)emitEvent:(const char *)eventName string:(NSString *)value {
+    if (self.eventCallback) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.eventCallback(eventName, value.UTF8String ?: "");
+        });
+    }
+}
+
+// Events whose payload can't be serialized are dropped.
+- (void)emitEvent:(const char *)eventName json:(NSDictionary *)payload {
+    if (self.eventCallback) {
+        NSString *jsonString = RCUIJSONString(payload);
+        if (jsonString != nil) {
+            [self emitEvent:eventName string:jsonString];
+        }
+    }
+}
+
 - (void)customerCenterViewControllerWasDismissed:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
 
 }
 
 - (void)customerCenterViewControllerDidStartRestore:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.eventCallback("onRestoreStarted", "");
-        });
-    }
+    [self emitEvent:"onRestoreStarted" string:@""];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
 didFinishRestoringWithCustomerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:customerInfoDictionary options:0 error:&error];
-        if (jsonData && !error) {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.eventCallback("onRestoreCompleted", jsonString.UTF8String);
-            });
-        }
-    }
+    [self emitEvent:"onRestoreCompleted" json:customerInfoDictionary];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
  didFailRestoringWithErrorDictionary:(NSDictionary<NSString *, id> *)errorDictionary API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:errorDictionary options:0 error:&error];
-        if (jsonData && !error) {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.eventCallback("onRestoreFailed", jsonString.UTF8String);
-            });
-        }
-    }
+    [self emitEvent:"onRestoreFailed" json:errorDictionary];
 }
 
 - (void)customerCenterViewControllerDidShowManageSubscriptions:(CustomerCenterUIViewController *)controller API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.eventCallback("onShowingManageSubscriptions", "");
-        });
-    }
+    [self emitEvent:"onShowingManageSubscriptions" string:@""];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
 didStartRefundRequestForProductWithID:(NSString *)productID API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.eventCallback("onRefundRequestStarted", productID.UTF8String ?: "");
-        });
-    }
+    [self emitEvent:"onRefundRequestStarted" string:productID];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
 didCompleteRefundRequestForProductWithID:(NSString *)productID
                           withStatus:(NSString *)status API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        NSDictionary *payload = @{
-            @"productIdentifier": productID ?: @"",
-            @"refundRequestStatus": status ?: @""
-        };
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
-        if (jsonData && !error) {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.eventCallback("onRefundRequestCompleted", jsonString.UTF8String);
-            });
-        }
-    }
+    [self emitEvent:"onRefundRequestCompleted" json:@{
+        @"productIdentifier": productID ?: @"",
+        @"refundRequestStatus": status ?: @""
+    }];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
 didCompleteFeedbackSurveyWithOptionID:(NSString *)optionID API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.eventCallback("onFeedbackSurveyCompleted", optionID.UTF8String ?: "");
-        });
-    }
+    [self emitEvent:"onFeedbackSurveyCompleted" string:optionID];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
 didSelectCustomerCenterManagementOption:(NSString *)optionID
                              withURL:(NSString *)url API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        NSDictionary *payload = @{
-            @"option": optionID ?: @"",
-            @"url": url ?: [NSNull null]
-        };
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
-        if (jsonData && !error) {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.eventCallback("onManagementOptionSelected", jsonString.UTF8String);
-            });
-        }
-    }
+    [self emitEvent:"onManagementOptionSelected" json:@{
+        @"option": optionID ?: @"",
+        @"url": url ?: [NSNull null]
+    }];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
                didSelectCustomAction:(NSString *)actionID
               withPurchaseIdentifier:(NSString *)purchaseIdentifier API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        NSDictionary *payload = @{
-            @"actionId": actionID ?: @"",
-            @"purchaseIdentifier": purchaseIdentifier ?: [NSNull null]
-        };
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
-        if (jsonData && !error) {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.eventCallback("onCustomActionSelected", jsonString.UTF8String);
-            });
-        }
-    }
+    [self emitEvent:"onCustomActionSelected" json:@{
+        @"actionId": actionID ?: @"",
+        @"purchaseIdentifier": purchaseIdentifier ?: [NSNull null]
+    }];
 }
 
 - (void)customerCenterViewController:(CustomerCenterUIViewController *)controller
        didSucceedWithPromotionalOffer:(NSString *)offerId
                customerInfoDictionary:(NSDictionary<NSString *, id> *)customerInfoDictionary
                transactionDictionary:(NSDictionary<NSString *, id> *)transactionDictionary API_AVAILABLE(ios(15.0)) {
-    if (self.eventCallback) {
-        NSDictionary *payload = @{
-            @"customerInfo": customerInfoDictionary ?: [NSNull null],
-            @"transaction": transactionDictionary ?: [NSNull null],
-            @"offerId": offerId ?: @""
-        };
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
-        if (jsonData && !error) {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.eventCallback("onPromotionalOfferSucceeded", jsonString.UTF8String);
-            });
-        }
-    }
+    [self emitEvent:"onPromotionalOfferSucceeded" json:@{
+        @"customerInfo": customerInfoDictionary ?: [NSNull null],
+        @"transaction": transactionDictionary ?: [NSNull null],
+        @"offerId": offerId ?: @""
+    }];
 }
 
 @end
