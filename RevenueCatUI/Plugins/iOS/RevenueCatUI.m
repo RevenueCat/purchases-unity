@@ -27,6 +27,21 @@ static NSString *RCUIStringFromCString(const char *string) {
     return [NSString stringWithUTF8String:string];
 }
 
+// Returns nil when the object can't be serialized. dataWithJSONObject: raises
+// NSInvalidArgumentException (rather than returning an error) for non-JSON-serializable values,
+// so validate first.
+static NSString *RCUIJSONString(id object) {
+    if (![NSJSONSerialization isValidJSONObject:object]) {
+        return nil;
+    }
+    NSError *error = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object options:0 error:&error];
+    if (!jsonData || error) {
+        return nil;
+    }
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
 static NSString *RCUINormalizedResultToken(NSString *resultName) {
     if (resultName.length == 0) {
         return @"ERROR";
@@ -66,17 +81,7 @@ static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *tok
     });
 }
 
-static void RCUICustomerCenterInvokeDismissedCallback(RCUICustomerCenterDismissedCallback callback) {
-    if (callback == NULL) {
-        return;
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        callback();
-    });
-}
-
-static void RCUICustomerCenterInvokeErrorCallback(RCUICustomerCenterErrorCallback callback) {
+static void RCUIInvokeVoidCallback(void (*callback)(void)) {
     if (callback == NULL) {
         return;
     }
@@ -93,18 +98,11 @@ static void RCUIEmitPaywallEvent(RCUIPaywallEventCallback callback, const char *
 
     NSString *jsonString = nil;
     if (payload != nil) {
-        // dataWithJSONObject: raises NSInvalidArgumentException (rather than returning an
-        // error) for non-JSON-serializable values, so validate first.
-        if (![NSJSONSerialization isValidJSONObject:payload]) {
+        jsonString = RCUIJSONString(payload);
+        if (jsonString == nil) {
             NSLog(@"[RevenueCatUI] Skipping paywall event %s: payload is not JSON-serializable", eventName);
             return;
         }
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&error];
-        if (!jsonData || error) {
-            return;
-        }
-        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
 
     // Same queue as RCUIInvokeCallback so events keep FIFO ordering with the final result.
@@ -169,7 +167,7 @@ static NSMutableDictionary *RCUICreateOptionsDictionary(NSString *offeringIdenti
 
 static BOOL RCUICustomerCenterEnsureReady(RCUICustomerCenterErrorCallback errorCallback) {
     if (!RCPurchases.isConfigured) {
-        RCUICustomerCenterInvokeErrorCallback(errorCallback);
+        RCUIInvokeVoidCallback(errorCallback);
         return NO;
     }
 
@@ -246,12 +244,7 @@ static NSString *RCUISerializePackageEventData(NSDictionary *eventData) API_AVAI
     if (!packageDict) {
         return @"{}";
     }
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:packageDict options:0 error:&error];
-    if (error || !jsonData) {
-        return @"{}";
-    }
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] ?: @"{}";
+    return RCUIJSONString(packageDict) ?: @"{}";
 }
 
 static HybridPurchaseLogicBridge *RCUICreatePurchaseLogicBridge(
@@ -590,13 +583,13 @@ void rcui_presentCustomerCenter(RCUICustomerCenterDismissedCallback dismissedCal
             [proxy setDelegate:delegate];
 
             [proxy presentWithResultHandler:^{
-                RCUICustomerCenterInvokeDismissedCallback(dismissedCallback);
+                RCUIInvokeVoidCallback(dismissedCallback);
                 [proxy setDelegate:nil];
                 proxy = nil;
                 delegate = nil;
             }];
         } else {
-            RCUICustomerCenterInvokeErrorCallback(errorCallback);
+            RCUIInvokeVoidCallback(errorCallback);
         }
     });
 }
