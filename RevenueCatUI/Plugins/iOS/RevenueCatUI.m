@@ -53,7 +53,7 @@ static NSString *RCUINormalizedResultToken(NSString *resultName) {
     return token;
 }
 
-static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *token, NSString *message) {
+static void RCUIInvokeCallback(RCUIPaywallResultCallback callback, NSString *token) {
     if (callback == NULL) {
         return;
     }
@@ -114,7 +114,7 @@ static void RCUIEmitPaywallEvent(RCUIPaywallEventCallback callback, const char *
 
 static BOOL RCUIEnsureReady(RCUIPaywallResultCallback callback) {
     if (!RCPurchases.isConfigured) {
-        RCUIInvokeCallback(callback, @"ERROR", @"PurchasesNotConfigured");
+        RCUIInvokeCallback(callback, @"ERROR");
         return NO;
     }
 
@@ -266,13 +266,13 @@ static void RCUIPresentPaywallInternal(NSString *offeringIdentifier,
                         purchaseLogicBridge:nil
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
                 NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(callback, token, nil);
+                RCUIInvokeCallback(callback, token);
                 proxy.delegate = nil;
                 paywallDelegate = nil;
                 proxy = nil;
             }];
         } else {
-            RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
+            RCUIInvokeCallback(callback, @"NOT_PRESENTED");
         }
     });
 }
@@ -304,13 +304,13 @@ static void RCUIPresentPaywallIfNeededInternal(NSString *requiredEntitlementIden
                                 purchaseLogicBridge:nil
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
                 NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(callback, token, nil);
+                RCUIInvokeCallback(callback, token);
                 proxy.delegate = nil;
                 paywallDelegate = nil;
                 proxy = nil;
             }];
         } else {
-            RCUIInvokeCallback(callback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
+            RCUIInvokeCallback(callback, @"NOT_PRESENTED");
         }
     });
 }
@@ -427,14 +427,14 @@ void rcui_presentPaywallWithPurchaseLogic(const char *offeringIdentifier,
                         purchaseLogicBridge:bridge
                         paywallResultHandler:^(NSString * _Nonnull resultName) {
                 NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(resultCallback, token, nil);
+                RCUIInvokeCallback(resultCallback, token);
                 proxy.delegate = nil;
                 paywallDelegate = nil;
                 proxy = nil;
                 bridge = nil;
             }];
         } else {
-            RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
+            RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED");
         }
     });
 }
@@ -485,14 +485,14 @@ void rcui_presentPaywallIfNeededWithPurchaseLogic(const char *requiredEntitlemen
                                 purchaseLogicBridge:bridge
                                 paywallResultHandler:^(NSString * _Nonnull resultName) {
                 NSString *token = RCUINormalizedResultToken(resultName);
-                RCUIInvokeCallback(resultCallback, token, nil);
+                RCUIInvokeCallback(resultCallback, token);
                 proxy.delegate = nil;
                 paywallDelegate = nil;
                 proxy = nil;
                 bridge = nil;
             }];
         } else {
-            RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED", @"Requires iOS 15.0+");
+            RCUIInvokeCallback(resultCallback, @"NOT_PRESENTED");
         }
     });
 }
