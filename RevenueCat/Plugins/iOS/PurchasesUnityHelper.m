@@ -146,6 +146,34 @@ automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEn
     }];
 }
 
+- (void)purchaseWithIntroductoryOfferEligibilityJWS:(NSDictionary *)options {
+    void (^completion)(NSDictionary *, RCErrorContainer *) = ^(NSDictionary *responseDictionary, RCErrorContainer *error) {
+        NSMutableDictionary *response = [NSMutableDictionary dictionary];
+        if (error) {
+            response[@"error"] = error.info;
+            response[@"userCancelled"] = error.info[@"userCancelled"] ?: @NO;
+        } else {
+            [response addEntriesFromDictionary:responseDictionary];
+            response[@"userCancelled"] = @NO;
+        }
+        [self sendJSONObject:response toMethod:MAKE_PURCHASE];
+    };
+    id token = options[@"introductoryOfferEligibilityJWS"];
+    if (![token isKindOfClass:NSString.class] || [(NSString *)token length] == 0) {
+        NSError *error = [NSError errorWithDomain:RCPurchasesErrorCodeDomain code:RCPurchaseInvalidError
+                                         userInfo:@{NSLocalizedDescriptionKey: @"introductoryOfferEligibilityJWS must be a non-empty string."}];
+        completion(nil, [[RCErrorContainer alloc] initWithError:error extraPayload:@{@"userCancelled": @NO}]);
+        return;
+    }
+    if (![RCCommonFunctionality respondsToSelector:NSSelectorFromString(@"purchase:introductoryOfferEligibilityJWS:completionBlock:")]) {
+        NSError *error = [NSError errorWithDomain:RCPurchasesErrorCodeDomain code:RCUnsupportedError
+                                         userInfo:@{NSLocalizedDescriptionKey: @"This PurchasesHybridCommon version does not support introductory offer eligibility JWS."}];
+        completion(nil, [[RCErrorContainer alloc] initWithError:error extraPayload:@{@"userCancelled": @NO}]);
+        return;
+    }
+    [RCCommonFunctionality purchase:options completionBlock:completion];
+}
+
 - (void)purchaseProduct:(NSString *)productIdentifier
 signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
     [RCCommonFunctionality purchaseProduct:productIdentifier
@@ -955,6 +983,14 @@ void _RCGetProducts(const char *productIdentifiersJSON, const char *type) {
     }
 
     [_RCUnityHelperShared() getProducts:productsRequest[@"productIdentifiers"] type:convertCString(type)];
+}
+
+void _RCPurchaseWithIntroductoryOfferEligibilityJWS(const char *optionsJSON) {
+    NSString *json = convertCString(optionsJSON);
+    id decoded = json ? [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
+                                                       options:0 error:nil] : nil;
+    NSDictionary *options = [decoded isKindOfClass:NSDictionary.class] ? decoded : @{};
+    [_RCUnityHelperShared() purchaseWithIntroductoryOfferEligibilityJWS:options];
 }
 
 void _RCPurchaseProduct(const char *productIdentifier, const char *signedDiscountTimestamp) {

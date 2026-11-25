@@ -5,7 +5,7 @@ using RevenueCat;
 using UnityEngine;
 
 #if UNITY_IOS || UNITY_VISIONOS
-public class PurchasesWrapperiOS : IPurchasesWrapper
+public class PurchasesWrapperiOS : IPurchasesWrapper, IIntroductoryOfferEligibilityPurchasesWrapper
 {
     [DllImport("__Internal")]
     private static extern void _RCSetupPurchases(string gameObject, string apiKey, string appUserId, string purchasesAreCompletedBy,
@@ -62,6 +62,26 @@ public class PurchasesWrapperiOS : IPurchasesWrapper
         };
 
         _RCGetProducts(JsonUtility.ToJson(request), type);
+    }
+
+    [DllImport("__Internal")]
+    private static extern void _RCPurchaseWithIntroductoryOfferEligibilityJWS(string optionsJSON);
+
+    public void PurchaseProductWithIntroductoryOfferEligibilityJWS(string productIdentifier, string introductoryOfferEligibilityJWS)
+    {
+        var options = new RevenueCat.SimpleJSON.JSONObject();
+        options["productIdentifier"] = productIdentifier;
+        options["introductoryOfferEligibilityJWS"] = introductoryOfferEligibilityJWS;
+        _RCPurchaseWithIntroductoryOfferEligibilityJWS(options.ToString());
+    }
+
+    public void PurchasePackageWithIntroductoryOfferEligibilityJWS(Purchases.Package package, string introductoryOfferEligibilityJWS)
+    {
+        var options = new RevenueCat.SimpleJSON.JSONObject();
+        options["packageIdentifier"] = package.Identifier;
+        options["presentedOfferingContext"] = RevenueCat.SimpleJSON.JSON.Parse(package.PresentedOfferingContext.ToJsonString());
+        options["introductoryOfferEligibilityJWS"] = introductoryOfferEligibilityJWS;
+        _RCPurchaseWithIntroductoryOfferEligibilityJWS(options.ToString());
     }
 
     [DllImport("__Internal")]
