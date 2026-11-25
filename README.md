@@ -10,6 +10,31 @@ Unity in-app subscriptions made easy
 
 Purchases Unity is a client for the [RevenueCat](https://www.revenuecat.com/) subscription and purchase tracking system. It is an open source framework that provides a wrapper around `StoreKit`, `Google Play Billing` and the RevenueCat backend to make implementing in-app purchases in `Unity` easy.
 
+## Deferring promoted App Store purchases (iOS)
+
+Register a listener on your `Purchases` component and keep the supplied function until the app is ready to
+purchase, for example after onboarding, login, or parental approval:
+
+```csharp
+Action<Purchases.MakePurchaseFunc> pendingPurchase = null;
+Purchases.ShouldPurchasePromoProductListener promoListener = purchase => pendingPurchase = purchase;
+purchases.AddShouldPurchasePromoProductListener(promoListener);
+
+// After your gate succeeds, on Unity's main thread:
+pendingPurchase?.Invoke(result => { /* inspect result.CustomerInfo, result.Error and result.UserCancelled */ });
+
+// Stop receiving notifications when appropriate:
+purchases.RemoveShouldPurchasePromoProductListener(promoListener);
+```
+
+Each function can start its purchase once across all listeners; calling it again throws `InvalidOperationException`,
+including after failure or cancellation. Removing a listener does not invalidate functions already received.
+Pending promotions replay to late listeners and to a replacement component when it configures the SDK.
+Keep the requesting component alive until a started purchase completes, and use a unique GameObject name as with
+other SDK callbacks. Register/remove listeners and invoke the supplied function on Unity's main thread.
+The SDK keeps pending promotions in memory; they do not survive process termination. Android and the Editor produce
+no promoted-purchase notifications.
+
 ## Features
 |   | RevenueCat |
 | --- | --- |

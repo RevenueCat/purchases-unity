@@ -10,6 +10,12 @@
 @import PurchasesHybridCommon;
 @import RevenueCat;
 
+typedef void (^RCUnityPurchaseCompletedBlock)(RCStoreTransaction * _Nullable,
+                                               RCCustomerInfo * _Nullable,
+                                               NSError * _Nullable,
+                                               BOOL);
+typedef void (^RCUnityStartPurchaseBlock)(RCUnityPurchaseCompletedBlock);
+
 @interface NSObject (NSNullMapping)
 
 - (id)mappingNSNullToNil;
@@ -71,6 +77,7 @@ char *makeStringCopy(NSString *nstring) {
 @interface RCUnityHelperDelegate : NSObject <RCPurchasesDelegate>
 @property(nonatomic) NSDictionary *products;
 @property(nonatomic) NSString *gameObject;
+@property(nonatomic) NSMutableDictionary<NSString *, RCUnityStartPurchaseBlock> *pendingPromotedPurchases;
 @end
 
 @implementation RCUnityHelperDelegate
@@ -124,6 +131,47 @@ automaticDeviceIdentifierCollectionEnabled:automaticDeviceIdentifierCollectionEn
 
     self.gameObject = gameObject;
     [[RCPurchases sharedPurchases] setDelegate:self];
+    // A replacement Unity component can recover purchases deferred by the previous component.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (NSString *callbackID in self.pendingPromotedPurchases.allKeys) {
+            [self sendJSONObject:@{@"callbackID": callbackID} toMethod:@"_receivePromotedPurchase"];
+        }
+    });
+}
+
+// All pending-block access is serialized on main, including C# native bridge calls.
+- (void)purchases:(RCPurchases *)purchases
+readyForPromotedProduct:(RCStoreProduct *)product
+         purchase:(RCUnityStartPurchaseBlock)startPurchase {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.pendingPromotedPurchases == nil) self.pendingPromotedPurchases = [NSMutableDictionary new];
+        NSString *callbackID = NSUUID.UUID.UUIDString;
+        self.pendingPromotedPurchases[callbackID] = [startPurchase copy];
+        [self sendJSONObject:@{@"callbackID": callbackID} toMethod:@"_receivePromotedPurchase"];
+    });
+}
+
+- (void)makeDeferredPurchase:(NSString *)callbackID gameObject:(NSString *)gameObject {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        RCUnityStartPurchaseBlock purchase = self.pendingPromotedPurchases[callbackID];
+        [self.pendingPromotedPurchases removeObjectForKey:callbackID];
+        if (purchase == nil) {
+            [self sendJSONObject:@{
+                @"callbackID": callbackID,
+                @"error": @{@"code": @(RCUnknownError), @"message": @"No pending promoted purchase for callbackID."},
+                @"userCancelled": @NO
+            } toMethod:@"_makeDeferredPurchase" gameObject:gameObject];
+            return;
+        }
+        [RCCommonFunctionality makeDeferredPurchase:purchase completionBlock:^(NSDictionary *responseDictionary,
+                                                                              RCErrorContainer *error) {
+            NSMutableDictionary *response = [NSMutableDictionary dictionaryWithDictionary:responseDictionary ?: @{}];
+            response[@"callbackID"] = callbackID;
+            response[@"userCancelled"] = error.info[@"userCancelled"] ?: @NO;
+            if (error) response[@"error"] = error.info;
+            [self sendJSONObject:response toMethod:@"_makeDeferredPurchase" gameObject:gameObject];
+        }];
+    });
 }
 
 - (void)getProducts:(NSArray *)productIdentifiers
@@ -849,6 +897,10 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 }
 
 - (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName {
+    [self sendJSONObject:jsonObject toMethod:methodName gameObject:self.gameObject];
+}
+
+- (void)sendJSONObject:(NSDictionary *)jsonObject toMethod:(NSString *)methodName gameObject:(NSString *)gameObject {
     NSError *error = nil;
     NSData *responseJSONData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
 
@@ -859,7 +911,7 @@ signedDiscountTimestamp:(NSString *)signedDiscountTimestamp {
 
     if (responseJSONData) {
         NSString *json = [[NSString alloc] initWithData:responseJSONData encoding:NSUTF8StringEncoding];
-        UnitySendMessage(self.gameObject.UTF8String, methodName.UTF8String, json.UTF8String);
+        UnitySendMessage(gameObject.UTF8String, methodName.UTF8String, json.UTF8String);
     }
 }
 
@@ -909,6 +961,10 @@ static RCUnityHelperDelegate *_RCUnityHelperShared() {
         _RCUnityHelper = [[RCUnityHelperDelegate alloc] init];
     }
     return _RCUnityHelper;
+}
+
+void _RCMakeDeferredPurchase(const char *callbackID, const char *gameObject) {
+    [_RCUnityHelperShared() makeDeferredPurchase:convertCString(callbackID) gameObject:convertCString(gameObject)];
 }
 
 void _RCSetupPurchases(const char *gameObject,

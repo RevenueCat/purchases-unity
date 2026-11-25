@@ -4,7 +4,7 @@ using RevenueCat;
 
 namespace RevenueCat.Tests
 {
-    internal sealed class PurchasesWrapperSpy : IPurchasesWrapper
+    internal sealed class PurchasesWrapperSpy : IPurchasesWrapper, IPromotedPurchasesWrapper
     {
         internal sealed class Invocation
         {
@@ -29,6 +29,11 @@ namespace RevenueCat.Tests
         private void Record(string method, params object[] arguments)
         {
             Invocations.Add(new Invocation(method, arguments));
+        }
+
+        public void MakeDeferredPurchase(string callbackID, string gameObject)
+        {
+            Record(nameof(MakeDeferredPurchase), callbackID, gameObject);
         }
 
         public void Setup(string gameObject, string apiKey, string appUserId,
