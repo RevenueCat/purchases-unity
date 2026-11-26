@@ -1,0 +1,17 @@
+source 'https://cdn.cocoapods.org/'
+platform :ios, '13.0'
+
+phc_version = '21.0.0'
+native_ios_version = '5.103.2'
+
+target 'UnityFramework' do
+  pod 'RevenueCat', :git => 'https://github.com/RevenueCat/purchases-ios.git', :tag => native_ios_version
+  pod 'RevenueCatUI', :git => 'https://github.com/RevenueCat/purchases-ios.git', :tag => native_ios_version
+  pod 'PurchasesHybridCommon', :git => 'https://github.com/RevenueCat/purchases-hybrid-common.git', :tag => phc_version
+  pod 'PurchasesHybridCommonUI', :git => 'https://github.com/RevenueCat/purchases-hybrid-common.git', :tag => phc_version
+end
+
+target 'Unity-iPhone' do
+end
+
+use_frameworks! :linkage => :static

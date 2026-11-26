@@ -37,3 +37,7 @@ sysinfo.txt
 
 iOS/
 .vscode/
+/buildiOS-smoke-*/
+
+/Assets/Scenes/CocoaPodsSmokeTest.unity
+/Assets/Scenes/CocoaPodsSmokeTest.unity.meta
